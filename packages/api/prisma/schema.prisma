@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Cambiado de "mysql" a "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  nombre    String
+  apellido  String
+  password  String
+  role      Role     @default(USER)
+  cliente   Cliente?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cliente {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique
+  user        User      @relation(fields: [userId], references: [id])
+  direccion   String?
+  telefono    String?
+  localidadId Int?
+  localidad   Localidad? @relation(fields: [localidadId], references: [id])
+  ventas      Venta[]
+}
+
+model Localidad {
+  id          Int       @id @default(autoincrement())
+  nombre      String
+  codigoPostal String // Cambiado a camelCase
+  provinciaId Int
+  provincia   Provincia @relation(fields: [provinciaId], references: [id])
+  clientes    Cliente[]
+}
+
+model Provincia {
+  id          Int         @id @default(autoincrement())
+  nombre      String      @unique
+  localidades Localidad[]
+}
+
+model Producto {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  descripcion String   @db.Text
+  precio      Decimal  @db.Decimal(10, 2)
+  stock       Int
+  foto        String?
+  categoriaId Int
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+  lineasVenta LineaVenta[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Categoria {
+  id        Int        @id @default(autoincrement())
+  nombre    String     @unique
+  productos Producto[]
+}
+
+model Venta {
+  id          Int          @id @default(autoincrement())
+  fecha       DateTime     @default(now())
+  montoTotal  Decimal      @db.Decimal(10, 2)
+  clienteId   Int
+  cliente     Cliente      @relation(fields: [clienteId], references: [id])
+  lineasVenta LineaVenta[]
+  pagos       Pago[]
+}
+
+model LineaVenta {
+  id         Int      @id @default(autoincrement())
+  ventaId    Int
+  venta      Venta    @relation(fields: [ventaId], references: [id])
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id])
+  cantidad   Int
+  subTotal   Decimal  @db.Decimal(10, 2)
+
+  @@unique([ventaId, productoId])
+}
+
+model Pago {
+  id           Int      @id @default(autoincrement())
+  fecha        DateTime @default(now())
+  monto        Decimal  @db.Decimal(10, 2)
+  ventaId      Int
+  venta        Venta    @relation(fields: [ventaId], references: [id])
+  metodoPagoId Int
+  metodoPago   MetodoPago @relation(fields: [metodoPagoId], references: [id])
+}
+
+model MetodoPago {
+  id     Int    @id @default(autoincrement())
+  nombre String @unique
+  pagos  Pago[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
