@@ -1,5 +1,8 @@
 ---
 import '../styles/global.css';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 interface Props {
 	title: string;
@@ -11,7 +14,7 @@ const { title } = Astro.props;
 <!doctype html>
 <html lang="es">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8" /> 
 		<meta name="description" content="PCFIX E-commerce de tecnología" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -20,6 +23,17 @@ const { title } = Astro.props;
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+    
+		<style is:global>
+      /* CAMBIO: Ajusta el valor de 'bottom' para centrarlo en el nuevo espacio */
+      .swiper-pagination {
+        bottom: 12px !important; /* Ajustado de 0px a 12px */
+      }
+
+      .swiper-pagination-bullet-active {
+        background-color: #121D40 !important;
+      }
+    </style>
 	</head>
 	<body class="bg-light text-secondary font-sans">
 		<slot />

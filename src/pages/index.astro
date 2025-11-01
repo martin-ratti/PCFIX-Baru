@@ -2,14 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import ProductCard from '../components/ProductCard.astro';
-
-const featuredProducts = [
-	{ name: 'Procesador Ryzen 7', price: 250000, imageUrl: 'https://via.placeholder.com/300x300.png/111626/F2F2F2?text=CPU', imageAlt: 'Imagen de un procesador' },
-	{ name: 'Placa de Video RTX 4070', price: 850000, imageUrl: 'https://via.placeholder.com/300x300.png/111626/F2F2F2?text=GPU', imageAlt: 'Imagen de una placa de video' },
-	{ name: 'Memoria RAM 16GB DDR5', price: 95000, imageUrl: 'https://via.placeholder.com/300x300.png/111626/F2F2F2?text=RAM', imageAlt: 'Imagen de una memoria RAM' },
-	{ name: 'SSD NVMe 1TB', price: 120000, imageUrl: 'https://via.placeholder.com/300x300.png/111626/F2F2F2?text=SSD', imageAlt: 'Imagen de un SSD' },
-];
+import Carousel from '../components/Carousel.tsx';
+import { featuredProducts, saleProducts, customCarousel } from '../data/mock-data';
 ---
 
 <Layout title="PCFIX | Tu Tienda de Tecnología">
@@ -21,14 +15,11 @@ const featuredProducts = [
 			<p class="text-lg text-secondary">Los mejores componentes y periféricos para tu PC.</p>
 		</section>
 
-		<section>
-			<h2 class="text-3xl font-bold text-center mb-8 text-secondary">Productos Destacados</h2>
-			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-				{featuredProducts.map(product => (
-					<ProductCard product={product} />
-				))}
-			</div>
-		</section>
+		{/* CAMBIO: Se reemplaza client:load por client:visible */}
+		<Carousel title="Productos Destacados" products={featuredProducts} client:visible />
+		<Carousel title="¡Ofertas Imperdibles!" products={saleProducts} client:visible />
+		<Carousel title={customCarousel.title} products={customCarousel.products} client:visible />
+
 	</main>
 
 	<Footer />
