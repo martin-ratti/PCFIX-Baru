@@ -1,16 +1,35 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ProductCard from '../components/ProductCard.astro';
 
+const featuredProducts = [
+	{ name: 'Procesador Ryzen 7', price: 250000, imageUrl: 'https://via.placeholder.com/300x300.png/111626/F2F2F2?text=CPU', imageAlt: 'Imagen de un procesador' },
+	{ name: 'Placa de Video RTX 4070', price: 850000, imageUrl: 'https://via.placeholder.com/300x300.png/111626/F2F2F2?text=GPU', imageAlt: 'Imagen de una placa de video' },
+	{ name: 'Memoria RAM 16GB DDR5', price: 95000, imageUrl: 'https://via.placeholder.com/300x300.png/111626/F2F2F2?text=RAM', imageAlt: 'Imagen de una memoria RAM' },
+	{ name: 'SSD NVMe 1TB', price: 120000, imageUrl: 'https://via.placeholder.com/300x300.png/111626/F2F2F2?text=SSD', imageAlt: 'Imagen de un SSD' },
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="PCFIX | Tu Tienda de Tecnología">
+	<Header />
+
+	<main class="container mx-auto px-6 py-8">
+		<section class="bg-secondary text-light rounded-lg p-8 mb-12 text-center shadow-lg">
+			<h1 class="text-4xl font-black text-accent mb-4">Potencia tu Setup al Máximo</h1>
+			<p class="text-lg">Los mejores componentes y periféricos para tu PC.</p>
+		</section>
+
+		<section>
+			<h2 class="text-3xl font-bold text-center mb-8 text-light">Productos Destacados</h2>
+			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+				{featuredProducts.map(product => (
+					<ProductCard product={product} />
+				))}
+			</div>
+		</section>
+	</main>
+
+	<Footer />
+</Layout>
