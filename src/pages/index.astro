@@ -16,13 +16,13 @@ const featuredProducts = [
 	<Header />
 
 	<main class="container mx-auto px-6 py-8">
-		<section class="bg-secondary text-light rounded-lg p-8 mb-12 text-center shadow-lg">
-			<h1 class="text-4xl font-black text-accent mb-4">Potencia tu Setup al Máximo</h1>
-			<p class="text-lg">Los mejores componentes y periféricos para tu PC.</p>
+		<section class="bg-accent rounded-lg p-8 mb-12 text-center shadow-lg">
+			<h1 class="text-4xl font-black text-primary mb-4">Potencia tu Setup al Máximo</h1>
+			<p class="text-lg text-secondary">Los mejores componentes y periféricos para tu PC.</p>
 		</section>
 
 		<section>
-			<h2 class="text-3xl font-bold text-center mb-8 text-light">Productos Destacados</h2>
+			<h2 class="text-3xl font-bold text-center mb-8 text-secondary">Productos Destacados</h2>
 			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 				{featuredProducts.map(product => (
 					<ProductCard product={product} />

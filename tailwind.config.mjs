@@ -4,11 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        'primary': '#121D40',     // Azul oscuro principal
-        'secondary': '#111626',   // Azul casi negro
-        'accent': '#96B3D9',      // Azul claro
-        'muted': '#626973',       // Gris
-        'light': '#F2F2F2',       // Blanco/Grisáceo claro
+        'primary': '#121D40',     
+        'secondary': '#111626',   
+        'accent': '#96B3D9',      
+        'muted': '#626973',       
+        'light': '#F2F2F2',       
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
