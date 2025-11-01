@@ -6,8 +6,8 @@
   },
   "include": [
     // Añadimos esta línea para incluir las definiciones de tipo globales
-    "src/env.d.ts",
-    ".astro/types.d.ts",
+    "package/web/src/env.d.ts",
+    "package/web/.astro/types.d.ts",
     "**/*"
   ],
   "exclude": [

@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
-// Asegúrate de que el nombre de tu logo sea el correcto.
 import logo from '../assets/logo.png'; 
+import CartIcon from './CartIcon.tsx'; // Importamos el nuevo componente
 ---
 
 <header class="bg-accent shadow-lg">
@@ -17,9 +17,8 @@ import logo from '../assets/logo.png';
       <a href="/contacto" class="text-secondary hover:text-primary transition-colors duration-300">Contacto</a>
     </div>
     <div>
-      <a href="/carrito" class="bg-primary text-light font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 transition-all duration-300">
-        Carrito (0)
-      </a>
+      {/* Reemplazamos el 'a' por el componente interactivo */}
+      <CartIcon client:load />
     </div>
   </nav>
 </header>

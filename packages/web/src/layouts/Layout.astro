@@ -1,0 +1,56 @@
+---
+import '../styles/global.css';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" /> 
+		<title>{title}</title>
+    {/* ... resto del head ... */}
+
+		<style is:global>
+      .swiper-pagination {
+        bottom: 12px !important;
+      }
+
+      .swiper-pagination-bullet-active {
+        background-color: #121D40 !important;
+      }
+
+      /* --- NUEVOS ESTILOS PARA LAS FLECHAS --- */
+      .swiper-button-prev,
+      .swiper-button-next {
+        background-color: #96B3D9; /* Color 'accent' */
+        width: 44px;
+        height: 44px;
+        border-radius: 9999px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      }
+      .swiper-button-prev::after,
+      .swiper-button-next::after {
+        font-size: 1.25rem !important;
+        font-weight: 800 !important;
+        color: #121D40; /* Color 'primary' */
+      }
+      .swiper-button-prev {
+        left: 0px;
+      }
+      .swiper-button-next {
+        right: 0px;
+      }
+    </style>
+	</head>
+	<body class="bg-light text-secondary font-sans">
+		<slot />
+	</body>
+</html>
