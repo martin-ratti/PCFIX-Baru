@@ -1,11 +1,9 @@
 ---
 import '../styles/global.css';
-// Los imports de CSS deben estar aquí si no los tienes en env.d.ts, si ya los tienes, vite los maneja.
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { ViewTransitions } from 'astro:transitions';
-// Importamos el contenedor de notificaciones
 import ToastContainer from '../components/shared/ToastContainer.tsx';
 
 interface Props {
@@ -63,6 +61,11 @@ const { title } = Astro.props;
 
 			.swiper-button-prev { left: 0px; }
 			.swiper-button-next { right: 0px; }
+
+			/* Animación lineal para el carrusel de marcas */
+			.brand-swiper-container .swiper-wrapper {
+				transition-timing-function: linear !important;
+			}
 		</style>
 	</head>
 	
@@ -70,9 +73,7 @@ const { title } = Astro.props;
 		
 		<div transition:persist>
 			<ToastContainer client:load />
-			
-			<slot name="header" />
-		</div>
+			</div>
 
 		<slot />
 	</body>

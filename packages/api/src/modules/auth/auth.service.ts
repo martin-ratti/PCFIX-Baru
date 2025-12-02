@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import { prisma } from '../../shared/database/prismaClient'; // Ruta actualizada
-import { JwtTokenService } from '../../shared/services/JwtTokenService'; // Lo moveremos en breve
+import { prisma } from '../../shared/database/prismaClient';
+import { JwtTokenService } from '../../shared/services/JwtTokenService';
 
 // Tipos locales
 interface RegisterDTO {
@@ -43,9 +43,18 @@ export class AuthService {
 
   async login(data: LoginDTO) {
     const user = await prisma.user.findUnique({ where: { email: data.email } });
+    
+    // 1. Si no existe el usuario
     if (!user) throw new Error('Credenciales inválidas');
 
+    // 2. CORRECCIÓN: Si el usuario existe pero NO tiene password (ej. se registró con Google)
+    if (!user.password) {
+      throw new Error('Esta cuenta usa inicio de sesión social (Google). Por favor inicia sesión con ese método.');
+    }
+
+    // 3. Ahora TypeScript sabe que user.password es string seguro
     const isMatch = await bcrypt.compare(data.password, user.password);
+    
     if (!isMatch) throw new Error('Credenciales inválidas');
 
     const token = this.tokenService.generate({

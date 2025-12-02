@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // Cambiado de "mysql" a "postgresql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,7 +12,8 @@ model User {
   email     String   @unique
   nombre    String
   apellido  String
-  password  String
+  password  String?
+  googleId  String?  @unique
   role      Role     @default(USER)
   cliente   Cliente?
 
@@ -34,38 +35,51 @@ model Cliente {
 model Localidad {
   id          Int       @id @default(autoincrement())
   nombre      String
-  codigoPostal String // Cambiado a camelCase
+  codigoPostal String 
   provinciaId Int
   provincia   Provincia @relation(fields: [provinciaId], references: [id])
   clientes    Cliente[]
 }
 
 model Provincia {
-  id          Int         @id @default(autoincrement())
-  nombre      String      @unique
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique
   localidades Localidad[]
 }
 
 model Producto {
-  id          Int      @id @default(autoincrement())
-  nombre      String
-  descripcion String   @db.Text
-  precio      Decimal  @db.Decimal(10, 2)
+  id             Int      @id @default(autoincrement())
+  nombre         String
+  descripcion    String   @db.Text
+  precio         Decimal  @db.Decimal(10, 2)
   precioOriginal Decimal? @db.Decimal(10, 2)
-  isFeatured  Boolean  @default(false) 
-  stock       Int
-  foto        String?
-  categoriaId Int
-  categoria   Categoria @relation(fields: [categoriaId], references: [id])
-  lineasVenta LineaVenta[]
+  stock          Int
+  foto           String?
+  isFeatured     Boolean  @default(false)
+  
+  categoriaId    Int
+  categoria      Categoria @relation(fields: [categoriaId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  // Relación con Marca
+  marcaId        Int?
+  marca          Marca?    @relation(fields: [marcaId], references: [id])
+
+  lineasVenta    LineaVenta[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
 }
+
 model Categoria {
   id        Int        @id @default(autoincrement())
   nombre    String     @unique
+  productos Producto[]
+}
+
+model Marca {
+  id        Int        @id @default(autoincrement())
+  nombre    String     @unique
+  logo      String?
   productos Producto[]
 }
 

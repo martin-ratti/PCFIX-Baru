@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 const productService = new ProductService();
 
-// Helpers de parseo
 const parseNumber = (val: any): number | undefined | null => {
   if (val === undefined || val === 'undefined') return undefined;
   if (val === null || val === 'null' || val === '') return null;
@@ -21,10 +20,10 @@ const parseBoolean = (val: any): boolean | undefined => {
 export const getAll = async (req: Request, res: Response) => {
   try {
     const categoryId = req.query.categoryId ? Number(req.query.categoryId) : undefined;
+    const marcaId = req.query.marcaId ? Number(req.query.marcaId) : undefined;
     const lowStock = req.query.lowStock === 'true';
     const search = req.query.search ? String(req.query.search) : undefined;
-    
-    const products = await productService.findAll(categoryId, lowStock, search);
+    const products = await productService.findAll(categoryId, marcaId, lowStock, search);
     res.json({ success: true, data: products });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Error al obtener productos' });
@@ -64,14 +63,13 @@ export const create = async (req: Request, res: Response) => {
       precioOriginal: parseNumber(req.body.precioOriginal),
       stock: parseNumber(req.body.stock),
       categoriaId: parseNumber(req.body.categoriaId),
-      isFeatured: parseBoolean(req.body.isFeatured), // Nuevo campo
+      marcaId: parseNumber(req.body.marcaId), // Nuevo
+      isFeatured: parseBoolean(req.body.isFeatured),
       foto: fotoUrl
     };
 
-    // Usamos passthrough o extendemos el schema al vuelo para admitir isFeatured sin tocar el archivo schema original si no quieres
-    const data = createProductSchema.extend({ isFeatured: z.boolean().optional() }).parse(rawData);
-    
-    const newProduct = await productService.create(data as any);
+    const data = createProductSchema.parse(rawData);
+    const newProduct = await productService.create(data);
     res.status(201).json({ success: true, data: newProduct });
 
   } catch (error: any) {
@@ -94,7 +92,7 @@ export const update = async (req: Request, res: Response) => {
       fotoUrl = req.body.fotoUrl;
     }
 
-    const updateSchema = createProductSchema.partial().extend({ isFeatured: z.boolean().optional() });
+    const updateSchema = createProductSchema.partial();
     
     const rawData = {
       nombre: req.body.nombre,
@@ -103,14 +101,15 @@ export const update = async (req: Request, res: Response) => {
       precioOriginal: parseNumber(req.body.precioOriginal),
       stock: parseNumber(req.body.stock),
       categoriaId: parseNumber(req.body.categoriaId),
-      isFeatured: parseBoolean(req.body.isFeatured), // Nuevo campo
+      marcaId: parseNumber(req.body.marcaId), // Nuevo
+      isFeatured: parseBoolean(req.body.isFeatured),
       foto: fotoUrl
     };
 
     const cleanData = Object.fromEntries(Object.entries(rawData).filter(([_, v]) => v !== undefined));
     const data = updateSchema.parse(cleanData);
     
-    const updatedProduct = await productService.update(id, data as any);
+    const updatedProduct = await productService.update(id, data);
     res.json({ success: true, data: updatedProduct });
 
   } catch (error: any) {
@@ -124,8 +123,8 @@ export const remove = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ success: false, error: 'ID inválido' });
     await productService.delete(id);
-    res.json({ success: true, message: 'Producto eliminado' });
+    res.json({ success: true, message: 'Producto eliminado correctamente' });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'No se pudo eliminar' });
+    res.status(500).json({ success: false, error: 'No se pudo eliminar el producto' });
   }
 };

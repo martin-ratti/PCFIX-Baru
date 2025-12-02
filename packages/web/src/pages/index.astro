@@ -5,13 +5,15 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import Carousel from '../components/shared/Carousel.tsx';
+// 1. IMPORTAR EL COMPONENTE DE MARCAS
+import BrandCarousel from '../components/shared/BrandCarousel.tsx';
 
 interface ProductDB {
   id: number;
   nombre: string;
   descripcion: string;
   precio: string | number;
-  precioOriginal: string | number | null; 
+  precioOriginal: string | number | null;
   stock: number;
   foto: string | null;
   categoriaId: number;
@@ -30,35 +32,42 @@ interface ProductCardProps {
   description: string;
 }
 
+interface Brand { id: number; nombre: string; logo: string | null; }
+
 let allProducts: ProductDB[] = [];
 let featuredProducts: ProductCardProps[] = [];
 let saleProducts: ProductCardProps[] = [];
-let newArrivalsProducts: ProductCardProps[] = []; // Cambié el nombre para que sea más claro
+let newArrivalsProducts: ProductCardProps[] = [];
+let brands: Brand[] = [];
 
 try {
-  // El backend ya devuelve ordenado por createdAt DESC (lo más nuevo primero)
-  const response = await fetch('http://localhost:3002/api/products');
-  if (response.ok) {
-    const result = await response.json();
+  // 2. FETCH DE MARCAS EN PARALELO
+  const [prodRes, brandRes] = await Promise.all([
+     fetch('http://localhost:3002/api/products'),
+     fetch('http://localhost:3002/api/brands')
+  ]);
+  
+  if (prodRes.ok) {
+    const result = await prodRes.json();
     if (result.success) {
       allProducts = result.data;
+      const featured = allProducts.filter(p => p.isFeatured === true);
+      featuredProducts = (featured.length > 0 ? featured : allProducts.slice(0, 5)).map(mapProductToCard);
 
-      // 1. DESTACADOS: Estrictamente los que tienen isFeatured === true
-      const featuredDB = allProducts.filter(p => p.isFeatured === true);
-      featuredProducts = featuredDB.map(mapProductToCard);
-
-      // 2. OFERTAS: Los que tienen precioOriginal válido
       const productsOnSale = allProducts.filter(p => 
-        p.precioOriginal !== null && 
-        Number(p.precioOriginal) > Number(p.precio)
+        p.precioOriginal !== null && Number(p.precioOriginal) > Number(p.precio)
       );
       saleProducts = productsOnSale.map(mapProductToCard);
-
-      // 3. LO MÁS NUEVO: Los primeros 8 de la lista general (los más recientes)
-      // No filtramos nada, simplemente tomamos los últimos creados.
       newArrivalsProducts = allProducts.slice(0, 8).map(mapProductToCard);
     }
   }
+
+  // 3. GUARDAR MARCAS
+  if (brandRes.ok) {
+     const result = await brandRes.json();
+     if(result.success) brands = result.data;
+  }
+
 } catch (error) {
   console.error("Error cargando home:", error);
 }
@@ -76,30 +85,34 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
     description: p.descripcion
   };
 }
+
+const customCarouselTitle = "Lo Más Nuevo";
 ---
 
 <Layout title="PCFIX | Tu Tienda de Tecnología">
   <Header />
+  
   <main class="container mx-auto px-6 py-8 min-h-screen">
     <section class="bg-accent rounded-lg p-8 mb-12 text-center shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
       <h1 class="text-4xl font-black text-primary mb-4">Potencia tu Setup al Máximo</h1>
       <p class="text-lg text-secondary">Los mejores componentes y periféricos para tu PC.</p>
     </section>
 
-    {/* 1. Carrusel de Destacados (Solo si hay productos marcados con estrella) */}
     {featuredProducts.length > 0 && (
       <Carousel title="Productos Destacados" products={featuredProducts} client:visible />
     )}
         
-    {/* 2. Carrusel de Ofertas (Solo si hay descuentos) */}
     {saleProducts.length > 0 && (
       <Carousel title="¡Ofertas Imperdibles!" products={saleProducts} client:visible />
     )}
     
-    {/* 3. Carrusel de Novedades (Los últimos 8 agregados) */}
     {newArrivalsProducts.length > 0 && (
-      <Carousel title="Lo Más Nuevo" products={newArrivalsProducts} client:visible />
+      <Carousel title={customCarouselTitle} products={newArrivalsProducts} client:visible />
     )}
   </main>
+
+  {/* 4. RENDERIZAR CARRUSEL DE MARCAS AL FINAL */}
+  <BrandCarousel brands={brands} client:visible />
+
   <Footer />
 </Layout>

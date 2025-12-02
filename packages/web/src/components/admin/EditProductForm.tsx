@@ -11,36 +11,41 @@ const editProductSchema = z.object({
   precio: z.coerce.number().positive(),
   stock: z.coerce.number().int().nonnegative(),
   categoriaId: z.coerce.number().int().positive(),
+  marcaId: z.coerce.number().int().optional(), // Nuevo
   fotoFile: z.any().optional(),
 });
 
 type EditProductSchema = z.infer<typeof editProductSchema>;
 
-interface EditProductFormProps {
-  productId: string;
-}
+interface EditProductFormProps { productId: string; }
 
 export default function EditProductForm({ productId }: EditProductFormProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<{id: number, nombre: string}[]>([]);
+  const [brands, setBrands] = useState<{id: number, nombre: string}[]>([]);
   const [currentImage, setCurrentImage] = useState<string>('');
   const addToast = useToastStore(s => s.addToast);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<EditProductSchema>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<EditProductSchema>({
     resolver: zodResolver(editProductSchema),
   });
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const catRes = await fetch('http://localhost:3002/api/categories');
-        const catData = await catRes.json();
-        if (catData.success) setCategories(catData.data);
+        const [catRes, brandRes, prodRes] = await Promise.all([
+           fetch('http://localhost:3002/api/categories'),
+           fetch('http://localhost:3002/api/brands'),
+           fetch(`http://localhost:3002/api/products/${productId}`)
+        ]);
 
-        // CORRECCIÓN: Comillas invertidas restauradas
-        const prodRes = await fetch(`http://localhost:3002/api/products/${productId}`);
+        const catData = await catRes.json();
+        const brandData = await brandRes.json();
         const prodData = await prodRes.json();
         
+        if (catData.success) setCategories(catData.data);
+        if (brandData.success) setBrands(brandData.data);
+
         if (prodData.success) {
           const p = prodData.data;
           setValue('nombre', p.nombre);
@@ -48,6 +53,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
           setValue('precio', p.precio);
           setValue('stock', p.stock);
           setValue('categoriaId', p.categoriaId);
+          setValue('marcaId', p.marcaId); // Cargar marca
           setCurrentImage(p.foto);
         } else {
             addToast('Producto no encontrado', 'error');
@@ -59,7 +65,6 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         setIsLoading(false);
       }
     };
-
     loadData();
   }, [productId, setValue]);
 
@@ -72,12 +77,12 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       formData.append('precio', data.precio.toString());
       formData.append('stock', data.stock.toString());
       formData.append('categoriaId', data.categoriaId.toString());
+      if (data.marcaId) formData.append('marcaId', data.marcaId.toString());
 
       if (data.fotoFile && data.fotoFile.length > 0) {
         formData.append('foto', data.fotoFile[0]);
       }
 
-      // CORRECCIÓN: Comillas invertidas restauradas
       const response = await fetch(`http://localhost:3002/api/products/${productId}`, {
         method: 'PUT',
         body: formData,
@@ -86,11 +91,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       const result = await response.json();
       if (!result.success) throw new Error(result.error);
 
-      addToast('Producto actualizado correctamente', 'success');
-      
-      // CORRECCIÓN: Comillas invertidas restauradas
+      addToast('Producto actualizado', 'success');
       await navigate(`/producto/${productId}`);
-
     } catch (error: any) {
       addToast(error.message, 'error');
     } finally {
@@ -98,7 +100,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
     }
   };
 
-  if (isLoading) return <div className="p-10 text-center">Cargando datos del producto...</div>;
+  if (isLoading) return <div className="p-10 text-center">Cargando...</div>;
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
@@ -112,7 +114,6 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
           <div>
             <label className="block text-sm font-medium text-gray-700">Nombre</label>
             <input {...register('nombre')} className="w-full mt-1 p-2 border rounded-md" />
-            {errors.nombre && <span className="text-red-500 text-xs">{errors.nombre.message as string}</span>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Precio</label>
@@ -125,27 +126,29 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         </div>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Categoría</label>
-            <select {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
-              {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.nombre}</option>)}
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+             <div>
+                <label className="block text-sm font-medium text-gray-700">Categoría</label>
+                <select {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
+                {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.nombre}</option>)}
+                </select>
+             </div>
+             <div>
+                <label className="block text-sm font-medium text-gray-700">Marca</label>
+                <select {...register('marcaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
+                <option value="">Sin Marca</option>
+                {brands.map(b => <option key={b.id} value={b.id}>{b.nombre}</option>)}
+                </select>
+             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Imagen</label>
             <div className="flex gap-4 items-center mt-2">
-               {currentImage && (
-                 <img src={currentImage} alt="Actual" className="w-16 h-16 object-cover rounded border" />
-               )}
+               {currentImage && <img src={currentImage} alt="Actual" className="w-16 h-16 object-cover rounded border" />}
                <div className="flex-grow">
-                 <input 
-                    type="file" 
-                    accept="image/*"
-                    {...register('fotoFile')} 
-                    className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200" 
-                 />
-                 <p className="text-xs text-gray-500 mt-1">Deja vacío para mantener la actual.</p>
+                 <input type="file" accept="image/*" {...register('fotoFile')} className="w-full text-sm" />
+                 <p className="text-xs text-gray-500 mt-1">Deja vacío para mantener.</p>
                </div>
             </div>
           </div>
@@ -157,20 +160,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         </div>
 
         <div className="md:col-span-2 flex justify-end gap-3">
-          <button 
-            type="button" 
-            onClick={() => navigate(`/producto/${productId}`)}
-            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 font-bold hover:bg-gray-50"
-          >
-            Cancelar
-          </button>
-          <button 
-            type="submit" 
-            disabled={isLoading} 
-            className="bg-blue-600 text-white px-6 py-2 rounded-md font-bold hover:bg-blue-700 disabled:opacity-50"
-          >
-            Guardar Cambios
-          </button>
+          <button type="button" onClick={() => navigate(`/producto/${productId}`)} className="px-6 py-2 border rounded-md">Cancelar</button>
+          <button type="submit" disabled={isLoading} className="bg-blue-600 text-white px-6 py-2 rounded-md font-bold">Guardar</button>
         </div>
       </form>
     </div>

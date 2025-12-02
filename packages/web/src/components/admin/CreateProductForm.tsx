@@ -3,38 +3,30 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-// Esquema actualizado: 'foto' es opcional (url), agregamos 'fotoFile' (archivo)
 const productSchema = z.object({
-  nombre: z.string().min(3, 'Nombre muy corto'),
-  descripcion: z.string().min(10, 'Descripción muy corta'),
-  precio: z.coerce.number().positive('Precio inválido'),
-  stock: z.coerce.number().int().nonnegative('Stock inválido'),
+  nombre: z.string().min(3),
+  descripcion: z.string().min(10),
+  precio: z.coerce.number().positive(),
+  stock: z.coerce.number().int().nonnegative(),
   categoriaId: z.coerce.number().int().positive('Selecciona una categoría'),
-  foto: z.string().optional(), // URL opcional legacy
-  // Validación especial para el archivo en el cliente
-  fotoFile: z.any()
-    .refine((files) => files?.length > 0, "La imagen es obligatoria")
-    .refine((files) => files?.[0]?.size <= 5000000, `Tamaño máximo 5MB`)
-    .refine(
-      (files) => ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(files?.[0]?.type),
-      "Solo formatos .jpg, .png, .webp"
-    )
+  marcaId: z.coerce.number().int().optional(), // Nuevo campo opcional
+  fotoFile: z.any().optional(),
 });
 
 type ProductSchema = z.infer<typeof productSchema>;
 
 interface Category { id: number; nombre: string; }
+interface Brand { id: number; nombre: string; }
 
 export default function CreateProductForm() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:3002/api/categories')
-      .then(res => res.json())
-      .then(data => data.success && setCategories(data.data))
-      .catch(err => console.error(err));
+    fetch('http://localhost:3002/api/categories').then(res => res.json()).then(data => data.success && setCategories(data.data));
+    fetch('http://localhost:3002/api/brands').then(res => res.json()).then(data => data.success && setBrands(data.data));
   }, []);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ProductSchema>({
@@ -47,24 +39,20 @@ export default function CreateProductForm() {
     setMessage(null);
 
     try {
-      // --- CLAVE: Usar FormData para enviar archivos ---
       const formData = new FormData();
       formData.append('nombre', data.nombre);
       formData.append('descripcion', data.descripcion);
       formData.append('precio', data.precio.toString());
       formData.append('stock', data.stock.toString());
       formData.append('categoriaId', data.categoriaId.toString());
+      if (data.marcaId) formData.append('marcaId', data.marcaId.toString());
       
-      // Adjuntar el archivo si existe
       if (data.fotoFile && data.fotoFile[0]) {
         formData.append('foto', data.fotoFile[0]);
       }
 
-      // NOTA: Al usar FormData, NO se pone Content-Type: application/json header.
-      // El navegador lo pone automáticamente como multipart/form-data.
       const response = await fetch('http://localhost:3002/api/products', {
         method: 'POST',
-        // headers: { 'Authorization': `Bearer ${token}` }, // Pendiente auth
         body: formData,
       });
 
@@ -92,7 +80,6 @@ export default function CreateProductForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        {/* Columna Izquierda */}
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Nombre</label>
@@ -102,44 +89,41 @@ export default function CreateProductForm() {
           <div>
             <label className="block text-sm font-medium text-gray-700">Precio</label>
             <input type="number" step="0.01" {...register('precio')} className="w-full mt-1 p-2 border rounded-md" />
-            {errors.precio && <span className="text-red-500 text-xs">{errors.precio.message as string}</span>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Stock</label>
             <input type="number" {...register('stock')} className="w-full mt-1 p-2 border rounded-md" />
-            {errors.stock && <span className="text-red-500 text-xs">{errors.stock.message as string}</span>}
           </div>
         </div>
 
-        {/* Columna Derecha */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Categoría</label>
-            <select {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
-              <option value="">Seleccionar...</option>
-              {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.nombre}</option>)}
-            </select>
-            {errors.categoriaId && <span className="text-red-500 text-xs block">{errors.categoriaId.message as string}</span>}
+          <div className="grid grid-cols-2 gap-4">
+             <div>
+                <label className="block text-sm font-medium text-gray-700">Categoría</label>
+                <select {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
+                <option value="">Seleccionar...</option>
+                {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.nombre}</option>)}
+                </select>
+                {errors.categoriaId && <span className="text-red-500 text-xs block">{errors.categoriaId.message as string}</span>}
+             </div>
+             <div>
+                <label className="block text-sm font-medium text-gray-700">Marca</label>
+                <select {...register('marcaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
+                <option value="">Sin Marca</option>
+                {brands.map(b => <option key={b.id} value={b.id}>{b.nombre}</option>)}
+                </select>
+             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Imagen del Producto</label>
-            {/* CAMBIO: Input type="file" */}
-            <input 
-              type="file" 
-              accept="image/png, image/jpeg, image/webp"
-              {...register('fotoFile')} 
-              className="w-full mt-1 p-2 border rounded-md text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-opacity-90" 
-            />
-            {errors.fotoFile && <span className="text-red-500 text-xs">{errors.fotoFile.message as string}</span>}
-            <p className="text-xs text-gray-500 mt-1">JPG, PNG o WebP. Máx 5MB.</p>
+            <label className="block text-sm font-medium text-gray-700">Imagen</label>
+            <input type="file" accept="image/*" {...register('fotoFile')} className="w-full mt-1 p-2 border rounded-md text-sm" />
           </div>
         </div>
 
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700">Descripción</label>
           <textarea {...register('descripcion')} rows={4} className="w-full mt-1 p-2 border rounded-md"></textarea>
-          {errors.descripcion && <span className="text-red-500 text-xs">{errors.descripcion.message as string}</span>}
         </div>
 
         <div className="md:col-span-2 flex justify-end">

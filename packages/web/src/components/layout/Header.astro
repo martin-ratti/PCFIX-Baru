@@ -3,16 +3,17 @@ import { Image } from 'astro:assets';
 import logo from '../../assets/logo.png'; 
 import CartIcon from '../cart/CartIcon.tsx'; 
 import UserMenu from '../auth/UserMenu.tsx'; 
+// Importamos las dos barras de navegación
 import AdminLinks from '../admin/AdminLinks.tsx';
 import StoreNavigation from './StoreNavigation.tsx';
-import SearchBar from '../shared/SearchBar.tsx'; // 👇 Importar
+import SearchBar from '../shared/SearchBar.tsx'; // Asegúrate de tener este import si usas la barra de búsqueda
 ---
 
 <header class="bg-accent shadow-lg sticky top-0 z-50" transition:persist id="main-header">
   <nav class="container mx-auto px-6 py-3 flex justify-between items-center gap-4">
     
     {/* LOGO */}
-    <div className="shrink-0">
+    <div class="shrink-0">
       <a href="/">
         <Image src={logo} alt="PCFIX Logo" width="100" />
       </a>
@@ -20,6 +21,7 @@ import SearchBar from '../shared/SearchBar.tsx'; // 👇 Importar
     
     {/* NAVEGACIÓN Y BÚSQUEDA (Centro) */}
     <div class="flex-1 flex items-center justify-center gap-6 px-4">
+      {/* Componentes de React (Islas) */}
       <AdminLinks client:load />
       <StoreNavigation client:load /> 
       
