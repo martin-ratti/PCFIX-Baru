@@ -3,11 +3,10 @@ import { CreateProductDTO } from './products.schema';
 
 export class ProductService {
   
-  // Modificado para excluir los eliminados (Soft Delete)
   async findAll(categoryId?: number) {
     return await prisma.producto.findMany({
       where: {
-        deletedAt: null, // SOLO traemos los que NO tienen fecha de borrado
+        deletedAt: null, 
         ...(categoryId ? { categoriaId: categoryId } : {})
       },
       include: { categoria: true },
@@ -15,9 +14,8 @@ export class ProductService {
     });
   }
 
-  // Modificado para no encontrar productos borrados
   async findById(id: number) {
-    return await prisma.producto.findFirst({ // findUnique cambia a findFirst para usar filtros
+    return await prisma.producto.findFirst({ 
       where: { 
         id,
         deletedAt: null 
@@ -47,13 +45,30 @@ export class ProductService {
     });
   }
 
-  // IMPLEMENTACIÓN SOFT DELETE
+  // NUEVO MÉTODO UPDATE
+  async update(id: number, data: Partial<CreateProductDTO>) {
+    // Verificar que el producto exista
+    const exists = await this.findById(id);
+    if (!exists) throw new Error('Producto no encontrado');
+
+    return await prisma.producto.update({
+      where: { id },
+      data: {
+        nombre: data.nombre,
+        descripcion: data.descripcion,
+        precio: data.precio,
+        stock: data.stock,
+        foto: data.foto, // Si es undefined, prisma no lo toca
+        categoriaId: data.categoriaId
+      }
+    });
+  }
+
   async delete(id: number) {
-    // En lugar de .delete(), hacemos .update()
     return await prisma.producto.update({
       where: { id },
       data: { 
-        deletedAt: new Date() // Marcamos el momento exacto de la baja
+        deletedAt: new Date() 
       }
     });
   }

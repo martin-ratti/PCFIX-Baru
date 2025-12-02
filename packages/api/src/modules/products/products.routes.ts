@@ -7,7 +7,7 @@ const router = Router();
 router.get('/', ProductController.getAll);
 router.get('/:id', ProductController.getById);
 router.post('/', upload.single('foto'), ProductController.create);
-// La ruta DELETE sigue siendo la misma, el cambio es interno
+router.put('/:id', upload.single('foto'), ProductController.update); 
 router.delete('/:id', ProductController.remove);
 
 export default router;
