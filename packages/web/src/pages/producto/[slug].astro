@@ -1,117 +1,32 @@
 ---
 export const prerender = false;
-
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/layout/Header.astro';
 import Footer from '../../components/layout/Footer.astro';
 import AddToCart from '../../components/products/AddToCart.tsx';
 
-interface Product {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  precio: number | string;
-  precioOriginal: number | string | null; // Agregado
-  stock: number;
-  foto: string | null;
-  categoriaId: number;
-}
-
 const { slug } = Astro.params;
-let product: Product | null = null;
-
+let product: any = null;
 try {
-  // Usamos el slug como ID
   const response = await fetch(`http://localhost:3002/api/products/${slug}`);
-  if (response.ok) {
-    const result = await response.json();
-    if (result.success) {
-      product = result.data;
-    }
-  }
-} catch (error) {
-  console.error("Error fetching product:", error);
-}
-
-if (!product) {
-  return new Response(null, { status: 404, statusText: 'No encontrado' });
-}
+  if (response.ok) { const result = await response.json(); if (result.success) product = result.data; }
+} catch (e) {}
+if (!product) return new Response(null, { status: 404 });
 ---
-
 <Layout title={`PCFIX | ${product.nombre}`}>
   <Header />
-
   <main class="container mx-auto px-6 py-12">
-    <div class="bg-white p-8 rounded-lg shadow-lg">
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-12 items-start">
-        
-        <div class="md:col-span-2 bg-white rounded-lg p-4 border border-gray-100 flex items-center justify-center">
-          <img 
-            src={product.foto || 'https://placehold.co/600x600/png?text=Sin+Imagen'} 
-            alt={product.nombre}
-            class="w-full h-auto object-contain max-h-[500px] rounded"
-          />
-        </div>
-
-        <div class="md:col-span-3">
-          <h1 class="text-4xl font-black text-primary mb-4">{product.nombre}</h1>
-          
-          {/* PRECIO Y OFERTA */}
-          {product.precioOriginal && Number(product.precioOriginal) > Number(product.precio) ? (
-            <div class="mb-6">
-               <p class="text-xl text-gray-400 line-through mb-1">
-                 ${Number(product.precioOriginal).toLocaleString('es-AR')}
-               </p>
-               <div class="flex items-center gap-3">
-                 <p class="text-5xl font-black text-red-600">
-                   ${Number(product.precio).toLocaleString('es-AR')}
-                 </p>
-                 <span class="bg-red-100 text-red-700 px-3 py-1 rounded font-bold text-sm border border-red-200">
-                   OFERTA LIMITADA
-                 </span>
-               </div>
-            </div>
-          ) : (
-            <div class="mb-6">
-               <p class="text-5xl font-black text-primary">
-                 ${Number(product.precio).toLocaleString('es-AR')}
-               </p>
-            </div>
-          )}
-
-          <div class="mt-8 mb-6">
-            <h2 class="text-xl font-bold text-secondary mb-2 border-b pb-2">Descripción</h2>
-            <p class="text-muted leading-relaxed text-lg">{product.descripcion}</p>
-          </div>
-
-          <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <div class="flex justify-between items-center mb-4">
-               <span class={`font-bold ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                 {product.stock > 0 ? 'Disponible' : 'Sin Stock'}
-               </span>
-               <span class="text-sm text-muted">Stock actual: {product.stock}</span>
-            </div>
-
-            <AddToCart 
-              client:load 
-              stock={product.stock} 
-              product={{
-                id: product.id.toString(),
-                name: product.nombre,
-                slug: product.id.toString(),
-                price: Number(product.precio),
-                imageUrl: product.foto || '',
-                imageAlt: product.nombre,
-                description: product.descripcion,
-                stock: product.stock,
-                originalPrice: product.precioOriginal ? Number(product.precioOriginal) : undefined
-              }}
-            />
-          </div>
-        </div>
+    <div class="bg-white p-8 rounded-lg shadow-lg grid grid-cols-1 md:grid-cols-5 gap-12 items-start">
+      <div class="md:col-span-2 flex justify-center"><img src={product.foto || 'https://placehold.co/600'} alt={product.nombre} class="w-full max-h-[500px] object-contain" /></div>
+      <div class="md:col-span-3">
+        <h1 class="text-4xl font-black text-primary mb-4">{product.nombre}</h1>
+        {product.precioOriginal && Number(product.precioOriginal) > Number(product.precio) ? (
+          <div class="mb-6"><p class="text-xl text-gray-400 line-through">${Number(product.precioOriginal).toLocaleString('es-AR')}</p><p class="text-5xl font-black text-red-600">${Number(product.precio).toLocaleString('es-AR')}</p></div>
+        ) : (<p class="text-5xl font-black text-primary mb-6">${Number(product.precio).toLocaleString('es-AR')}</p>)}
+        <p class="text-lg text-muted mb-8">{product.descripcion}</p>
+        <AddToCart client:load stock={product.stock} product={{...product, id: product.id.toString(), price: Number(product.precio), imageUrl: product.foto, imageAlt: product.nombre, slug: product.id.toString(), originalPrice: product.precioOriginal}} />
       </div>
     </div>
   </main>
-
   <Footer />
 </Layout>

@@ -52,6 +52,7 @@ model Producto {
   descripcion String   @db.Text
   precio      Decimal  @db.Decimal(10, 2)
   precioOriginal Decimal? @db.Decimal(10, 2)
+  isFeatured  Boolean  @default(false) 
   stock       Int
   foto        String?
   categoriaId Int

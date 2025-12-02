@@ -5,12 +5,17 @@ import { z } from 'zod';
 
 const productService = new ProductService();
 
-// Helper seguro para convertir a número, undefined o null
+// Helpers de parseo
 const parseNumber = (val: any): number | undefined | null => {
   if (val === undefined || val === 'undefined') return undefined;
   if (val === null || val === 'null' || val === '') return null;
   const num = Number(val);
   return isNaN(num) ? undefined : num;
+};
+
+const parseBoolean = (val: any): boolean | undefined => {
+  if (val === undefined || val === 'undefined') return undefined;
+  return val === 'true' || val === true;
 };
 
 export const getAll = async (req: Request, res: Response) => {
@@ -31,10 +36,7 @@ export const getById = async (req: Request, res: Response) => {
     if (isNaN(id)) return res.status(400).json({ success: false, error: 'ID inválido' });
 
     const product = await productService.findById(id);
-    
-    if (!product) {
-      return res.status(404).json({ success: false, error: 'Producto no encontrado' });
-    }
+    if (!product) return res.status(404).json({ success: false, error: 'Producto no encontrado' });
 
     res.json({ success: true, data: product });
   } catch (error) {
@@ -61,18 +63,18 @@ export const create = async (req: Request, res: Response) => {
       precioOriginal: parseNumber(req.body.precioOriginal),
       stock: parseNumber(req.body.stock),
       categoriaId: parseNumber(req.body.categoriaId),
+      isFeatured: parseBoolean(req.body.isFeatured), // Nuevo campo
       foto: fotoUrl
     };
 
-    const data = createProductSchema.parse(rawData);
-    const newProduct = await productService.create(data);
+    // Usamos passthrough o extendemos el schema al vuelo para admitir isFeatured sin tocar el archivo schema original si no quieres
+    const data = createProductSchema.extend({ isFeatured: z.boolean().optional() }).parse(rawData);
     
+    const newProduct = await productService.create(data as any);
     res.status(201).json({ success: true, data: newProduct });
 
   } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: error.errors.map(e => e.message).join(', ') });
-    }
+    if (error instanceof z.ZodError) return res.status(400).json({ success: false, error: error.errors.map(e => e.message).join(', ') });
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -83,7 +85,6 @@ export const update = async (req: Request, res: Response) => {
     if (isNaN(id)) return res.status(400).json({ success: false, error: 'ID inválido' });
 
     let fotoUrl = undefined;
-
     if (req.file) {
       const protocol = req.protocol;
       const host = req.get('host');
@@ -92,37 +93,27 @@ export const update = async (req: Request, res: Response) => {
       fotoUrl = req.body.fotoUrl;
     }
 
-    const updateSchema = createProductSchema.partial();
+    const updateSchema = createProductSchema.partial().extend({ isFeatured: z.boolean().optional() });
     
-    // CORRECCIÓN CRÍTICA:
-    // 1. Incluimos precioOriginal.
-    // 2. Usamos el helper parseNumber para manejar '0', null y undefined correctamente.
     const rawData = {
       nombre: req.body.nombre,
       descripcion: req.body.descripcion,
       precio: parseNumber(req.body.precio),
-      precioOriginal: parseNumber(req.body.precioOriginal), // Ahora sí se lee
+      precioOriginal: parseNumber(req.body.precioOriginal),
       stock: parseNumber(req.body.stock),
       categoriaId: parseNumber(req.body.categoriaId),
+      isFeatured: parseBoolean(req.body.isFeatured), // Nuevo campo
       foto: fotoUrl
     };
 
-    // Filtramos solo las keys que no son undefined (para permitir actualizaciones parciales)
-    // Importante: NO filtramos null, porque null significa "borrar el valor" (ej. quitar oferta)
-    const cleanData = Object.fromEntries(
-      Object.entries(rawData).filter(([_, v]) => v !== undefined)
-    );
-
+    const cleanData = Object.fromEntries(Object.entries(rawData).filter(([_, v]) => v !== undefined));
     const data = updateSchema.parse(cleanData);
     
-    const updatedProduct = await productService.update(id, data);
-    
+    const updatedProduct = await productService.update(id, data as any);
     res.json({ success: true, data: updatedProduct });
 
   } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, error: error.errors.map(e => e.message).join(', ') });
-    }
+    if (error instanceof z.ZodError) return res.status(400).json({ success: false, error: error.errors.map(e => e.message).join(', ') });
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -131,10 +122,9 @@ export const remove = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ success: false, error: 'ID inválido' });
-
     await productService.delete(id);
-    res.json({ success: true, message: 'Producto eliminado correctamente' });
+    res.json({ success: true, message: 'Producto eliminado' });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'No se pudo eliminar el producto' });
+    res.status(500).json({ success: false, error: 'No se pudo eliminar' });
   }
 };
