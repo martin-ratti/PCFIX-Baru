@@ -2,7 +2,8 @@
 import { Image } from 'astro:assets';
 import logo from '../assets/logo.png'; 
 import CartIcon from './CartIcon.tsx';
-import UserMenu from './UserMenu.tsx'; // Importamos el nuevo menú
+import UserMenu from './UserMenu.tsx';
+import CategoryDropdown from './CategoryDropdown.tsx'; // Importar
 ---
 
 <header class="bg-accent shadow-lg sticky top-0 z-50">
@@ -13,16 +14,14 @@ import UserMenu from './UserMenu.tsx'; // Importamos el nuevo menú
       </a>
     </div>
     
-    <div class="hidden md:flex items-center space-x-6">
-      <a href="/productos" class="text-secondary hover:text-primary transition-colors duration-300">Productos</a>
-      <a href="/nosotros" class="text-secondary hover:text-primary transition-colors duration-300">Nosotros</a>
+    <div class="hidden md:flex items-center space-x-8">
+      <CategoryDropdown client:load /> 
+      
+      <a href="/nosotros" class="text-secondary hover:text-primary transition-colors font-medium">Nosotros</a>
     </div>
 
     <div class="flex items-center gap-6">
-      {/* Menú de Usuario Interactivo */}
       <UserMenu client:load />
-      
-      {/* Carrito */}
       <CartIcon client:load />
     </div>
   </nav>

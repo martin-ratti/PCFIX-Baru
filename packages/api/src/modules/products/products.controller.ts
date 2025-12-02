@@ -7,7 +7,10 @@ const productService = new ProductService();
 
 export const getAll = async (req: Request, res: Response) => {
   try {
-    const products = await productService.findAll();
+    // Leemos el query param ?categoryId=1
+    const categoryId = req.query.categoryId ? Number(req.query.categoryId) : undefined;
+    
+    const products = await productService.findAll(categoryId);
     res.json({ success: true, data: products });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Error al obtener productos' });

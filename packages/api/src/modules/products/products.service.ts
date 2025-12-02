@@ -3,9 +3,9 @@ import { CreateProductDTO } from './products.schema';
 
 export class ProductService {
   
-  async findAll() {
-    // Incluimos la categoría para mostrar su nombre en el frontend
+    async findAll(categoryId?: number) {
     return await prisma.producto.findMany({
+      where: categoryId ? { categoriaId: categoryId } : {}, 
       include: { categoria: true },
       orderBy: { createdAt: 'desc' }
     });

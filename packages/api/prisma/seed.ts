@@ -1,5 +1,6 @@
 // packages/api/prisma/seed.ts
 import { PrismaClient } from '@prisma/client';
+import process from 'process'; // <-- AGREGAR ESTO
 
 const prisma = new PrismaClient();
 
