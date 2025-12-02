@@ -3,7 +3,9 @@ import { Image } from 'astro:assets';
 import logo from '../../assets/logo.png'; 
 import CartIcon from '../cart/CartIcon.tsx'; 
 import UserMenu from '../auth/UserMenu.tsx'; 
-import CategoryDropdown from './CategoryDropdown.tsx'; 
+// Importamos las dos barras de navegación
+import AdminLinks from '../admin/AdminLinks.tsx';
+import StoreNavigation from './StoreNavigation.tsx';
 ---
 
 <header class="bg-accent shadow-lg sticky top-0 z-50" transition:persist id="main-header">
@@ -14,12 +16,17 @@ import CategoryDropdown from './CategoryDropdown.tsx';
       </a>
     </div>
     
-    <div class="hidden md:flex items-center space-x-8">
-      <CategoryDropdown client:load /> 
-      <a href="/nosotros" class="text-secondary hover:text-primary transition-colors font-medium">Nosotros</a>
+    <div class="hidden md:flex items-center justify-center flex-1 px-8">
+      {/* Aquí sucede la magia:
+          - Si es Admin: AdminLinks se renderiza, StoreNavigation devuelve null.
+          - Si es User: AdminLinks devuelve null, StoreNavigation se renderiza.
+      */}
+      <AdminLinks client:load />
+      <StoreNavigation client:load /> 
     </div>
 
     <div class="flex items-center gap-6">
+      {/* El carrito ya tiene lógica interna para ocultarse si es Admin */}
       <CartIcon client:load />
       <UserMenu client:load />
     </div>

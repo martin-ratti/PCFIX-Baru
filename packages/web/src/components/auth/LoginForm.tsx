@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuthStore } from '../../stores/authStore';
-import { useToastStore } from '../../stores/toastStore'; // Importar ToastStore
+import { useToastStore } from '../../stores/toastStore';
 import { navigate } from 'astro:transitions/client'; 
 
 const loginSchema = z.object({
@@ -16,7 +16,7 @@ type LoginSchema = z.infer<typeof loginSchema>;
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const login = useAuthStore((state) => state.login);
-  const addToast = useToastStore((state) => state.addToast); // Hook
+  const addToast = useToastStore((state) => state.addToast);
 
   const {
     register,
@@ -42,18 +42,23 @@ export default function LoginForm() {
         throw new Error(result.error || 'Error al iniciar sesión');
       }
 
+      // Guardamos en el store
       login(result.data.token, result.data.user);
       
-      // Feedback visual de éxito (Verde)
       addToast(`¡Bienvenido, ${result.data.user.nombre}!`, 'success');
       
-      await navigate('/');
+      // Pequeño delay técnico para asegurar que localStorage se escriba antes de navegar
+      setTimeout(async () => {
+        if (result.data.user.role === 'ADMIN') {
+          await navigate('/admin');
+        } else {
+          await navigate('/');
+        }
+      }, 500); 
       
     } catch (err: any) {
-      // Feedback visual de error (Rojo)
       addToast(err.message, 'error');
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Solo quitamos loading si falló, si tuvo éxito esperamos la redirección
     }
   };
 
@@ -61,8 +66,6 @@ export default function LoginForm() {
     <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-center mb-6 text-secondary">Iniciar Sesión</h2>
       
-      {/* Eliminamos los divs de error antiguos para usar los Toasts */}
-
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Email</label>

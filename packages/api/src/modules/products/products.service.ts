@@ -3,11 +3,13 @@ import { CreateProductDTO } from './products.schema';
 
 export class ProductService {
   
-  async findAll(categoryId?: number) {
+  // Aceptamos lowStock como booleano opcional
+  async findAll(categoryId?: number, lowStock?: boolean) {
     return await prisma.producto.findMany({
       where: {
-        deletedAt: null, 
-        ...(categoryId ? { categoriaId: categoryId } : {})
+        deletedAt: null,
+        ...(categoryId ? { categoriaId: categoryId } : {}),
+        ...(lowStock ? { stock: { lte: 5 } } : {}) // Si es true, filtra stock <= 5
       },
       include: { categoria: true },
       orderBy: { createdAt: 'desc' }
