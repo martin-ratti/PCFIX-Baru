@@ -1,0 +1,25 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CreateProductForm from '../../components/admin/CreateProductForm';
+import AdminGuard from '../../components/admin/AdminGuard';
+---
+
+<Layout title="PCFIX | Admin - Nuevo Producto">
+  <Header />
+  
+  <main class="container mx-auto px-6 py-12 bg-light min-h-screen">
+    <div class="mb-8">
+      <h1 class="text-3xl font-black text-primary">Panel de Administración</h1>
+      <p class="text-muted">Gestión de inventario y productos.</p>
+    </div>
+
+    {/* Protegemos el formulario con la isla de React */}
+    <AdminGuard client:only="react">
+      <CreateProductForm client:load />
+    </AdminGuard>
+  </main>
+
+  <Footer />
+</Layout>

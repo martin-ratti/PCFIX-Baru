@@ -14,11 +14,15 @@ const { title } = Astro.props;
 <!doctype html>
 <html lang="es">
 	<head>
-		<meta charset="UTF-8" /> 
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		
 		<title>{title}</title>
-    {/* ... resto del head ... */}
 
 		<style is:global>
+      /* Estilos para el Carrusel (Swiper) */
       .swiper-pagination {
         bottom: 12px !important;
       }
@@ -27,7 +31,6 @@ const { title } = Astro.props;
         background-color: #121D40 !important;
       }
 
-      /* --- NUEVOS ESTILOS PARA LAS FLECHAS --- */
       .swiper-button-prev,
       .swiper-button-next {
         background-color: #96B3D9; /* Color 'accent' */
