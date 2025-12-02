@@ -17,22 +17,21 @@ interface ProductDB {
   categoriaId: number;
 }
 
-interface ProductCardProps {
-  id: string;
-  name: string;
-  price: number;
-  imageUrl: string;
-  imageAlt: string;
-  originalPrice?: number | null;
-  stock: number;
-  slug: string;
-  description: string;
-}
+// Capturar parámetro de búsqueda de la URL
+const search = Astro.url.searchParams.get('search') || '';
 
-let products: ProductCardProps[] = [];
+let products: any[] = [];
+let title = "Todos los Productos";
 
 try {
-  const response = await fetch('http://localhost:3002/api/products');
+  // Construir URL del backend con el parámetro search
+  const apiUrl = new URL('http://localhost:3002/api/products');
+  if (search) {
+    apiUrl.searchParams.append('search', search);
+    title = `Resultados para: "${search}"`;
+  }
+
+  const response = await fetch(apiUrl.toString());
   if (response.ok) {
     const result = await response.json();
     if (result.success) {
@@ -49,19 +48,20 @@ try {
       }));
     }
   }
-} catch (error) {
-  console.error("Error cargando catálogo:", error);
-}
+} catch (error) { console.error(error); }
 ---
 
-<Layout title="PCFIX | Catálogo Completo">
+<Layout title={`PCFIX | ${search ? 'Búsqueda' : 'Catálogo'}`}>
   <Header />
-
   <main class="container mx-auto px-6 py-12 min-h-screen">
     <div class="mb-8 border-b pb-4 flex justify-between items-end">
       <div>
-        <h1 class="text-3xl font-black text-primary">Todos los Productos</h1>
-        <p class="text-muted mt-2">Explora nuestro catálogo completo de hardware.</p>
+        <h1 class="text-3xl font-black text-primary">{title}</h1>
+        {search ? (
+           <a href="/productos" class="text-sm text-red-500 hover:underline mt-1 inline-block">Borrar filtro</a>
+        ) : (
+           <p class="text-muted mt-2">Explora nuestro catálogo completo de hardware.</p>
+        )}
       </div>
       <span class="text-sm font-medium bg-accent/20 text-primary px-3 py-1 rounded-full">
         {products.length} productos
@@ -76,7 +76,10 @@ try {
       </div>
     ) : (
       <div class="text-center py-20 bg-white rounded-lg shadow-sm border border-gray-100">
-        <p class="text-gray-500 text-lg">Cargando productos...</p>
+        <div class="text-4xl mb-4">🔍</div>
+        <h2 class="text-xl font-bold text-secondary mb-2">No encontramos nada</h2>
+        <p class="text-gray-500 mb-6">Intenta con otra palabra clave o navega por categorías.</p>
+        <a href="/productos" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition-colors">Ver todo</a>
       </div>
     )}
   </main>

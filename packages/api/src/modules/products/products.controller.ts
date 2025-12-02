@@ -22,8 +22,9 @@ export const getAll = async (req: Request, res: Response) => {
   try {
     const categoryId = req.query.categoryId ? Number(req.query.categoryId) : undefined;
     const lowStock = req.query.lowStock === 'true';
+    const search = req.query.search ? String(req.query.search) : undefined;
     
-    const products = await productService.findAll(categoryId, lowStock);
+    const products = await productService.findAll(categoryId, lowStock, search);
     res.json({ success: true, data: products });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Error al obtener productos' });
