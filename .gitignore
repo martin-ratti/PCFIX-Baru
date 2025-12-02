@@ -34,3 +34,19 @@ Thumbs.db
 # Ignora las configuraciones específicas de VSCode
 .vscode/*
 !.vscode/extensions.json
+
+# ## Backend Uploads
+# Ignorar imágenes subidas localmente, pero mantener la carpeta si tiene un .gitkeep
+packages/api/uploads/*
+!packages/api/uploads/.gitkeep
+
+# ## Prisma & Database
+# Archivos de base de datos local si usaras SQLite (aunque usas Postgres, es buena práctica)
+*.sqlite
+*.sqlite-journal
+
+# ## Entorno de ejecución
+# Logs de depuración de errores
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
