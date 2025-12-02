@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+// Asegúrate de que la ruta al store sea correcta según tu estructura actual
 import { useAuthStore } from '../../stores/authStore';
 
 export default function UserMenu() {
@@ -28,16 +29,20 @@ export default function UserMenu() {
     <div className="flex items-center gap-4">
       {/* Botón Admin */}
       {store.user?.role === 'ADMIN' && (
-        <a href="/admin/nuevo" className="text-sm font-bold text-primary border border-primary px-3 py-1 rounded hover:bg-primary hover:text-white transition-colors">
+        <a href="/admin/nuevo" className="text-xs font-bold text-primary border border-primary px-3 py-1 rounded hover:bg-primary hover:text-white transition-colors">
           Panel Admin
         </a>
       )}
 
-      <div className="text-right">
-        <span className="block text-sm font-medium text-secondary">
-          {store.user?.nombre || store.user?.email}
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-secondary">
+          Hola, {store.user?.nombre || store.user?.email}
         </span>
-        <button onClick={store.logout} className="text-xs text-red-500 hover:text-red-700 hover:underline">
+        <span className="text-gray-300">|</span>
+        <button 
+          onClick={store.logout}
+          className="text-sm text-red-500 hover:text-red-700 font-medium hover:underline"
+        >
           Cerrar Sesión
         </button>
       </div>

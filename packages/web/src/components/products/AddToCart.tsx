@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useCartStore } from '../../stores/cartStore';
+import { useToastStore } from '../../stores/toastStore'; // Importar ToastStore
+import { navigate } from 'astro:transitions/client';
 
-// Definimos la interfaz localmente para no depender de mock-data si no queremos
 interface ProductData {
   id: string;
   name: string;
@@ -22,21 +23,31 @@ interface AddToCartProps {
 export default function AddToCart({ product, stock }: AddToCartProps) {
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCartStore(); 
+  const addToast = useToastStore((state) => state.addToast); // Hook
 
   const handleDecrement = () => {
     setQuantity((prev) => Math.max(1, prev - 1));
   };
 
   const handleIncrement = () => {
-    setQuantity((prev) => Math.min(stock, prev + 1));
+    if (quantity >= stock) {
+      // Feedback de error si intenta superar el stock
+      addToast('¡No hay más stock disponible!', 'error');
+      return;
+    }
+    setQuantity((prev) => prev + 1);
   };
 
-  const handleAddToCartAndRedirect = () => {
+  const handleAddToCartAndRedirect = async () => {
     if (stock > 0) {
       for (let i = 0; i < quantity; i++) {
         addItem(product);
       }
-      window.location.href = '/carrito';
+      // Feedback de éxito
+      addToast(`Agregaste ${quantity} x ${product.name} al carrito`, 'success');
+      await navigate('/carrito');
+    } else {
+      addToast('Este producto no tiene stock', 'error');
     }
   };
 
@@ -51,11 +62,11 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
         </div>
       </div>
       
-      <div className="flex justify-center">
+      <div className="flex justify-center md:justify-start">
         <button 
           onClick={handleAddToCartAndRedirect}
           disabled={stock === 0}
-          className="bg-primary text-light font-bold py-3 px-8 rounded-lg text-md hover:bg-opacity-90 transition-transform hover:scale-105 active:scale-95 disabled:bg-muted disabled:cursor-not-allowed disabled:transform-none w-full md:w-auto"
+          className="bg-primary text-light font-bold py-3 px-8 rounded-lg text-md hover:bg-opacity-90 transition-transform hover:scale-105 active:scale-95 disabled:bg-muted disabled:cursor-not-allowed disabled:transform-none w-full md:w-auto shadow-md"
         >
           {stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
         </button>

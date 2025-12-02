@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuthStore } from '../../stores/authStore';
+import { useToastStore } from '../../stores/toastStore'; // Importar ToastStore
 import { navigate } from 'astro:transitions/client'; 
 
 const loginSchema = z.object({
@@ -13,9 +14,9 @@ const loginSchema = z.object({
 type LoginSchema = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const login = useAuthStore((state) => state.login);
+  const addToast = useToastStore((state) => state.addToast); // Hook
 
   const {
     register,
@@ -27,7 +28,6 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginSchema) => {
     setIsLoading(true);
-    setError(null);
 
     try {
       const response = await fetch('http://localhost:3002/api/auth/login', {
@@ -44,10 +44,14 @@ export default function LoginForm() {
 
       login(result.data.token, result.data.user);
       
+      // Feedback visual de éxito (Verde)
+      addToast(`¡Bienvenido, ${result.data.user.nombre}!`, 'success');
+      
       await navigate('/');
       
     } catch (err: any) {
-      setError(err.message);
+      // Feedback visual de error (Rojo)
+      addToast(err.message, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -57,11 +61,7 @@ export default function LoginForm() {
     <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-center mb-6 text-secondary">Iniciar Sesión</h2>
       
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm">
-          {error}
-        </div>
-      )}
+      {/* Eliminamos los divs de error antiguos para usar los Toasts */}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
