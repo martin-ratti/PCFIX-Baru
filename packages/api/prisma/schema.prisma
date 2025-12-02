@@ -59,8 +59,8 @@ model Producto {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 }
-
 model Categoria {
   id        Int        @id @default(autoincrement())
   nombre    String     @unique

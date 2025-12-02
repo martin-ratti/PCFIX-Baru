@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useCartStore } from '../../stores/cartStore';
+import { useAuthStore } from '../../stores/authStore'; // Importar Auth
 import cartIcon from '../../assets/cart.png';
 
 export default function CartIcon() {
   const items = useCartStore((state) => state.items);
+  const user = useAuthStore((state) => state.user); // Obtener usuario
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Si es ADMIN, no mostramos nada
+  if (isClient && user?.role === 'ADMIN') return null;
 
   const totalItems = items.reduce((total, item) => total + item.quantity, 0);
 

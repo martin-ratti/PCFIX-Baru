@@ -7,12 +7,12 @@ const productService = new ProductService();
 
 export const getAll = async (req: Request, res: Response) => {
   try {
-    // Leemos el query param ?categoryId=1
     const categoryId = req.query.categoryId ? Number(req.query.categoryId) : undefined;
     
     const products = await productService.findAll(categoryId);
     res.json({ success: true, data: products });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, error: 'Error al obtener productos' });
   }
 };
@@ -30,42 +30,33 @@ export const getById = async (req: Request, res: Response) => {
 
     res.json({ success: true, data: product });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, error: 'Error interno' });
   }
 };
 
 export const create = async (req: Request, res: Response) => {
   try {
-    console.log("Body recibido:", req.body);
-    console.log("Archivo recibido:", req.file);
-
-    // 1. Obtener la URL de la imagen
-    let fotoUrl = 'https://placehold.co/600x600/png?text=Sin+Foto'; // Por defecto
+    let fotoUrl = 'https://placehold.co/600x600/png?text=Sin+Foto';
 
     if (req.file) {
-      // Construimos la URL completa para acceder a la imagen subida
       const protocol = req.protocol;
       const host = req.get('host');
       fotoUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
     } else if (req.body.fotoUrl) {
-      // Soporte legacy por si mandan URL directa
       fotoUrl = req.body.fotoUrl;
     }
 
-    // 2. Preparar datos para el schema (Multer envía todo como strings)
-    // Necesitamos convertir los números manualmente antes de validar con Zod.
     const rawData = {
       nombre: req.body.nombre,
       descripcion: req.body.descripcion,
       precio: Number(req.body.precio),
       stock: Number(req.body.stock),
       categoriaId: Number(req.body.categoriaId),
-      foto: fotoUrl // Usamos la URL generada
+      foto: fotoUrl
     };
 
-    // 3. Validar con Zod
     const data = createProductSchema.parse(rawData);
-    
     const newProduct = await productService.create(data);
     
     res.status(201).json({ 
@@ -79,5 +70,21 @@ export const create = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: error.errors.map(e => e.message).join(', ') });
     }
     res.status(500).json({ success: false, error: error.message || 'No se pudo crear el producto' });
+  }
+};
+
+export const remove = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ success: false, error: 'ID inválido' });
+
+    // Llamamos al Soft Delete
+    await productService.delete(id);
+    
+    res.json({ success: true, message: 'Producto eliminado correctamente (Soft Delete)' });
+  } catch (error) {
+    console.error(error);
+    // Si falla es probable que el ID no exista o la DB esté caída
+    res.status(500).json({ success: false, error: 'No se pudo eliminar el producto' });
   }
 };

@@ -1,14 +1,60 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs'; // Necesario para encriptar las claves
 
 const prisma = new PrismaClient();
 
-// Helper para imágenes rápidas y fiables
+// Helper para imágenes rápidas
 const getImg = (text: string) => `https://placehold.co/600x600/111626/F2F2F2?text=${text}`;
 
 async function main() {
   console.log('🌱 Iniciando seed...');
 
-  // 1. Crear Categorías
+  // ==========================================
+  // 1. USUARIOS (Admin y User)
+  // ==========================================
+  console.log('👤 Sembrando usuarios...');
+
+  // Hasheamos las contraseñas
+  const passwordAdmin = await bcrypt.hash('administrador', 10);
+  const passwordUser = await bcrypt.hash('123456', 10);
+
+  const usersData = [
+    {
+      email: 'admin@gmail.com',
+      nombre: 'Super',
+      apellido: 'Admin',
+      password: passwordAdmin,
+      role: 'ADMIN',
+    },
+    {
+      email: 'martin@gmail.com',
+      nombre: 'Martin',
+      apellido: 'Cliente',
+      password: passwordUser,
+      role: 'USER',
+    }
+  ];
+
+  for (const user of usersData) {
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {}, // Si ya existe, no lo tocamos
+      create: {
+        email: user.email,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        password: user.password,
+        role: user.role as any, // Casteo para que TS no se queje del Enum
+      },
+    });
+    console.log(`   -> Usuario listo: ${user.email} [${user.role}]`);
+  }
+
+  // ==========================================
+  // 2. CATEGORÍAS
+  // ==========================================
+  console.log('wd Sembrando categorías...');
+  
   const catsData = [
     { nombre: 'Procesadores' },
     { nombre: 'Placas de Video' },
@@ -30,10 +76,14 @@ async function main() {
       create: cat,
     });
     categoriesMap.set(cat.nombre, created.id);
-    console.log(`📂 Categoría: ${cat.nombre} (ID: ${created.id})`);
   }
+  console.log(`   -> ${catsData.length} categorías listas.`);
 
-  // 2. Definir Productos con su Categoría (String)
+  // ==========================================
+  // 3. PRODUCTOS
+  // ==========================================
+  console.log('📦 Sembrando productos...');
+
   const productsData = [
     // Destacados
     { nombre: 'Procesador Ryzen 9', categoria: 'Procesadores', precio: 450000, stock: 15, foto: getImg('CPU'), descripcion: 'Un procesador de última generación con 12 núcleos y 24 hilos.' },
@@ -54,7 +104,6 @@ async function main() {
     { nombre: 'Webcam 1080p Pro', categoria: 'Periféricos', precio: 55000, stock: 35, foto: getImg('WEBCAM'), descripcion: 'Calidad de video Full HD 1080p.' },
   ];
 
-  // 3. Insertar Productos
   for (const p of productsData) {
     const catId = categoriesMap.get(p.categoria);
     
@@ -69,20 +118,19 @@ async function main() {
           categoriaId: catId
         }
       }).catch(() => {
-        console.log(`⚠️ Producto ya existe o error: ${p.nombre}`);
+        // Ignoramos error si ya existe (para no ensuciar la consola en re-seeds)
       });
-    } else {
-      console.warn(`❌ Categoría no encontrada para: ${p.nombre}`);
     }
   }
+  console.log(`   -> Productos listos.`);
 
-  console.log('✅ Base de datos poblada correctamente.');
+  console.log('✅ Seed completado correctamente.');
 }
 
 main()
   .catch((e) => {
     console.error(e);
-    process.exit(1); 
+    process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();

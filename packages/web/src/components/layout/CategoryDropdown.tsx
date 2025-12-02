@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuthStore } from '../../stores/authStore'; // Importar Auth
 
 interface Category {
   id: number;
@@ -6,10 +7,13 @@ interface Category {
 }
 
 export default function CategoryDropdown() {
+  const { user } = useAuthStore(); // Obtener usuario
   const [categories, setCategories] = useState<Category[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     fetch('http://localhost:3002/api/categories')
       .then(res => res.json())
       .then(data => {
@@ -18,9 +22,12 @@ export default function CategoryDropdown() {
       .catch(console.error);
   }, []);
 
+  // Si es ADMIN, ocultamos el menú de categorías para limpiar la vista
+  if (isClient && user?.role === 'ADMIN') return null;
+
   return (
     <div 
-      className="relative group z-50" // group permite detectar hover en hijos
+      className="relative group z-50" 
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
     >
@@ -31,7 +38,6 @@ export default function CategoryDropdown() {
         </svg>
       </button>
 
-      {/* Menú Desplegable */}
       <div 
         className={`absolute top-full left-0 w-56 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden transition-all duration-200 origin-top ${
           isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
