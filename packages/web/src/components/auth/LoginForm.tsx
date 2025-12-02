@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useAuthStore } from '../stores/authStore';
-import { navigate } from 'astro:transitions/client'; // Importar navegación suave
+import { useAuthStore } from '../../stores/authStore';
+import { navigate } from 'astro:transitions/client'; 
 
 const loginSchema = z.object({
   email: z.string().email('Correo inválido'),
@@ -44,7 +44,6 @@ export default function LoginForm() {
 
       login(result.data.token, result.data.user);
       
-      // Navegación suave (SPA feel)
       await navigate('/');
       
     } catch (err: any) {

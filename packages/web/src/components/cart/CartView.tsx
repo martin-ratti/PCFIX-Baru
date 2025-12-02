@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCartStore } from '../stores/cartStore';
+import { useCartStore } from '../../stores/cartStore';
 
 export default function CartView() {
   const { items, removeItem, increaseQuantity, decreaseQuantity, clearCart } = useCartStore();
@@ -20,7 +20,6 @@ export default function CartView() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Columna de Items */}
       <div className="lg:col-span-2">
         <h1 className="text-3xl font-bold text-secondary mb-6">Tu Carrito</h1>
         <div className="space-y-4">
@@ -46,7 +45,6 @@ export default function CartView() {
         </div>
       </div>
 
-      {/* Columna de Resumen */}
       <div className="lg:col-span-1">
         <div className="bg-white p-6 rounded-lg shadow-md sticky top-24">
           <h2 className="text-2xl font-bold text-secondary border-b pb-4 mb-4">Resumen de Compra</h2>

@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '../../stores/authStore';
 
 export default function UserMenu() {
-  // Asegúrate de importar bien el store
   const store = useAuthStore(); 
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    console.log("UserMenu: Montado en cliente"); // LOG 1
     setIsClient(true);
   }, []);
-
-  // LOG 2
-  console.log("UserMenu render:", { isClient, auth: store.isAuthenticated, user: store.user });
 
   if (!isClient) return null;
 

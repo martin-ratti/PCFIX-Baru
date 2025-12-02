@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
-import { useCartStore } from '../stores/cartStore';
-import type { Product } from '../data/mock-data'; // Importamos el tipo Product
+import { useCartStore } from '../../stores/cartStore';
+
+// Definimos la interfaz localmente para no depender de mock-data si no queremos
+interface ProductData {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  imageAlt: string;
+  stock: number;
+  description: string;
+  slug: string;
+  originalPrice?: number;
+}
 
 interface AddToCartProps {
-  product: Product; // Recibimos el producto completo
+  product: ProductData; 
   stock: number;
 }
 
 export default function AddToCart({ product, stock }: AddToCartProps) {
   const [quantity, setQuantity] = useState(1);
-  const { addItem } = useCartStore(); // Obtenemos la acción para agregar
+  const { addItem } = useCartStore(); 
 
   const handleDecrement = () => {
     setQuantity((prev) => Math.max(1, prev - 1));
@@ -19,14 +31,11 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
     setQuantity((prev) => Math.min(stock, prev + 1));
   };
 
-  // Nueva función que agrega al carrito y redirige
   const handleAddToCartAndRedirect = () => {
     if (stock > 0) {
-      // Usamos un bucle para agregar la cantidad seleccionada
       for (let i = 0; i < quantity; i++) {
         addItem(product);
       }
-      // Redirige al usuario a la página del carrito
       window.location.href = '/carrito';
     }
   };
@@ -34,21 +43,19 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
   return (
     <div className="flex flex-col gap-4 mt-6">
       <div className="flex items-center gap-4">
-        <p className="font-semibold">Cantidad:</p>
-        <div className="flex items-center border border-muted rounded">
-          <button onClick={handleDecrement} className="px-3 py-1 text-lg hover:bg-gray-200">-</button>
-          <span className="px-4 py-1 text-lg">{quantity}</span>
-          <button onClick={handleIncrement} className="px-3 py-1 text-lg hover:bg-gray-200">+</button>
+        <p className="font-semibold text-secondary">Cantidad:</p>
+        <div className="flex items-center border border-gray-300 rounded bg-white">
+          <button onClick={handleDecrement} className="px-3 py-1 text-lg hover:bg-gray-100 transition-colors">-</button>
+          <span className="px-4 py-1 text-lg font-medium">{quantity}</span>
+          <button onClick={handleIncrement} className="px-3 py-1 text-lg hover:bg-gray-100 transition-colors">+</button>
         </div>
       </div>
       
-      {/* CAMBIO: Contenedor para centrar el botón */}
       <div className="flex justify-center">
         <button 
           onClick={handleAddToCartAndRedirect}
           disabled={stock === 0}
-          // CAMBIO: Se ajusta el tamaño y se quita el ancho completo
-          className="bg-primary text-light font-bold py-2 px-8 rounded-lg text-md hover:bg-opacity-90 transition-colors disabled:bg-muted disabled:cursor-not-allowed"
+          className="bg-primary text-light font-bold py-3 px-8 rounded-lg text-md hover:bg-opacity-90 transition-transform hover:scale-105 active:scale-95 disabled:bg-muted disabled:cursor-not-allowed disabled:transform-none w-full md:w-auto"
         >
           {stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
         </button>
