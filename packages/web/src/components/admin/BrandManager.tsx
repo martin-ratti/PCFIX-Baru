@@ -6,8 +6,10 @@ interface Brand { id: number; nombre: string; logo: string | null; }
 
 export default function BrandManager() {
   const [brands, setBrands] = useState<Brand[]>([]);
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, watch } = useForm();
   const addToast = useToastStore(s => s.addToast);
+  // NUEVO: Nombre archivo
+  const [logoName, setLogoName] = useState<string | null>(null);
 
   const fetchBrands = () => {
     fetch('http://localhost:3002/api/brands')
@@ -17,26 +19,29 @@ export default function BrandManager() {
 
   useEffect(() => { fetchBrands(); }, []);
 
+  // Watch file
+  const logoWatch = watch('logo');
+  useEffect(() => {
+      if (logoWatch && logoWatch.length > 0) setLogoName(logoWatch[0].name);
+      else setLogoName(null);
+  }, [logoWatch]);
+
+
   const onSubmit = async (data: any) => {
     try {
       const formData = new FormData();
       formData.append('nombre', data.nombre);
-      if (data.logo[0]) formData.append('logo', data.logo[0]);
+      if (data.logo && data.logo[0]) formData.append('logo', data.logo[0]);
 
-      const res = await fetch('http://localhost:3002/api/brands', {
-        method: 'POST',
-        body: formData
-      });
-      
+      const res = await fetch('http://localhost:3002/api/brands', { method: 'POST', body: formData });
       const json = await res.json();
       if (json.success) {
         addToast('Marca creada', 'success');
         reset();
+        setLogoName(null);
         fetchBrands();
-      } else {
-        addToast(json.error, 'error');
-      }
-    } catch (e) { addToast('Error', 'error'); }
+      } else { addToast(json.error, 'error'); }
+    } catch (e) { addToast('Error al crear marca', 'error'); }
   };
 
   const handleDelete = async (id: number) => {
@@ -45,36 +50,46 @@ export default function BrandManager() {
       await fetch(`http://localhost:3002/api/brands/${id}`, { method: 'DELETE' });
       fetchBrands();
       addToast('Marca eliminada', 'success');
-    } catch (e) { addToast('Error', 'error'); }
+    } catch (e) { addToast('Error al eliminar', 'error'); }
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       {/* Formulario */}
-      <div className="bg-white p-6 rounded-lg shadow h-fit">
-        <h2 className="text-xl font-bold mb-4">Nueva Marca</h2>
+      <div className="bg-white p-6 rounded-lg shadow h-fit border border-gray-100">
+        <h3 className="text-lg font-bold mb-4 text-secondary">Nueva Marca</h3>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Nombre</label>
-            <input {...register('nombre', { required: true })} className="w-full mt-1 p-2 border rounded" />
+            <input {...register('nombre', { required: true })} className="w-full mt-1 p-2 border rounded focus:ring-primary focus:border-primary" placeholder="Ej: Logitech" />
           </div>
+
+          {/* ▼▼▼ INPUT LOGO REDONDEADO ▼▼▼ */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Logo</label>
-            <input type="file" {...register('logo')} className="w-full mt-1 text-sm" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Logo (Opcional)</label>
+            <input type="file" id="brand-logo-upload" {...register('logo')} className="hidden" accept="image/*" />
+            <label htmlFor="brand-logo-upload" className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 text-sm">
+                <span className="text-2xl">🖼️</span>
+                <span className="truncate">{logoName || "Seleccionar logo..."}</span>
+            </label>
           </div>
-          <button className="w-full bg-primary text-white py-2 rounded font-bold hover:bg-opacity-90">Crear</button>
+          {/* ▲▲▲ FIN INPUT REDONDEADO ▲▲▲ */}
+
+          <button className="w-full bg-secondary text-white py-2 rounded-xl font-bold hover:bg-primary transition-colors shadow-sm">Crear Marca</button>
         </form>
       </div>
 
-      {/* Lista */}
-      <div className="md:col-span-2 bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-bold mb-4">Marcas Existentes</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      {/* Lista (sin cambios) */}
+      <div className="md:col-span-2 bg-white p-6 rounded-lg shadow border border-gray-100">
+        <h3 className="text-lg font-bold mb-4 text-secondary">Marcas Existentes ({brands.length})</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {brands.map(b => (
-            <div key={b.id} className="border rounded p-4 flex flex-col items-center justify-center relative group">
-              <button onClick={() => handleDelete(b.id)} className="absolute top-1 right-1 text-red-500 opacity-0 group-hover:opacity-100 text-xs font-bold">X</button>
-              {b.logo ? <img src={b.logo} alt={b.nombre} className="h-12 object-contain mb-2"/> : <span className="text-2xl mb-2">🏢</span>}
-              <span className="font-medium">{b.nombre}</span>
+            <div key={b.id} className="border rounded-lg p-4 flex flex-col items-center justify-center relative group hover:shadow-md transition-shadow bg-gray-50">
+              <button onClick={() => handleDelete(b.id)} className="absolute top-1 right-1 text-gray-400 hover:text-red-500 p-1 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+              <div className="h-12 flex items-center justify-center mb-2 w-full">
+                 {b.logo ? <img src={b.logo} alt={b.nombre} className="max-h-full max-w-full object-contain"/> : <span className="text-2xl">🏢</span>}
+              </div>
+              <span className="font-medium text-sm text-center truncate w-full">{b.nombre}</span>
             </div>
           ))}
         </div>

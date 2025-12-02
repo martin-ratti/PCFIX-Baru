@@ -23,6 +23,7 @@ export const getAll = async (req: Request, res: Response) => {
     const marcaId = req.query.marcaId ? Number(req.query.marcaId) : undefined;
     const lowStock = req.query.lowStock === 'true';
     const search = req.query.search ? String(req.query.search) : undefined;
+    
     const products = await productService.findAll(categoryId, marcaId, lowStock, search);
     res.json({ success: true, data: products });
   } catch (error) {

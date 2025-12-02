@@ -1,21 +1,18 @@
 import { prisma } from '../../shared/database/prismaClient';
 import { CreateProductDTO } from './products.schema';
 
-// Tipo extendido para incluir campos opcionales de lógica
 type ProductInput = CreateProductDTO & { isFeatured?: boolean; marcaId?: number | null };
 
 export class ProductService {
   
-  // CORRECCIÓN: Ahora acepta los 4 parámetros correctamente
   async findAll(categoryId?: number, marcaId?: number, lowStock?: boolean, search?: string) {
     const whereClause: any = {
       deletedAt: null,
       ...(categoryId ? { categoriaId: categoryId } : {}),
-      ...(marcaId ? { marcaId: marcaId } : {}), // Filtro de marca
+      ...(marcaId ? { marcaId: marcaId } : {}),
       ...(lowStock ? { stock: { lte: 5 } } : {}),
     };
 
-    // Filtro de búsqueda en base de datos (parcial)
     if (search) {
       whereClause.OR = [
         { nombre: { contains: search, mode: 'insensitive' } },
@@ -29,7 +26,6 @@ export class ProductService {
       orderBy: { createdAt: 'desc' }
     });
 
-    // Refinamiento de búsqueda en memoria (Prefijo de palabra)
     if (search) {
       const term = search.toLowerCase();
       return products.filter(p => {

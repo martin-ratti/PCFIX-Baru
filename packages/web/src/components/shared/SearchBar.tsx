@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { navigate } from 'astro:transitions/client';
+// 1. Importar el store de autenticación
+import { useAuthStore } from '../../stores/authStore';
 
 export default function SearchBar() {
   const [term, setTerm] = useState('');
+  // 2. Obtener el usuario del estado global
+  const { user } = useAuthStore();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // 3. CONDICIÓN DE VISIBILIDAD:
+  // Si estamos en el cliente y el usuario es ADMIN, no mostramos nada.
+  if (isClient && user?.role === 'ADMIN') return null;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (term.trim()) {
-      // Redirigir a la página de productos con el query param
-      // encodeURIComponent asegura que espacios y símbolos pasen bien
       navigate(`/productos?search=${encodeURIComponent(term.trim())}`);
     }
   };

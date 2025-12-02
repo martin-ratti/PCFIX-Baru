@@ -16,7 +16,6 @@ model User {
   googleId  String?  @unique
   role      Role     @default(USER)
   cliente   Cliente?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -60,7 +59,6 @@ model Producto {
   categoriaId    Int
   categoria      Categoria @relation(fields: [categoriaId], references: [id])
 
-  // Relación con Marca
   marcaId        Int?
   marca          Marca?    @relation(fields: [marcaId], references: [id])
 
@@ -81,6 +79,15 @@ model Marca {
   nombre    String     @unique
   logo      String?
   productos Producto[]
+  banners   Banner[]
+}
+
+model Banner {
+  id        Int      @id @default(autoincrement())
+  imagen    String
+  marcaId   Int
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Venta {

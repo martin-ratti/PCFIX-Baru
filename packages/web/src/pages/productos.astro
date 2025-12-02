@@ -17,25 +17,34 @@ interface ProductDB {
   categoriaId: number;
 }
 
-// Capturar parámetros de URL
+interface ProductCardProps {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  imageAlt: string;
+  originalPrice?: number | null;
+  stock: number;
+  slug: string;
+  description: string;
+}
+
 const urlParams = Astro.url.searchParams;
 const search = urlParams.get('search') || '';
 const marcaId = urlParams.get('marcaId') || '';
 
-let products: any[] = [];
+let products: ProductCardProps[] = [];
 let title = "Todos los Productos";
 
 try {
   const apiUrl = new URL('http://localhost:3002/api/products');
   
-  // Agregar filtros a la consulta
   if (search) {
     apiUrl.searchParams.append('search', search);
     title = `Resultados para: "${search}"`;
   }
   if (marcaId) {
     apiUrl.searchParams.append('marcaId', marcaId);
-    // Podríamos buscar el nombre de la marca aquí si quisiéramos un título más específico
   }
 
   const response = await fetch(apiUrl.toString());

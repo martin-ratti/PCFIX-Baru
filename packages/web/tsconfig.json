@@ -5,8 +5,8 @@
     "jsxImportSource": "react"
   },
   "include": [
-    "package/web/src/env.d.ts",
-    "package/web/.astro/types.d.ts",
+    "src/env.d.ts",
+    ".astro/types.d.ts",
     "**/*"
   ],
   "exclude": [
