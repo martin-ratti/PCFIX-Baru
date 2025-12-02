@@ -1,44 +1,29 @@
 ---
-// 1. ACTIVAR SSR
 export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
-import Carousel from '../components/shared/Carousel.tsx';
+import Carousel, { type CarouselProduct } from '../components/shared/Carousel.tsx';
 
-// Interfaz de la Base de Datos (Lo que viene de la API)
+// Interfaz de la Base de Datos
 interface ProductDB {
   id: number;
   nombre: string;
   descripcion: string;
   precio: string | number;
+  precioOriginal: string | number | null;
   stock: number;
   foto: string | null;
   categoriaId: number;
 }
 
-// Interfaz Compatible con el Componente (Lo que espera el Carousel)
-// Debe coincidir con la 'Product' de mock-data.ts
-interface ProductCardProps {
-  id: string;
-  name: string;
-  price: number;
-  imageUrl: string;
-  imageAlt: string;
-  originalPrice?: number;
-  stock: number;
-  slug: string;
-  description: string;
-}
-
-// Variables tipadas
+// Usamos la interfaz exportada por el Carrusel para asegurar compatibilidad
 let allProducts: ProductDB[] = [];
-let featuredProducts: ProductCardProps[] = [];
-let saleProducts: ProductCardProps[] = [];
-let peripheralProducts: ProductCardProps[] = [];
+let featuredProducts: CarouselProduct[] = [];
+let saleProducts: CarouselProduct[] = [];
+let peripheralProducts: CarouselProduct[] = [];
 
-// Fetch al Backend
 try {
   const response = await fetch('http://localhost:3002/api/products');
   if (response.ok) {
@@ -46,17 +31,26 @@ try {
     if (result.success) {
       allProducts = result.data;
 
+      // 1. Destacados
       featuredProducts = allProducts.slice(0, 5).map(mapProductToCard);
-      saleProducts = allProducts.slice(5, 10).map(mapProductToCard);
+
+      // 2. Ofertas
+      const productsOnSale = allProducts.filter(p => 
+        p.precioOriginal !== null && 
+        Number(p.precioOriginal) > Number(p.precio)
+      );
+      saleProducts = productsOnSale.map(mapProductToCard);
+
+      // 3. Novedades
       peripheralProducts = allProducts.slice(-5).map(mapProductToCard);
     }
   }
 } catch (error) {
-  console.error("Error cargando productos del home:", error);
+  console.error("Error cargando home:", error);
 }
 
-// Función mapeadora actualizada
-function mapProductToCard(p: ProductDB): ProductCardProps {
+// Función de mapeo que devuelve exactamente lo que pide CarouselProduct
+function mapProductToCard(p: ProductDB): CarouselProduct {
   return {
     id: p.id.toString(),
     name: p.nombre,
@@ -64,8 +58,9 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
     imageUrl: p.foto || 'https://placehold.co/600x600/111626/F2F2F2?text=Sin+Imagen',
     imageAlt: p.nombre,
     stock: p.stock,
-    originalPrice: undefined,
-    slug: p.id.toString(), // Usamos el ID como slug
+    // La clave: Convertir a Number o null explícitamente
+    originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null,
+    slug: p.id.toString(),
     description: p.descripcion
   };
 }
@@ -75,32 +70,23 @@ const customCarouselTitle = "Lo Más Nuevo";
 
 <Layout title="PCFIX | Tu Tienda de Tecnología">
   <Header />
-
   <main class="container mx-auto px-6 py-8 min-h-screen">
     <section class="bg-accent rounded-lg p-8 mb-12 text-center shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
       <h1 class="text-4xl font-black text-primary mb-4">Potencia tu Setup al Máximo</h1>
       <p class="text-lg text-secondary">Los mejores componentes y periféricos para tu PC.</p>
     </section>
 
-    {featuredProducts.length > 0 ? (
-      <>
-        <Carousel title="Productos Destacados" products={featuredProducts} client:visible />
-        
-        {saleProducts.length > 0 && (
-          <Carousel title="¡Ofertas Imperdibles!" products={saleProducts} client:visible />
-        )}
-        
-        {peripheralProducts.length > 0 && (
-          <Carousel title={customCarouselTitle} products={peripheralProducts} client:visible />
-        )}
-      </>
-    ) : (
-      <div class="text-center py-20">
-        <p class="text-muted text-lg animate-pulse">Cargando catálogo...</p>
-      </div>
+    {featuredProducts.length > 0 && (
+      <Carousel title="Productos Destacados" products={featuredProducts} client:visible />
     )}
-
+        
+    {saleProducts.length > 0 && (
+      <Carousel title="¡Ofertas Imperdibles!" products={saleProducts} client:visible />
+    )}
+    
+    {peripheralProducts.length > 0 && (
+      <Carousel title={customCarouselTitle} products={peripheralProducts} client:visible />
+    )}
   </main>
-
   <Footer />
 </Layout>

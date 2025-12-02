@@ -2,9 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { navigate } from 'astro:transitions/client';
 import ConfirmModal from '../shared/ConfirmModal';
 import UpdateStockModal from './UpdateStockModal'; 
+import DiscountModal from './DiscountModal'; 
 import { useToastStore } from '../../stores/toastStore';
 
-interface Product { id: number; nombre: string; precio: string; stock: number; categoria: { nombre: string }; }
+interface Product { 
+  id: number; 
+  nombre: string; 
+  precio: string; 
+  precioOriginal?: string | null; // Nuevo campo
+  stock: number; 
+  categoria: { nombre: string }; 
+}
+
 interface Category { id: number; nombre: string; }
 
 export default function ProductListTable() {
@@ -13,8 +22,10 @@ export default function ProductListTable() {
   const [filterCat, setFilterCat] = useState<string>('');
   const [showLowStock, setShowLowStock] = useState(false);
   
+  // Estados para los modales
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [productToUpdateStock, setProductToUpdateStock] = useState<Product | null>(null); 
+  const [productToDiscount, setProductToDiscount] = useState<Product | null>(null); 
   
   const addToast = useToastStore(s => s.addToast);
 
@@ -67,16 +78,40 @@ export default function ProductListTable() {
       
       const data = await res.json();
       if (data.success) {
-        addToast('Stock actualizado correctamente', 'success');
+        addToast('Stock actualizado', 'success');
         fetchProducts(); 
       } else {
-        addToast(data.error || 'Error al actualizar', 'error');
+        addToast(data.error, 'error');
       }
-    } catch (e) {
-      addToast('Error de conexión', 'error');
-    } finally {
-      setProductToUpdateStock(null);
-    }
+    } catch (e) { addToast('Error de conexión', 'error'); }
+    finally { setProductToUpdateStock(null); }
+  };
+
+  const handleDiscountUpdate = async (newPrice: number, originalPrice: number | null) => {
+    if (!productToDiscount) return;
+
+    try {
+      // Usamos JSON para poder enviar null explícitamente
+      const payload = {
+        precio: newPrice,
+        precioOriginal: originalPrice
+      };
+
+      const res = await fetch(`http://localhost:3002/api/products/${productToDiscount.id}`, { 
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload) 
+      });
+      
+      const data = await res.json();
+      if (data.success) {
+        addToast('Oferta aplicada correctamente', 'success');
+        fetchProducts(); 
+      } else {
+        addToast(data.error, 'error');
+      }
+    } catch (e) { addToast('Error de conexión', 'error'); }
+    finally { setProductToDiscount(null); }
   };
 
   return (
@@ -93,6 +128,7 @@ export default function ProductListTable() {
             Solo Stock Bajo
           </label>
         </div>
+        <button onClick={() => navigate('/admin/nuevo')} className="bg-primary text-white text-sm px-4 py-2 rounded hover:bg-opacity-90">+ Nuevo</button>
       </div>
       
       <div className="overflow-x-auto">
@@ -113,17 +149,42 @@ export default function ProductListTable() {
                   <td className="px-6 py-4 text-sm text-gray-500">#{p.id}</td>
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">{p.nombre}</td>
                   <td className="px-6 py-4 text-sm text-gray-500"><span className="px-2 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-100">{p.categoria.nombre}</span></td>
-                  <td className="px-6 py-4 text-sm text-gray-500 font-mono">${Number(p.precio).toLocaleString('es-AR')}</td>
+                  
+                  {/* Columna Precio con soporte de oferta */}
+                  <td className="px-6 py-4 text-sm font-mono">
+                    <div className="flex flex-col">
+                      {p.precioOriginal ? (
+                         <>
+                           <span className="text-red-600 font-bold">${Number(p.precio).toLocaleString('es-AR')}</span>
+                           <span className="text-xs text-gray-400 line-through">${Number(p.precioOriginal).toLocaleString('es-AR')}</span>
+                         </>
+                      ) : (
+                         <span className="text-gray-700">${Number(p.precio).toLocaleString('es-AR')}</span>
+                      )}
+                    </div>
+                  </td>
+
                   <td className="px-6 py-4 text-sm">
-                    {/* CORRECCIÓN: p.stock <= 5 para incluir el 5 en rojo */}
                     <span className={`px-2 py-1 rounded font-bold text-xs ${p.stock <= 5 ? 'bg-red-100 text-red-700' : 'text-gray-700 bg-gray-100'}`}>
                       {p.stock} u.
                     </span>
                   </td>
+                  
                   <td className="px-6 py-4 text-right text-sm font-medium">
-                    {/* CORRECCIÓN: Eliminadas clases de opacidad, siempre visible */}
                     <div className="flex justify-end gap-2">
-                      
+                      {/* Botón Oferta */}
+                      <button 
+                        onClick={() => setProductToDiscount(p)} 
+                        className={`p-1.5 rounded-full transition-colors ${p.precioOriginal ? 'text-purple-600 bg-purple-50 hover:bg-purple-100' : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50'}`}
+                        title="Aplicar Oferta"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
+                        </svg>
+                      </button>
+
+                      {/* Botón Stock */}
                       <button 
                         onClick={() => setProductToUpdateStock(p)} 
                         className="text-green-600 hover:text-green-900 p-1.5 hover:bg-green-50 rounded-full transition-colors" 
@@ -134,12 +195,14 @@ export default function ProductListTable() {
                         </svg>
                       </button>
 
+                      {/* Botón Editar */}
                       <button onClick={() => navigate(`/admin/editar/${p.id}`)} className="text-blue-600 hover:text-blue-900 p-1.5 hover:bg-blue-50 rounded-full transition-colors" title="Editar">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                         </svg>
                       </button>
 
+                      {/* Botón Eliminar */}
                       <button onClick={() => setProductToDelete(p)} className="text-red-600 hover:text-red-900 p-1.5 hover:bg-red-50 rounded-full transition-colors" title="Eliminar">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -153,6 +216,7 @@ export default function ProductListTable() {
         </table>
       </div>
       
+      {/* MODALES */}
       <ConfirmModal
         isOpen={!!productToDelete}
         title="Eliminar Producto"
@@ -169,6 +233,13 @@ export default function ProductListTable() {
         currentStock={productToUpdateStock?.stock || 0}
         onConfirm={handleStockUpdate}
         onCancel={() => setProductToUpdateStock(null)}
+      />
+
+      <DiscountModal
+        isOpen={!!productToDiscount}
+        product={productToDiscount}
+        onConfirm={handleDiscountUpdate}
+        onCancel={() => setProductToDiscount(null)}
       />
     </div>
   );

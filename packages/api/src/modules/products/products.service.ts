@@ -40,6 +40,7 @@ export class ProductService {
         nombre: data.nombre,
         descripcion: data.descripcion,
         precio: data.precio,
+        precioOriginal: data.precioOriginal, 
         stock: data.stock,
         foto: data.foto,
         categoriaId: data.categoriaId
@@ -47,9 +48,7 @@ export class ProductService {
     });
   }
 
-  // NUEVO MÉTODO UPDATE
   async update(id: number, data: Partial<CreateProductDTO>) {
-    // Verificar que el producto exista
     const exists = await this.findById(id);
     if (!exists) throw new Error('Producto no encontrado');
 
@@ -59,8 +58,9 @@ export class ProductService {
         nombre: data.nombre,
         descripcion: data.descripcion,
         precio: data.precio,
+        precioOriginal: data.precioOriginal, 
         stock: data.stock,
-        foto: data.foto, // Si es undefined, prisma no lo toca
+        foto: data.foto,
         categoriaId: data.categoriaId
       }
     });
