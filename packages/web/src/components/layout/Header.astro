@@ -1,9 +1,9 @@
 ---
 import { Image } from 'astro:assets';
-import logo from '../assets/logo.png'; 
-import CartIcon from './CartIcon.tsx';
-import UserMenu from './UserMenu.tsx';
-import CategoryDropdown from './CategoryDropdown.tsx';
+import logo from '../../assets/logo.png'; // Nota el ../..
+import CartIcon from '../cart/CartIcon.tsx'; // Ruta corregida
+import UserMenu from '../auth/UserMenu.tsx'; // Ruta corregida
+import CategoryDropdown from './CategoryDropdown.tsx'; // En la misma carpeta
 ---
 
 <header class="bg-accent shadow-lg sticky top-0 z-50" transition:persist id="main-header">

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import type { Product } from '../data/mock-data';
-import ProductCard from './ProductCard';
+import type { Product } from '../../data/mock-data';
+import ProductCard from '../products/ProductCard';
 
 interface CarouselProps {
   title: string;

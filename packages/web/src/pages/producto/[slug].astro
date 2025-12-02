@@ -1,11 +1,12 @@
 ---
-// 1. ACTIVAR SSR (Server Side Rendering)
+// 1. ACTIVAR SSR
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import AddToCart from '../../components/AddToCart.tsx';
+// Rutas corregidas:
+import Header from '../../components/layout/Header.astro';
+import Footer from '../../components/layout/Footer.astro';
+import AddToCart from '../../components/products/AddToCart.tsx';
 
 interface Product {
   id: number;
@@ -48,7 +49,7 @@ if (!product) {
     <div class="bg-white p-8 rounded-lg shadow-lg">
       <div class="grid grid-cols-1 md:grid-cols-5 gap-12 items-start">
         
-        {/* Columna de la Imagen */}
+        {/* Imagen */}
         <div class="md:col-span-2 bg-white rounded-lg p-4 border border-gray-100 flex items-center justify-center">
           <img 
             src={product.foto || 'https://placehold.co/600x600/png?text=Sin+Imagen'} 
@@ -57,7 +58,7 @@ if (!product) {
           />
         </div>
 
-        {/* Columna de Información */}
+        {/* Info */}
         <div class="md:col-span-3">
           <h1 class="text-4xl font-black text-primary mb-4">{product.nombre}</h1>
           

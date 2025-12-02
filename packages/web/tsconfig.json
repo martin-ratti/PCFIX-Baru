@@ -5,7 +5,6 @@
     "jsxImportSource": "react"
   },
   "include": [
-    // Añadimos esta línea para incluir las definiciones de tipo globales
     "package/web/src/env.d.ts",
     "package/web/.astro/types.d.ts",
     "**/*"
