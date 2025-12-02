@@ -1,0 +1,85 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import ProductCard from '../components/products/ProductCard';
+
+interface ProductDB {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  precio: string | number;
+  stock: number;
+  foto: string | null;
+  categoriaId: number;
+}
+
+interface ProductCardProps {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  imageAlt: string;
+  originalPrice?: number;
+  stock: number;
+  slug: string;
+  description: string;
+}
+
+let products: ProductCardProps[] = [];
+
+try {
+  // Fetch de TODOS los productos
+  const response = await fetch('http://localhost:3002/api/products');
+  if (response.ok) {
+    const result = await response.json();
+    if (result.success) {
+      products = result.data.map((p: ProductDB) => ({
+        id: p.id.toString(),
+        name: p.nombre,
+        price: Number(p.precio),
+        imageUrl: p.foto || 'https://placehold.co/600x600/png?text=Sin+Imagen',
+        imageAlt: p.nombre,
+        stock: p.stock,
+        originalPrice: undefined,
+        slug: p.id.toString(),
+        description: p.descripcion
+      }));
+    }
+  }
+} catch (error) {
+  console.error("Error cargando catálogo:", error);
+}
+---
+
+<Layout title="PCFIX | Catálogo Completo">
+  <Header />
+
+  <main class="container mx-auto px-6 py-12 min-h-screen">
+    <div class="mb-8 border-b pb-4 flex justify-between items-end">
+      <div>
+        <h1 class="text-3xl font-black text-primary">Todos los Productos</h1>
+        <p class="text-muted mt-2">Explora nuestro catálogo completo de hardware.</p>
+      </div>
+      <span class="text-sm font-medium bg-accent/20 text-primary px-3 py-1 rounded-full">
+        {products.length} productos
+      </span>
+    </div>
+
+    {products.length > 0 ? (
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {products.map((product) => (
+          <ProductCard client:visible product={product} />
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-20 bg-white rounded-lg shadow-sm border border-gray-100">
+        <p class="text-gray-500 text-lg">Cargando productos...</p>
+      </div>
+    )}
+  </main>
+
+  <Footer />
+</Layout>
