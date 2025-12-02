@@ -1,10 +1,9 @@
-// packages/web/src/components/RegisterForm.tsx
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { navigate } from 'astro:transitions/client'; // Importar navegación suave
 
-// 1. Esquema con validación de coincidencia de passwords
 const registerSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   apellido: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
@@ -13,14 +12,14 @@ const registerSchema = z.object({
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
-  path: ["confirmPassword"], // El error aparecerá en este campo
+  path: ["confirmPassword"],
 });
 
 type RegisterSchema = z.infer<typeof registerSchema>;
 
 export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null); // Feedback positivo
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -37,7 +36,6 @@ export default function RegisterForm() {
     setSuccess(null);
 
     try {
-      // Preparamos los datos para el backend (excluimos confirmPassword)
       const payload = {
         nombre: data.nombre,
         apellido: data.apellido,
@@ -59,9 +57,8 @@ export default function RegisterForm() {
 
       setSuccess('¡Cuenta creada con éxito! Redirigiendo al login...');
       
-      // Redirigir después de 2 segundos para que el usuario lea el mensaje
-      setTimeout(() => {
-        window.location.href = '/login';
+      setTimeout(async () => {
+        await navigate('/login'); // Navegación suave
       }, 2000);
       
     } catch (err: any) {
@@ -91,57 +88,35 @@ export default function RegisterForm() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Nombre</label>
-            <input
-              {...register('nombre')}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-            />
+            <input {...register('nombre')} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" />
             {errors.nombre && <p className="text-red-500 text-xs mt-1">{errors.nombre.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Apellido</label>
-            <input
-              {...register('apellido')}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-            />
+            <input {...register('apellido')} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" />
             {errors.apellido && <p className="text-red-500 text-xs mt-1">{errors.apellido.message}</p>}
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            {...register('email')}
-            type="email"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-          />
+          <input {...register('email')} type="email" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" />
           {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-          <input
-            {...register('password')}
-            type="password"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-          />
+          <input {...register('password')} type="password" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" />
           {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">Confirmar Contraseña</label>
-          <input
-            {...register('confirmPassword')}
-            type="password"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-          />
+          <input {...register('confirmPassword')} type="password" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" />
           {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>}
         </div>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 transition-colors"
-        >
+        <button type="submit" disabled={isLoading} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-opacity-90 disabled:opacity-50 transition-colors">
           {isLoading ? 'Registrando...' : 'Crear Cuenta'}
         </button>
       </form>

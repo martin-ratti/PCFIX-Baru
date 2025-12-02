@@ -3,10 +3,10 @@ import { Image } from 'astro:assets';
 import logo from '../assets/logo.png'; 
 import CartIcon from './CartIcon.tsx';
 import UserMenu from './UserMenu.tsx';
-import CategoryDropdown from './CategoryDropdown.tsx'; // Importar
+import CategoryDropdown from './CategoryDropdown.tsx';
 ---
 
-<header class="bg-accent shadow-lg sticky top-0 z-50">
+<header class="bg-accent shadow-lg sticky top-0 z-50" transition:persist id="main-header">
   <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
     <div>
       <a href="/">
@@ -16,7 +16,6 @@ import CategoryDropdown from './CategoryDropdown.tsx'; // Importar
     
     <div class="hidden md:flex items-center space-x-8">
       <CategoryDropdown client:load /> 
-      
       <a href="/nosotros" class="text-secondary hover:text-primary transition-colors font-medium">Nosotros</a>
     </div>
 

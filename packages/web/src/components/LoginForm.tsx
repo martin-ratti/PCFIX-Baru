@@ -1,11 +1,10 @@
-// packages/web/src/components/LoginForm.tsx
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuthStore } from '../stores/authStore';
+import { navigate } from 'astro:transitions/client'; // Importar navegación suave
 
-// 1. Esquema de validación (Igual que en tu backend)
 const loginSchema = z.object({
   email: z.string().email('Correo inválido'),
   password: z.string().min(1, 'La contraseña es obligatoria'),
@@ -31,7 +30,6 @@ export default function LoginForm() {
     setError(null);
 
     try {
-      // NOTA: Asegúrate de que el puerto coincida con tu backend (3002)
       const response = await fetch('http://localhost:3002/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -44,11 +42,10 @@ export default function LoginForm() {
         throw new Error(result.error || 'Error al iniciar sesión');
       }
 
-      // Guardamos en el store global
       login(result.data.token, result.data.user);
       
-      // Redirigir al home o dashboard
-      window.location.href = '/';
+      // Navegación suave (SPA feel)
+      await navigate('/');
       
     } catch (err: any) {
       setError(err.message);
