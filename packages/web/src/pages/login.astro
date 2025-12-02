@@ -1,0 +1,17 @@
+---
+// packages/web/src/pages/login.astro
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import LoginForm from '../components/LoginForm.tsx';
+---
+
+<Layout title="PCFIX | Iniciar Sesión">
+  <Header />
+  
+  <main class="container mx-auto px-6 py-12 flex justify-center items-center min-h-[60vh]">
+    <LoginForm client:load />
+  </main>
+
+  <Footer />
+</Layout>

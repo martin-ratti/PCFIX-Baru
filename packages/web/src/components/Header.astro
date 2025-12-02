@@ -1,23 +1,28 @@
 ---
 import { Image } from 'astro:assets';
 import logo from '../assets/logo.png'; 
-import CartIcon from './CartIcon.tsx'; // Importamos el nuevo componente
+import CartIcon from './CartIcon.tsx';
+import UserMenu from './UserMenu.tsx'; // Importamos el nuevo menú
 ---
 
-<header class="bg-accent shadow-lg">
+<header class="bg-accent shadow-lg sticky top-0 z-50">
   <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
     <div>
       <a href="/">
         <Image src={logo} alt="PCFIX Logo" width="120" />
       </a>
     </div>
+    
     <div class="hidden md:flex items-center space-x-6">
       <a href="/productos" class="text-secondary hover:text-primary transition-colors duration-300">Productos</a>
       <a href="/nosotros" class="text-secondary hover:text-primary transition-colors duration-300">Nosotros</a>
-      <a href="/contacto" class="text-secondary hover:text-primary transition-colors duration-300">Contacto</a>
     </div>
-    <div>
-      {/* Reemplazamos el 'a' por el componente interactivo */}
+
+    <div class="flex items-center gap-6">
+      {/* Menú de Usuario Interactivo */}
+      <UserMenu client:load />
+      
+      {/* Carrito */}
       <CartIcon client:load />
     </div>
   </nav>
