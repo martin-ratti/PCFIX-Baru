@@ -7,22 +7,26 @@ interface Category {
   subcategorias?: Category[]; 
 }
 
-export default function CategoryDropdown() {
+interface Props {
+  initialCategories?: Category[];
+}
+
+export default function CategoryDropdown({ initialCategories = [] }: Props) {
   const { user } = useAuthStore();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [isOpen, setIsOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    // Obtenemos el árbol completo (padres e hijos)
-    fetch('http://localhost:3002/api/categories') 
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setCategories(data.data);
-      })
-      .catch(console.error);
-  }, []);
+    // Si no se pasaron categorías desde el servidor (fallback), hacemos fetch
+    if (initialCategories.length === 0) {
+        fetch('http://localhost:3002/api/categories')
+          .then(res => res.json())
+          .then(data => data.success && setCategories(data.data))
+          .catch(console.error);
+    }
+  }, [initialCategories]);
 
   // Ocultar si es Admin (ya tienen su propio menú)
   if (!isClient || user?.role === 'ADMIN') return null;
@@ -33,65 +37,31 @@ export default function CategoryDropdown() {
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
     >
-      {/* Botón Principal */}
       <button className="flex items-center gap-1 text-secondary hover:text-primary transition-colors py-2 font-medium group-hover:text-primary">
         Categorías
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" 
-          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}><path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
       </button>
 
-      {/* Menú Desplegable Principal */}
-      <div 
-        className={`
-          absolute top-full left-0 w-64 bg-white rounded-lg shadow-xl border border-gray-100 
-          transition-all duration-200 origin-top-left
-          ${isOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-2'}
-        `}
-      >
+      <div className={`absolute top-full left-0 w-64 bg-white rounded-lg shadow-xl border border-gray-100 transition-all duration-200 origin-top-left ${isOpen ? 'opacity-100 scale-100 visible translate-y-0' : 'opacity-0 scale-95 invisible -translate-y-2'}`}>
         <div className="py-2">
           {categories.length > 0 ? categories.map((cat) => (
             <div key={cat.id} className="group/item relative">
-              
-              {/* Item Padre */}
-              <a 
-                href={`/productos?categoryId=${cat.id}`} 
-                className="flex justify-between items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors font-medium"
-              >
+              <a href={`/productos?categoryId=${cat.id}`} className="flex justify-between items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors font-medium">
                 <span>{cat.nombre}</span>
-                {/* Flechita si tiene hijos */}
-                {cat.subcategorias && cat.subcategorias.length > 0 && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-gray-400 group-hover/item:text-primary">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                )}
+                {cat.subcategorias && cat.subcategorias.length > 0 && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-gray-400 group-hover/item:text-primary"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>}
               </a>
               
-              {/* SUBMENÚ (Aparece a la derecha al hacer hover en el item) */}
               {cat.subcategorias && cat.subcategorias.length > 0 && (
                 <div className="absolute left-full top-0 w-56 bg-white rounded-lg shadow-xl border border-gray-100 hidden group-hover/item:block ml-1 animate-in fade-in slide-in-from-left-2 duration-200">
                   <div className="py-2">
                     {cat.subcategorias.map(sub => (
-                      <a 
-                        key={sub.id} 
-                        href={`/productos?categoryId=${sub.id}`} 
-                        className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors"
-                      >
-                        {sub.nombre}
-                      </a>
+                      <a key={sub.id} href={`/productos?categoryId=${sub.id}`} className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">{sub.nombre}</a>
                     ))}
                   </div>
                 </div>
               )}
-
             </div>
-          )) : (
-            <div className="px-4 py-3 text-sm text-gray-400 text-center">Cargando...</div>
-          )}
+          )) : <div className="px-4 py-3 text-sm text-gray-400 text-center">Cargando...</div>}
         </div>
       </div>
     </div>

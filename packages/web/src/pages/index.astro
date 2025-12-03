@@ -9,30 +9,8 @@ import BrandCarousel from '../components/shared/BrandCarousel.tsx';
 import HomeBanners from '../components/shared/HomeBanners.tsx';
 
 // --- INTERFACES ---
-interface ProductDB {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  precio: string | number;
-  precioOriginal: string | number | null;
-  stock: number;
-  foto: string | null;
-  categoriaId: number;
-  isFeatured: boolean;
-}
-
-interface ProductCardProps {
-  id: string;
-  name: string;
-  price: number;
-  imageUrl: string;
-  imageAlt: string;
-  originalPrice?: number | null;
-  stock: number;
-  slug: string;
-  description: string;
-}
-
+interface ProductDB { id: number; nombre: string; descripcion: string; precio: string | number; precioOriginal: string | number | null; stock: number; foto: string | null; categoriaId: number; isFeatured: boolean; }
+interface ProductCardProps { id: string; name: string; price: number; imageUrl: string; imageAlt: string; originalPrice?: number | null; stock: number; slug: string; description: string; }
 interface Brand { id: number; nombre: string; logo: string | null; }
 interface Banner { id: number; imagen: string; marca: Brand; }
 
@@ -45,64 +23,30 @@ let brands: Brand[] = [];
 let banners: Banner[] = [];
 let errorApi = false;
 
-// --- CARGA DE DATOS ---
+// --- CARGA DE DATOS OPTIMIZADA ---
 try {
-  const [prodRes, brandRes, bannerRes] = await Promise.all([
-     fetch('http://localhost:3002/api/products'),
+  const [featuredRes, saleRes, newRes, brandRes, bannerRes] = await Promise.all([
+     fetch('http://localhost:3002/api/products?isFeatured=true&limit=8'),
+     fetch('http://localhost:3002/api/products?hasDiscount=true&limit=8'),
+     fetch('http://localhost:3002/api/products?limit=8'), // Novedades
      fetch('http://localhost:3002/api/brands'),
      fetch('http://localhost:3002/api/banners')
   ]);
   
-  // Productos
-  if (prodRes.ok) {
-    const result = await prodRes.json();
-    if (result.success) {
-      allProducts = result.data;
-
-      // Destacados (Solo con estrella)
-      const featuredDB = allProducts.filter(p => p.isFeatured === true);
-      featuredProducts = featuredDB.map(mapProductToCard);
-
-      // Ofertas (Con descuento)
-      const productsOnSale = allProducts.filter(p => 
-        p.precioOriginal !== null && 
-        Number(p.precioOriginal) > Number(p.precio)
-      );
-      saleProducts = productsOnSale.map(mapProductToCard);
-
-      // Novedades (Primeros 8)
-      newArrivalsProducts = allProducts.slice(0, 8).map(mapProductToCard);
-    }
-  } else { errorApi = true; }
-
-  // Marcas
-  if (brandRes.ok) {
-     const result = await brandRes.json();
-     if(result.success) brands = result.data;
-  }
-
-  // Banners
-  if (bannerRes.ok) {
-     const result = await bannerRes.json();
-     if(result.success) banners = result.data;
-  }
-
+  if (featuredRes.ok) { const r = await featuredRes.json(); if(r.success) featuredProducts = r.data.map(mapProductToCard); }
+  if (saleRes.ok) { const r = await saleRes.json(); if(r.success) saleProducts = r.data.map(mapProductToCard); }
+  if (newRes.ok) { const r = await newRes.json(); if(r.success) newArrivalsProducts = r.data.map(mapProductToCard); }
+  if (brandRes.ok) { const r = await brandRes.json(); if(r.success) brands = r.data; }
+  if (bannerRes.ok) { const r = await bannerRes.json(); if(r.success) banners = r.data; }
 } catch (error) {
-  console.error("Error crítico cargando home:", error);
+  console.error("Error cargando home:", error);
   errorApi = true;
 }
 
 function mapProductToCard(p: ProductDB): ProductCardProps {
   return {
-    id: p.id.toString(),
-    name: p.nombre,
-    price: Number(p.precio),
-    imageUrl: p.foto || 'https://placehold.co/600x600/111626/F2F2F2?text=Sin+Imagen',
-    imageAlt: p.nombre,
-    stock: p.stock,
-    originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null,
-    slug: p.id.toString(),
-    description: p.descripcion
+    id: p.id.toString(), name: p.nombre, price: Number(p.precio), imageUrl: p.foto || 'https://placehold.co/600x600/111626/F2F2F2?text=Sin+Imagen',
+    imageAlt: p.nombre, stock: p.stock, originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null, slug: p.id.toString(), description: p.descripcion
   };
 }
 ---
@@ -112,68 +56,46 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
   
   <main class="min-h-screen bg-light">
     
-    {/* --- SECCIÓN SUPERIOR: Banners o Hero Estático --- */}
     <div class="container mx-auto px-6 pt-8">
+      {/* BANNERS O HERO ESTATICO */}
       {banners.length > 0 ? (
-        // 1. Si hay banners dinámicos, mostramos el Carrusel Nuevo
         <HomeBanners banners={banners} client:load />
       ) : (
-        // 2. Si NO hay banners, mostramos el Hero estático por defecto
         <section class="relative bg-gradient-to-br from-secondary via-[#1a2342] to-primary text-white py-16 rounded-2xl overflow-hidden shadow-2xl mb-12">
           <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
             <div class="absolute -top-24 -right-24 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
             <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full blur-3xl"></div>
           </div>
           <div class="container mx-auto px-6 relative z-10 text-center">
-            <span class="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-blue-200 text-xs font-bold tracking-wider mb-4 backdrop-blur-sm">
-              NUEVA COLECCIÓN 2025
-            </span>
-            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight tracking-tight">
-              Potencia tu Setup <br/>
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                Al Máximo Nivel
-              </span>
-            </h1>
+            <span class="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-blue-200 text-xs font-bold tracking-wider mb-4 backdrop-blur-sm">NUEVA COLECCIÓN</span>
+            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight tracking-tight">Potencia tu Setup</h1>
             <div class="flex justify-center gap-4">
-              <a href="/productos" class="bg-white text-primary px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg">
-                Ver Catálogo
-              </a>
+              <a href="/productos" class="bg-white text-primary px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg">Ver Catálogo</a>
             </div>
           </div>
         </section>
       )}
     </div>
 
-    {/* --- SECCIONES DE PRODUCTOS --- */}
-    <div class="container mx-auto px-6 space-y-20 pb-12">
+    {/* SECCIONES DE PRODUCTOS */}
+    <div class="container mx-auto px-6 space-y-20 py-12">
       
-      {/* DESTACADOS */}
       {featuredProducts.length > 0 && (
-        <div class="space-y-4">
-          <Carousel title="Productos Destacados" products={featuredProducts} client:visible />
-        </div>
+        <div class="space-y-4"><Carousel title="Productos Destacados" products={featuredProducts} client:visible /></div>
       )}
-          
-      {/* OFERTAS */}
       {saleProducts.length > 0 && (
-        <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-          <Carousel title="¡Ofertas Imperdibles!" products={saleProducts} client:visible />
-        </div>
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100"><Carousel title="¡Ofertas Imperdibles!" products={saleProducts} client:visible /></div>
       )}
-      
-      {/* NOVEDADES */}
       {newArrivalsProducts.length > 0 && (
-        <div class="space-y-4">
-          <Carousel title="Recién Llegados" products={newArrivalsProducts} client:visible />
-        </div>
+        <div class="space-y-4"><Carousel title="Recién Llegados" products={newArrivalsProducts} client:visible /></div>
       )}
 
-      {/* Loading / Error */}
+      {/* CARGA / ERROR */}
       {!errorApi && allProducts.length === 0 && (
-        <div class="text-center py-32 opacity-50">
-          <div class="inline-block w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin mb-4"></div>
-          <p class="text-xl font-medium">Cargando el mejor hardware...</p>
-        </div>
+        <div class="text-center py-32 opacity-50"><div class="inline-block w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin mb-4"></div><p class="text-xl font-medium">Cargando el mejor hardware...</p></div>
+      )}
+      {errorApi && (
+        <div class="text-center py-20 bg-red-50 rounded-xl border border-red-100 text-red-600"><p class="font-bold">Hubo un problema cargando los productos.</p><p class="text-sm">Por favor intenta recargar la página.</p></div>
       )}
     </div>
   </main>

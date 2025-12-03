@@ -5,12 +5,14 @@ type ProductInput = CreateProductDTO & { isFeatured?: boolean; marcaId?: number 
 
 export class ProductService {
   
-  async findAll(categoryId?: number, marcaId?: number, lowStock?: boolean, search?: string) {
+  async findAll(categoryId?: number, marcaId?: number, lowStock?: boolean, search?: string, limit?: number, isFeatured?: boolean, hasDiscount?: boolean) {
     const whereClause: any = {
       deletedAt: null,
       ...(categoryId ? { categoriaId: categoryId } : {}),
       ...(marcaId ? { marcaId: marcaId } : {}),
       ...(lowStock ? { stock: { lte: 5 } } : {}),
+      ...(isFeatured ? { isFeatured: true } : {}),
+      ...(hasDiscount ? { precioOriginal: { not: null } } : {}),
     };
 
     if (search) {
@@ -23,7 +25,8 @@ export class ProductService {
     const products = await prisma.producto.findMany({
       where: whereClause,
       include: { categoria: true, marca: true },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      take: limit || undefined
     });
 
     if (search) {

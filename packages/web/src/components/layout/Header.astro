@@ -5,33 +5,37 @@ import CartIcon from '../cart/CartIcon.tsx';
 import UserMenu from '../auth/UserMenu.tsx'; 
 import AdminLinks from '../admin/AdminLinks.tsx';
 import CategoryDropdown from './CategoryDropdown.tsx';
-import PublicLinks from './PublicLinks.tsx'; // Nuevo
-import SearchBar from '../shared/SearchBar.tsx';
+import PublicLinks from './PublicLinks.tsx';
+import SearchBar from '../shared/SearchBar.tsx'; 
+
+// FETCH SSR: Obtenemos las categorías aquí (Servidor) para pasarlas ya listas
+let categories = [];
+try {
+  const response = await fetch('http://localhost:3002/api/categories');
+  if (response.ok) {
+    const json = await response.json();
+    if (json.success) categories = json.data;
+  }
+} catch (e) { console.error("Header categories fetch error:", e); }
 ---
 
 <header class="bg-accent shadow-lg sticky top-0 z-50" transition:persist id="main-header">
   <nav class="container mx-auto px-6 py-3 flex justify-between items-center gap-4">
-    
-    {/* IZQUIERDA: Logo */}
     <div class="shrink-0 flex items-center gap-6">
-      <a href="/">
-        <Image src={logo} alt="PCFIX Logo" width="100" />
-      </a>
-      
-      {/* Categorías a la derecha del logo (Si no es admin) */}
-      <CategoryDropdown client:load />
+      <a href="/"><Image src={logo} alt="PCFIX Logo" width="100" /></a>
+      {/* Pasamos las categorías como prop inicial para SSR */}
+      <CategoryDropdown initialCategories={categories} client:load />
     </div>
     
-    {/* CENTRO: Buscador */}
     <div class="flex-1 flex justify-center max-w-2xl mx-auto px-4">
+      {/* SearchBar solo visible para clientes */}
       <SearchBar client:load />
-      {/* Links Admin (Reemplazan al buscador si es admin) */}
+      {/* Links Admin solo visible para administradores */}
       <AdminLinks client:load />
     </div>
 
-    {/* DERECHA: Nosotros + Carrito + Usuario */}
     <div class="flex items-center gap-6 shrink-0">
-      <PublicLinks client:load /> {/* Nosotros (Si no es admin) */}
+      <PublicLinks client:load />
       <CartIcon client:load />
       <UserMenu client:load />
     </div>

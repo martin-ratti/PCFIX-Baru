@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 const productService = new ProductService();
 
+// --- HELPERS DE PARSEO SEGURO ---
 const parseNumber = (val: any): number | undefined | null => {
   if (val === undefined || val === 'undefined') return undefined;
   if (val === null || val === 'null' || val === '') return null;
@@ -17,14 +18,23 @@ const parseBoolean = (val: any): boolean | undefined => {
   return val === 'true' || val === true;
 };
 
+// --- ENDPOINTS ---
+
 export const getAll = async (req: Request, res: Response) => {
   try {
     const categoryId = req.query.categoryId ? Number(req.query.categoryId) : undefined;
     const marcaId = req.query.marcaId ? Number(req.query.marcaId) : undefined;
+    
+    // Filtros de optimización
     const lowStock = req.query.lowStock === 'true';
     const search = req.query.search ? String(req.query.search) : undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined; // NUEVO: Límite
+    const isFeatured = req.query.isFeatured === 'true';
+    const hasDiscount = req.query.hasDiscount === 'true'; // NUEVO: Oferta
     
-    const products = await productService.findAll(categoryId, marcaId, lowStock, search);
+    const products = await productService.findAll(
+      categoryId, marcaId, lowStock, search, limit, isFeatured, hasDiscount
+    );
     res.json({ success: true, data: products });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Error al obtener productos' });
@@ -64,13 +74,15 @@ export const create = async (req: Request, res: Response) => {
       precioOriginal: parseNumber(req.body.precioOriginal),
       stock: parseNumber(req.body.stock),
       categoriaId: parseNumber(req.body.categoriaId),
-      marcaId: parseNumber(req.body.marcaId), // Nuevo
+      marcaId: parseNumber(req.body.marcaId), 
       isFeatured: parseBoolean(req.body.isFeatured),
       foto: fotoUrl
     };
 
-    const data = createProductSchema.parse(rawData);
-    const newProduct = await productService.create(data);
+    // Usamos extend para admitir los campos opcionales que no están en el schema base
+    const data = createProductSchema.extend({ isFeatured: z.boolean().optional(), marcaId: z.number().int().optional().nullable() }).parse(rawData);
+    
+    const newProduct = await productService.create(data as any);
     res.status(201).json({ success: true, data: newProduct });
 
   } catch (error: any) {
@@ -93,7 +105,7 @@ export const update = async (req: Request, res: Response) => {
       fotoUrl = req.body.fotoUrl;
     }
 
-    const updateSchema = createProductSchema.partial();
+    const updateSchema = createProductSchema.partial().extend({ isFeatured: z.boolean().optional(), marcaId: z.number().int().optional().nullable() });
     
     const rawData = {
       nombre: req.body.nombre,
@@ -102,15 +114,17 @@ export const update = async (req: Request, res: Response) => {
       precioOriginal: parseNumber(req.body.precioOriginal),
       stock: parseNumber(req.body.stock),
       categoriaId: parseNumber(req.body.categoriaId),
-      marcaId: parseNumber(req.body.marcaId), // Nuevo
+      marcaId: parseNumber(req.body.marcaId), 
       isFeatured: parseBoolean(req.body.isFeatured),
       foto: fotoUrl
     };
 
+    // Filtramos solo las keys que no son undefined (para mantener los valores existentes)
     const cleanData = Object.fromEntries(Object.entries(rawData).filter(([_, v]) => v !== undefined));
+
     const data = updateSchema.parse(cleanData);
     
-    const updatedProduct = await productService.update(id, data);
+    const updatedProduct = await productService.update(id, data as any);
     res.json({ success: true, data: updatedProduct });
 
   } catch (error: any) {
