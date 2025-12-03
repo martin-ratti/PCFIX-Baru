@@ -3,10 +3,7 @@ import * as UsersController from './users.controller';
 
 const router = Router();
 
-// Existing route (List all users - Admin only)
-router.get('/', UsersController.getAll);
-
-// New profile routes
+// Rutas de Perfil individual
 router.get('/:id', UsersController.getProfile);
 router.put('/:id', UsersController.updateProfile);
 

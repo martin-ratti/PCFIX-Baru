@@ -1,16 +1,15 @@
 import { Request, Response } from 'express';
-import { prisma } from '../../shared/database/prismaClient';
+import { SalesService } from './sales.service';
+
+const salesService = new SalesService();
 
 export const getAll = async (req: Request, res: Response) => {
   try {
-    const sales = await prisma.venta.findMany({
-      include: {
-        cliente: { include: { user: true } }, // Traemos datos del cliente y usuario
-        pagos: true
-      },
-      orderBy: { fecha: 'desc' }
-    });
-    res.json({ success: true, data: sales });
+    const page = req.query.page ? Number(req.query.page) : 1;
+    const limit = req.query.limit ? Number(req.query.limit) : 10;
+
+    const result = await salesService.findAll(page, limit);
+    res.json({ success: true, ...result });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Error obteniendo ventas' });
   }
