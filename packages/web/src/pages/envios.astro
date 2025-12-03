@@ -1,46 +1,41 @@
 ---
-export const prerender = true;
-
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 ---
 
-<Layout title="PCFIX | Envíos">
-  <Header slot="header" />
+<Layout title="PCFIX | Envíos y Entregas">
+  <Header />
+  
+  <main class="container mx-auto px-6 py-12 bg-white max-w-4xl shadow-sm my-8 rounded-xl border border-gray-100">
+    <h1 class="text-3xl font-black text-secondary mb-8 border-b pb-4">Política de Envíos</h1>
+    
+    <div class="space-y-8 text-gray-600 leading-relaxed">
+      <section>
+        <h2 class="text-xl font-bold text-primary mb-3">1. Cobertura</h2>
+        <p>Realizamos envíos a todo el territorio de la República Argentina a través de <strong>Correo Argentino</strong>. Llegamos a tu domicilio o a la sucursal más cercana.</p>
+      </section>
 
-  <main class="container mx-auto px-6 py-12">
-    <h1 class="text-4xl font-black text-primary mb-8 text-center">Política de Envíos</h1>
+      <section>
+        <h2 class="text-xl font-bold text-primary mb-3">2. Tiempos de Entrega</h2>
+        <p>El tiempo de entrega depende de tu ubicación:</p>
+        <ul class="list-disc pl-6 mt-2 space-y-1">
+            <li><strong>CABA y GBA:</strong> 2 a 4 días hábiles.</li>
+            <li><strong>Interior del País:</strong> 3 a 7 días hábiles.</li>
+            <li><strong>Tierra del Fuego:</strong> 7 a 10 días hábiles.</li>
+        </ul>
+        <p class="mt-2 text-sm italic">* Los tiempos comienzan a correr una vez acreditado el pago.</p>
+      </section>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-      <div class="text-center p-6 bg-white rounded-lg shadow-md border-t-4 border-primary">
-        <div class="text-4xl mb-4">🚚</div>
-        <h3 class="font-bold text-lg mb-2">Envío Estándar</h3>
-        <p class="text-muted">De 3 a 5 días hábiles a todo el país.</p>
-      </div>
-      <div class="text-center p-6 bg-white rounded-lg shadow-md border-t-4 border-accent">
-        <div class="text-4xl mb-4">⚡</div>
-        <h3 class="font-bold text-lg mb-2">Envío Flex</h3>
-        <p class="text-muted">Llega hoy si compras antes de las 13hs (Solo CABA/GBA).</p>
-      </div>
-      <div class="text-center p-6 bg-white rounded-lg shadow-md border-t-4 border-secondary">
-        <div class="text-4xl mb-4">🏪</div>
-        <h3 class="font-bold text-lg mb-2">Retiro Gratis</h3>
-        <p class="text-muted">Inmediato en nuestro local de Lunes a Sábado.</p>
-      </div>
-    </div>
+      <section>
+        <h2 class="text-xl font-bold text-primary mb-3">3. Costo de Envío</h2>
+        <p>El costo se calcula automáticamente en el carrito ingresando tu Código Postal. Actualmente contamos con una tarifa promocional base para paquetería estándar.</p>
+      </section>
 
-    <div class="max-w-3xl mx-auto prose text-muted">
-      <h2 class="text-2xl font-bold text-secondary mb-4">Preguntas frecuentes sobre envíos</h2>
-      
-      <h3 class="font-bold text-primary mt-6">¿Cómo sigo mi pedido?</h3>
-      <p class="mb-4">Una vez despachado, recibirás un email con el código de seguimiento de Andreani o Correo Argentino para que veas en tiempo real dónde está tu paquete.</p>
-
-      <h3 class="font-bold text-primary mt-6">Embalaje de seguridad</h3>
-      <p class="mb-4">Sabemos que el hardware es delicado. Todos los envíos salen con doble caja, plástico burbuja reforzado y cinta de seguridad para garantizar que llegue impecable.</p>
-
-      <h3 class="font-bold text-primary mt-6">Seguro de envío</h3>
-      <p class="mb-4">Todos los envíos van asegurados por el valor total de la compra. Si el correo pierde el paquete, te reintegramos el dinero o te enviamos un producto nuevo.</p>
+      <section>
+        <h2 class="text-xl font-bold text-primary mb-3">4. Seguimiento</h2>
+        <p>Una vez despachado tu pedido, recibirás un email con el <strong>Código de Seguimiento</strong>. Podrás ver el estado de tu envío en la sección "Mis Compras" o directamente en la web del correo.</p>
+      </section>
     </div>
   </main>
 

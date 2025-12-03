@@ -3,56 +3,66 @@ import { Image } from 'astro:assets';
 import logo from '../../assets/logo.png'; 
 ---
 
-<footer class="bg-white border-t border-gray-200 mt-12">
-  <div class="container mx-auto px-6 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<footer class="bg-white pt-16 pb-8 mt-auto border-t border-gray-200">
+  <div class="container mx-auto px-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
       
-      <div class="md:col-span-1">
-        <a href="/">
-          <Image src={logo} alt="PCFIX Logo" width="150" />
-        </a>
-        <p class="mt-4 text-muted text-sm">
-          Tu tienda de confianza para componentes y periféricos de alto rendimiento.
+      {/* 1. Marca */}
+      <div class="space-y-4">
+        <div class="w-32">
+           <Image src={logo} alt="PCFIX" width={120} />
+        </div>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Tu tienda de confianza para hardware de alto rendimiento. Envíos a todo el país y garantía oficial.
         </p>
       </div>
 
+      {/* 2. Navegación */}
       <div>
-        <h3 class="font-bold text-secondary mb-4">Navegación</h3>
-        <ul class="space-y-2">
-          <li><a href="/" class="text-muted hover:text-primary transition-colors">Inicio</a></li>
-          <li><a href="/productos" class="text-muted hover:text-primary transition-colors">Productos</a></li>
-          <li><a href="/nosotros" class="text-muted hover:text-primary transition-colors">Nosotros</a></li>
-          <li><a href="/contacto" class="text-muted hover:text-primary transition-colors">Contacto</a></li>
+        <h3 class="text-lg font-bold mb-4 text-secondary">Tienda</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><a href="/productos" class="hover:text-primary transition-colors">Catálogo Completo</a></li>
+          <li><a href="/productos?isFeatured=true" class="hover:text-primary transition-colors">Destacados</a></li>
+          <li><a href="/productos?hasDiscount=true" class="hover:text-primary transition-colors">Ofertas</a></li>
         </ul>
       </div>
 
+      {/* 3. Ayuda */}
       <div>
-        <h3 class="font-bold text-secondary mb-4">Soporte</h3>
-        <ul class="space-y-2">
-          <li><a href="/faq" class="text-muted hover:text-primary transition-colors">Preguntas Frecuentes</a></li>
-          <li><a href="/envios" class="text-muted hover:text-primary transition-colors">Política de Envíos</a></li>
-          <li><a href="/terminos" class="text-muted hover:text-primary transition-colors">Términos y Condiciones</a></li>
+        <h3 class="text-lg font-bold mb-4 text-secondary">Ayuda</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><a href="/envios" class="hover:text-primary transition-colors">Envíos y Seguimiento</a></li>
+          <li><a href="/contacto" class="hover:text-primary transition-colors">Contacto</a></li>
+          <li><a href="/terminos" class="hover:text-primary transition-colors">Términos y Condiciones</a></li>
+          <li><a href="/faq" class="hover:text-primary transition-colors">Preguntas Frecuentes</a></li>
         </ul>
       </div>
 
+      {/* 4. Contacto y Data Fiscal */}
       <div>
-        <h3 class="font-bold text-secondary mb-4">Síguenos</h3>
-        <div class="flex space-x-4">
-          <a href="#" aria-label="Facebook" class="text-muted hover:text-primary transition-colors">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path></svg>
-          </a>
-          <a href="#" aria-label="Instagram" class="text-muted hover:text-primary transition-colors">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.265-.069-1.645-.069-4.85s.011-3.584.069-4.85c.149-3.225 1.664-4.771 4.919-4.919 1.266-.057 1.644-.069 4.85-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.98.059-1.281.073-1.689.073-4.948s-.014-3.667-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98-1.281-.059-1.689-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.441 1.441 1.441 1.441-.645 1.441-1.441-.645-1.44-1.441-1.44z"></path></svg>
-          </a>
-          <a href="#" aria-label="X" class="text-muted hover:text-primary transition-colors">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616v.064c0 2.299 1.634 4.218 3.8 4.659-.693.188-1.425.216-2.168.084.618 1.953 2.423 3.377 4.564 3.417-1.798 1.407-4.069 2.245-6.533 2.245-.425 0-.845-.025-1.258-.074 2.296 1.474 5.021 2.34 8.001 2.34 9.457 0 14.307-7.721 13.995-14.646.992-.712 1.854-1.604 2.538-2.65z"></path></svg>
-          </a>
-        </div>
+        <h3 class="text-lg font-bold mb-4 text-secondary">Contacto</h3>
+        <ul class="space-y-3 text-sm text-gray-600 mb-6">
+          <li class="flex items-center gap-3">
+            <span class="text-primary">📍</span> Av. Corrientes 1234, CABA
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-primary">📧</span> ventas@pcfix.com.ar
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-primary">📱</span> +54 9 11 1234-5678
+          </li>
+        </ul>
+        
+        {/* DATA FISCAL */}
+        <a href="https://www.afip.gob.ar/" target="_blank" class="block w-12 h-16 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-opacity" title="Data Fiscal">
+            <img src="https://www.afip.gob.ar/images/f960/DATAWEB.jpg" alt="QR Data Fiscal" class="w-full h-full object-contain" />
+        </a>
       </div>
+
     </div>
-    
-    <div class="mt-8 pt-8 border-t border-gray-200 text-center text-muted text-sm">
-      &copy; {new Date().getFullYear()} PCFIX. Todos los derechos reservados.
+
+    <div class="border-t border-gray-100 pt-8 text-center text-xs text-gray-400">
+      <p>&copy; {new Date().getFullYear()} PCFIX S.A. Todos los derechos reservados.</p>
     </div>
   </div>
-</footer>
+</footer> 

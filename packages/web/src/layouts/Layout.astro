@@ -8,6 +8,7 @@ import 'swiper/css/effect-fade';
 import { ViewTransitions } from 'astro:transitions';
 import ToastContainer from '../components/shared/ToastContainer.tsx';
 import FavoritesInitializer from '../components/shared/FavoritesInitializer.tsx';
+import WhatsAppButton from '../components/shared/WhatsAppButton.tsx';
 
 interface Props {
 	title: string;
@@ -29,53 +30,35 @@ const { title } = Astro.props;
 		<title>{title}</title>
 
 		<style is:global>
-			/* Estilos globales para Swiper */
-			.swiper-wrapper {
-				margin-bottom: 40px;
-			}
-
-			.swiper-pagination {
-				bottom: 0px !important;
-				padding-bottom: 4px;
-			}
-
+			.swiper-wrapper { margin-bottom: 40px; }
+			.swiper-pagination { bottom: 0px !important; padding-bottom: 4px; }
 			.swiper-pagination-bullet-active {
 				background-color: #121D40 !important;
-				width: 10px;
-				height: 10px;
+				width: 10px; height: 10px;
 			}
-
-			.swiper-button-prev,
-			.swiper-button-next {
-				background-color: #96B3D9;
-				width: 44px;
-				height: 44px;
+			.swiper-button-prev, .swiper-button-next {
+				background-color: #96B3D9; width: 44px; height: 44px;
 				border-radius: 9999px;
-				box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+				box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 				top: 45% !important; 
 			}
-
-			.swiper-button-prev::after,
-			.swiper-button-next::after {
-				font-size: 1.25rem !important;
-				font-weight: 800 !important;
-				color: #121D40;
+			.swiper-button-prev::after, .swiper-button-next::after {
+				font-size: 1.25rem !important; font-weight: 800 !important; color: #121D40;
 			}
-
 			.swiper-button-prev { left: 0px; }
 			.swiper-button-next { right: 0px; }
-
 			.brand-swiper-container .swiper-wrapper {
 				transition-timing-function: linear !important;
 			}
 		</style>
 	</head>
 	
-    <body class="bg-light text-secondary font-sans" transition:animate="none">
+	<body class="bg-light text-secondary font-sans" transition:animate="none">
 		
 		<div transition:persist>
 			<ToastContainer client:load />
 			<FavoritesInitializer client:load />
+			<WhatsAppButton client:load />
 		</div>
 
 		<slot />

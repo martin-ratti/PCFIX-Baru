@@ -9,8 +9,30 @@ import BrandCarousel from '../components/shared/BrandCarousel.tsx';
 import HomeBanners from '../components/shared/HomeBanners.tsx';
 
 // --- INTERFACES ---
-interface ProductDB { id: number; nombre: string; descripcion: string; precio: string | number; precioOriginal: string | number | null; stock: number; foto: string | null; categoriaId: number; isFeatured: boolean; }
-interface ProductCardProps { id: string; name: string; price: number; imageUrl: string; imageAlt: string; originalPrice?: number | null; stock: number; slug: string; description: string; }
+interface ProductDB {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  precio: string | number;
+  precioOriginal: string | number | null;
+  stock: number;
+  foto: string | null;
+  categoriaId: number;
+  isFeatured: boolean;
+}
+
+interface ProductCardProps {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  imageAlt: string;
+  originalPrice?: number | null;
+  stock: number;
+  slug: string;
+  description: string;
+}
+
 interface Brand { id: number; nombre: string; logo: string | null; }
 interface Banner { id: number; imagen: string; marca: Brand; }
 
@@ -23,30 +45,60 @@ let brands: Brand[] = [];
 let banners: Banner[] = [];
 let errorApi = false;
 
-// --- CARGA DE DATOS OPTIMIZADA ---
+// --- CARGA DE DATOS ---
 try {
-  const [featuredRes, saleRes, newRes, brandRes, bannerRes] = await Promise.all([
-     fetch('http://localhost:3002/api/products?isFeatured=true&limit=8'),
-     fetch('http://localhost:3002/api/products?hasDiscount=true&limit=8'),
-     fetch('http://localhost:3002/api/products?limit=8'), // Novedades
+  const [prodRes, brandRes, bannerRes] = await Promise.all([
+     fetch('http://localhost:3002/api/products'),
      fetch('http://localhost:3002/api/brands'),
      fetch('http://localhost:3002/api/banners')
   ]);
   
-  if (featuredRes.ok) { const r = await featuredRes.json(); if(r.success) featuredProducts = r.data.map(mapProductToCard); }
-  if (saleRes.ok) { const r = await saleRes.json(); if(r.success) saleProducts = r.data.map(mapProductToCard); }
-  if (newRes.ok) { const r = await newRes.json(); if(r.success) newArrivalsProducts = r.data.map(mapProductToCard); }
-  if (brandRes.ok) { const r = await brandRes.json(); if(r.success) brands = r.data; }
-  if (bannerRes.ok) { const r = await bannerRes.json(); if(r.success) banners = r.data; }
+  if (prodRes.ok) {
+    const result = await prodRes.json();
+    if (result.success) {
+      allProducts = result.data;
+      
+      // Destacados: Solo los marcados con estrella
+      const featuredDB = allProducts.filter(p => p.isFeatured === true);
+      featuredProducts = featuredDB.map(mapProductToCard);
+
+      // Ofertas
+      const productsOnSale = allProducts.filter(p => 
+        p.precioOriginal !== null && 
+        Number(p.precioOriginal) > Number(p.precio)
+      );
+      saleProducts = productsOnSale.map(mapProductToCard);
+
+      // Novedades
+      newArrivalsProducts = allProducts.slice(0, 8).map(mapProductToCard);
+    }
+  } else { errorApi = true; }
+
+  if (brandRes.ok) {
+     const result = await brandRes.json();
+     if(result.success) brands = result.data;
+  }
+
+  if (bannerRes.ok) {
+     const result = await bannerRes.json();
+     if(result.success) banners = result.data;
+  }
 } catch (error) {
-  console.error("Error cargando home:", error);
+  console.error("Error crítico cargando home:", error);
   errorApi = true;
 }
 
 function mapProductToCard(p: ProductDB): ProductCardProps {
   return {
-    id: p.id.toString(), name: p.nombre, price: Number(p.precio), imageUrl: p.foto || 'https://placehold.co/600x600/111626/F2F2F2?text=Sin+Imagen',
-    imageAlt: p.nombre, stock: p.stock, originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null, slug: p.id.toString(), description: p.descripcion
+    id: p.id.toString(),
+    name: p.nombre,
+    price: Number(p.precio),
+    imageUrl: p.foto || 'https://placehold.co/600x600/111626/F2F2F2?text=Sin+Imagen',
+    imageAlt: p.nombre,
+    stock: p.stock,
+    originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null,
+    slug: p.id.toString(),
+    description: p.descripcion
   };
 }
 ---
@@ -57,7 +109,7 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
   <main class="min-h-screen bg-light">
     
     <div class="container mx-auto px-6 pt-8">
-      {/* BANNERS O HERO ESTATICO */}
+      {/* BANNERS */}
       {banners.length > 0 ? (
         <HomeBanners banners={banners} client:load />
       ) : (
@@ -67,35 +119,63 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
             <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full blur-3xl"></div>
           </div>
           <div class="container mx-auto px-6 relative z-10 text-center">
-            <span class="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-blue-200 text-xs font-bold tracking-wider mb-4 backdrop-blur-sm">NUEVA COLECCIÓN</span>
-            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight tracking-tight">Potencia tu Setup</h1>
+            <span class="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-blue-200 text-xs font-bold tracking-wider mb-4 backdrop-blur-sm">
+              NUEVA COLECCIÓN
+            </span>
+            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight tracking-tight">
+              Potencia tu Setup
+            </h1>
             <div class="flex justify-center gap-4">
-              <a href="/productos" class="bg-white text-primary px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg">Ver Catálogo</a>
+              <a href="/productos" class="bg-white text-primary px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg">
+                Ver Catálogo
+              </a>
             </div>
           </div>
         </section>
       )}
     </div>
 
-    {/* SECCIONES DE PRODUCTOS */}
     <div class="container mx-auto px-6 space-y-20 py-12">
       
       {featuredProducts.length > 0 && (
-        <div class="space-y-4"><Carousel title="Productos Destacados" products={featuredProducts} client:visible /></div>
+        <div class="space-y-4">
+          <Carousel title="Productos Destacados" products={featuredProducts} client:visible />
+        </div>
       )}
+          
       {saleProducts.length > 0 && (
-        <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100"><Carousel title="¡Ofertas Imperdibles!" products={saleProducts} client:visible /></div>
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+          <Carousel title="¡Ofertas Imperdibles!" products={saleProducts} client:visible />
+        </div>
       )}
+      
       {newArrivalsProducts.length > 0 && (
-        <div class="space-y-4"><Carousel title="Recién Llegados" products={newArrivalsProducts} client:visible /></div>
+        <div class="space-y-4">
+          <Carousel title="Recién Llegados" products={newArrivalsProducts} client:visible />
+        </div>
       )}
 
-      {/* CARGA / ERROR */}
+      {/* LOADING / EMPTY STATE */}
       {!errorApi && allProducts.length === 0 && (
-        <div class="text-center py-32 opacity-50"><div class="inline-block w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin mb-4"></div><p class="text-xl font-medium">Cargando el mejor hardware...</p></div>
+        <div class="text-center py-32 opacity-50">
+          <div class="inline-block w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin mb-4"></div>
+          <p class="text-xl font-medium">Cargando el mejor hardware...</p>
+        </div>
       )}
+
+      {/* Mensaje si hay productos pero no en las categorías seleccionadas */}
+      {!errorApi && allProducts.length > 0 && featuredProducts.length === 0 && saleProducts.length === 0 && newArrivalsProducts.length === 0 && (
+         <div class="text-center py-20 text-gray-400">
+            <p>No hay productos destacados para mostrar en este momento.</p>
+            <a href="/productos" class="text-primary hover:underline">Ver catálogo completo</a>
+         </div>
+      )}
+
       {errorApi && (
-        <div class="text-center py-20 bg-red-50 rounded-xl border border-red-100 text-red-600"><p class="font-bold">Hubo un problema cargando los productos.</p><p class="text-sm">Por favor intenta recargar la página.</p></div>
+        <div class="text-center py-20 bg-red-50 rounded-xl border border-red-100 text-red-600">
+          <p class="font-bold">Hubo un problema cargando los productos.</p>
+          <p class="text-sm">Por favor intenta recargar la página.</p>
+        </div>
       )}
     </div>
   </main>
