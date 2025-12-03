@@ -7,7 +7,7 @@ import { prisma } from './shared/database/prismaClient';
 import authRoutes from './modules/auth/auth.routes';
 import productsRoutes from './modules/products/products.routes';
 import categoriesRoutes from './modules/categories/categories.routes';
-// Imports recuperados
+import favoritesRoutes from './modules/favorites/favorites.routes';
 import brandsRoutes from './modules/brands/brands.routes';
 import bannersRoutes from './modules/banners/banners.routes';
 import statsRoutes from './modules/stats/stats.routes';
@@ -31,11 +31,12 @@ app.use('/uploads', (req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);
-app.use('/api/brands', brandsRoutes);   // Marcas
-app.use('/api/banners', bannersRoutes); // Banners
-app.use('/api/stats', statsRoutes);     // Dashboard
+app.use('/api/brands', brandsRoutes);   
+app.use('/api/banners', bannersRoutes); 
+app.use('/api/stats', statsRoutes);     
 app.use('/api/users', usersRoutes);
 app.use('/api/sales', salesRoutes);
+app.use('/api/favorites', favoritesRoutes);
 
 app.get('/health', async (req: Request, res: Response) => {
   try {

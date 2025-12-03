@@ -1,0 +1,24 @@
+---
+export const prerender = false;
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import FavoritesPageContent from '../components/profile/FavoritesPageContent'; 
+// CAMBIO: Importar UserGuard en lugar de AdminGuard
+import UserGuard from '../components/auth/UserGuard.tsx'; 
+---
+
+<Layout title="PCFIX | Mis Favoritos">
+    <Header />
+    <main class="container mx-auto px-6 py-12 min-h-screen">
+        <h1 class="text-3xl font-black text-primary mb-8 border-b pb-3">
+            Mi Lista de Deseos
+        </h1>
+        
+        {/* CORRECCIÓN: Usar UserGuard */}
+        <UserGuard client:only="react">
+            <FavoritesPageContent client:load />
+        </UserGuard>
+    </main>
+    <Footer />
+</Layout>

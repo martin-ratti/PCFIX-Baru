@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// --- USUARIOS Y CLIENTES ---
+// --- USUARIOS ---
 
 model User {
   id        Int      @id @default(autoincrement())
@@ -18,15 +18,18 @@ model User {
   googleId  String?  @unique
   role      Role     @default(USER)
   cliente   Cliente?
+  
+  // Relación inversa para favoritos
+  favoritos Favorite[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Cliente {
-  id          Int        @id @default(autoincrement())
-  userId      Int        @unique
-  user        User       @relation(fields: [userId], references: [id])
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique
+  user        User      @relation(fields: [userId], references: [id])
   direccion   String?
   telefono    String?
   localidadId Int?
@@ -49,7 +52,7 @@ model Provincia {
   localidades Localidad[]
 }
 
-// --- CATÁLOGO Y MARKETING ---
+// --- CATÁLOGO ---
 
 model Producto {
   id             Int      @id @default(autoincrement())
@@ -59,35 +62,29 @@ model Producto {
   precioOriginal Decimal? @db.Decimal(10, 2)
   stock          Int
   foto           String?
-  
-  // Estados y Lógica
-  isFeatured     Boolean   @default(false)
-  deletedAt      DateTime? // Soft Delete
+  isFeatured     Boolean  @default(false)
+  deletedAt      DateTime?
 
-  // Relaciones
   categoriaId    Int
   categoria      Categoria @relation(fields: [categoriaId], references: [id])
 
   marcaId        Int?
   marca          Marca?    @relation(fields: [marcaId], references: [id])
 
-  lineasVenta    LineaVenta[]
+  // Relación inversa para favoritos
+  favoritedBy    Favorite[]
 
+  lineasVenta    LineaVenta[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
 
-// --- EN EL ARCHIVO schema.prisma ---
 model Categoria {
   id            Int         @id @default(autoincrement())
   nombre        String      @unique
-  
-  // --- AÑADIR ESTO ---
   padreId       Int?        
   padre         Categoria?  @relation("CategoriaJerarquia", fields: [padreId], references: [id])
   subcategorias Categoria[] @relation("CategoriaJerarquia")
-  // --------------------
-  
   productos     Producto[]
 }
 
@@ -107,7 +104,20 @@ model Banner {
   createdAt DateTime @default(now())
 }
 
-// --- VENTAS Y PAGOS ---
+// --- FAVORITOS (TABLA INTERMEDIA) ---
+
+model Favorite {
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  
+  // IMPORTANTE: Aquí definimos el nombre del campo en la DB
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id])
+
+  @@id([userId, productoId]) // Clave compuesta para evitar duplicados
+}
+
+// --- VENTAS ---
 
 model Venta {
   id          Int          @id @default(autoincrement())
