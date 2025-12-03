@@ -77,16 +77,17 @@ model Producto {
   updatedAt      DateTime @updatedAt
 }
 
+// --- EN EL ARCHIVO schema.prisma ---
 model Categoria {
   id            Int         @id @default(autoincrement())
   nombre        String      @unique
   
-  // --- JERARQUÍA (SUBCATEGORÍAS) ---
+  // --- AÑADIR ESTO ---
   padreId       Int?        
-  padre         Categoria?  @relation("Jerarquia", fields: [padreId], references: [id])
-  subcategorias Categoria[] @relation("Jerarquia")
-  // ---------------------------------
-
+  padre         Categoria?  @relation("CategoriaJerarquia", fields: [padreId], references: [id])
+  subcategorias Categoria[] @relation("CategoriaJerarquia")
+  // --------------------
+  
   productos     Producto[]
 }
 

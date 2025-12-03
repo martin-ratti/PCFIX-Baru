@@ -1,0 +1,37 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header.astro';
+import Footer from '../../components/layout/Footer.astro';
+import EditProfileForm from '../../components/profile/EditProfileForm';
+import AdminGuard from '../../components/admin/AdminGuard.tsx'; // Reusamos para verificar sesión
+
+const { id } = Astro.params;
+
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not Found'
+  });
+}
+---
+
+<Layout title={`PCFIX | Perfil ${id}`}>
+  <Header />
+  
+  <main class="container mx-auto px-6 py-12 bg-light min-h-screen">
+    <div class="mb-8">
+        <h1 class="text-3xl font-black text-primary">Mi Perfil</h1>
+        <p class="text-muted">Administra tu información personal y cuenta.</p>
+    </div>
+    
+    <AdminGuard client:only="react">
+      {/* Pasamos el ID del usuario como prop al formulario */}
+      <EditProfileForm userId={id} client:load />
+    </AdminGuard>
+
+  </main>
+
+  <Footer />
+</Layout>
