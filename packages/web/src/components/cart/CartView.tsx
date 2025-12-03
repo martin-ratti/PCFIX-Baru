@@ -7,7 +7,6 @@ import ConfirmModal from '../shared/ConfirmModal';
 
 export default function CartView() {
   const { items, removeItem, increaseQuantity, decreaseQuantity, clearCart } = useCartStore();
-  // 1. RECUPERAMOS EL TOKEN
   const { user, token, isAuthenticated } = useAuthStore();
   const addToast = useToastStore(s => s.addToast);
   
@@ -15,27 +14,57 @@ export default function CartView() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
-  useEffect(() => setIsClient(true), []);
+  // Estados para el envío
+  const [zipCode, setZipCode] = useState('');
+  const [shippingCost, setShippingCost] = useState<number | null>(null); // Null inicial para obligar a calcular
+  const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
+  const [baseShippingCost, setBaseShippingCost] = useState(0); // Costo base desde config
+
+  useEffect(() => {
+      setIsClient(true);
+      // Obtener costo de envío base desde la configuración del admin
+      fetch('http://localhost:3002/api/config')
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) setBaseShippingCost(Number(data.data.costoEnvioFijo));
+        })
+        .catch(err => console.error("Error cargando config envío:", err));
+  }, []);
 
   const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
-  const isAdmin = user?.role === 'ADMIN';
+  // Si ya calculó el envío, lo sumamos. Si no, solo subtotal.
+  const totalFinal = subtotal + (shippingCost || 0);
 
-  const handleIncrease = (itemId: string) => {
-    const item = items.find(i => i.id === itemId);
-    if (item) {
-      if (item.quantity >= item.stock) {
-        addToast(`Solo hay ${item.stock} unidades disponibles`, 'error');
+  // Función para simular el cálculo con Correo Argentino
+  const handleCalculateShipping = async () => {
+    if (!zipCode || zipCode.length < 4) {
+        addToast("Ingresa un Código Postal válido", 'error');
         return;
-      }
-      increaseQuantity(itemId);
     }
+
+    setIsCalculatingShipping(true);
+    
+    // Simulamos delay de API real (UX)
+    setTimeout(() => {
+        // Aquí en el futuro haríamos: POST /api/shipping/quote { cp: zipCode }
+        // Por ahora usamos el costo fijo configurado en el backend
+        setShippingCost(baseShippingCost); 
+        setIsCalculatingShipping(false);
+        addToast("Costo de envío calculado", 'success');
+    }, 800);
   };
 
   const handleCheckout = async () => {
-    // 2. VALIDAMOS QUE HAYA TOKEN
     if (!isAuthenticated || !user || !token) {
-        addToast("Debes iniciar sesión para comprar", 'error');
+        addToast("Inicia sesión para comprar", 'error');
         window.location.href = '/login';
+        return;
+    }
+
+    if (shippingCost === null) {
+        addToast("Por favor calcula el envío antes de continuar", 'error');
+        // Hacemos foco en el input de CP
+        document.getElementById('zipCodeInput')?.focus();
         return;
     }
     
@@ -45,128 +74,127 @@ export default function CartView() {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                // 3. ENVIAMOS EL TOKEN (CRÍTICO)
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
-                // No enviamos userId, el backend lo saca del token
                 items: items,
-                total: subtotal 
+                total: subtotal, // Enviamos el subtotal (el back recalcula envío)
+                cpDestino: zipCode
             })
         });
         
         const json = await res.json();
-        
         if (json.success) {
             clearCart();
-            addToast("Orden creada. Redirigiendo al pago...", 'success');
-            await navigate(`/checkout/${json.data.id}`);
-        } else {
-            throw new Error(json.error);
-        }
+            navigate(`/checkout/${json.data.id}`);
+        } else { throw new Error(json.error); }
     } catch (e: any) {
-        addToast(e.message || "Error al procesar la orden", 'error');
+        addToast(e.message, 'error');
         setIsProcessing(false);
     }
   };
 
-  // --- SKELETON LOADING ---
-  if (!isClient) {
-    return (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
-        <div className="lg:col-span-2 space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
-          {[1, 2].map(i => (
-            <div key={i} className="flex items-center p-4 border border-gray-100 rounded-xl gap-4">
-               <div className="w-24 h-24 bg-gray-200 rounded-lg"></div>
-               <div className="flex-1 space-y-2">
-                 <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                 <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-               </div>
-            </div>
-          ))}
-        </div>
-        <div className="lg:col-span-1">
-            <div className="h-64 bg-gray-200 rounded-xl"></div>
-        </div>
-      </div>
-    );
-  }
+  if (!isClient) return null; // Skeleton...
 
   if (items.length === 0) {
     return (
       <div className="text-center py-20 bg-white rounded-lg border border-gray-100 shadow-sm">
-        <div className="flex justify-center mb-4 text-gray-200">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-20 h-20">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-          </svg>
-        </div>
-        <h1 className="text-3xl font-bold text-secondary mb-2">Tu carrito está vacío</h1>
+        <div className="text-6xl mb-4">🛒</div>
+        <h1 className="text-3xl font-bold text-secondary mb-4">Tu carrito está vacío</h1>
         <p className="text-muted mb-8">¡Explora nuestro catálogo y encuentra lo que buscas!</p>
-        <button onClick={() => navigate('/')} className="bg-primary text-light font-bold py-3 px-8 rounded-lg hover:bg-opacity-90 transition-colors">
-          Ir a la tienda
-        </button>
+        <a href="/productos" className="bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-opacity-90 transition-colors shadow-md">Ir a la Tienda</a>
       </div>
     );
   }
 
   return (
-    <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <h1 className="text-3xl font-bold text-secondary mb-6">Tu Carrito ({items.length})</h1>
-          <div className="space-y-4">
-            {items.map((item) => (
-              <div key={item.id} className="flex flex-col sm:flex-row items-center bg-white p-4 rounded-lg shadow-md gap-4 hover:shadow-lg transition-shadow duration-300">
-                <a href={`/producto/${item.slug || item.id}`} className="shrink-0">
-                  <img src={item.imageUrl} alt={item.imageAlt} className="w-24 h-24 object-cover rounded border border-gray-100" />
-                </a>
-                
-                <div className="flex-grow text-center sm:text-left">
-                  <h2 className="font-bold text-lg text-secondary hover:text-primary transition-colors">
-                    <a href={`/producto/${item.slug || item.id}`}>{item.name}</a>
-                  </h2>
-                  <p className="text-primary font-semibold text-xl mt-1">${item.price.toLocaleString('es-AR')}</p>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center border border-gray-300 rounded-lg bg-gray-50">
-                    <button onClick={() => decreaseQuantity(item.id)} className="px-3 py-1 hover:bg-gray-200 transition-colors font-bold text-gray-600">-</button>
-                    <span className="px-4 py-1 font-medium w-12 text-center">{item.quantity}</span>
-                    <button onClick={() => handleIncrease(item.id)} className={`px-3 py-1 transition-colors font-bold ${item.quantity >= item.stock ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-200'}`}>+</button>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-500">
+      {/* Lista de Productos */}
+      <div className="lg:col-span-2 space-y-4">
+        <h1 className="text-2xl font-black text-secondary mb-4 border-b pb-2">Tu Carrito ({items.length})</h1>
+        {items.map((item) => (
+            <div key={item.id} className="flex flex-col sm:flex-row items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 gap-4">
+               <img src={item.imageUrl} alt={item.imageAlt} className="w-20 h-20 object-cover rounded-md border border-gray-200" />
+               <div className="flex-grow text-center sm:text-left">
+                  <h2 className="font-bold text-secondary text-sm">{item.name}</h2>
+                  <p className="text-primary font-black text-base mt-1">${item.price.toLocaleString('es-AR')}</p>
+               </div>
+               <div className="flex items-center gap-3">
+                  <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden h-8">
+                    <button onClick={() => decreaseQuantity(item.id)} className="px-2 hover:bg-gray-100 text-gray-600 font-bold">-</button>
+                    <span className="px-2 font-medium text-sm min-w-[1.5rem] text-center">{item.quantity}</span>
+                    <button onClick={() => increaseQuantity(item.id)} className="px-2 hover:bg-gray-100 text-gray-600 font-bold">+</button>
                   </div>
-                  <button onClick={() => removeItem(item.id)} className="text-gray-400 hover:text-red-500 transition-colors p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+                  <button onClick={() => removeItem(item.id)} className="text-gray-400 hover:text-red-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></button>
+               </div>
+            </div>
+        ))}
+      </div>
 
-        <div className="lg:col-span-1">
-          <div className="bg-white p-6 rounded-lg shadow-md sticky top-24 border border-gray-100">
-            <h2 className="text-2xl font-bold text-secondary border-b pb-4 mb-4">Resumen</h2>
-            <div className="flex justify-between mb-2 text-gray-600"><span>Subtotal</span><span>${subtotal.toLocaleString('es-AR')}</span></div>
-            <div className="flex justify-between mb-4 text-gray-600"><span>Envío</span><span className="text-green-600 font-medium">Gratis</span></div>
-            <div className="flex justify-between font-bold text-2xl border-t border-gray-200 pt-4 mt-4 text-primary"><span>Total</span><span>${subtotal.toLocaleString('es-AR')}</span></div>
-            
-            {isAdmin ? (
-              <div className="mt-6 bg-gray-100 text-gray-500 font-bold py-3 px-4 rounded-lg text-center border border-gray-200 cursor-not-allowed flex items-center justify-center gap-2">
-                🚫 Modo Administrador
-              </div>
-            ) : (
-              <button 
-                onClick={handleCheckout} 
-                disabled={isProcessing || items.length === 0}
-                className="w-full mt-6 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition-all shadow-lg shadow-green-200 hover:shadow-green-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isProcessing ? 'Procesando...' : 'Finalizar Compra'}
-              </button>
-            )}
-            
-            <button onClick={() => navigate('/')} className="w-full mt-3 border-2 border-primary text-primary font-bold py-3 rounded-lg hover:bg-gray-50 transition-colors">Seguir Comprando</button>
-            <button onClick={() => setIsClearModalOpen(true)} className="w-full mt-4 text-sm text-red-400 hover:text-red-600 hover:underline text-center">Vaciar Carrito</button>
+      {/* Resumen y Calculadora de Envío */}
+      <div className="lg:col-span-1">
+        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 sticky top-24">
+          <h2 className="text-lg font-bold text-secondary border-b pb-3 mb-4">Resumen del Pedido</h2>
+          
+          <div className="space-y-3 mb-6 text-sm">
+            <div className="flex justify-between">
+                <span className="text-gray-600">Subtotal productos</span>
+                <span className="font-medium">${subtotal.toLocaleString('es-AR')}</span>
+            </div>
+
+            {/* CALCULADORA DE ENVÍO */}
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                    Envío (Correo Argentino)
+                </p>
+                
+                {shippingCost === null ? (
+                    <div className="flex gap-2">
+                        <input 
+                            type="text" 
+                            id="zipCodeInput"
+                            placeholder="Cód. Postal" 
+                            value={zipCode}
+                            onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                            className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+                        />
+                        <button 
+                            onClick={handleCalculateShipping}
+                            disabled={isCalculatingShipping}
+                            className="bg-secondary text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-opacity-90 transition-colors whitespace-nowrap"
+                        >
+                            {isCalculatingShipping ? '...' : 'Calcular'}
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex justify-between items-center animate-in fade-in">
+                        <div className="flex flex-col">
+                            <span className="text-sm font-bold text-secondary">A domicilio (CP {zipCode})</span>
+                            <button onClick={() => setShippingCost(null)} className="text-[10px] text-blue-500 hover:underline text-left">Cambiar CP</button>
+                        </div>
+                        <span className="font-bold text-secondary">${shippingCost.toLocaleString('es-AR')}</span>
+                    </div>
+                )}
+            </div>
+          </div>
+          
+          <div className="flex justify-between items-end border-t pt-4 mb-6">
+            <span className="text-lg font-bold text-secondary">Total Final</span>
+            <span className="text-3xl font-black text-primary">${totalFinal.toLocaleString('es-AR')}</span>
+          </div>
+          
+          <button 
+             onClick={handleCheckout} 
+             disabled={isProcessing || shippingCost === null}
+             className="w-full bg-green-600 text-white font-bold py-3.5 rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform active:scale-[0.98]"
+          >
+            {isProcessing ? 'Procesando...' : shippingCost === null ? 'Calcula el envío primero' : 'Finalizar Compra'}
+          </button>
+          
+          <div className="mt-4 flex justify-between items-center">
+             <button onClick={() => navigate('/')} className="text-sm text-gray-500 hover:text-primary underline">Seguir comprando</button>
+             <button onClick={() => setIsClearModalOpen(true)} className="text-sm text-red-400 hover:text-red-600">Vaciar</button>
           </div>
         </div>
       </div>
@@ -174,12 +202,12 @@ export default function CartView() {
       <ConfirmModal
         isOpen={isClearModalOpen}
         title="Vaciar Carrito"
-        message="¿Estás seguro de que deseas eliminar todos los productos del carrito?"
+        message="¿Eliminar todos los productos?"
         confirmText="Sí, vaciar"
         isDanger={true}
-        onConfirm={() => { clearCart(); setIsClearModalOpen(false); addToast('Carrito vaciado', 'info'); }}
+        onConfirm={() => { clearCart(); setIsClearModalOpen(false); }}
         onCancel={() => setIsClearModalOpen(false)}
       />
-    </>
+    </div>
   );
 }

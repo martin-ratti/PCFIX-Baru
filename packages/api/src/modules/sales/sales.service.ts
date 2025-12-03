@@ -1,31 +1,64 @@
 import { prisma } from '../../shared/database/prismaClient';
 import { VentaEstado } from '@prisma/client';
-// Asegúrate de tener creado el EmailService que hicimos en la Fase 33
 import { EmailService } from '../../shared/services/EmailService';
+import { ShippingService } from '../../shared/services/ShippingService';
 
 export class SalesService {
   private emailService: EmailService;
+  private shippingService: ShippingService;
 
   constructor() {
     this.emailService = new EmailService();
+    this.shippingService = new ShippingService();
   }
 
-  // 1. CREAR VENTA (Checkout Inicial)
-  async createSale(userId: number, items: any[], total: number) {
-    // Buscamos el cliente o lo creamos si no existe (Robustez)
-    let cliente = await prisma.cliente.findUnique({ where: { userId } });
+  // 1. CREAR VENTA (Checkout)
+  async createSale(userId: number, items: any[], subtotal: number, cpDestino?: string) {
     
+    // Autoreparación: Buscar o crear perfil de cliente
+    let cliente = await prisma.cliente.findUnique({ where: { userId } });
     if (!cliente) {
       cliente = await prisma.cliente.create({ data: { userId } });
     }
 
-    // Transacción: Crea venta, líneas y descuenta stock atómicamente
+    // A. Calcular Peso Total para Envío
+    let pesoTotal = 0;
+    const productIds = items.map((i: any) => Number(i.id));
+    
+    // Consultamos DB para obtener pesos reales (seguridad)
+    const dbProducts = await prisma.producto.findMany({
+        where: { id: { in: productIds } },
+        select: { id: true, peso: true }
+    });
+
+    items.forEach((item: any) => {
+        const p = dbProducts.find(dbp => dbp.id === Number(item.id));
+        // Fallback: Si no tiene peso, usamos 0.5kg para evitar NaN
+        const pesoUnitario = (p && p.peso) ? Number(p.peso) : 0.5; 
+        pesoTotal += pesoUnitario * item.quantity;
+    });
+
+    // B. Cotizar Envío
+    let costoEnvio = 0;
+    if (cpDestino) {
+        costoEnvio = await this.shippingService.calculateCost(cpDestino, pesoTotal);
+    } else {
+        // Fallback a costo fijo si no hay CP (raro en este punto)
+        const config = await prisma.configuracion.findFirst();
+        costoEnvio = config ? Number(config.costoEnvioFijo) : 5000;
+    }
+
+    const finalTotal = subtotal + costoEnvio;
+
+    // C. Transacción Atómica
     return await prisma.$transaction(async (tx) => {
       const venta = await tx.venta.create({
         data: {
           clienteId: cliente!.id,
-          montoTotal: total,
-          estado: VentaEstado.PENDIENTE_PAGO 
+          montoTotal: finalTotal,
+          costoEnvio: costoEnvio,
+          metodoEnvio: "CORREO_ARGENTINO",
+          estado: VentaEstado.PENDIENTE_PAGO
         }
       });
 
@@ -39,7 +72,7 @@ export class SalesService {
           }
         });
         
-        // Descontar stock
+        // Descontar Stock
         await tx.producto.update({
           where: { id: Number(item.id) },
           data: { stock: { decrement: item.quantity } }
@@ -50,7 +83,7 @@ export class SalesService {
     });
   }
 
-  // 2. SUBIR COMPROBANTE (Usuario paga -> Notificar Admin)
+  // 2. SUBIR COMPROBANTE
   async uploadReceipt(saleId: number, receiptUrl: string) {
     const updatedSale = await prisma.venta.update({
       where: { id: saleId },
@@ -58,12 +91,10 @@ export class SalesService {
         comprobante: receiptUrl,
         estado: VentaEstado.PENDIENTE_APROBACION 
       },
-      include: {
-        cliente: { include: { user: true } }
-      }
+      include: { cliente: { include: { user: true } } }
     });
 
-    // 📧 EMAIL AL ADMIN: "Hay un nuevo pago para revisar"
+    // Notificar Admin
     if (updatedSale.cliente?.user?.email) {
         this.emailService.sendNewReceiptNotification(saleId, updatedSale.cliente.user.email)
             .catch(err => console.error("Fallo enviando email admin:", err));
@@ -72,17 +103,15 @@ export class SalesService {
     return updatedSale;
   }
 
-  // 3. ACTUALIZAR ESTADO (Admin aprueba/rechaza -> Notificar Cliente)
+  // 3. ADMIN: APROBAR / RECHAZAR
   async updateStatus(saleId: number, status: VentaEstado) {
     const updatedSale = await prisma.venta.update({
       where: { id: saleId },
       data: { estado: status },
-      include: {
-        cliente: { include: { user: true } }
-      }
+      include: { cliente: { include: { user: true } } }
     });
 
-    // 📧 EMAIL AL CLIENTE: "Tu pago fue aprobado/rechazado"
+    // Notificar Cliente
     if (updatedSale.cliente?.user?.email) {
         this.emailService.sendStatusUpdate(updatedSale.cliente.user.email, saleId, status)
             .catch(err => console.error("Fallo enviando email cliente:", err));
@@ -90,8 +119,36 @@ export class SalesService {
 
     return updatedSale;
   }
+
+  // 4. ADMIN: DESPACHAR (Tracking)
+  async dispatchSale(saleId: number, trackingCode: string) {
+    const sale = await prisma.venta.findUnique({ where: { id: saleId } });
+    if (!sale) throw new Error("Venta no encontrada");
+    if (sale.estado !== VentaEstado.APROBADO) throw new Error("La venta debe estar APROBADO para despacharse");
+
+    const updatedSale = await prisma.venta.update({
+      where: { id: saleId },
+      data: {
+        estado: VentaEstado.ENVIADO,
+        codigoSeguimiento: trackingCode
+      },
+      include: { cliente: { include: { user: true } } }
+    });
+
+    // Notificar Cliente con Tracking
+    if (updatedSale.cliente?.user?.email) {
+        this.emailService.sendDispatchNotification(
+            updatedSale.cliente.user.email, 
+            saleId, 
+            trackingCode, 
+            "Correo Argentino"
+        ).catch(console.error);
+    }
+
+    return updatedSale;
+  }
   
-  // 4. LISTAR TODAS (Para el Admin - Optimizado)
+  // 5. ADMIN: LISTAR TODO (Paginado)
   async findAll(page: number = 1, limit: number = 10) {
       const skip = (page - 1) * limit;
       const [total, sales] = await prisma.$transaction([
@@ -99,8 +156,6 @@ export class SalesService {
         prisma.venta.findMany({
           include: { 
             cliente: { include: { user: true } },
-            // 👇 ESTO FUE EL "ÚLTIMO CAMBIO":
-            // Incluimos los productos (lineasVenta) para que el Modal de Detalle pueda mostrarlos
             lineasVenta: { include: { producto: true } } 
           },
           orderBy: { fecha: 'desc' },
@@ -111,7 +166,7 @@ export class SalesService {
       return { data: sales, meta: { total, page, lastPage: Math.ceil(total/limit), limit } };
   }
 
-  // 5. BUSCAR UNA (Para el Checkout)
+  // 6. BUSCAR POR ID
   async findById(id: number) {
       return await prisma.venta.findUnique({
           where: { id },
@@ -122,7 +177,7 @@ export class SalesService {
       });
   }
 
-  // 6. MIS COMPRAS (Para el Cliente)
+  // 7. CLIENTE: MIS COMPRAS
   async findByUserId(userId: number, limit: number = 20) {
     return await prisma.venta.findMany({
       where: { cliente: { userId } },
