@@ -3,8 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuthStore } from '../../stores/authStore';
-import { useToastStore } from '../../stores/toastStore';
-import { navigate } from 'astro:transitions/client'; 
+// import { navigate } from 'astro:transitions/client'; // <-- ELIMINADO por problemas de estado
 
 const loginSchema = z.object({
   email: z.string().email('Correo inválido'),
@@ -14,9 +13,9 @@ const loginSchema = z.object({
 type LoginSchema = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const login = useAuthStore((state) => state.login);
-  const addToast = useToastStore((state) => state.addToast);
 
   const {
     register,
@@ -28,6 +27,7 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginSchema) => {
     setIsLoading(true);
+    setError(null);
 
     try {
       const response = await fetch('http://localhost:3002/api/auth/login', {
@@ -42,23 +42,20 @@ export default function LoginForm() {
         throw new Error(result.error || 'Error al iniciar sesión');
       }
 
-      // Guardamos en el store
+      // 1. Guardamos en el Store (y localStorage)
       login(result.data.token, result.data.user);
       
-      addToast(`¡Bienvenido, ${result.data.user.nombre}!`, 'success');
-      
-      // Pequeño delay técnico para asegurar que localStorage se escriba antes de navegar
-      setTimeout(async () => {
-        if (result.data.user.role === 'ADMIN') {
-          await navigate('/admin');
-        } else {
-          await navigate('/');
-        }
-      }, 500); 
+      // 2. REDIRECCIÓN FORZADA (Hard Reload)
+      // Esto garantiza que el AdminGuard lea el localStorage actualizado inmediatamente.
+      if (result.data.user.role === 'ADMIN') {
+        window.location.href = '/admin';
+      } else {
+        window.location.href = '/';
+      }
       
     } catch (err: any) {
-      addToast(err.message, 'error');
-      setIsLoading(false); // Solo quitamos loading si falló, si tuvo éxito esperamos la redirección
+      setError(err.message);
+      setIsLoading(false); // Solo desbloqueamos si hubo error
     }
   };
 
@@ -66,6 +63,12 @@ export default function LoginForm() {
     <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-center mb-6 text-secondary">Iniciar Sesión</h2>
       
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+          {error}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -94,7 +97,7 @@ export default function LoginForm() {
           disabled={isLoading}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 transition-colors"
         >
-          {isLoading ? 'Cargando...' : 'Entrar'}
+          {isLoading ? 'Ingresando...' : 'Entrar'}
         </button>
       </form>
       

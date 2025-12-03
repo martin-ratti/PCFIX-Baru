@@ -5,7 +5,8 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/layout/Header.astro';
 import Footer from '../../components/layout/Footer.astro';
 import EditProfileForm from '../../components/profile/EditProfileForm';
-import AdminGuard from '../../components/admin/AdminGuard.tsx'; // Reusamos para verificar sesión
+// CAMBIO CRÍTICO: Usar UserGuard, no AdminGuard
+import UserGuard from '../../components/auth/UserGuard.tsx'; 
 
 const { id } = Astro.params;
 
@@ -26,10 +27,10 @@ if (!id) {
         <p class="text-muted">Administra tu información personal y cuenta.</p>
     </div>
     
-    <AdminGuard client:only="react">
-      {/* Pasamos el ID del usuario como prop al formulario */}
+    {/* Protegemos con UserGuard para que entren clientes y admins */}
+    <UserGuard client:only="react">
       <EditProfileForm userId={id} client:load />
-    </AdminGuard>
+    </UserGuard>
 
   </main>
 

@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-// Estilos de Swiper necesarios globalmente
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -46,10 +45,9 @@ const { title } = Astro.props;
 				height: 10px;
 			}
 
-			/* Flechas de navegación personalizadas */
 			.swiper-button-prev,
 			.swiper-button-next {
-				background-color: #96B3D9; /* Color 'accent' */
+				background-color: #96B3D9;
 				width: 44px;
 				height: 44px;
 				border-radius: 9999px;
@@ -61,20 +59,19 @@ const { title } = Astro.props;
 			.swiper-button-next::after {
 				font-size: 1.25rem !important;
 				font-weight: 800 !important;
-				color: #121D40; /* Color 'primary' */
+				color: #121D40;
 			}
 
 			.swiper-button-prev { left: 0px; }
 			.swiper-button-next { right: 0px; }
 
-			/* Animación lineal para el carrusel de marcas */
 			.brand-swiper-container .swiper-wrapper {
 				transition-timing-function: linear !important;
 			}
 		</style>
 	</head>
 	
-	<body class="bg-light text-secondary font-sans" transition:animate="fade">
+    <body class="bg-light text-secondary font-sans" transition:animate="none">
 		
 		<div transition:persist>
 			<ToastContainer client:load />

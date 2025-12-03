@@ -40,14 +40,22 @@ export default function ProductListTable() {
 
   useEffect(() => { fetchProducts(); }, [filterCat, showLowStock]);
 
-  const fetchProducts = () => {
+const fetchProducts = () => {
     const params = new URLSearchParams();
     if (filterCat) params.append('categoryId', filterCat);
     if (showLowStock) params.append('lowStock', 'true');
+    params.append('limit', '50'); 
 
     fetch(`http://localhost:3002/api/products?${params.toString()}`)
       .then(res => res.json())
-      .then(data => { if (data.success) setProducts(data.data); });
+      .then(data => { 
+          if (data.success) {
+              setProducts(data.data);
+              if (data.data.length === 50) {
+                  addToast("Mostrando primeros 50 resultados. Usa filtros para ver más.", 'info');
+              }
+          } 
+      });
   };
 
   // Funciones de acción existentes...
