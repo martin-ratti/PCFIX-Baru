@@ -18,18 +18,15 @@ model User {
   googleId  String?  @unique
   role      Role     @default(USER)
   cliente   Cliente?
-  
-  // Relación inversa para favoritos
   favoritos Favorite[]
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Cliente {
-  id          Int       @id @default(autoincrement())
-  userId      Int       @unique
-  user        User      @relation(fields: [userId], references: [id])
+  id          Int        @id @default(autoincrement())
+  userId      Int        @unique
+  user        User       @relation(fields: [userId], references: [id])
   direccion   String?
   telefono    String?
   localidadId Int?
@@ -55,28 +52,26 @@ model Provincia {
 // --- CATÁLOGO ---
 
 model Producto {
-  id             Int      @id @default(autoincrement())
+  id             Int        @id @default(autoincrement())
   nombre         String
-  descripcion    String   @db.Text
-  precio         Decimal  @db.Decimal(10, 2)
-  precioOriginal Decimal? @db.Decimal(10, 2)
+  descripcion    String     @db.Text
+  precio         Decimal    @db.Decimal(10, 2)
+  precioOriginal Decimal?   @db.Decimal(10, 2)
   stock          Int
   foto           String?
-  isFeatured     Boolean  @default(false)
+  isFeatured     Boolean    @default(false)
   deletedAt      DateTime?
-
+  
   categoriaId    Int
-  categoria      Categoria @relation(fields: [categoriaId], references: [id])
-
+  categoria      Categoria  @relation(fields: [categoriaId], references: [id])
   marcaId        Int?
-  marca          Marca?    @relation(fields: [marcaId], references: [id])
-
-  // Relación inversa para favoritos
+  marca          Marca?     @relation(fields: [marcaId], references: [id])
+  
   favoritedBy    Favorite[]
-
   lineasVenta    LineaVenta[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 }
 
 model Categoria {
@@ -104,29 +99,37 @@ model Banner {
   createdAt DateTime @default(now())
 }
 
-// --- FAVORITOS (TABLA INTERMEDIA) ---
-
 model Favorite {
   userId     Int
   user       User     @relation(fields: [userId], references: [id])
-  
-  // IMPORTANTE: Aquí definimos el nombre del campo en la DB
   productoId Int
   producto   Producto @relation(fields: [productoId], references: [id])
-
-  @@id([userId, productoId]) // Clave compuesta para evitar duplicados
+  @@id([userId, productoId])
 }
 
-// --- VENTAS ---
+// --- VENTAS Y CONFIGURACIÓN (NUEVO) ---
 
 model Venta {
   id          Int          @id @default(autoincrement())
   fecha       DateTime     @default(now())
   montoTotal  Decimal      @db.Decimal(10, 2)
+  
+  // Estados del proceso de compra
+  estado      VentaEstado  @default(PENDIENTE_PAGO)
+  comprobante String?      // URL de la foto
+  
   clienteId   Int
   cliente     Cliente      @relation(fields: [clienteId], references: [id])
   lineasVenta LineaVenta[]
   pagos       Pago[]
+}
+
+enum VentaEstado {
+  PENDIENTE_PAGO
+  PENDIENTE_APROBACION
+  APROBADO
+  RECHAZADO
+  CANCELADO
 }
 
 model LineaVenta {
@@ -137,7 +140,6 @@ model LineaVenta {
   producto   Producto @relation(fields: [productoId], references: [id])
   cantidad   Int
   subTotal   Decimal  @db.Decimal(10, 2)
-
   @@unique([ventaId, productoId])
 }
 
@@ -155,6 +157,15 @@ model MetodoPago {
   id     Int    @id @default(autoincrement())
   nombre String @unique
   pagos  Pago[]
+}
+
+// CONFIGURACIÓN DEL SISTEMA (Singleton)
+model Configuracion {
+  id          Int     @id @default(autoincrement())
+  nombreBanco String  @default("Banco Nación")
+  titular     String  @default("PCFIX S.A.")
+  cbu         String  @default("0000000000000000000000")
+  alias       String  @default("PCFIX.VENTAS")
 }
 
 enum Role {

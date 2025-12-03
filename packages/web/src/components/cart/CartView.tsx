@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCartStore } from '../../stores/cartStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useToastStore } from '../../stores/toastStore';
@@ -7,10 +7,15 @@ import ConfirmModal from '../shared/ConfirmModal';
 
 export default function CartView() {
   const { items, removeItem, increaseQuantity, decreaseQuantity, clearCart } = useCartStore();
-  const { isAuthenticated, user } = useAuthStore();
+  // 1. RECUPERAMOS EL TOKEN
+  const { user, token, isAuthenticated } = useAuthStore();
   const addToast = useToastStore(s => s.addToast);
   
+  const [isClient, setIsClient] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
+
+  useEffect(() => setIsClient(true), []);
 
   const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
   const isAdmin = user?.role === 'ADMIN';
@@ -27,18 +32,70 @@ export default function CartView() {
   };
 
   const handleCheckout = async () => {
-    if (!isAuthenticated) {
-      addToast('Inicia sesión para continuar con la compra', 'info');
-      await navigate('/login');
-      return;
+    // 2. VALIDAMOS QUE HAYA TOKEN
+    if (!isAuthenticated || !user || !token) {
+        addToast("Debes iniciar sesión para comprar", 'error');
+        window.location.href = '/login';
+        return;
     }
-    // Aquí iría la lógica de POST /api/orders
-    alert('¡Checkout en construcción!');
+    
+    setIsProcessing(true);
+    try {
+        const res = await fetch('http://localhost:3002/api/sales', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                // 3. ENVIAMOS EL TOKEN (CRÍTICO)
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                // No enviamos userId, el backend lo saca del token
+                items: items,
+                total: subtotal 
+            })
+        });
+        
+        const json = await res.json();
+        
+        if (json.success) {
+            clearCart();
+            addToast("Orden creada. Redirigiendo al pago...", 'success');
+            await navigate(`/checkout/${json.data.id}`);
+        } else {
+            throw new Error(json.error);
+        }
+    } catch (e: any) {
+        addToast(e.message || "Error al procesar la orden", 'error');
+        setIsProcessing(false);
+    }
   };
+
+  // --- SKELETON LOADING ---
+  if (!isClient) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
+        <div className="lg:col-span-2 space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
+          {[1, 2].map(i => (
+            <div key={i} className="flex items-center p-4 border border-gray-100 rounded-xl gap-4">
+               <div className="w-24 h-24 bg-gray-200 rounded-lg"></div>
+               <div className="flex-1 space-y-2">
+                 <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                 <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+               </div>
+            </div>
+          ))}
+        </div>
+        <div className="lg:col-span-1">
+            <div className="h-64 bg-gray-200 rounded-xl"></div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-20 bg-white rounded-lg shadow-sm border border-gray-100">
+      <div className="text-center py-20 bg-white rounded-lg border border-gray-100 shadow-sm">
         <div className="flex justify-center mb-4 text-gray-200">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-20 h-20">
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
@@ -99,8 +156,12 @@ export default function CartView() {
                 🚫 Modo Administrador
               </div>
             ) : (
-              <button onClick={handleCheckout} className="w-full mt-6 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition-all shadow-lg shadow-green-200 hover:shadow-green-300">
-                {isAuthenticated ? 'Finalizar Compra' : 'Iniciar Sesión para Comprar'}
+              <button 
+                onClick={handleCheckout} 
+                disabled={isProcessing || items.length === 0}
+                className="w-full mt-6 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition-all shadow-lg shadow-green-200 hover:shadow-green-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isProcessing ? 'Procesando...' : 'Finalizar Compra'}
               </button>
             )}
             

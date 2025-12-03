@@ -13,6 +13,7 @@ import bannersRoutes from './modules/banners/banners.routes';
 import statsRoutes from './modules/stats/stats.routes';
 import usersRoutes from './modules/users/users.routes';
 import salesRoutes from './modules/sales/sales.routes';
+import configRoutes from './modules/config/config.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -37,6 +38,7 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/favorites', favoritesRoutes);
+app.use('/api/config', configRoutes);
 
 app.get('/health', async (req: Request, res: Response) => {
   try {
