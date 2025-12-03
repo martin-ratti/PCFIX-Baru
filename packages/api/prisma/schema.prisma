@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// --- USUARIOS Y CLIENTES ---
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -16,14 +18,15 @@ model User {
   googleId  String?  @unique
   role      Role     @default(USER)
   cliente   Cliente?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Cliente {
-  id          Int       @id @default(autoincrement())
-  userId      Int       @unique
-  user        User      @relation(fields: [userId], references: [id])
+  id          Int        @id @default(autoincrement())
+  userId      Int        @unique
+  user        User       @relation(fields: [userId], references: [id])
   direccion   String?
   telefono    String?
   localidadId Int?
@@ -32,19 +35,21 @@ model Cliente {
 }
 
 model Localidad {
-  id          Int       @id @default(autoincrement())
-  nombre      String
-  codigoPostal String 
-  provinciaId Int
-  provincia   Provincia @relation(fields: [provinciaId], references: [id])
-  clientes    Cliente[]
+  id           Int       @id @default(autoincrement())
+  nombre       String
+  codigoPostal String
+  provinciaId  Int
+  provincia    Provincia @relation(fields: [provinciaId], references: [id])
+  clientes     Cliente[]
 }
 
 model Provincia {
-  id          Int       @id @default(autoincrement())
-  nombre      String    @unique
+  id          Int         @id @default(autoincrement())
+  nombre      String      @unique
   localidades Localidad[]
 }
+
+// --- CATÁLOGO Y MARKETING ---
 
 model Producto {
   id             Int      @id @default(autoincrement())
@@ -54,8 +59,12 @@ model Producto {
   precioOriginal Decimal? @db.Decimal(10, 2)
   stock          Int
   foto           String?
-  isFeatured     Boolean  @default(false)
   
+  // Estados y Lógica
+  isFeatured     Boolean   @default(false)
+  deletedAt      DateTime? // Soft Delete
+
+  // Relaciones
   categoriaId    Int
   categoria      Categoria @relation(fields: [categoriaId], references: [id])
 
@@ -63,15 +72,22 @@ model Producto {
   marca          Marca?    @relation(fields: [marcaId], references: [id])
 
   lineasVenta    LineaVenta[]
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  deletedAt      DateTime?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model Categoria {
-  id        Int        @id @default(autoincrement())
-  nombre    String     @unique
-  productos Producto[]
+  id            Int         @id @default(autoincrement())
+  nombre        String      @unique
+  
+  // --- JERARQUÍA (SUBCATEGORÍAS) ---
+  padreId       Int?        
+  padre         Categoria?  @relation("Jerarquia", fields: [padreId], references: [id])
+  subcategorias Categoria[] @relation("Jerarquia")
+  // ---------------------------------
+
+  productos     Producto[]
 }
 
 model Marca {
@@ -89,6 +105,8 @@ model Banner {
   marca     Marca    @relation(fields: [marcaId], references: [id])
   createdAt DateTime @default(now())
 }
+
+// --- VENTAS Y PAGOS ---
 
 model Venta {
   id          Int          @id @default(autoincrement())
@@ -113,11 +131,11 @@ model LineaVenta {
 }
 
 model Pago {
-  id           Int      @id @default(autoincrement())
-  fecha        DateTime @default(now())
-  monto        Decimal  @db.Decimal(10, 2)
+  id           Int        @id @default(autoincrement())
+  fecha        DateTime   @default(now())
+  monto        Decimal    @db.Decimal(10, 2)
   ventaId      Int
-  venta        Venta    @relation(fields: [ventaId], references: [id])
+  venta        Venta      @relation(fields: [ventaId], references: [id])
   metodoPagoId Int
   metodoPago   MetodoPago @relation(fields: [metodoPagoId], references: [id])
 }

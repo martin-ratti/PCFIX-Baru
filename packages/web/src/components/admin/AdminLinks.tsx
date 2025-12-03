@@ -33,7 +33,10 @@ export default function AdminLinks() {
         </svg>
         Marcas y Banners
       </a>
-
+      <a href="/admin/categorias" className="flex items-center gap-2 text-secondary hover:text-primary font-bold transition-colors group">
+         {/* Icono folder opcional */}
+         Categorías
+      </a>
       <a href="/admin/nuevo" className="flex items-center gap-2 text-primary border border-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white font-bold transition-all shadow-sm hover:shadow">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

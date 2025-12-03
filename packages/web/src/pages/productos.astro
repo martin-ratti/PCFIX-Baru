@@ -29,9 +29,11 @@ interface ProductCardProps {
   description: string;
 }
 
+// 1. Capturar TODOS los parámetros de URL posibles
 const urlParams = Astro.url.searchParams;
 const search = urlParams.get('search') || '';
 const marcaId = urlParams.get('marcaId') || '';
+const categoryId = urlParams.get('categoryId') || ''; // 👈 FALTABA ESTO
 
 let products: ProductCardProps[] = [];
 let title = "Todos los Productos";
@@ -39,12 +41,16 @@ let title = "Todos los Productos";
 try {
   const apiUrl = new URL('http://localhost:3002/api/products');
   
+  // 2. Adjuntar filtros a la URL del backend
   if (search) {
     apiUrl.searchParams.append('search', search);
     title = `Resultados para: "${search}"`;
   }
   if (marcaId) {
     apiUrl.searchParams.append('marcaId', marcaId);
+  }
+  if (categoryId) {
+    apiUrl.searchParams.append('categoryId', categoryId); // 👈 ENVIAR AL BACKEND
   }
 
   const response = await fetch(apiUrl.toString());
@@ -77,16 +83,22 @@ try {
     <div class="mb-8 border-b pb-4 flex justify-between items-end">
       <div>
         <h1 class="text-3xl font-black text-primary">{title}</h1>
-        {(search || marcaId) ? (
+        
+        {/* Mostrar botón de borrar filtros si hay alguno activo */}
+        {(search || marcaId || categoryId) ? (
            <div class="flex gap-2 mt-2">
              <a href="/productos" class="text-sm text-red-500 hover:underline flex items-center gap-1">
                &times; Borrar filtros
              </a>
+             
+             {categoryId && <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">Categoría: {categoryId}</span>}
+             {marcaId && <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">Marca: {marcaId}</span>}
            </div>
         ) : (
            <p class="text-muted mt-2">Explora nuestro catálogo completo de hardware.</p>
         )}
       </div>
+      
       <span class="text-sm font-medium bg-accent/20 text-primary px-3 py-1 rounded-full">
         {products.length} productos
       </span>
@@ -102,7 +114,7 @@ try {
       <div class="text-center py-20 bg-white rounded-lg shadow-sm border border-gray-100">
         <div class="text-4xl mb-4">🔍</div>
         <h2 class="text-xl font-bold text-secondary mb-2">No encontramos productos</h2>
-        <p class="text-gray-500 mb-6">Intenta con otra búsqueda o navega por categorías.</p>
+        <p class="text-gray-500 mb-6">Intenta con otra categoría o quita los filtros.</p>
         <a href="/productos" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition-colors">Ver todo</a>
       </div>
     )}

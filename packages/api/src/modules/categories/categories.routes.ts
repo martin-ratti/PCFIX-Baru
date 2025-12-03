@@ -1,18 +1,10 @@
-import { Router, Request, Response } from 'express';
-import { prisma } from '../../shared/database/prismaClient';
+import { Router } from 'express';
+import * as CategoryController from './categories.controller';
 
 const router = Router();
 
-// Endpoint: GET /api/categories
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const categories = await prisma.categoria.findMany({
-      orderBy: { nombre: 'asc' }
-    });
-    res.json({ success: true, data: categories });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Error obteniendo categorías' });
-  }
-});
+router.get('/', CategoryController.getAll);
+router.post('/', CategoryController.create);
+router.delete('/:id', CategoryController.remove);
 
 export default router;
