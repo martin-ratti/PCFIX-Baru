@@ -1,25 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useToastStore } from '../../../stores/toastStore';
+import { useAuthStore } from '../../../stores/authStore';
 
 interface SaleDetailModalProps {
   isOpen: boolean;
   sale: any;
+  autoFocusDispatch?: boolean; // Nuevo prop
   onClose: () => void;
   onApprove: () => void;
   onReject: () => void;
-  onDispatch?: () => void; // Callback para refrescar la tabla tras despachar
+  onDispatch?: () => void;
 }
 
-export default function SaleDetailModal({ isOpen, sale, onClose, onApprove, onReject, onDispatch }: SaleDetailModalProps) {
+export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClose, onApprove, onReject, onDispatch }: SaleDetailModalProps) {
   const [trackingCode, setTrackingCode] = useState('');
   const [isDispatching, setIsDispatching] = useState(false);
   const addToast = useToastStore(s => s.addToast);
+  const { token } = useAuthStore();
+  
+  // Referencia para el input de tracking
+  const trackingInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-foco cuando se abre el modal en modo despacho
+  useEffect(() => {
+      if (isOpen && autoFocusDispatch && sale?.estado === 'APROBADO') {
+          // Pequeño timeout para esperar que el modal renderice
+          setTimeout(() => trackingInputRef.current?.focus(), 100);
+      }
+  }, [isOpen, autoFocusDispatch, sale]);
 
   if (!isOpen || !sale) return null;
 
-  // Handler para despachar el pedido
   const handleDispatch = async () => {
-      if (!trackingCode) {
+      if (!trackingCode.trim()) {
           addToast('Ingresa el código de seguimiento', 'error');
           return;
       }
@@ -27,16 +40,19 @@ export default function SaleDetailModal({ isOpen, sale, onClose, onApprove, onRe
       try {
           const res = await fetch(`http://localhost:3002/api/sales/${sale.id}/dispatch`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+              },
               body: JSON.stringify({ trackingCode })
           });
           
           const json = await res.json();
           
           if (json.success) {
-              addToast('Pedido despachado correctamente', 'success');
-              if (onDispatch) onDispatch(); // Recargar la tabla padre
-              onClose(); // Cerrar modal
+              addToast('Pedido despachado y cliente notificado', 'success');
+              if (onDispatch) onDispatch(); 
+              onClose();
           } else {
               throw new Error(json.error);
           }
@@ -69,7 +85,7 @@ export default function SaleDetailModal({ isOpen, sale, onClose, onApprove, onRe
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
                     <p className="text-sm text-blue-600 font-bold uppercase mb-1">Total a Cobrar</p>
                     <p className="text-4xl font-black text-blue-900">${Number(sale.montoTotal).toLocaleString('es-AR')}</p>
-                    {sale.costoEnvio > 0 && <p className="text-xs text-blue-400 mt-1">Incluye envío: ${Number(sale.costoEnvio).toLocaleString('es-AR')}</p>}
+                    {Number(sale.costoEnvio) > 0 && <p className="text-xs text-blue-400 mt-1">Incluye envío: ${Number(sale.costoEnvio).toLocaleString('es-AR')}</p>}
                 </div>
 
                 <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
@@ -124,7 +140,7 @@ export default function SaleDetailModal({ isOpen, sale, onClose, onApprove, onRe
 
           {/* --- SECCIÓN DE DESPACHO (Solo visible si está APROBADO) --- */}
           {sale.estado === 'APROBADO' && (
-              <div className="mt-8 p-6 bg-blue-50 border border-blue-100 rounded-xl animate-in slide-in-from-bottom-2">
+              <div className={`mt-8 p-6 bg-blue-50 border border-blue-100 rounded-xl animate-in slide-in-from-bottom-2 ${autoFocusDispatch ? 'ring-2 ring-blue-400 shadow-lg' : ''}`}>
                   <h4 className="font-bold text-blue-800 mb-2 flex items-center gap-2">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
                       Gestión de Despacho
@@ -133,11 +149,12 @@ export default function SaleDetailModal({ isOpen, sale, onClose, onApprove, onRe
                   
                   <div className="flex gap-3">
                       <input 
+                          ref={trackingInputRef} // Referencia para el foco automático
                           type="text" 
                           placeholder="Ej: AA123456789AR" 
                           value={trackingCode}
                           onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
-                          className="flex-1 border border-blue-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none font-mono uppercase"
+                          className="flex-1 border border-blue-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none font-mono uppercase bg-white"
                       />
                       <button 
                           onClick={handleDispatch}

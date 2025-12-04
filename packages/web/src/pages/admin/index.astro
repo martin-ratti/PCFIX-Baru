@@ -8,13 +8,20 @@ import AdminDashboard from '../../components/admin/core/AdminDashboard';
 import AdminGuard from '../../components/guards/AdminGuard';
 ---
 
-<Layout title="PCFIX | Dashboard Admin">
+<Layout title="PCFIX | Administración">
   <Header />
-  <main class="container mx-auto px-6 py-12 bg-light min-h-screen">
-    <AdminGuard client:only="react">
-      <h1 class="text-3xl font-black text-primary mb-8">Panel de Control</h1>
-      <AdminDashboard client:load />
-    </AdminGuard>
+  <main class="min-h-screen bg-gray-50 pt-10 pb-20">
+    <div class="container mx-auto px-6">
+      
+      {/* 🛡️ Protegemos la ruta con el Guard */}
+      <AdminGuard client:only="react">
+        
+        {/* El componente React maneja todo el contenido (Título, KPIs, Gráficos) */}
+        <AdminDashboard client:load />
+        
+      </AdminGuard>
+
+    </div>
   </main>
   <Footer />
 </Layout>
