@@ -9,6 +9,8 @@ export class TechnicalService {
     this.emailService = new EmailService();
   }
 
+  // --- PARTE 1: CONSULTAS TÉCNICAS ---
+
   async createInquiry(userId: number, asunto: string, mensaje: string) {
     return await prisma.consultaTecnica.create({
       data: {
@@ -20,7 +22,7 @@ export class TechnicalService {
     });
   }
 
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAllInquiries(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     const [total, items] = await prisma.$transaction([
         prisma.consultaTecnica.count(),
@@ -34,8 +36,7 @@ export class TechnicalService {
     return { data: items, meta: { total, page, lastPage: Math.ceil(total/limit), limit } };
   }
 
-  // 👇 NUEVO MÉTODO: Obtener consultas de UN usuario
-  async findByUserId(userId: number) {
+  async findInquiriesByUserId(userId: number) {
     return await prisma.consultaTecnica.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' }
@@ -62,5 +63,21 @@ export class TechnicalService {
     }
 
     return consulta;
+  }
+
+  // --- PARTE 2: GESTIÓN DE PRECIOS (NUEVO) ---
+
+  async getServicePrices() {
+    return await prisma.serviceItem.findMany({
+      where: { active: true },
+      orderBy: { id: 'asc' }
+    });
+  }
+
+  async updateServicePrice(id: number, price: number) {
+    return await prisma.serviceItem.update({
+      where: { id },
+      data: { price }
+    });
   }
 }

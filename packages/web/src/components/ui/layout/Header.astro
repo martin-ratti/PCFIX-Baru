@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import logo from '../../../assets/logo.png'; 
 
-// Imports corregidos a la nueva estructura
+// Imports de componentes
 import CartIcon from '../../store/cart/CartIcon.tsx'; 
 import UserMenu from '../../ui/layout/UserMenu.tsx'; 
 import AdminLinks from '../../admin/core/AdminLinks.tsx'; 
@@ -10,46 +10,50 @@ import CategoryDropdown from '../../ui/layout/CategoryDropdown.tsx';
 import PublicLinks from '../../ui/layout/PublicLinks.tsx'; 
 import SearchBar from '../../ui/forms/SearchBar.tsx'; 
 
-// FETCH SSR
 let categories = [];
+
 try {
-  const response = await fetch('http://localhost:3002/api/categories');
+  const API_URL = "http://127.0.0.1:3002/api/categories";
+  
+  const response = await fetch(API_URL);
+  
   if (response.ok) {
     const json = await response.json();
-    if (json.success) categories = json.data;
+    if (json.success) {
+      categories = json.data;
+    }
+  } else {
+    console.warn(`⚠️ API respondió con error: ${response.status}`);
   }
-} catch (e) { console.error("Header categories fetch error:", e); }
+} catch (e) { 
+  console.error("❌ Error conectando con API de Categorías:", (e as any).message);
+}
 ---
 
 <header class="bg-accent shadow-lg sticky top-0 z-50" transition:persist id="main-header">
   <nav class="container mx-auto px-6 py-4 flex justify-between items-center gap-8">
     
-    {/* 1. IZQUIERDA: Logo Grande y Categorías */}
+    {/* 1. IZQUIERDA */}
     <div class="shrink-0 flex items-center gap-6">
       <a href="/" class="block hover:opacity-90 transition-opacity">
-        {/* AUMENTADO: width={160} */}
         <Image src={logo} alt="PCFIX Logo" width={160} class="object-contain h-auto" />
       </a>
-      <div class="h-8 w-px bg-white/10 mx-2"></div> {/* Separador visual */}
+      <div class="h-8 w-px bg-white/10 mx-2"></div>
       <CategoryDropdown initialCategories={categories} client:load />
     </div>
     
-    {/* 2. CENTRO: Buscador Expandido */}
-    {/* AUMENTADO: max-w-5xl para que ocupe más espacio */}
+    {/* 2. CENTRO */}
     <div class="flex-1 flex justify-center w-full max-w-5xl">
-      <div class="w-full">
+      <div class="w-full flex items-center gap-4">
         <SearchBar client:load />
-        {/* AdminLinks solo aparece si es admin */}
         <AdminLinks client:load />
-      </div>
+              </div>
     </div>
 
-    {/* 3. DERECHA: Links y Usuario */}
+    {/* 3. DERECHA */}
     <div class="flex items-center gap-6 shrink-0">
       <PublicLinks client:load />
-      
-      <div class="h-8 w-px bg-white/10 mx-2"></div> {/* Separador visual */}
-      
+      <div class="h-8 w-px bg-white/10 mx-2"></div>
       <div class="flex items-center gap-4">
         <CartIcon client:load />
         <UserMenu client:load />

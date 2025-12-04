@@ -27,24 +27,58 @@ async function main() {
         // pero si lo agregaste antes, esto funcionará. Si no, lo ignorará.
     }
   });
+    console.log('👤 Creando Servicios...');
+    const servicios = [
+    { title: "Limpieza PC Escritorio", price: 15000, description: "Limpieza profunda, cambio de pasta térmica (Arctic MX-4), orden de cables." },
+    { title: "Limpieza Notebook", price: 22000, description: "Desarme completo, limpieza de turbina, cambio de pasta térmica, limpieza de teclado." },
+    { title: "Armado de PC", price: 35000, description: "Ensamblaje profesional de componentes, gestión de cables premium, instalación de Windows." },
+    { title: "Diagnóstico", price: 8000, description: "Detección de fallas de hardware o software. Se bonifica si realizas la reparación." },
+  ];
 
-  // 2. USUARIOS
-  console.log('👤 Creando usuarios...');
+  for (const s of servicios) {
+    const exists = await prisma.serviceItem.findFirst({ where: { title: s.title }});
+    if (!exists) {
+        await prisma.serviceItem.create({ data: s });
+        console.log(`✅ Servicio creado: ${s.title}`);
+    }
+  }
+// 2. USUARIOS
+  console.log('👤 Creando/Actualizando usuarios...');
   const passwordAdmin = await bcrypt.hash('administrador', 10);
   const passwordUser = await bcrypt.hash('123456', 10);
 
+  // CORRECCIÓN: Actualizamos password y rol también en el 'update'
   await prisma.user.upsert({
     where: { email: 'admin@gmail.com' },
-    update: {},
-    create: { email: 'admin@gmail.com', nombre: 'Super', apellido: 'Admin', password: passwordAdmin, role: 'ADMIN' },
+    update: { 
+        password: passwordAdmin, 
+        role: 'ADMIN',
+        nombre: 'Super',
+        apellido: 'Admin'
+    },
+    create: { 
+        email: 'admin@gmail.com', 
+        nombre: 'Super', 
+        apellido: 'Admin', 
+        password: passwordAdmin, 
+        role: 'ADMIN' 
+    },
   });
 
   const clienteUser = await prisma.user.upsert({
     where: { email: 'martin@gmail.com' },
-    update: {},
-    create: { email: 'martin@gmail.com', nombre: 'Martin', apellido: 'Cliente', password: passwordUser, role: 'USER' },
+    update: { 
+        password: passwordUser,
+        role: 'USER'
+    },
+    create: { 
+        email: 'martin@gmail.com', 
+        nombre: 'Martin', 
+        apellido: 'Cliente', 
+        password: passwordUser, 
+        role: 'USER' 
+    },
   });
-  
   // Crear perfil de cliente para que pueda comprar directo
   if (clienteUser) {
       const cliente = await prisma.cliente.findUnique({ where: { userId: clienteUser.id } });

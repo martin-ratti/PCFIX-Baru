@@ -2,54 +2,93 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/ui/layout/Header.astro';
 import Footer from '../components/ui/layout/Footer.astro';
-import ServiceInquiryForm from '../components/store/profile/ServiceInquiryForm'; // Componente nuevo
+import { Image } from 'astro:assets';
 
-const precios = [
-  { titulo: "Limpieza PC Escritorio", precio: 15000, desc: "Limpieza profunda, cambio de pasta térmica (Arctic MX-4), orden de cables." },
-  { titulo: "Limpieza Notebook", precio: 22000, desc: "Desarme completo, limpieza de turbina, cambio de pasta térmica, limpieza de teclado." },
-  { titulo: "Armado de PC", precio: 35000, desc: "Ensamblaje profesional de componentes, gestión de cables premium, instalación de Windows." },
-  { titulo: "Diagnóstico", precio: 8000, desc: "Detección de fallas de hardware o software. Se bonifica si realizas la reparación." },
-];
+// Componentes Reactivos
+import ServiceInquiryForm from '../components/store/profile/ServiceInquiryForm';
+import ServicePriceList from '../components/store/profile/ServicePriceList';
+
+// Imagen de ejemplo (puedes cambiarla por local)
+const techImageURL = "https://images.unsplash.com/photo-1581092921461-eab62e97a783?q=80&w=1000&auto=format&fit=crop";
 ---
 
 <Layout title="PCFIX | Servicio Técnico">
   <Header />
   
-  <main class="min-h-screen bg-light">
+  <main class="min-h-screen bg-gray-50">
+    
     {/* Hero Section */}
-    <section class="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-16">
-        <div class="container mx-auto px-6 text-center">
-            <h1 class="text-4xl font-black mb-4">Servicio Técnico Especializado</h1>
-            <p class="text-gray-300 max-w-2xl mx-auto">
-                Devolvemos la vida a tu equipo. Técnicos certificados, herramientas de precisión y garantía en todos nuestros trabajos.
+    <section class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-20 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h1 class="text-4xl md:text-5xl font-black mb-6 tracking-tight">Servicio Técnico Especializado</h1>
+            <p class="text-gray-300 max-w-2xl mx-auto text-lg leading-relaxed">
+                Devolvemos la vida a tu equipo. Técnicos certificados, laboratorio propio y garantía escrita en todas nuestras reparaciones.
             </p>
         </div>
     </section>
 
-    <div class="container mx-auto px-6 py-12">
+    <div class="container mx-auto px-6 py-16">
         
-        {/* Lista de Precios */}
-        <h2 class="text-2xl font-bold text-secondary mb-8 text-center">Lista de Precios Estimada</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {precios.map(p => (
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                    <h3 class="font-bold text-lg text-secondary mb-2">{p.titulo}</h3>
-                    <p class="text-3xl font-black text-primary mb-3">${p.precio.toLocaleString('es-AR')}</p>
-                    <p class="text-sm text-gray-500 leading-relaxed">{p.desc}</p>
-                </div>
-            ))}
+        {/* Lista de Precios (Reactiva) */}
+        <div class="mb-20">
+            <h2 class="text-3xl font-bold text-secondary mb-10 text-center flex items-center justify-center gap-3">
+                <span class="w-2 h-8 bg-primary rounded-full"></span>
+                Lista de Precios Estimada
+            </h2>
+            
+            {/* Componente que carga precios desde API y escucha cambios del Admin */}
+            <ServicePriceList client:load />
+
         </div>
 
-        {/* Formulario de Consulta */}
-        <div class="max-w-3xl mx-auto">
-            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl font-bold text-secondary">¿Tienes dudas o necesitas un presupuesto?</h2>
-                    <p class="text-gray-500">Déjanos tu consulta y te responderemos a la brevedad.</p>
+        {/* Formulario Split Layout */}
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+            
+                {/* COLUMNA IZQUIERDA */}
+                <div class="relative bg-gray-900 text-white p-8 lg:p-12 flex flex-col justify-between min-h-[500px]">
+                    <div class="absolute inset-0 z-0">
+                        {/* Sin inferSize y con dimensiones fijas para evitar error de Unsplash */}
+                        <Image 
+                            src={techImageURL} 
+                            alt="Técnico reparando hardware" 
+                            width={600}
+                            height={800}
+                            class="w-full h-full object-cover opacity-30 mix-blend-overlay"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-br from-secondary via-secondary/90 to-primary/80 opacity-90"></div>
+                    </div>
+
+                    <div class="relative z-10">
+                        <h2 class="text-3xl font-black mb-6 leading-tight">Tu equipo en las mejores manos</h2>
+                        <p class="text-gray-200 mb-8 text-lg">
+                            No improvisamos. Utilizamos repuestos originales y herramientas de precisión.
+                        </p>
+
+                        <ul class="space-y-5">
+                            <li class="flex items-center gap-4">
+                                <span class="flex-shrink-0 w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center text-primary-light border border-white/10">✓</span>
+                                <span class="font-medium text-lg">Diagnóstico Express (24-48hs)</span>
+                            </li>
+                            <li class="flex items-center gap-4">
+                                <span class="flex-shrink-0 w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center text-primary-light border border-white/10">🛡️</span>
+                                <span class="font-medium text-lg">3 Meses de Garantía Escrita</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                
-                {/* Componente React */}
-                <ServiceInquiryForm client:load />
+
+                {/* COLUMNA DERECHA: El Formulario */}
+                <div class="p-8 lg:p-12 bg-white flex flex-col justify-center">
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Solicitar Presupuesto</h3>
+                        <p class="text-gray-500 text-sm">Completa el formulario y te contactaremos.</p>
+                    </div>
+                    
+                    <ServiceInquiryForm client:load />
+                </div>
+
             </div>
         </div>
 

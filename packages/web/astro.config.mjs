@@ -9,5 +9,9 @@ export default defineConfig({
     prefetchAll: true,
     defaultStrategy: 'viewport',
   },
+  image: {
+    // IMPORTANTE: Autorizar dominios externos
+    domains: ['images.unsplash.com', 'res.cloudinary.com'], 
+  },
   integrations: [react(), tailwind()]
 });

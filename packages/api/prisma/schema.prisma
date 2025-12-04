@@ -20,19 +20,17 @@ model User {
   cliente   Cliente?
   favoritos Favorite[]
   
-  // 👇 CORRECCIÓN: Agregamos la relación inversa para las consultas técnicas
+  // Relación con consultas técnicas
   consultas ConsultaTecnica[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// ... (Resto de modelos: Cliente, Localidad, Provincia, Producto, Categoria, Marca, Banner, Favorite, Venta, etc. IGUALES QUE ANTES) ...
-
 model Cliente {
-  id          Int        @id @default(autoincrement())
-  userId      Int        @unique
-  user        User       @relation(fields: [userId], references: [id])
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique
+  user        User      @relation(fields: [userId], references: [id])
   direccion   String?
   telefono    String?
   localidadId Int?
@@ -50,37 +48,39 @@ model Localidad {
 }
 
 model Provincia {
-  id          Int         @id @default(autoincrement())
-  nombre      String      @unique
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique
   localidades Localidad[]
 }
 
+// --- PRODUCTOS Y CATALOGO ---
+
 model Producto {
-  id             Int        @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   nombre         String
-  descripcion    String     @db.Text
-  precio         Decimal    @db.Decimal(10, 2)
-  precioOriginal Decimal?   @db.Decimal(10, 2)
+  descripcion    String   @db.Text
+  precio         Decimal  @db.Decimal(10, 2)
+  precioOriginal Decimal? @db.Decimal(10, 2)
   stock          Int
   foto           String?
-  isFeatured     Boolean    @default(false)
+  isFeatured     Boolean  @default(false)
   deletedAt      DateTime?
   
-  peso           Decimal    @default(0.5) @db.Decimal(10, 3)
-  alto           Int        @default(10)
-  ancho          Int        @default(10)
-  profundidad    Int        @default(10)
+  peso           Decimal  @default(0.5) @db.Decimal(10, 3)
+  alto           Int      @default(10)
+  ancho          Int      @default(10)
+  profundidad    Int      @default(10)
 
   categoriaId    Int
-  categoria      Categoria  @relation(fields: [categoriaId], references: [id])
+  categoria      Categoria @relation(fields: [categoriaId], references: [id])
   marcaId        Int?
-  marca          Marca?     @relation(fields: [marcaId], references: [id])
+  marca          Marca?    @relation(fields: [marcaId], references: [id])
   
   favoritedBy    Favorite[]
   lineasVenta    LineaVenta[]
   
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model Categoria {
@@ -93,8 +93,8 @@ model Categoria {
 }
 
 model Marca {
-  id        Int        @id @default(autoincrement())
-  nombre    String     @unique
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
   logo      String?
   productos Producto[]
   banners   Banner[]
@@ -116,21 +116,23 @@ model Favorite {
   @@id([userId, productoId])
 }
 
+// --- VENTAS Y PAGOS ---
+
 model Venta {
-  id          Int          @id @default(autoincrement())
-  fecha       DateTime     @default(now())
-  montoTotal  Decimal      @db.Decimal(10, 2)
-  estado      VentaEstado  @default(PENDIENTE_PAGO)
-  comprobante String?      
-  costoEnvio        Decimal  @default(0) @db.Decimal(10, 2)
-  metodoEnvio       String   @default("CORREO_ARGENTINO") 
+  id                Int         @id @default(autoincrement())
+  fecha             DateTime    @default(now())
+  montoTotal        Decimal     @db.Decimal(10, 2)
+  estado            VentaEstado @default(PENDIENTE_PAGO)
+  comprobante       String?      
+  costoEnvio        Decimal     @default(0) @db.Decimal(10, 2)
+  metodoEnvio       String      @default("CORREO_ARGENTINO") 
   codigoSeguimiento String?
-  etiquetaUrl       String?  
-  tipoEnvio         String?  
-  clienteId   Int
-  cliente     Cliente      @relation(fields: [clienteId], references: [id])
-  lineasVenta LineaVenta[]
-  pagos       Pago[]
+  etiquetaUrl       String?   
+  tipoEnvio         String?   
+  clienteId         Int
+  cliente           Cliente     @relation(fields: [clienteId], references: [id])
+  lineasVenta       LineaVenta[]
+  pagos             Pago[]
 }
 
 enum VentaEstado {
@@ -171,31 +173,46 @@ model MetodoPago {
 }
 
 model Configuracion {
-  id          Int     @id @default(autoincrement())
-  nombreBanco String  @default("Banco Nación")
-  titular     String  @default("PCFIX S.A.")
-  cbu         String  @default("0000000000000000000000")
-  alias       String  @default("PCFIX.VENTAS")
+  id             Int     @id @default(autoincrement())
+  nombreBanco    String  @default("Banco Nación")
+  titular        String  @default("PCFIX S.A.")
+  cbu            String  @default("0000000000000000000000")
+  alias          String  @default("PCFIX.VENTAS")
   costoEnvioFijo Decimal @default(5000) @db.Decimal(10, 2)
 }
 
+// --- AREA TÉCNICA (Soporte + Servicios) ---
+
 model ConsultaTecnica {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   asunto      String    
-  mensaje     String    @db.Text
-  respuesta   String?   @db.Text 
+  mensaje     String   @db.Text
+  respuesta   String?  @db.Text 
   estado      EstadoConsulta @default(PENDIENTE)
   
   userId      Int
-  user        User      @relation(fields: [userId], references: [id]) // Ahora esto validará porque User tiene 'consultas'
+  user        User     @relation(fields: [userId], references: [id])
 
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime @default(now())
   respondedAt DateTime?
 }
 
 enum EstadoConsulta {
   PENDIENTE
   RESPONDIDO
+}
+
+// 👇 NUEVO MODELO PARA PRECIOS DE SERVICIO TÉCNICO
+model ServiceItem {
+  id          Int      @id @default(autoincrement())
+  title       String   
+  description String   
+  price       Int      
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("service_items")
 }
 
 enum Role {

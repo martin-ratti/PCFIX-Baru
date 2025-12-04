@@ -1,14 +1,10 @@
 ---
-import '../styles/global.css';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/effect-fade';
+// 2. Imports de Utilidades y Estilos
+import { Toaster } from 'sonner'; // 🔔 CRÍTICO: Para que se vean las notificaciones
+import '../styles/global.css';    // Estilos globales (Tailwind)
 
-import { ViewTransitions } from 'astro:transitions';
-import ToastContainer from '../components/ui/feedback/ToastContainer.tsx';
-import FavoritesInitializer from '../components/ui/feedback/FavoritesInitializer.tsx';
-import WhatsAppButton from '../components/ui/feedback/WhatsAppButton.tsx';
+// 3. View Transitions (Opcional pero recomendado para SPA-feel)
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
 	title: string;
@@ -21,44 +17,28 @@ const { title } = Astro.props;
 <html lang="es">
 	<head>
 		<meta charset="UTF-8" />
+		<meta name="description" content="PCFIX - Hardware High-End y Servicio Técnico Especializado" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		
-		<ViewTransitions />
-
 		<title>{title}</title>
-
-		<style is:global>
-			.swiper-wrapper { margin-bottom: 40px; }
-			.swiper-pagination { bottom: 0px !important; padding-bottom: 4px; }
-			.swiper-pagination-bullet-active {
-				background-color: #121D40 !important;
-				width: 10px; height: 10px;
-			}
-			.swiper-button-prev, .swiper-button-next {
-				background-color: #96B3D9; width: 44px; height: 44px;
-				border-radius: 9999px;
-				box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-				top: 45% !important; 
-			}
-			.swiper-button-prev::after, .swiper-button-next::after {
-				font-size: 1.25rem !important; font-weight: 800 !important; color: #121D40;
-			}
-			.swiper-button-prev { left: 0px; }
-			.swiper-button-next { right: 0px; }
-			.brand-swiper-container .swiper-wrapper {
-				transition-timing-function: linear !important;
-			}
-		</style>
+		
+		{/* Habilita transiciones suaves entre páginas */}
+		<ClientRouter />
 	</head>
 	
-	<body class="bg-light text-secondary font-sans" transition:animate="none">
-		<div transition:persist>
-			<ToastContainer client:load />
-			<FavoritesInitializer client:load />
-			<WhatsAppButton client:load />
+	<body class="bg-gray-50 min-h-screen flex flex-col text-gray-900 selection:bg-primary/20">
+		
+		{/* 🔔 TOASTER: Aquí es donde se renderizan los popups.
+            - client:load => Se hidrata inmediatamente.
+            - richColors => Usa colores verde/rojo para éxito/error.
+            - position => Donde aparece (arriba al centro es lo standard).
+        */}
+		<Toaster client:load position="top-center" richColors closeButton />		
+		{/* El slot renderiza el contenido de cada página */}
+		<div class="flex-1">
+			<slot />
 		</div>
-		<slot />
+
 	</body>
 </html>

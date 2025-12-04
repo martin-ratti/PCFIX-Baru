@@ -1,12 +1,17 @@
 import { Router } from 'express';
 import * as Controller from './technical.controller';
-import { authenticate } from '../../shared/middlewares/authMiddleware';
+import { authenticate, requireAdmin } from '../../shared/middlewares/authMiddleware';
 
 const router = Router();
 
-router.post('/', authenticate, Controller.create);
-router.get('/', authenticate, Controller.getAll); // Admin
-router.get('/me', authenticate, Controller.getMyInquiries); // 👈 NUEVA RUTA (Usuario)
-router.put('/:id/reply', authenticate, Controller.reply);
+// --- Rutas de Precios de Servicios (Public + Admin) ---
+router.get('/prices', Controller.getPrices); // Público
+router.put('/prices/:id', authenticate, requireAdmin, Controller.updatePrice); // Admin
+
+// --- Rutas de Consultas Técnicas (User + Admin) ---
+router.post('/', authenticate, Controller.createInquiry); // Usuario crea
+router.get('/me', authenticate, Controller.getMyInquiries); // Usuario ve suyas
+router.get('/', authenticate, requireAdmin, Controller.getAllInquiries); // Admin ve todas
+router.put('/:id/reply', authenticate, requireAdmin, Controller.replyInquiry); // Admin responde
 
 export default router;
