@@ -1,0 +1,18 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/ui/layout/Header.astro';
+import Footer from '../components/ui/layout/Footer.astro';
+import UserInquiries from '../components/store/profile/UserInquiries';
+import UserGuard from '../components/guards/UserGuard';
+---
+
+<Layout title="PCFIX | Mis Consultas">
+  <Header />
+  <main class="container mx-auto px-6 py-12 min-h-screen">
+    <h1 class="text-3xl font-black text-primary mb-8 border-b pb-3">Mis Consultas Técnicas</h1>
+    <UserGuard client:only="react">
+      <UserInquiries client:load />
+    </UserGuard>
+  </main>
+  <Footer />
+</Layout>

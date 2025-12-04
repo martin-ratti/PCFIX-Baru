@@ -3,30 +3,24 @@ import { prisma } from '../../shared/database/prismaClient';
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
-    // Ejecutamos varias consultas en paralelo para ser eficientes
+    // Ejecutamos consultas en paralelo
     const [
       totalProducts,
       lowStockProducts,
       totalUsers,
-      recentSales
+      recentSales,
+      pendingInquiries // 👇 NUEVO
     ] = await Promise.all([
-      // 1. Total de productos activos
       prisma.producto.count({ where: { deletedAt: null } }),
       
-      // 2. Productos con bajo stock (< 5)
-      prisma.producto.count({ 
-        where: { 
-          deletedAt: null,
-          stock: { lte: 5 } 
-        } 
-      }),
+      prisma.producto.count({ where: { deletedAt: null, stock: { lte: 5 } } }),
 
-      // 3. Total de usuarios
       prisma.user.count(),
 
-      // 4. Ventas recientes (mock o reales si tuviéramos datos)
-      // Como aún no implementamos el checkout, esto devolverá 0
-      prisma.venta.count()
+      prisma.venta.count(),
+
+      // 👇 CONTAMOS LAS CONSULTAS PENDIENTES
+      prisma.consultaTecnica.count({ where: { estado: 'PENDIENTE' } })
     ]);
 
     res.json({
@@ -35,7 +29,8 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         totalProducts,
         lowStockProducts,
         totalUsers,
-        recentSales
+        recentSales,
+        pendingInquiries // 👇 ENVIAMOS AL FRONT
       }
     });
 

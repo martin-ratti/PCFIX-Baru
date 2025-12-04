@@ -1,0 +1,60 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/ui/layout/Header.astro';
+import Footer from '../components/ui/layout/Footer.astro';
+import ServiceInquiryForm from '../components/store/profile/ServiceInquiryForm'; // Componente nuevo
+
+const precios = [
+  { titulo: "Limpieza PC Escritorio", precio: 15000, desc: "Limpieza profunda, cambio de pasta térmica (Arctic MX-4), orden de cables." },
+  { titulo: "Limpieza Notebook", precio: 22000, desc: "Desarme completo, limpieza de turbina, cambio de pasta térmica, limpieza de teclado." },
+  { titulo: "Armado de PC", precio: 35000, desc: "Ensamblaje profesional de componentes, gestión de cables premium, instalación de Windows." },
+  { titulo: "Diagnóstico", precio: 8000, desc: "Detección de fallas de hardware o software. Se bonifica si realizas la reparación." },
+];
+---
+
+<Layout title="PCFIX | Servicio Técnico">
+  <Header />
+  
+  <main class="min-h-screen bg-light">
+    {/* Hero Section */}
+    <section class="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-16">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl font-black mb-4">Servicio Técnico Especializado</h1>
+            <p class="text-gray-300 max-w-2xl mx-auto">
+                Devolvemos la vida a tu equipo. Técnicos certificados, herramientas de precisión y garantía en todos nuestros trabajos.
+            </p>
+        </div>
+    </section>
+
+    <div class="container mx-auto px-6 py-12">
+        
+        {/* Lista de Precios */}
+        <h2 class="text-2xl font-bold text-secondary mb-8 text-center">Lista de Precios Estimada</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {precios.map(p => (
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <h3 class="font-bold text-lg text-secondary mb-2">{p.titulo}</h3>
+                    <p class="text-3xl font-black text-primary mb-3">${p.precio.toLocaleString('es-AR')}</p>
+                    <p class="text-sm text-gray-500 leading-relaxed">{p.desc}</p>
+                </div>
+            ))}
+        </div>
+
+        {/* Formulario de Consulta */}
+        <div class="max-w-3xl mx-auto">
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-secondary">¿Tienes dudas o necesitas un presupuesto?</h2>
+                    <p class="text-gray-500">Déjanos tu consulta y te responderemos a la brevedad.</p>
+                </div>
+                
+                {/* Componente React */}
+                <ServiceInquiryForm client:load />
+            </div>
+        </div>
+
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

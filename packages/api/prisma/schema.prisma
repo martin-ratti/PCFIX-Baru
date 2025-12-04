@@ -19,10 +19,15 @@ model User {
   role      Role     @default(USER)
   cliente   Cliente?
   favoritos Favorite[]
+  
+  // 👇 CORRECCIÓN: Agregamos la relación inversa para las consultas técnicas
+  consultas ConsultaTecnica[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// ... (Resto de modelos: Cliente, Localidad, Provincia, Producto, Categoria, Marca, Banner, Favorite, Venta, etc. IGUALES QUE ANTES) ...
 
 model Cliente {
   id          Int        @id @default(autoincrement())
@@ -50,8 +55,6 @@ model Provincia {
   localidades Localidad[]
 }
 
-// --- CATÁLOGO ---
-
 model Producto {
   id             Int        @id @default(autoincrement())
   nombre         String
@@ -63,11 +66,10 @@ model Producto {
   isFeatured     Boolean    @default(false)
   deletedAt      DateTime?
   
-  // Datos Logísticos
-  peso           Decimal    @default(0.5) @db.Decimal(10, 3) // kg
-  alto           Int        @default(10) // cm
-  ancho          Int        @default(10) // cm
-  profundidad    Int        @default(10) // cm
+  peso           Decimal    @default(0.5) @db.Decimal(10, 3)
+  alto           Int        @default(10)
+  ancho          Int        @default(10)
+  profundidad    Int        @default(10)
 
   categoriaId    Int
   categoria      Categoria  @relation(fields: [categoriaId], references: [id])
@@ -114,24 +116,17 @@ model Favorite {
   @@id([userId, productoId])
 }
 
-// --- VENTAS Y CONFIGURACIÓN ---
-
 model Venta {
   id          Int          @id @default(autoincrement())
   fecha       DateTime     @default(now())
   montoTotal  Decimal      @db.Decimal(10, 2)
-  
-  // Estados y Pago
   estado      VentaEstado  @default(PENDIENTE_PAGO)
   comprobante String?      
-  
-  // Datos de Envío
   costoEnvio        Decimal  @default(0) @db.Decimal(10, 2)
   metodoEnvio       String   @default("CORREO_ARGENTINO") 
   codigoSeguimiento String?
-  etiquetaUrl       String?  // Para cuando uses la API real
-  tipoEnvio         String?  // "DOMICILIO" | "SUCURSAL"
-  
+  etiquetaUrl       String?  
+  tipoEnvio         String?  
   clienteId   Int
   cliente     Cliente      @relation(fields: [clienteId], references: [id])
   lineasVenta LineaVenta[]
@@ -141,9 +136,9 @@ model Venta {
 enum VentaEstado {
   PENDIENTE_PAGO
   PENDIENTE_APROBACION
-  APROBADO            // Pago confirmado, preparando paquete
-  ENVIADO             // 👈 NUEVO: Paquete despachado
-  ENTREGADO           // 👈 NUEVO: Cliente recibió
+  APROBADO
+  ENVIADO
+  ENTREGADO
   RECHAZADO
   CANCELADO
 }
@@ -175,7 +170,6 @@ model MetodoPago {
   pagos  Pago[]
 }
 
-// CONFIGURACIÓN DEL SISTEMA (Singleton)
 model Configuracion {
   id          Int     @id @default(autoincrement())
   nombreBanco String  @default("Banco Nación")
@@ -183,6 +177,25 @@ model Configuracion {
   cbu         String  @default("0000000000000000000000")
   alias       String  @default("PCFIX.VENTAS")
   costoEnvioFijo Decimal @default(5000) @db.Decimal(10, 2)
+}
+
+model ConsultaTecnica {
+  id          Int       @id @default(autoincrement())
+  asunto      String    
+  mensaje     String    @db.Text
+  respuesta   String?   @db.Text 
+  estado      EstadoConsulta @default(PENDIENTE)
+  
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id]) // Ahora esto validará porque User tiene 'consultas'
+
+  createdAt   DateTime  @default(now())
+  respondedAt DateTime?
+}
+
+enum EstadoConsulta {
+  PENDIENTE
+  RESPONDIDO
 }
 
 enum Role {
