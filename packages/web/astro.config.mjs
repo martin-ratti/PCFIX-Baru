@@ -2,16 +2,14 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 
-// https://astro.build/config
 export default defineConfig({
-  // Optimización de velocidad
-  prefetch: {
-    prefetchAll: true,
-    defaultStrategy: 'viewport',
-  },
+  integrations: [react(), tailwind()],
   image: {
-    // IMPORTANTE: Autorizar dominios externos
-    domains: ['images.unsplash.com', 'res.cloudinary.com'], 
+    domains: [
+        'placehold.co', 
+        'images.unsplash.com', 
+        'res.cloudinary.com' 
+    ],
+    remotePatterns: [{ protocol: "https" }],
   },
-  integrations: [react(), tailwind()]
 });

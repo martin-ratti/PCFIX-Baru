@@ -1,84 +1,115 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-// Rutas corregidas:
 import { useAuthStore } from '../../../stores/authStore';
-import { useToastStore } from '../../../stores/toastStore';
-import { navigate } from 'astro:transitions/client';
+import { toast } from 'sonner';
 
 export default function ServiceInquiryForm() {
-  const { isAuthenticated, token } = useAuthStore();
-  const addToast = useToastStore(s => s.addToast);
-  const [isLoading, setIsLoading] = useState(false);
-  const { register, handleSubmit, reset } = useForm();
+  const { user, token } = useAuthStore();
+  const [loading, setLoading] = useState(false);
+  
+  // Estado local del formulario
+  const [formData, setFormData] = useState({
+    asunto: 'Presupuesto Reparación',
+    mensaje: ''
+  });
 
-  if (!isAuthenticated) {
-      return (
-          <div className="text-center py-8">
-              <div className="bg-gray-50 p-6 rounded-xl inline-block">
-                  <p className="text-gray-600 mb-4 font-medium">Debes iniciar sesión para enviar una consulta técnica.</p>
-                  <div className="flex gap-4 justify-center">
-                    <button onClick={() => navigate('/login')} className="bg-primary text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90">Iniciar Sesión</button>
-                    <button onClick={() => navigate('/registro')} className="text-primary font-bold hover:underline px-4 py-2">Crear Cuenta</button>
-                  </div>
-              </div>
-          </div>
-      );
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.mensaje.trim()) {
+        toast.error('Por favor detalla tu problema.');
+        return;
+    }
 
-  const onSubmit = async (data: any) => {
-      setIsLoading(true);
-      try {
-          const res = await fetch('http://localhost:3002/api/technical', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify(data)
-          });
-          const json = await res.json();
-          
-          if (json.success) {
-              addToast('Consulta enviada. Te responderemos pronto.', 'success');
-              reset();
-          } else {
-              throw new Error(json.error);
-          }
-      } catch (e: any) {
-          addToast(e.message || 'Error al enviar', 'error');
-      } finally {
-          setIsLoading(false);
+    if (!user || !token) {
+        toast.error('Debes iniciar sesión para enviar una consulta.');
+        return;
+    }
+
+    setLoading(true);
+    // ID para actualizar el toast luego
+    const toastId = toast.loading('Enviando consulta...');
+
+    try {
+      const res = await fetch('http://localhost:3002/api/technical', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success('¡Consulta enviada con éxito!', { id: toastId });
+        setFormData({ ...formData, mensaje: '' }); // Limpiar mensaje
+      } else {
+        throw new Error(data.error || 'Error al enviar');
       }
+
+    } catch (error: any) {
+      toast.error(error.message || 'Error de conexión', { id: toastId });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Asunto</label>
-            <select {...register('asunto')} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:border-primary outline-none bg-white">
-                <option value="Presupuesto Reparación">Presupuesto Reparación</option>
-                <option value="Consulta Limpieza">Consulta Limpieza</option>
-                <option value="Asesoramiento Armado">Asesoramiento Armado</option>
-                <option value="Otro">Otro</option>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      
+      {/* Asunto */}
+      <div>
+         <label className="block text-sm font-bold text-gray-700 mb-1">Asunto</label>
+         <div className="relative">
+            <select 
+                value={formData.asunto}
+                onChange={(e) => setFormData({...formData, asunto: e.target.value})}
+                className="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer text-gray-700"
+            >
+              <option>Presupuesto Reparación</option>
+              <option>Mantenimiento / Limpieza</option>
+              <option>Upgrade de PC</option>
+              <option>Instalación de Software</option>
+              <option>Consulta General</option>
             </select>
-        </div>
-        
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mensaje</label>
-            <textarea 
-                {...register('mensaje', { required: true })} 
-                rows={5} 
-                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                placeholder="Describe el problema de tu equipo o lo que necesitas..."
-            ></textarea>
-        </div>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+         </div>
+      </div>
 
-        <button 
-            disabled={isLoading} 
-            className="w-full bg-secondary text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg disabled:opacity-50"
-        >
-            {isLoading ? 'Enviando...' : 'Enviar Consulta'}
-        </button>
+      {/* Mensaje */}
+      <div>
+        <label className="block text-sm font-bold text-gray-700 mb-1">Detalle del Problema</label>
+        <textarea 
+            rows={5} 
+            value={formData.mensaje}
+            onChange={(e) => setFormData({...formData, mensaje: e.target.value})}
+            placeholder="Describe el problema de tu equipo, ruidos extraños, mensajes de error, etc..." 
+            className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none"
+        ></textarea>
+      </div>
+
+      {/* Botón */}
+      <button 
+        type="submit"
+        disabled={loading}
+        className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-secondary/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+      >
+        {loading ? (
+            <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                Enviando...
+            </>
+        ) : (
+            <>
+                <span>Enviar Consulta</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </>
+        )}
+      </button>
+
     </form>
   );
 }

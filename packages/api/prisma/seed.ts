@@ -27,19 +27,46 @@ async function main() {
         // pero si lo agregaste antes, esto funcionará. Si no, lo ignorará.
     }
   });
-    console.log('👤 Creando Servicios...');
-    const servicios = [
-    { title: "Limpieza PC Escritorio", price: 15000, description: "Limpieza profunda, cambio de pasta térmica (Arctic MX-4), orden de cables." },
-    { title: "Limpieza Notebook", price: 22000, description: "Desarme completo, limpieza de turbina, cambio de pasta térmica, limpieza de teclado." },
-    { title: "Armado de PC", price: 35000, description: "Ensamblaje profesional de componentes, gestión de cables premium, instalación de Windows." },
-    { title: "Diagnóstico", price: 8000, description: "Detección de fallas de hardware o software. Se bonifica si realizas la reparación." },
+ console.log('🛠️ Creando Servicios Técnicos...');
+  
+  // TUS NUEVOS SERVICIOS SOLICITADOS
+  const servicios = [
+    { 
+        title: "Armado de PC", 
+        price: 45000, 
+        description: "Ensamblaje profesional de componentes, gestión de cables premium y testeo de estrés." 
+    },
+    { 
+        title: "Formateo Completo", 
+        price: 25000, 
+        description: "Instalación limpia de sistema operativo, drivers actualizados, antivirus y paquete Office." 
+    },
+    { 
+        title: "Mantenimiento Preventivo", 
+        price: 20000, 
+        description: "Limpieza profunda de hardware, cambio de pasta térmica (Arctic/Thermal Grizzly) y optimización de flujo de aire." 
+    },
+    { 
+        title: "Diagnóstico", 
+        price: 10000, 
+        description: "Detección de fallas de hardware o software. El costo se bonifica al 100% si realizas la reparación con nosotros." 
+    },
   ];
 
+  // Lógica para crear o actualizar
   for (const s of servicios) {
     const exists = await prisma.serviceItem.findFirst({ where: { title: s.title }});
+    
     if (!exists) {
         await prisma.serviceItem.create({ data: s });
         console.log(`✅ Servicio creado: ${s.title}`);
+    } else {
+        // Opcional: Si ya existe, actualizamos precio y descripción para forzar el cambio
+        await prisma.serviceItem.update({
+            where: { id: exists.id },
+            data: { price: s.price, description: s.description }
+        });
+        console.log(`🔄 Servicio actualizado: ${s.title}`);
     }
   }
 // 2. USUARIOS

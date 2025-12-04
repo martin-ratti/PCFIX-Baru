@@ -6,14 +6,21 @@ export class TechnicalService {
   private emailService: EmailService;
 
   constructor() {
-    // Inicializamos el servicio de email (que usa nodemailer internamente)
     this.emailService = new EmailService();
   }
 
-  // --- PARTE 1: CONSULTAS TÉCNICAS ---
+  // ==========================================
+  //           CONSULTAS TÉCNICAS
+  // ==========================================
 
+  // 1. Crear Consulta (Usuario) -> Notifica Admin
   async createInquiry(userId: number, asunto: string, mensaje: string) {
-    return await prisma.consultaTecnica.create({
+    // Primero obtenemos el usuario para saber su email/nombre
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new Error("Usuario no encontrado");
+
+    // Guardamos en DB
+    const inquiry = await prisma.consultaTecnica.create({
       data: {
         userId,
         asunto,
@@ -21,8 +28,22 @@ export class TechnicalService {
         estado: 'PENDIENTE'
       }
     });
+
+    // Notificamos al Admin (Fire & Forget: no esperamos a que termine para responder al usuario)
+    if (user.email) {
+        console.log(`📧 Notificando nueva consulta de: ${user.email}`);
+        this.emailService.sendNewInquiryNotification(
+            user.email,
+            user.nombre || 'Usuario',
+            asunto,
+            mensaje
+        ).catch((err: any) => console.error("Fallo email nueva consulta:", err));
+    }
+
+    return inquiry;
   }
 
+  // 2. Obtener todas (Admin)
   async findAllInquiries(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     const [total, items] = await prisma.$transaction([
@@ -37,6 +58,7 @@ export class TechnicalService {
     return { data: items, meta: { total, page, lastPage: Math.ceil(total/limit), limit } };
   }
 
+  // 3. Obtener propias (Usuario)
   async findInquiriesByUserId(userId: number) {
     return await prisma.consultaTecnica.findMany({
         where: { userId },
@@ -44,41 +66,33 @@ export class TechnicalService {
     });
   }
 
+  // 4. Responder Consulta (Admin) -> Notifica Usuario
   async replyInquiry(id: number, respuesta: string) {
-    // 1. Actualizar en Base de Datos
     const consulta = await prisma.consultaTecnica.update({
         where: { id },
         data: {
             respuesta,
-            estado: EstadoConsulta.RESPONDIDO, // Asegura que el estado cambie
+            estado: EstadoConsulta.RESPONDIDO,
             respondedAt: new Date()
         },
-        include: { user: true } // Necesitamos el usuario para obtener su email
+        include: { user: true }
     });
 
-    // 2. Enviar Notificación por Email (Segundo plano)
     if (consulta.user && consulta.user.email) {
-        console.log(`📧 Intentando notificar respuesta a: ${consulta.user.email}`);
-        
-        // No usamos 'await' aquí para no hacer esperar al admin en la UI si el SMTP tarda
+        console.log(`📧 Enviando respuesta a: ${consulta.user.email}`);
         this.emailService.sendReplyNotification(
             consulta.user.email, 
             consulta.asunto, 
             respuesta
-        )
-        .then(success => {
-            if(success) console.log("✅ Email enviado correctamente.");
-            else console.warn("⚠️ El email no se pudo enviar (ver logs de EmailService).");
-        })
-        .catch(err => console.error("🔥 Error crítico enviando email:", err));
-    } else {
-        console.warn("⚠️ No se envió email: El usuario no tiene correo registrado.");
+        ).catch((err: any) => console.error("Fallo al enviar email de respuesta:", err));
     }
 
     return consulta;
   }
 
-  // --- PARTE 2: GESTIÓN DE PRECIOS (TARIFAS) ---
+  // ==========================================
+  //        GESTIÓN DE PRECIOS (TARIFAS)
+  // ==========================================
 
   async getServicePrices() {
     return await prisma.serviceItem.findMany({
