@@ -19,20 +19,37 @@ export default function UserSales() {
         })
         .finally(() => setIsLoading(false));
     } else {
-        // Si no hay token, terminamos carga (guard se encargará de redirigir si aplica)
         setIsLoading(false);
     }
   }, [user, token]);
 
   if (isLoading) return <div className="p-12 text-center animate-pulse text-gray-400">Cargando historial...</div>;
 
+  // --- ESTADO VACÍO ESTANDARIZADO ---
   if (sales.length === 0) return (
-    <div className="text-center p-12 bg-gray-50 rounded-lg border border-gray-200">
-      <p className="text-gray-500 mb-4">Aún no has realizado compras.</p>
-      <a href="/productos" className="text-primary font-bold hover:underline">Ir al catálogo</a>
+    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 min-h-[400px] flex flex-col items-center justify-center text-center animate-fade-in">
+        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-400">
+            {/* Icono Bolsa de Compras */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+
+        <h3 className="text-xl font-bold text-gray-800 mb-2">Aún no has realizado compras</h3>
+        <p className="text-gray-500 mb-8 max-w-xs mx-auto">
+            Explora nuestro catálogo de hardware high-end y encuentra los componentes perfectos para tu setup.
+        </p>
+        
+        {/* Botón Sólido (Igual a Favoritos) */}
+        <a 
+            href="/productos" 
+            className="bg-secondary text-white px-8 py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center gap-2"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Explorar Catálogo
+        </a>
     </div>
   );
 
+  // --- LISTA DE COMPRAS (SI HAY DATOS) ---
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {sales.map((sale) => (
