@@ -8,35 +8,20 @@ import Carousel from '../components/ui/layout/Carousel.tsx';
 import BrandCarousel from '../components/ui/layout/BrandCarousel.tsx';
 import HomeBanners from '../components/ui/layout/HomeBanners.tsx';
 
-// --- INTERFACES ---
-interface ProductDB {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  precio: string | number;
-  precioOriginal: string | number | null;
-  stock: number;
-  foto: string | null;
-  categoriaId: number;
-  isFeatured: boolean;
-}
+// 👇 NUEVOS COMPONENTES
+import FeaturesSection from '../components/ui/layout/FeaturesSection.astro';
+import CategoryGrid from '../components/ui/layout/CategoryGrid.astro';
+import PromoBanner from '../components/ui/layout/PromoBanner.astro';
 
-interface ProductCardProps {
-  id: string;
-  name: string;
-  price: number;
-  imageUrl: string;
-  imageAlt: string;
-  originalPrice?: number | null;
-  stock: number;
-  slug: string;
-  description: string;
-}
+// ... (INTERFACES Y LOGICA DE FETCH IGUAL QUE ANTES - COPIA TU CÓDIGO DE LÓGICA AQUÍ)
+// ...
+// ... (Solo pego el template actualizado)
 
+interface ProductDB { id: number; nombre: string; descripcion: string; precio: string | number; precioOriginal: string | number | null; stock: number; foto: string | null; categoriaId: number; isFeatured: boolean; }
+interface ProductCardProps { id: string; name: string; price: number; imageUrl: string; imageAlt: string; originalPrice?: number | null; stock: number; slug: string; description: string; }
 interface Brand { id: number; nombre: string; logo: string | null; }
 interface Banner { id: number; imagen: string; marca: Brand; }
 
-// --- VARIABLES ---
 let allProducts: ProductDB[] = [];
 let featuredProducts: ProductCardProps[] = [];
 let saleProducts: ProductCardProps[] = [];
@@ -45,10 +30,9 @@ let brands: Brand[] = [];
 let banners: Banner[] = [];
 let errorApi = false;
 
-// --- CARGA DE DATOS ---
 try {
   const [prodRes, brandRes, bannerRes] = await Promise.all([
-     fetch('http://localhost:3002/api/products'),
+     fetch('http://localhost:3002/api/products?limit=30'), // Traemos un pool para distribuir
      fetch('http://localhost:3002/api/brands'),
      fetch('http://localhost:3002/api/banners')
   ]);
@@ -57,48 +41,20 @@ try {
     const result = await prodRes.json();
     if (result.success) {
       allProducts = result.data;
-      
-      // Destacados: Solo los marcados con estrella
-      const featuredDB = allProducts.filter(p => p.isFeatured === true);
-      featuredProducts = featuredDB.map(mapProductToCard);
-
-      // Ofertas
-      const productsOnSale = allProducts.filter(p => 
-        p.precioOriginal !== null && 
-        Number(p.precioOriginal) > Number(p.precio)
-      );
-      saleProducts = productsOnSale.map(mapProductToCard);
-
-      // Novedades
+      // Filtros en memoria para el home (o podrías hacer fetchs especificos como en tu version anterior)
+      featuredProducts = allProducts.filter(p => p.isFeatured).slice(0,8).map(mapProductToCard);
+      saleProducts = allProducts.filter(p => p.precioOriginal).slice(0,8).map(mapProductToCard);
       newArrivalsProducts = allProducts.slice(0, 8).map(mapProductToCard);
     }
   } else { errorApi = true; }
-
-  if (brandRes.ok) {
-     const result = await brandRes.json();
-     if(result.success) brands = result.data;
-  }
-
-  if (bannerRes.ok) {
-     const result = await bannerRes.json();
-     if(result.success) banners = result.data;
-  }
-} catch (error) {
-  console.error("Error crítico cargando home:", error);
-  errorApi = true;
-}
+  
+  if (brandRes.ok) { const r = await brandRes.json(); if(r.success) brands = r.data; }
+  if (bannerRes.ok) { const r = await bannerRes.json(); if(r.success) banners = r.data; }
+} catch (error) { console.error("Error:", error); errorApi = true; }
 
 function mapProductToCard(p: ProductDB): ProductCardProps {
   return {
-    id: p.id.toString(),
-    name: p.nombre,
-    price: Number(p.precio),
-    imageUrl: p.foto || 'https://placehold.co/600x600/111626/F2F2F2?text=Sin+Imagen',
-    imageAlt: p.nombre,
-    stock: p.stock,
-    originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null,
-    slug: p.id.toString(),
-    description: p.descripcion
+    id: p.id.toString(), name: p.nombre, price: Number(p.precio), imageUrl: p.foto || '', imageAlt: p.nombre, stock: p.stock, originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null, slug: p.id.toString(), description: p.descripcion
   };
 }
 ---
@@ -106,84 +62,51 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
 <Layout title="PCFIX | Tu Tienda de Tecnología">
   <Header />
   
-  <main class="min-h-screen bg-light">
+  <main class="min-h-screen bg-light pb-12">
     
-    <div class="container mx-auto px-6 pt-8">
-      {/* BANNERS */}
-      {banners.length > 0 ? (
-        <HomeBanners banners={banners} client:load />
-      ) : (
-        <section class="relative bg-gradient-to-br from-secondary via-[#1a2342] to-primary text-white py-16 rounded-2xl overflow-hidden shadow-2xl mb-12">
-          <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-            <div class="absolute -top-24 -right-24 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full blur-3xl"></div>
-          </div>
-          <div class="container mx-auto px-6 relative z-10 text-center">
-            <span class="inline-block py-1 px-3 rounded-full bg-white/10 border border-white/20 text-blue-200 text-xs font-bold tracking-wider mb-4 backdrop-blur-sm">
-              NUEVA COLECCIÓN
-            </span>
-            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight tracking-tight">
-              Potencia tu Setup
-            </h1>
-            <div class="flex justify-center gap-4">
-              <a href="/productos" class="bg-white text-primary px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg">
-                Ver Catálogo
-              </a>
-            </div>
-          </div>
-        </section>
-      )}
+    {/* 1. Banners Principales */}
+    <div class="container mx-auto px-6 pt-6">
+      {banners.length > 0 ? <HomeBanners banners={banners} client:load /> : null}
     </div>
 
-    <div class="container mx-auto px-6 space-y-20 py-12">
-      
+    {/* 2. Barra de Confianza (NUEVO) */}
+    <FeaturesSection />
+
+    {/* 3. Grilla de Categorías (NUEVO) */}
+    <CategoryGrid />
+
+    {/* 4. Productos Destacados */}
+    <div class="container mx-auto px-6 space-y-16 py-8">
       {featuredProducts.length > 0 && (
         <div class="space-y-4">
-          <Carousel title="Productos Destacados" products={featuredProducts} client:visible />
+          <Carousel title="🔥 Destacados de la Semana" products={featuredProducts} client:visible />
         </div>
       )}
+
+      {/* 5. Banner Promocional (NUEVO - Rompe la monotonía) */}
+      <PromoBanner />
           
+      {/* 6. Ofertas */}
       {saleProducts.length > 0 && (
-        <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-          <Carousel title="¡Ofertas Imperdibles!" products={saleProducts} client:visible />
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 relative overflow-hidden">
+           <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-pink-500"></div>
+           <Carousel title="⚡ Ofertas Relámpago" products={saleProducts} client:visible />
         </div>
       )}
       
+      {/* 7. Novedades */}
       {newArrivalsProducts.length > 0 && (
         <div class="space-y-4">
-          <Carousel title="Recién Llegados" products={newArrivalsProducts} client:visible />
+          <Carousel title="🆕 Recién Llegados" products={newArrivalsProducts} client:visible />
         </div>
       )}
 
-      {/* LOADING / EMPTY STATE */}
-      {!errorApi && allProducts.length === 0 && (
-        <div class="text-center py-32 opacity-50">
-          <div class="inline-block w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin mb-4"></div>
-          <p class="text-xl font-medium">Cargando el mejor hardware...</p>
-        </div>
-      )}
-
-      {/* Mensaje si hay productos pero no en las categorías seleccionadas */}
-      {!errorApi && allProducts.length > 0 && featuredProducts.length === 0 && saleProducts.length === 0 && newArrivalsProducts.length === 0 && (
-         <div class="text-center py-20 text-gray-400">
-            <p>No hay productos destacados para mostrar en este momento.</p>
-            <a href="/productos" class="text-primary hover:underline">Ver catálogo completo</a>
-         </div>
-      )}
-
-      {errorApi && (
-        <div class="text-center py-20 bg-red-50 rounded-xl border border-red-100 text-red-600">
-          <p class="font-bold">Hubo un problema cargando los productos.</p>
-          <p class="text-sm">Por favor intenta recargar la página.</p>
-        </div>
-      )}
+      {!errorApi && allProducts.length === 0 && <div class="text-center py-32 opacity-50"><p>Cargando...</p></div>}
     </div>
   </main>
 
-  {/* MARCAS */}
-  <div class="bg-white border-t border-gray-100 pt-12 pb-4">
-    <BrandCarousel brands={brands} client:visible />
-  </div>
-
+  {/* 8. Marcas */}
+  <div class="bg-white border-t border-gray-100 pt-12 pb-4"><BrandCarousel brands={brands} client:visible /></div>
+  
   <Footer />
 </Layout>

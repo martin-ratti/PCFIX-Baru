@@ -15,6 +15,8 @@ export default function ProductListTable() {
   // Filtros
   const [filterCat, setFilterCat] = useState<string>('');
   const [showLowStock, setShowLowStock] = useState(false);
+  // 👇 NUEVO FILTRO
+  const [showDiscounted, setShowDiscounted] = useState(false);
   
   // Paginación
   const [page, setPage] = useState(1);
@@ -33,25 +35,29 @@ export default function ProductListTable() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('filter') === 'lowStock') setShowLowStock(true);
 
+    // Cargamos categorías para el selector
     fetch('http://localhost:3002/api/categories')
       .then(res => res.json())
       .then(data => data.success && setCategories(data.data));
   }, []);
 
+  // Cada vez que cambie un filtro, volvemos a la página 1 y recargamos
   useEffect(() => { 
-      setPage(1); // Resetear a página 1 si cambian filtros
+      setPage(1); 
       fetchProducts(1); 
-  }, [filterCat, showLowStock]);
+  }, [filterCat, showLowStock, showDiscounted]);
 
-  // Función flexible que acepta página
   const fetchProducts = (pageNum: number = page) => {
     setIsLoading(true);
     const params = new URLSearchParams();
+    
+    // Aplicamos todos los filtros activos
     if (filterCat) params.append('categoryId', filterCat);
     if (showLowStock) params.append('lowStock', 'true');
+    if (showDiscounted) params.append('hasDiscount', 'true'); // Nuevo parámetro
     
     params.append('page', pageNum.toString());
-    params.append('limit', '10'); // Tamaño de página manejable
+    params.append('limit', '10'); 
 
     fetch(`http://localhost:3002/api/products?${params.toString()}`)
       .then(res => res.json())
@@ -65,11 +71,10 @@ export default function ProductListTable() {
       .finally(() => setIsLoading(false));
   };
 
-  // Handlers de página
   const handlePrevPage = () => { if(page > 1) fetchProducts(page - 1); };
   const handleNextPage = () => { if(page < totalPages) fetchProducts(page + 1); };
 
-  // Acciones (Delete, Stock, Discount, Featured) - IGUAL QUE ANTES
+  // --- ACCIONES (Sin cambios en la lógica interna) ---
   const handleDelete = async () => {
     if (!productToDelete) return;
     try { await fetch(`http://localhost:3002/api/products/${productToDelete.id}`, { method: 'DELETE' }); addToast('Producto eliminado', 'success'); fetchProducts(page); } catch (e) { addToast('Error de conexión', 'error'); } finally { setProductToDelete(null); }
@@ -93,15 +98,51 @@ export default function ProductListTable() {
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* BARRA DE HERRAMIENTAS */}
       <div className="p-4 border-b border-gray-200 flex flex-wrap justify-between items-center bg-gray-50 gap-4">
-        <div className="flex items-center gap-4">
-          <h3 className="font-bold text-secondary">Inventario</h3>
-          <select value={filterCat} onChange={(e) => setFilterCat(e.target.value)} className="text-sm border-gray-300 rounded-md p-2 shadow-sm"><option value="">Categoría...</option>{categories.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}</select>
-          <label className="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" checked={showLowStock} onChange={(e) => setShowLowStock(e.target.checked)} className="rounded text-primary" /> Stock Bajo</label>
+        
+        <div className="flex flex-wrap items-center gap-4">
+          <h3 className="font-bold text-secondary hidden md:block">Inventario</h3>
+          
+          {/* Filtro Categoría */}
+          <select 
+             value={filterCat} 
+             onChange={(e) => setFilterCat(e.target.value)} 
+             className="text-sm border-gray-300 rounded-md p-2 shadow-sm focus:ring-primary focus:border-primary bg-white"
+          >
+            <option value="">Todas las Categorías</option>
+            {categories.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+          </select>
+          
+          {/* Filtro Stock */}
+          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer hover:text-primary select-none bg-white px-3 py-1.5 rounded border border-gray-200 shadow-sm">
+            <input 
+                type="checkbox" 
+                checked={showLowStock} 
+                onChange={(e) => setShowLowStock(e.target.checked)} 
+                className="rounded text-primary focus:ring-primary" 
+            /> 
+            Stock Bajo
+          </label>
+
+          {/* NUEVO: Filtro Descuentos */}
+          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer hover:text-purple-600 select-none bg-white px-3 py-1.5 rounded border border-gray-200 shadow-sm">
+            <input 
+                type="checkbox" 
+                checked={showDiscounted} 
+                onChange={(e) => setShowDiscounted(e.target.checked)} 
+                className="rounded text-purple-600 focus:ring-purple-500" 
+            /> 
+            En Oferta
+          </label>
         </div>
-        <button onClick={() => navigate('/admin/nuevo')} className="bg-primary text-white text-sm px-4 py-2 rounded hover:bg-opacity-90">+ Nuevo</button>
+
+        <button onClick={() => navigate('/admin/nuevo')} className="bg-primary text-white text-sm px-4 py-2 rounded hover:bg-opacity-90 font-bold shadow-sm flex items-center gap-2">
+            <span>+</span> Nuevo
+        </button>
       </div>
       
+      {/* TABLA DE PRODUCTOS */}
       <div className="overflow-x-auto relative min-h-[300px]">
         {isLoading && <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}
         
@@ -112,7 +153,7 @@ export default function ProductListTable() {
               <tr key={p.id} className="hover:bg-gray-50 transition-colors group">
                   <td className="px-6 py-4 text-sm text-gray-500">#{p.id}</td>
                   <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-[200px] truncate" title={p.nombre}>{p.nombre}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500"><span className="px-2 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-100">{p.categoria.nombre}</span></td>
+                  <td className="px-6 py-4 text-sm text-gray-500"><span className="px-2 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-100">{p.categoria?.nombre || 'Sin Cat.'}</span></td>
                   <td className="px-6 py-4 text-sm font-mono">
                     <div className="flex flex-col">{p.precioOriginal ? <><span className="text-red-600 font-bold">${Number(p.precio).toLocaleString('es-AR')}</span><span className="text-xs text-gray-400 line-through">${Number(p.precioOriginal).toLocaleString('es-AR')}</span></> : <span className="text-gray-700">${Number(p.precio).toLocaleString('es-AR')}</span>}</div>
                   </td>
@@ -120,7 +161,7 @@ export default function ProductListTable() {
                   <td className="px-6 py-4 text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">
                       <button onClick={() => handleToggleFeatured(p)} className={`p-1.5 rounded-full transition-all ${p.isFeatured ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-400'}`} title="Destacar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" /></svg></button>
-                      <button onClick={() => setProductToDiscount(p)} className={`p-1.5 rounded-full ${p.precioOriginal ? 'text-purple-600' : 'text-gray-400 hover:text-purple-600'}`} title="Oferta"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" /></svg></button>
+                      <button onClick={() => setProductToDiscount(p)} className={`p-1.5 rounded-full ${p.precioOriginal ? 'text-purple-600 bg-purple-50' : 'text-gray-400 hover:text-purple-600'}`} title="Oferta"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" /></svg></button>
                       <button onClick={() => setProductToUpdateStock(p)} className="text-green-600 hover:text-green-900 p-1.5 hover:bg-green-50 rounded-full" title="Stock"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg></button>
                       <button onClick={() => navigate(`/admin/editar/${p.id}`)} className="text-blue-600 hover:text-blue-900 p-1.5 hover:bg-blue-50 rounded-full" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg></button>
                       <button onClick={() => setProductToDelete(p)} className="text-red-600 hover:text-red-900 p-1.5 hover:bg-red-50 rounded-full" title="Eliminar"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></button>
@@ -137,25 +178,23 @@ export default function ProductListTable() {
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                   <p className="text-sm text-gray-700">
-                      Mostrando página <span className="font-medium">{page}</span> de <span className="font-medium">{totalPages}</span>
+                      Página <span className="font-medium">{page}</span> de <span className="font-medium">{totalPages}</span>
                   </p>
               </div>
               <div>
                   <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                      <button onClick={handlePrevPage} disabled={page === 1} className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                          <span className="sr-only">Anterior</span>
-                          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                      <button onClick={handlePrevPage} disabled={page === 1} className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                          Anterior
                       </button>
-                      <button onClick={handleNextPage} disabled={page === totalPages} className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                          <span className="sr-only">Siguiente</span>
-                          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
+                      <button onClick={handleNextPage} disabled={page === totalPages} className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                          Siguiente
                       </button>
                   </nav>
               </div>
           </div>
       </div>
 
-      {/* Modales (Confirm, Stock, Discount) - Igual que antes */}
+      {/* Modales */}
       <ConfirmModal isOpen={!!productToDelete} title="Eliminar" message="¿Seguro?" confirmText="Sí" isDanger={true} onConfirm={handleDelete} onCancel={() => setProductToDelete(null)} />
       <UpdateStockModal isOpen={!!productToUpdateStock} productName={productToUpdateStock?.nombre || ''} currentStock={productToUpdateStock?.stock || 0} onConfirm={handleStockUpdate} onCancel={() => setProductToUpdateStock(null)} />
       <DiscountModal isOpen={!!productToDiscount} product={productToDiscount} onConfirm={handleDiscountUpdate} onCancel={() => setProductToDiscount(null)} />

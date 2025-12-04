@@ -1,0 +1,90 @@
+---
+import { Image } from 'astro:assets';
+
+// 1. IMPORTACIÓN DE ACTIVOS
+import cpuImage from '../../../assets/categories/cpu.jpg'; 
+import gpuImage from '../../../assets/categories/gpu.jpg';
+import monitorImage from '../../../assets/categories/monitor.jpg';
+import todoImage from '../../../assets/categories/todo.jpg';
+
+// Definimos clases comunes (DRY)
+const cardBaseClass = "group relative overflow-hidden rounded-2xl bg-gray-100 aspect-square flex flex-col items-center justify-end p-4 hover:shadow-xl transition-all border border-transparent hover:border-primary/20 cursor-pointer";
+const gradientClass = "absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-90 transition-opacity z-10";
+const imageClass = "absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500";
+const textClass = "relative z-20 text-white font-bold tracking-wide text-center group-hover:text-primary-light transition-colors";
+---
+
+<section class="py-12 bg-white">
+  <div class="container mx-auto px-6">
+    <h2 class="text-2xl font-black text-secondary mb-8 flex items-center gap-2">
+      <span class="w-1 h-8 bg-primary rounded-full"></span>
+      Explora por Categoría
+    </h2>
+    
+    {/* GRID OPTIMIZADO: 
+       - Agregué 'max-w-5xl mx-auto': Esto limita el ancho total, haciendo los cuadrados más chicos y centrados.
+    */}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+      
+      {/* 1. Procesadores */}
+      <a href="/productos?search=Procesador" class={cardBaseClass}>
+        <div class={gradientClass}></div>
+        <Image 
+          src={cpuImage} 
+          alt="Procesador de computadora" 
+          width={400} 
+          quality={"mid"}
+          class={imageClass}
+        />
+        <span class={textClass}>Procesadores</span>
+      </a>
+
+      {/* 2. Placas de Video */}
+      <a href="/productos?search=Placa de Video" class={cardBaseClass}>
+        <div class={gradientClass}></div>
+        <Image 
+          src={gpuImage} 
+          alt="Tarjeta gráfica potente" 
+          width={400}
+          quality={"mid"}
+          class={imageClass} 
+        />
+        <span class={textClass}>Placas de Video</span>
+      </a>
+
+      {/* 3. Monitores */}
+      <a href="/productos?search=Monitor" class={cardBaseClass}>
+        <div class={gradientClass}></div>
+        <Image 
+          src={monitorImage} 
+          alt="Monitor de alta resolución" 
+          width={400}
+          quality={"mid"}
+          class={imageClass} 
+        />
+        <span class={textClass}>Monitores</span>
+      </a>
+      
+      {/* 4. Ver Todo (Con imagen todo.jpg) */}
+      <a href="/productos" class={cardBaseClass}>
+        {/* Usamos un gradiente un poco más oscuro o el mismo para consistencia */}
+        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors z-10"></div>
+        <div class={gradientClass}></div>
+        
+        <Image 
+          src={todoImage} 
+          alt="Ver todo el catálogo" 
+          width={400}
+          quality={"mid"}
+          class={imageClass} 
+        />
+        
+        <div class="relative z-20 flex flex-col items-center">
+          <span class="text-2xl mb-1 drop-shadow-md"></span>
+          <span class={textClass}>Ver Todo</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
