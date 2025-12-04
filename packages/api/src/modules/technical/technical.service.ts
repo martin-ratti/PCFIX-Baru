@@ -6,6 +6,7 @@ export class TechnicalService {
   private emailService: EmailService;
 
   constructor() {
+    // Inicializamos el servicio de email (que usa nodemailer internamente)
     this.emailService = new EmailService();
   }
 
@@ -44,28 +45,40 @@ export class TechnicalService {
   }
 
   async replyInquiry(id: number, respuesta: string) {
+    // 1. Actualizar en Base de Datos
     const consulta = await prisma.consultaTecnica.update({
         where: { id },
         data: {
             respuesta,
-            estado: EstadoConsulta.RESPONDIDO,
+            estado: EstadoConsulta.RESPONDIDO, // Asegura que el estado cambie
             respondedAt: new Date()
         },
-        include: { user: true }
+        include: { user: true } // Necesitamos el usuario para obtener su email
     });
 
-    if (consulta.user.email) {
+    // 2. Enviar Notificación por Email (Segundo plano)
+    if (consulta.user && consulta.user.email) {
+        console.log(`📧 Intentando notificar respuesta a: ${consulta.user.email}`);
+        
+        // No usamos 'await' aquí para no hacer esperar al admin en la UI si el SMTP tarda
         this.emailService.sendReplyNotification(
             consulta.user.email, 
             consulta.asunto, 
             respuesta
-        ).catch(err => console.error("Fallo al enviar email de soporte:", err));
+        )
+        .then(success => {
+            if(success) console.log("✅ Email enviado correctamente.");
+            else console.warn("⚠️ El email no se pudo enviar (ver logs de EmailService).");
+        })
+        .catch(err => console.error("🔥 Error crítico enviando email:", err));
+    } else {
+        console.warn("⚠️ No se envió email: El usuario no tiene correo registrado.");
     }
 
     return consulta;
   }
 
-  // --- PARTE 2: GESTIÓN DE PRECIOS (NUEVO) ---
+  // --- PARTE 2: GESTIÓN DE PRECIOS (TARIFAS) ---
 
   async getServicePrices() {
     return await prisma.serviceItem.findMany({

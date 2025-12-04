@@ -43,7 +43,7 @@ export class SalesService {
     if (cpDestino) {
         costoEnvio = await this.shippingService.calculateCost(cpDestino, pesoTotal);
     } else {
-        // Fallback a costo fijo si no hay CP (raro en este punto)
+        // Fallback a costo fijo si no hay CP
         const config = await prisma.configuracion.findFirst();
         costoEnvio = config ? Number(config.costoEnvioFijo) : 5000;
     }
@@ -97,7 +97,7 @@ export class SalesService {
     // Notificar Admin
     if (updatedSale.cliente?.user?.email) {
         this.emailService.sendNewReceiptNotification(saleId, updatedSale.cliente.user.email)
-            .catch(err => console.error("Fallo enviando email admin:", err));
+            .catch((err: any) => console.error("Fallo enviando email admin:", err));
     }
 
     return updatedSale;
@@ -114,7 +114,7 @@ export class SalesService {
     // Notificar Cliente
     if (updatedSale.cliente?.user?.email) {
         this.emailService.sendStatusUpdate(updatedSale.cliente.user.email, saleId, status)
-            .catch(err => console.error("Fallo enviando email cliente:", err));
+            .catch((err: any) => console.error("Fallo enviando email cliente:", err));
     }
 
     return updatedSale;
@@ -124,6 +124,8 @@ export class SalesService {
   async dispatchSale(saleId: number, trackingCode: string) {
     const sale = await prisma.venta.findUnique({ where: { id: saleId } });
     if (!sale) throw new Error("Venta no encontrada");
+    
+    // Validamos que esté aprobado antes de enviar
     if (sale.estado !== VentaEstado.APROBADO) throw new Error("La venta debe estar APROBADO para despacharse");
 
     const updatedSale = await prisma.venta.update({
@@ -137,12 +139,12 @@ export class SalesService {
 
     // Notificar Cliente con Tracking
     if (updatedSale.cliente?.user?.email) {
+        // CORRECCIÓN: Quitamos el 4to argumento "Correo Argentino" que causaba el error
         this.emailService.sendDispatchNotification(
             updatedSale.cliente.user.email, 
             saleId, 
-            trackingCode, 
-            "Correo Argentino"
-        ).catch(console.error);
+            trackingCode
+        ).catch((err: any) => console.error("Fallo enviando email tracking:", err));
     }
 
     return updatedSale;

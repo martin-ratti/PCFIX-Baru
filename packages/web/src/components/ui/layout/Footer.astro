@@ -1,6 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import logo from '../../../assets/logo.png'; 
+
+const currentYear = new Date().getFullYear();
 ---
 
 <footer class="bg-accent pt-16 pb-8 mt-auto border-t border-gray-200">
@@ -9,9 +11,9 @@ import logo from '../../../assets/logo.png';
       
       {/* 1. Marca */}
       <div class="space-y-4">
-        <div class="w-32">
+        <a href="/" class="block w-32 hover:opacity-90 transition-opacity">
            <Image src={logo} alt="PCFIX" width={120} />
-        </div>
+        </a>
         <p class="text-gray-500 text-sm leading-relaxed">
           Tu tienda de confianza para hardware de alto rendimiento. Envíos a todo el país y garantía oficial.
         </p>
@@ -39,30 +41,42 @@ import logo from '../../../assets/logo.png';
       </div>
 
       {/* 4. Contacto y Data Fiscal */}
-      <div>
+      <div class="flex flex-col h-full">
         <h3 class="text-lg font-bold mb-4 text-secondary">Contacto</h3>
-        <ul class="space-y-3 text-sm text-gray-600 mb-6">
+        <ul class="space-y-3 text-sm text-gray-600 mb-6 flex-1">
           <li class="flex items-center gap-3">
-            <span class="text-primary">📍</span> Av. Corrientes 1234, CABA
+            <span class="text-primary">📍</span> Corrientes 1481, Arequito, Santa Fe
           </li>
           <li class="flex items-center gap-3">
-            <span class="text-primary">📧</span> ventas@pcfix.com.ar
+            <span class="text-primary">📧</span> pcfixbaru@gmail.com
           </li>
           <li class="flex items-center gap-3">
-            <span class="text-primary">📱</span> +54 9 11 1234-5678
+            <span class="text-primary">📱</span> +54 3464513588
           </li>
         </ul>
         
-        {/* DATA FISCAL */}
-        <a href="https://www.afip.gob.ar/" target="_blank" class="w-12 h-16 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-opacity" title="Data Fiscal">
-            <img src="https://www.afip.gob.ar/images/f960/DATAWEB.jpg" alt="QR Data Fiscal" class="w-full h-full object-contain" />
-        </a>
+        {/* DATA FISCAL (Ajustado) */}
+        <div class="mt-auto pt-4">
+            <a 
+                href="http://qr.afip.gob.ar/?qr=a0o9zL9UDqwnbG-y05_wrg,," 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="inline-block hover:opacity-80 transition-opacity"
+                aria-label="Data Fiscal - QR AFIP"
+            >
+                <img 
+                    src="http://www.afip.gob.ar/images/f960/DATAWEB.jpg" 
+                    alt="Data Fiscal"
+                    class="w-14 h-auto border border-gray-200 rounded-sm"
+                />
+            </a>
+        </div>
       </div>
 
     </div>
 
-    <div class="border-t border-gray-100 pt-8 text-center text-xs text-gray-400">
-      <p>&copy; {new Date().getFullYear()} PCFIX S.A. Todos los derechos reservados.</p>
+    <div class="border-t border-gray-100 pt-8 text-center text-xs text-gray-400 flex flex-col md:flex-row justify-between items-center gap-2">
+      <p>&copy; {currentYear} PCFIX Todos los derechos reservados.</p>
     </div>
   </div>
-</footer> 
+</footer>
