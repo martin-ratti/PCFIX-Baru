@@ -22,7 +22,7 @@ export const register = async (req: Request, res: Response) => {
     const result = await authService.register(data);
     res.status(201).json({ success: true, data: result });
   } catch (error: any) {
-    const status = error.message === 'El email ya está registrado' ? 409 : 400;
+    const status = error.message === 'El email ya estï¿½ registrado' ? 409 : 400;
     res.status(status).json({ success: false, error: error.message || error });
   }
 };
@@ -33,7 +33,20 @@ export const login = async (req: Request, res: Response) => {
     const result = await authService.login(data);
     res.status(200).json({ success: true, data: result });
   } catch (error: any) {
-    const status = error.message === 'Credenciales inválidas' ? 401 : 400;
+    const status = error.message === 'Credenciales invï¿½lidas' ? 401 : 400;
     res.status(status).json({ success: false, error: error.message || error });
   }
+};
+
+export const loginGoogle = async (req: Request, res: Response) => {
+    try {
+        const { token } = req.body;
+        if (!token) return res.status(400).json({ success: false, error: 'Falta el token de Google' });
+
+        const result = await authService.loginWithGoogle(token);
+        res.json({ success: true, data: result });
+    } catch (e: any) {
+        console.error("Google Login Error:", e.message);
+        res.status(401).json({ success: false, error: 'Error autenticando con Google' });
+    }
 };
