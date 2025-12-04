@@ -2,31 +2,22 @@
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/layout/Header.astro';
-import Footer from '../../components/layout/Footer.astro';
-import CreateProductForm from '../../components/admin/CreateProductForm';
-import AdminGuard from '../../components/admin/AdminGuard';
+import Header from '../../components/ui/layout/Header.astro';
+import Footer from '../../components/ui/layout/Footer.astro';
+import CreateProductForm from '../../components/admin/products/CreateProductForm';
+import AdminGuard from '../../components/guards/AdminGuard';
 ---
 
 <Layout title="PCFIX | Nuevo Producto">
   <Header />
-  
   <main class="container mx-auto px-6 py-12 bg-light min-h-screen">
-    
-    {/* Encabezado de la Página */}
     <div class="mb-8">
-      <a href="/admin/productos" class="text-sm text-gray-500 hover:text-primary transition-colors mb-2 inline-flex items-center gap-1">
-        &larr; Volver al Inventario
-      </a>
+      <a href="/admin/productos" class="text-sm text-gray-500 hover:text-primary transition-colors mb-2 inline-flex items-center gap-1">&larr; Volver al Inventario</a>
       <h1 class="text-3xl font-black text-primary mt-2">Agregar Nuevo Producto</h1>
-      <p class="text-muted mt-1">Completa el formulario para dar de alta un ítem en el catálogo.</p>
     </div>
-
-    {/* Formulario Protegido */}
     <AdminGuard client:only="react">
       <CreateProductForm client:load />
     </AdminGuard>
   </main>
-
   <Footer />
 </Layout>

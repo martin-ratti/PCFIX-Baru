@@ -1,10 +1,10 @@
 ---
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/layout/Header.astro';
-import Footer from '../../components/layout/Footer.astro';
-import PaymentForm from '../../components/checkout/PaymentForm';
-import UserGuard from '../../components/auth/UserGuard';
+import Header from '../../components/ui/layout/Header.astro';
+import Footer from '../../components/ui/layout/Footer.astro';
+import PaymentForm from '../../components/store/checkout/PaymentForm';
+import UserGuard from '../../components/guards/UserGuard';
 
 const { id } = Astro.params;
 ---

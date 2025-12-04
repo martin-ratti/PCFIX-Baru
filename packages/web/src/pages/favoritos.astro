@@ -2,11 +2,10 @@
 export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
-import Header from '../components/layout/Header.astro';
-import Footer from '../components/layout/Footer.astro';
-import FavoritesPageContent from '../components/profile/FavoritesPageContent'; 
-// Usamos el UserGuard
-import UserGuard from '../components/auth/UserGuard.tsx'; 
+import Header from '../components/ui/layout/Header.astro';
+import Footer from '../components/ui/layout/Footer.astro';
+import FavoritesPageContent from '../components/store/profile/FavoritesPageContent'; 
+import UserGuard from '../components/guards/UserGuard.tsx';
 ---
 
 <Layout title="PCFIX | Mis Favoritos">

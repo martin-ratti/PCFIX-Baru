@@ -1,0 +1,68 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../../../assets/logo.png'; 
+---
+
+<footer class="bg-white pt-16 pb-8 mt-auto border-t border-gray-200">
+  <div class="container mx-auto px-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+      
+      {/* 1. Marca */}
+      <div class="space-y-4">
+        <div class="w-32">
+           <Image src={logo} alt="PCFIX" width={120} />
+        </div>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Tu tienda de confianza para hardware de alto rendimiento. Envíos a todo el país y garantía oficial.
+        </p>
+      </div>
+
+      {/* 2. Navegación */}
+      <div>
+        <h3 class="text-lg font-bold mb-4 text-secondary">Tienda</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><a href="/productos" class="hover:text-primary transition-colors">Catálogo Completo</a></li>
+          <li><a href="/productos?isFeatured=true" class="hover:text-primary transition-colors">Destacados</a></li>
+          <li><a href="/productos?hasDiscount=true" class="hover:text-primary transition-colors">Ofertas</a></li>
+        </ul>
+      </div>
+
+      {/* 3. Ayuda */}
+      <div>
+        <h3 class="text-lg font-bold mb-4 text-secondary">Ayuda</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><a href="/envios" class="hover:text-primary transition-colors">Envíos y Seguimiento</a></li>
+          <li><a href="/contacto" class="hover:text-primary transition-colors">Contacto</a></li>
+          <li><a href="/terminos" class="hover:text-primary transition-colors">Términos y Condiciones</a></li>
+          <li><a href="/faq" class="hover:text-primary transition-colors">Preguntas Frecuentes</a></li>
+        </ul>
+      </div>
+
+      {/* 4. Contacto y Data Fiscal */}
+      <div>
+        <h3 class="text-lg font-bold mb-4 text-secondary">Contacto</h3>
+        <ul class="space-y-3 text-sm text-gray-600 mb-6">
+          <li class="flex items-center gap-3">
+            <span class="text-primary">📍</span> Av. Corrientes 1234, CABA
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-primary">📧</span> ventas@pcfix.com.ar
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-primary">📱</span> +54 9 11 1234-5678
+          </li>
+        </ul>
+        
+        {/* DATA FISCAL */}
+        <a href="https://www.afip.gob.ar/" target="_blank" class="w-12 h-16 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-opacity" title="Data Fiscal">
+            <img src="https://www.afip.gob.ar/images/f960/DATAWEB.jpg" alt="QR Data Fiscal" class="w-full h-full object-contain" />
+        </a>
+      </div>
+
+    </div>
+
+    <div class="border-t border-gray-100 pt-8 text-center text-xs text-gray-400">
+      <p>&copy; {new Date().getFullYear()} PCFIX S.A. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer> 

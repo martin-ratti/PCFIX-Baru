@@ -1,34 +1,22 @@
 ---
 export const prerender = false;
 
-// CORRECCIÓN: Usamos 3 niveles (../../../) para llegar a 'src/'
 import Layout from '../../../layouts/Layout.astro';
-import Header from '../../../components/layout/Header.astro';
-import Footer from '../../../components/layout/Footer.astro';
-import EditProductForm from '../../../components/admin/EditProductForm';
-import AdminGuard from '../../../components/admin/AdminGuard';
+import Header from '../../../components/ui/layout/Header.astro';
+import Footer from '../../../components/ui/layout/Footer.astro';
+import EditProductForm from '../../../components/admin/products/EditProductForm';
+import AdminGuard from '../../../components/guards/AdminGuard';
 
 const { id } = Astro.params;
-
-if (!id) {
-  return new Response(null, {
-    status: 404,
-    statusText: 'Not Found'
-  });
-}
-
-// Usamos comillas simples para evitar conflictos de interpolación en scripts
-const pageTitle = 'PCFIX | Editar Producto ' + id;
+if (!id) return new Response(null, { status: 404 });
 ---
 
-<Layout title={pageTitle}>
+<Layout title={'PCFIX | Editar ' + id}>
   <Header />
-  
   <main class="container mx-auto px-6 py-12 bg-light min-h-screen">
     <AdminGuard client:only="react">
       <EditProductForm productId={id} client:load />
     </AdminGuard>
   </main>
-
   <Footer />
 </Layout>

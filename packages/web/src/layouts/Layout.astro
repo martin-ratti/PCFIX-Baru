@@ -6,9 +6,9 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 
 import { ViewTransitions } from 'astro:transitions';
-import ToastContainer from '../components/shared/ToastContainer.tsx';
-import FavoritesInitializer from '../components/shared/FavoritesInitializer.tsx';
-import WhatsAppButton from '../components/shared/WhatsAppButton.tsx';
+import ToastContainer from '../components/ui/feedback/ToastContainer.tsx';
+import FavoritesInitializer from '../components/ui/feedback/FavoritesInitializer.tsx';
+import WhatsAppButton from '../components/ui/feedback/WhatsAppButton.tsx';
 
 interface Props {
 	title: string;
@@ -54,13 +54,11 @@ const { title } = Astro.props;
 	</head>
 	
 	<body class="bg-light text-secondary font-sans" transition:animate="none">
-		
 		<div transition:persist>
 			<ToastContainer client:load />
 			<FavoritesInitializer client:load />
 			<WhatsAppButton client:load />
 		</div>
-
 		<slot />
 	</body>
 </html>
