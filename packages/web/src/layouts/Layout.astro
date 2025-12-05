@@ -2,8 +2,9 @@
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 
-// 👇 Importamos TU componente de notificaciones
+// 👇 COMPONENTES GLOBALES FLOTANTES
 import ToastContainer from '../components/ui/feedback/ToastContainer'; 
+import WhatsAppButton from '../components/ui/feedback/WhatsAppButton';
 
 interface Props { title: string; }
 const { title } = Astro.props;
@@ -11,21 +12,22 @@ const { title } = Astro.props;
 
 <!doctype html>
 <html lang="es">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-		<ClientRouter />
-	</head>
-	<body class="bg-gray-50 min-h-screen flex flex-col text-gray-900 selection:bg-primary/20">
-		
-		{/* 👇 TU CONTENEDOR DE TOASTS PERSONALIZADO */}
-		<ToastContainer client:load />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/png" href="/favicon.svg" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+        <ClientRouter />
+    </head>
+    <body class="bg-gray-50 min-h-screen flex flex-col text-gray-900 selection:bg-primary/20">
+        
+        {/* 👇 NOTIFICACIONES Y CHAT FLOTANTE */}
+        <ToastContainer client:load />
+        <WhatsAppButton /> {/* No necesita client:load porque es un link estático */}
 
-		<div class="flex-1">
-			<slot />
-		</div>
-	</body>
+        <div class="flex-1">
+            <slot />
+        </div>
+    </body>
 </html>
