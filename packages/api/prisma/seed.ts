@@ -12,61 +12,50 @@ const getLogo = (text: string) => `https://placehold.co/200x200/ffffff/000000?te
 async function main() {
   console.log('🌱 Iniciando seed maestro...');
 
-  // 1. CONFIGURACIÓN DEL SISTEMA
+// 1. CONFIGURACIÓN (Con Binance y Local)
   console.log('⚙️ Configurando tienda...');
   await prisma.configuracion.upsert({
     where: { id: 1 },
-    update: {},
+    update: {
+        nombreBanco: "Banco Galicia",
+        titular: "PCFIX S.R.L.",
+        cbu: "0070000000000000000000",
+        alias: "PCFIX.PAGOS",
+        costoEnvioFijo: 5000,
+        // Nuevos campos
+        binanceAlias: "PCFIX.CRYPTO",
+        binanceCbu: "556677889 (Pay ID)",
+        direccionLocal: "Av. Corrientes 4567, Almagro, CABA",
+        horariosLocal: "Lunes a Viernes 10:00 - 18:30hs"
+    },
     create: {
         nombreBanco: "Banco Galicia",
         titular: "PCFIX S.R.L.",
         cbu: "0070000000000000000000",
         alias: "PCFIX.PAGOS",
-        // Este valor se usará como base si falla la API de envíos
-        // Nota: Prisma schema no tenía costoEnvioFijo en tu último paste, 
-        // pero si lo agregaste antes, esto funcionará. Si no, lo ignorará.
+        costoEnvioFijo: 5000,
+        binanceAlias: "PCFIX.CRYPTO",
+        binanceCbu: "556677889 (Pay ID)",
+        direccionLocal: "Av. Corrientes 4567, Almagro, CABA",
+        horariosLocal: "Lunes a Viernes 10:00 - 18:30hs"
     }
   });
- console.log('🛠️ Creando Servicios Técnicos...');
-  
-  // TUS NUEVOS SERVICIOS SOLICITADOS
+
+  // 2. SERVICIOS TÉCNICOS
+  console.log('🛠️ Creando Servicios Técnicos...');
   const servicios = [
-    { 
-        title: "Armado de PC", 
-        price: 45000, 
-        description: "Ensamblaje profesional de componentes, gestión de cables premium y testeo de estrés." 
-    },
-    { 
-        title: "Formateo Completo", 
-        price: 25000, 
-        description: "Instalación limpia de sistema operativo, drivers actualizados, antivirus y paquete Office." 
-    },
-    { 
-        title: "Mantenimiento Preventivo", 
-        price: 20000, 
-        description: "Limpieza profunda de hardware, cambio de pasta térmica (Arctic/Thermal Grizzly) y optimización de flujo de aire." 
-    },
-    { 
-        title: "Diagnóstico", 
-        price: 10000, 
-        description: "Detección de fallas de hardware o software. El costo se bonifica al 100% si realizas la reparación con nosotros." 
-    },
+    { title: "Armado de PC", price: 45000, description: "Ensamblaje profesional de componentes, gestión de cables premium y testeo de estrés." },
+    { title: "Formateo Completo", price: 25000, description: "Instalación limpia de sistema operativo, drivers actualizados, antivirus y paquete Office." },
+    { title: "Mantenimiento Preventivo", price: 20000, description: "Limpieza profunda de hardware, cambio de pasta térmica (Arctic/Thermal Grizzly) y optimización de flujo de aire." },
+    { title: "Diagnóstico", price: 10000, description: "Detección de fallas de hardware o software. El costo se bonifica al 100% si realizas la reparación con nosotros." },
   ];
 
-  // Lógica para crear o actualizar
   for (const s of servicios) {
     const exists = await prisma.serviceItem.findFirst({ where: { title: s.title }});
-    
     if (!exists) {
         await prisma.serviceItem.create({ data: s });
-        console.log(`✅ Servicio creado: ${s.title}`);
     } else {
-        // Opcional: Si ya existe, actualizamos precio y descripción para forzar el cambio
-        await prisma.serviceItem.update({
-            where: { id: exists.id },
-            data: { price: s.price, description: s.description }
-        });
-        console.log(`🔄 Servicio actualizado: ${s.title}`);
+        await prisma.serviceItem.update({ where: { id: exists.id }, data: { price: s.price, description: s.description } });
     }
   }
 // 2. USUARIOS

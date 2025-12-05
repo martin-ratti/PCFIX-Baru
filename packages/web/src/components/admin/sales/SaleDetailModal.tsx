@@ -5,7 +5,7 @@ import { useAuthStore } from '../../../stores/authStore';
 interface SaleDetailModalProps {
   isOpen: boolean;
   sale: any;
-  autoFocusDispatch?: boolean; // Nuevo prop
+  autoFocusDispatch?: boolean;
   onClose: () => void;
   onApprove: () => void;
   onReject: () => void;
@@ -18,13 +18,10 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
   const addToast = useToastStore(s => s.addToast);
   const { token } = useAuthStore();
   
-  // Referencia para el input de tracking
   const trackingInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-foco cuando se abre el modal en modo despacho
   useEffect(() => {
-      if (isOpen && autoFocusDispatch && sale?.estado === 'APROBADO') {
-          // Pequeño timeout para esperar que el modal renderice
+      if (isOpen && autoFocusDispatch && sale?.estado === 'APROBADO' && sale.tipoEntrega === 'ENVIO') {
           setTimeout(() => trackingInputRef.current?.focus(), 100);
       }
   }, [isOpen, autoFocusDispatch, sale]);
@@ -32,10 +29,14 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
   if (!isOpen || !sale) return null;
 
   const handleDispatch = async () => {
-      if (!trackingCode.trim()) {
+      // Si es envío, obligamos el código. Si es retiro, ponemos uno automático.
+      const codeToSend = sale.tipoEntrega === 'RETIRO' ? 'RETIRO_EN_TIENDA' : trackingCode;
+
+      if (!codeToSend.trim()) {
           addToast('Ingresa el código de seguimiento', 'error');
           return;
       }
+
       setIsDispatching(true);
       try {
           const res = await fetch(`http://localhost:3002/api/sales/${sale.id}/dispatch`, {
@@ -44,13 +45,13 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${token}`
               },
-              body: JSON.stringify({ trackingCode })
+              body: JSON.stringify({ trackingCode: codeToSend })
           });
           
           const json = await res.json();
           
           if (json.success) {
-              addToast('Pedido despachado y cliente notificado', 'success');
+              addToast(sale.tipoEntrega === 'RETIRO' ? 'Entrega confirmada' : 'Pedido despachado', 'success');
               if (onDispatch) onDispatch(); 
               onClose();
           } else {
@@ -63,6 +64,23 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
       }
   };
 
+  // Helpers visuales
+  const getPaymentIcon = (method: string) => {
+      switch(method) {
+          case 'BINANCE': return '🪙';
+          case 'EFECTIVO': return '💵';
+          default: return '🏦';
+      }
+  };
+
+  const getPaymentLabel = (method: string) => {
+      switch(method) {
+          case 'BINANCE': return 'Binance Pay / Crypto';
+          case 'EFECTIVO': return 'Efectivo en Local';
+          default: return 'Transferencia Bancaria';
+      }
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -70,7 +88,12 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
           <div>
-            <h3 className="text-xl font-bold text-secondary">Auditoría de Venta #{sale.id}</h3>
+            <h3 className="text-xl font-bold text-secondary flex items-center gap-2">
+                Auditoría de Venta #{sale.id}
+                <span className={`text-xs px-2 py-0.5 rounded border ${sale.tipoEntrega === 'RETIRO' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-blue-100 text-blue-700 border-blue-200'}`}>
+                    {sale.tipoEntrega === 'RETIRO' ? '🏪 RETIRO' : '🚚 ENVÍO'}
+                </span>
+            </h3>
             <p className="text-sm text-gray-500">{new Date(sale.fecha).toLocaleString()}</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
@@ -82,21 +105,42 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
             
             {/* --- COLUMNA IZQUIERDA: DATOS --- */}
             <div className="space-y-6">
+                
+                {/* TARJETA TOTAL */}
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                    <p className="text-sm text-blue-600 font-bold uppercase mb-1">Total a Cobrar</p>
-                    <p className="text-4xl font-black text-blue-900">${Number(sale.montoTotal).toLocaleString('es-AR')}</p>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-sm text-blue-600 font-bold uppercase mb-1">Total a Cobrar</p>
+                            <p className="text-4xl font-black text-blue-900">${Number(sale.montoTotal).toLocaleString('es-AR')}</p>
+                        </div>
+                        {/* INDICADOR DE MÉTODO DE PAGO */}
+                        <div className={`px-3 py-2 rounded-lg border flex flex-col items-center ${sale.medioPago === 'BINANCE' ? 'bg-yellow-100 border-yellow-200 text-yellow-800' : sale.medioPago === 'EFECTIVO' ? 'bg-green-100 border-green-200 text-green-800' : 'bg-white border-blue-200 text-blue-800'}`}>
+                            <span className="text-2xl">{getPaymentIcon(sale.medioPago)}</span>
+                            <span className="text-[10px] font-bold uppercase mt-1">{sale.medioPago}</span>
+                        </div>
+                    </div>
                     {Number(sale.costoEnvio) > 0 && <p className="text-xs text-blue-400 mt-1">Incluye envío: ${Number(sale.costoEnvio).toLocaleString('es-AR')}</p>}
                 </div>
 
+                {/* DATOS CLIENTE & ENTREGA */}
                 <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                    <h4 className="font-bold text-gray-800 border-b border-gray-100 pb-2 mb-3 uppercase text-xs tracking-wider">Cliente</h4>
-                    <div className="space-y-1 text-sm text-gray-600">
+                    <h4 className="font-bold text-gray-800 border-b border-gray-100 pb-2 mb-3 uppercase text-xs tracking-wider">Datos del Cliente</h4>
+                    <div className="space-y-2 text-sm text-gray-600">
                         <p><span className="font-medium text-gray-900">Nombre:</span> {sale.cliente?.user?.nombre} {sale.cliente?.user?.apellido}</p>
                         <p><span className="font-medium text-gray-900">Email:</span> {sale.cliente?.user?.email}</p>
-                        <p><span className="font-medium text-gray-900">Envío:</span> {sale.metodoEnvio || 'Estándar'}</p>
+                        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-50">
+                            <span className="font-medium text-gray-900">Modo Entrega:</span>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${sale.tipoEntrega === 'RETIRO' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                {sale.tipoEntrega === 'RETIRO' ? 'Retiro en Local' : 'Envío a Domicilio'}
+                            </span>
+                        </div>
+                        {sale.tipoEntrega === 'ENVIO' && (
+                            <p><span className="font-medium text-gray-900">C. Postal:</span> {sale.cpDestino || 'No especificado'}</p>
+                        )}
                     </div>
                 </div>
 
+                {/* PRODUCTOS */}
                 <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
                    <h4 className="font-bold text-gray-800 border-b border-gray-100 pb-2 mb-3 uppercase text-xs tracking-wider">
                        Productos ({sale.lineasVenta?.length || 0})
@@ -118,7 +162,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
             {/* --- COLUMNA DERECHA: COMPROBANTE --- */}
             <div className="flex flex-col h-full">
                 <h4 className="font-bold text-gray-700 mb-3 flex justify-between items-center">
-                    Comprobante Adjunto
+                    Comprobante ({getPaymentLabel(sale.medioPago)})
                 </h4>
                 <div className="bg-gray-900 rounded-xl flex items-center justify-center overflow-hidden relative flex-grow min-h-[300px] border-4 border-white shadow-md group">
                     {sale.comprobante ? (
@@ -131,54 +175,80 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                     ) : (
                         <div className="text-gray-500 flex flex-col items-center p-8 text-center">
                             <span className="text-5xl mb-4">📄</span>
-                            <span>Sin comprobante</span>
+                            <span>Sin comprobante subido</span>
+                            {sale.medioPago === 'EFECTIVO' && <span className="text-xs mt-2 text-gray-600">(Pago en local)</span>}
                         </div>
                     )}
                 </div>
             </div>
           </div>
 
-          {/* --- SECCIÓN DE DESPACHO (Solo visible si está APROBADO) --- */}
+          {/* --- SECCIÓN DE DESPACHO / ENTREGA (Visible si APROBADO) --- */}
           {sale.estado === 'APROBADO' && (
-              <div className={`mt-8 p-6 bg-blue-50 border border-blue-100 rounded-xl animate-in slide-in-from-bottom-2 ${autoFocusDispatch ? 'ring-2 ring-blue-400 shadow-lg' : ''}`}>
-                  <h4 className="font-bold text-blue-800 mb-2 flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
-                      Gestión de Despacho
-                  </h4>
-                  <p className="text-sm text-blue-600 mb-4">El pago está confirmado. Ingresa el código de seguimiento para notificar al cliente.</p>
+              <div className={`mt-8 p-6 border rounded-xl animate-in slide-in-from-bottom-2 ${sale.tipoEntrega === 'RETIRO' ? 'bg-green-50 border-green-100' : 'bg-blue-50 border-blue-100'} ${autoFocusDispatch ? 'ring-2 ring-offset-2 ring-primary' : ''}`}>
                   
-                  <div className="flex gap-3">
-                      <input 
-                          ref={trackingInputRef} // Referencia para el foco automático
-                          type="text" 
-                          placeholder="Ej: AA123456789AR" 
-                          value={trackingCode}
-                          onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
-                          className="flex-1 border border-blue-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none font-mono uppercase bg-white"
-                      />
-                      <button 
-                          onClick={handleDispatch}
-                          disabled={isDispatching || !trackingCode}
-                          className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-sm"
-                      >
-                          {isDispatching ? 'Procesando...' : 'Confirmar Despacho'}
-                      </button>
-                  </div>
+                  <h4 className={`font-bold mb-2 flex items-center gap-2 ${sale.tipoEntrega === 'RETIRO' ? 'text-green-800' : 'text-blue-800'}`}>
+                      {sale.tipoEntrega === 'RETIRO' ? (
+                          <><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 1.138a3.001 3.001 0 014.125 0l.621.621h6.568l.621-.621a3.001 3.001 0 014.125 0l3.078 2.919a3.004 3.004 0 01-.621 4.72" /></svg> Finalizar Retiro</>
+                      ) : (
+                          <><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg> Gestión de Despacho</>
+                      )}
+                  </h4>
+                  
+                  {/* UI DIFERENCIADA SEGÚN TIPO DE ENTREGA */}
+                  {sale.tipoEntrega === 'RETIRO' ? (
+                      <div className="flex justify-between items-center">
+                          <p className="text-sm text-green-700">
+                              El pago está confirmado. Haz clic para marcar que el cliente ya retiró el producto.
+                          </p>
+                          <button 
+                              onClick={handleDispatch}
+                              disabled={isDispatching}
+                              className="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition-colors disabled:opacity-50 shadow-sm whitespace-nowrap"
+                          >
+                              {isDispatching ? 'Procesando...' : 'Confirmar Entrega'}
+                          </button>
+                      </div>
+                  ) : (
+                      // UI PARA ENVÍO (Con Input de Tracking)
+                      <>
+                        <p className="text-sm text-blue-600 mb-4">Ingresa el código de seguimiento de Correo Argentino para notificar al cliente.</p>
+                        <div className="flex gap-3">
+                            <input 
+                                ref={trackingInputRef}
+                                type="text" 
+                                placeholder="Ej: AA123456789AR" 
+                                value={trackingCode}
+                                onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
+                                className="flex-1 border border-blue-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none font-mono uppercase bg-white"
+                            />
+                            <button 
+                                onClick={handleDispatch}
+                                disabled={isDispatching || !trackingCode}
+                                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-sm whitespace-nowrap"
+                            >
+                                {isDispatching ? 'Procesando...' : 'Confirmar Despacho'}
+                            </button>
+                        </div>
+                      </>
+                  )}
               </div>
           )}
           
-          {/* --- Info si ya está enviado --- */}
-          {sale.estado === 'ENVIADO' && (
-              <div className="mt-8 p-4 bg-green-50 border border-green-100 rounded-lg text-center">
-                  <p className="text-green-800 font-bold flex items-center justify-center gap-2">
-                    ✅ Pedido Despachado
+          {/* --- Info si ya está enviado/entregado --- */}
+          {(sale.estado === 'ENVIADO' || sale.estado === 'ENTREGADO') && (
+              <div className="mt-8 p-4 bg-gray-100 border border-gray-200 rounded-lg text-center">
+                  <p className="text-gray-800 font-bold flex items-center justify-center gap-2">
+                    ✅ {sale.tipoEntrega === 'RETIRO' ? 'Entregado en Local' : 'Pedido Despachado'}
                   </p>
-                  <p className="text-green-700 text-sm mt-1 font-mono">Tracking: {sale.codigoSeguimiento}</p>
+                  {sale.codigoSeguimiento && sale.codigoSeguimiento !== 'RETIRO_EN_TIENDA' && (
+                      <p className="text-gray-600 text-sm mt-1 font-mono">Tracking: {sale.codigoSeguimiento}</p>
+                  )}
               </div>
           )}
         </div>
 
-        {/* Footer: Botones de Estado */}
+        {/* Footer */}
         <div className="px-6 py-4 bg-white border-t border-gray-200 flex justify-between items-center">
           <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
               sale.estado === 'APROBADO' ? 'bg-green-50 text-green-700 border-green-200' : 
@@ -186,7 +256,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
               sale.estado === 'ENVIADO' ? 'bg-purple-50 text-purple-700 border-purple-200' :
               'bg-blue-50 text-blue-700 border-blue-200'
           }`}>
-              Estado Actual: {sale.estado}
+              Estado: {sale.estado}
           </span>
 
           <div className="flex gap-3">
@@ -195,7 +265,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
             {sale.estado === 'PENDIENTE_APROBACION' && (
                 <>
                     <button onClick={onReject} className="px-5 py-2 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 border border-red-200 transition-colors">
-                        Rechazar Pago
+                        Rechazar
                     </button>
                     <button onClick={onApprove} className="px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 shadow-md transition-colors hover:shadow-lg transform active:scale-95">
                         Confirmar Acreditación

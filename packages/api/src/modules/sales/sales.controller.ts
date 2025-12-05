@@ -8,11 +8,18 @@ const service = new SalesService();
 export const createSale = async (req: Request, res: Response) => {
     try {
         const userId = (req as AuthRequest).user?.id;
-        const { items, subtotal, cpDestino } = req.body;
+        
+        // 👇 Extracción de los nuevos campos del body
+        const { items, subtotal, cpDestino, tipoEntrega, medioPago } = req.body;
+        
         if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
-        const sale = await service.createSale(userId, items, subtotal, cpDestino);
+
+        // 👇 Envío al servicio
+        const sale = await service.createSale(userId, items, subtotal, cpDestino, tipoEntrega, medioPago);
+        
         res.status(201).json({ success: true, data: sale });
     } catch (e: any) {
+        console.error(e);
         res.status(500).json({ success: false, error: e.message });
     }
 };
@@ -20,8 +27,10 @@ export const createSale = async (req: Request, res: Response) => {
 export const uploadReceipt = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        if (!req.file) return res.status(400).json({ success: false, error: 'No file' });
+        if (!req.file) return res.status(400).json({ success: false, error: 'No se subió ningún archivo' });
+        
         const receiptUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        
         const updated = await service.uploadReceipt(Number(id), receiptUrl);
         res.json({ success: true, data: updated });
     } catch (e: any) {
@@ -33,6 +42,7 @@ export const getMySales = async (req: Request, res: Response) => {
     try {
         const userId = (req as AuthRequest).user?.id;
         if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
         const sales = await service.findByUserId(userId);
         res.json({ success: true, data: sales });
     } catch (e: any) {
@@ -43,7 +53,7 @@ export const getMySales = async (req: Request, res: Response) => {
 export const getSaleById = async (req: Request, res: Response) => {
     try {
         const sale = await service.findById(Number(req.params.id));
-        if (!sale) return res.status(404).json({ success: false, error: 'Not Found' });
+        if (!sale) return res.status(404).json({ success: false, error: 'Venta no encontrada' });
         res.json({ success: true, data: sale });
     } catch (e: any) {
         res.status(500).json({ success: false, error: e.message });
@@ -69,7 +79,11 @@ export const updateStatus = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
-        if (!Object.values(VentaEstado).includes(status)) return res.status(400).json({ success: false, error: 'Invalid status' });
+        
+        if (!Object.values(VentaEstado).includes(status)) {
+            return res.status(400).json({ success: false, error: 'Estado inválido' });
+        }
+
         const updated = await service.updateStatus(Number(id), status);
         res.json({ success: true, data: updated });
     } catch (e: any) {
@@ -81,7 +95,9 @@ export const dispatchSale = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { trackingCode } = req.body;
-        if (!trackingCode) return res.status(400).json({ success: false, error: 'Tracking code required' });
+
+        if (!trackingCode) return res.status(400).json({ success: false, error: 'Código de seguimiento requerido' });
+
         const updated = await service.dispatchSale(Number(id), trackingCode);
         res.json({ success: true, data: updated });
     } catch (e: any) {

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { toast } from 'sonner';
+import { navigate } from 'astro:transitions/client'; // Importamos el navegador de cliente
 
 export default function ServiceInquiryForm() {
   const { user, token } = useAuthStore();
   const [loading, setLoading] = useState(false);
   
-  // Estado local del formulario
   const [formData, setFormData] = useState({
     asunto: 'Presupuesto Reparación',
     mensaje: ''
@@ -15,19 +15,30 @@ export default function ServiceInquiryForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // 1. Validación de contenido
     if (!formData.mensaje.trim()) {
-        toast.error('Por favor detalla tu problema.');
+        toast.error('Por favor detalla tu problema para poder ayudarte.');
         return;
     }
 
+    // 2. Validación de Sesión (UX MEJORADA)
     if (!user || !token) {
-        toast.error('Debes iniciar sesión para enviar una consulta.');
+        // Guardamos el mensaje en sessionStorage para recuperarlo después del login (Opcional, buen detalle UX)
+        sessionStorage.setItem('pendingInquiry', JSON.stringify(formData));
+        
+        toast.info('Necesitas iniciar sesión para enviar consultas. Redirigiendo...', {
+            duration: 2000,
+        });
+        
+        // Redirigir después de un breve delay para que lean el mensaje
+        setTimeout(() => {
+            navigate('/login');
+        }, 1500);
         return;
     }
 
     setLoading(true);
-    // ID para actualizar el toast luego
-    const toastId = toast.loading('Enviando consulta...');
+    const toastId = toast.loading('Enviando consulta al taller...');
 
     try {
       const res = await fetch('http://localhost:3002/api/technical', {
@@ -42,8 +53,8 @@ export default function ServiceInquiryForm() {
       const data = await res.json();
 
       if (data.success) {
-        toast.success('¡Consulta enviada con éxito!', { id: toastId });
-        setFormData({ ...formData, mensaje: '' }); // Limpiar mensaje
+        toast.success('¡Consulta recibida! Te responderemos pronto.', { id: toastId });
+        setFormData({ ...formData, mensaje: '' });
       } else {
         throw new Error(data.error || 'Error al enviar');
       }
@@ -56,7 +67,7 @@ export default function ServiceInquiryForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
       
       {/* Asunto */}
       <div>
@@ -65,7 +76,7 @@ export default function ServiceInquiryForm() {
             <select 
                 value={formData.asunto}
                 onChange={(e) => setFormData({...formData, asunto: e.target.value})}
-                className="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer text-gray-700"
+                className="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer text-gray-700 font-medium"
             >
               <option>Presupuesto Reparación</option>
               <option>Mantenimiento / Limpieza</option>
@@ -86,8 +97,8 @@ export default function ServiceInquiryForm() {
             rows={5} 
             value={formData.mensaje}
             onChange={(e) => setFormData({...formData, mensaje: e.target.value})}
-            placeholder="Describe el problema de tu equipo, ruidos extraños, mensajes de error, etc..." 
-            className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none"
+            placeholder="Hola, tengo una PC que hace un ruido extraño al encender y..." 
+            className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none text-gray-700 placeholder-gray-400"
         ></textarea>
       </div>
 
@@ -100,7 +111,7 @@ export default function ServiceInquiryForm() {
         {loading ? (
             <>
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                Enviando...
+                <span>Enviando...</span>
             </>
         ) : (
             <>
@@ -109,6 +120,13 @@ export default function ServiceInquiryForm() {
             </>
         )}
       </button>
+
+      {/* Mensaje de ayuda visual si no está logueado (Opcional, mejora UX proactiva) */}
+      {!user && (
+          <p className="text-xs text-center text-gray-400 mt-2">
+              * Se te pedirá iniciar sesión antes de enviar.
+          </p>
+      )}
 
     </form>
   );

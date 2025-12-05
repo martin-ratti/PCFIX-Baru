@@ -19,10 +19,7 @@ model User {
   role      Role     @default(USER)
   cliente   Cliente?
   favoritos Favorite[]
-  
-  // Relación con consultas técnicas
   consultas ConsultaTecnica[]
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -124,11 +121,18 @@ model Venta {
   montoTotal        Decimal     @db.Decimal(10, 2)
   estado            VentaEstado @default(PENDIENTE_PAGO)
   comprobante       String?      
+  
+  // Logística
   costoEnvio        Decimal     @default(0) @db.Decimal(10, 2)
   metodoEnvio       String      @default("CORREO_ARGENTINO") 
   codigoSeguimiento String?
   etiquetaUrl       String?   
+  
+  // 👇 NUEVOS CAMPOS DE ELECCIÓN
+  tipoEntrega       String      @default("ENVIO") // 'ENVIO' | 'RETIRO'
+  medioPago         String      @default("TRANSFERENCIA") // 'TRANSFERENCIA' | 'BINANCE' | 'EFECTIVO'
   tipoEnvio         String?   
+
   clienteId         Int
   cliente           Cliente     @relation(fields: [clienteId], references: [id])
   lineasVenta       LineaVenta[]
@@ -173,15 +177,23 @@ model MetodoPago {
 }
 
 model Configuracion {
-  id             Int     @id @default(autoincrement())
-  nombreBanco    String  @default("Banco Nación")
-  titular        String  @default("PCFIX S.A.")
-  cbu            String  @default("0000000000000000000000")
-  alias          String  @default("PCFIX.VENTAS")
-  costoEnvioFijo Decimal @default(5000) @db.Decimal(10, 2)
+  id              Int     @id @default(autoincrement())
+  // Banco
+  nombreBanco     String  @default("Banco Nación")
+  titular         String  @default("PCFIX S.A.")
+  cbu             String  @default("0000000000000000000000")
+  alias           String  @default("PCFIX.VENTAS")
+  // Envío
+  costoEnvioFijo  Decimal @default(5000) @db.Decimal(10, 2)
+  
+  // 👇 NUEVOS CAMPOS DE CONFIG
+  binanceAlias    String? @default("PCFIX.USDT")
+  binanceCbu      String? @default("PAY-ID-123456")
+  direccionLocal  String? @default("Av. Corrientes 1234, CABA")
+  horariosLocal   String? @default("Lun a Vie: 10 a 18hs")
 }
 
-// --- AREA TÉCNICA (Soporte + Servicios) ---
+// --- AREA TÉCNICA ---
 
 model ConsultaTecnica {
   id          Int      @id @default(autoincrement())
@@ -189,10 +201,8 @@ model ConsultaTecnica {
   mensaje     String   @db.Text
   respuesta   String?  @db.Text 
   estado      EstadoConsulta @default(PENDIENTE)
-  
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
-
   createdAt   DateTime @default(now())
   respondedAt DateTime?
 }
@@ -202,7 +212,6 @@ enum EstadoConsulta {
   RESPONDIDO
 }
 
-// 👇 NUEVO MODELO PARA PRECIOS DE SERVICIO TÉCNICO
 model ServiceItem {
   id          Int      @id @default(autoincrement())
   title       String   
@@ -211,7 +220,6 @@ model ServiceItem {
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
   @@map("service_items")
 }
 
