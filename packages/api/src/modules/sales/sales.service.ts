@@ -1,7 +1,7 @@
 import { prisma } from '../../shared/database/prismaClient';
 import { VentaEstado } from '@prisma/client';
 import { EmailService } from '../../shared/services/EmailService';
-import { ShippingService } from '../../shared/services/ShippingService';
+import { ShippingService, ShippingItem } from '../../shared/services/ShippingService';
 
 export class SalesService {
   private emailService: EmailService;
@@ -10,6 +10,34 @@ export class SalesService {
   constructor() {
     this.emailService = new EmailService();
     this.shippingService = new ShippingService();
+  }
+
+  // --- NUEVO MÉTODO: COTIZAR (Para el Carrito) ---
+  async getQuote(zipCode: string, items: { id: number; quantity: number }[]) {
+    // 1. Obtener datos reales de los productos (Peso y Dimensiones)
+    const productIds = items.map((i) => Number(i.id));
+    const dbProducts = await prisma.producto.findMany({
+      where: { id: { in: productIds } },
+      select: { 
+        id: true, peso: true, 
+        alto: true, ancho: true, profundidad: true 
+      }
+    });
+
+    // 2. Mapear a formato logístico
+    const shippingItems: ShippingItem[] = items.map((item) => {
+      const product = dbProducts.find((p) => p.id === Number(item.id));
+      return {
+        weight: Number(product?.peso) || 0.5,
+        height: product?.alto || 10,
+        width: product?.ancho || 10,
+        depth: product?.profundidad || 10,
+        quantity: item.quantity
+      };
+    });
+
+    // 3. Consultar a Zippin
+    return await this.shippingService.calculateCost(zipCode, shippingItems);
   }
 
   // 1. CREAR VENTA (Checkout Web)
@@ -21,61 +49,61 @@ export class SalesService {
       tipoEntrega: string = 'ENVIO', 
       medioPago: string = 'TRANSFERENCIA'
   ) {
-    // 1. Validar / Crear Cliente
     let cliente = await prisma.cliente.findUnique({ where: { userId } });
     if (!cliente) {
       cliente = await prisma.cliente.create({ data: { userId } });
     }
 
-    // 2. Obtener productos reales de la DB
     const productIds = items.map((i: any) => Number(i.id));
     const dbProducts = await prisma.producto.findMany({
         where: { id: { in: productIds } },
-        select: { id: true, peso: true, precio: true, stock: true, nombre: true }
+        select: { 
+            id: true, peso: true, precio: true, stock: true, nombre: true,
+            alto: true, ancho: true, profundidad: true 
+        }
     });
 
-    let pesoTotal = 0;
     let subtotalReal = 0;
-    
-    // Tipado explícito para evitar error TS7034
     const lineasParaCrear: { productoId: number; cantidad: number; subTotal: number }[] = [];
+    const itemsParaEnvio: ShippingItem[] = [];
 
     for (const item of items) {
         const dbProduct = dbProducts.find(p => p.id === Number(item.id));
-        
-        if (!dbProduct) throw new Error(`Producto ID ${item.id} no encontrado`);
-        if (dbProduct.stock < item.quantity) throw new Error(`Stock insuficiente para: ${dbProduct.nombre}`);
+        if (!dbProduct) throw new Error(`Producto ${item.id} no encontrado`);
+        if (dbProduct.stock < item.quantity) throw new Error(`Stock insuficiente: ${dbProduct.nombre}`);
 
-        const precioUnitario = Number(dbProduct.precio);
-        const subTotalLinea = precioUnitario * item.quantity;
-        subtotalReal += subTotalLinea;
+        const precio = Number(dbProduct.precio);
+        const subTotal = precio * item.quantity;
+        subtotalReal += subTotal;
         
-        const pesoUnitario = Number(dbProduct.peso) || 0.5;
-        pesoTotal += pesoUnitario * item.quantity;
-
         lineasParaCrear.push({
             productoId: dbProduct.id,
             cantidad: item.quantity,
-            subTotal: subTotalLinea
+            subTotal: subTotal
+        });
+
+        itemsParaEnvio.push({
+            weight: Number(dbProduct.peso) || 0.1,
+            height: dbProduct.alto || 10,
+            width: dbProduct.ancho || 10,
+            depth: dbProduct.profundidad || 10,
+            quantity: item.quantity
         });
     }
 
-    // 3. Costo de Envío
+    // Calcular envío usando Zippin
     let costoEnvio = 0;
     if (tipoEntrega === 'ENVIO') {
         if (cpDestino) {
-            costoEnvio = await this.shippingService.calculateCost(cpDestino, pesoTotal);
+            costoEnvio = await this.shippingService.calculateCost(cpDestino, itemsParaEnvio);
         } else {
             const config = await prisma.configuracion.findFirst();
-            costoEnvio = config ? Number(config.costoEnvioFijo) : 5000;
+            costoEnvio = config ? Number(config.costoEnvioFijo) : 6500;
         }
-    } else {
-        costoEnvio = 0; // Retiro en local es gratis
     }
 
     const finalTotal = subtotalReal + costoEnvio;
 
-    // 4. Transacción
     return await prisma.$transaction(async (tx) => {
       const venta = await tx.venta.create({
         data: {
@@ -84,7 +112,7 @@ export class SalesService {
           costoEnvio: costoEnvio,
           tipoEntrega: tipoEntrega,
           medioPago: medioPago,
-          metodoEnvio: tipoEntrega === 'RETIRO' ? "RETIRO_LOCAL" : "CORREO_ARGENTINO",
+          metodoEnvio: tipoEntrega === 'RETIRO' ? "RETIRO_LOCAL" : "ZIPPIN_LOGISTICA",
           estado: VentaEstado.PENDIENTE_PAGO,
           lineasVenta: { create: lineasParaCrear }
         },
@@ -110,7 +138,7 @@ export class SalesService {
       estadoInicial: VentaEstado = VentaEstado.ENTREGADO 
   ) {
     let user = await prisma.user.findUnique({ where: { email: targetUserEmail } });
-    if (!user) throw new Error("Cliente no encontrado. Usa 'mostrador@pcfix.com' para anónimos.");
+    if (!user) throw new Error("Cliente no encontrado.");
 
     let cliente = await prisma.cliente.findUnique({ where: { userId: user.id } });
     if (!cliente) cliente = await prisma.cliente.create({ data: { userId: user.id } });
@@ -128,7 +156,6 @@ export class SalesService {
         const dbProduct = dbProducts.find(p => p.id === Number(item.id));
         if (!dbProduct) throw new Error(`Producto ${item.id} no encontrado`);
         
-        // Servicios (stock > 90000) no chequean stock real
         if (dbProduct.stock < item.quantity && dbProduct.stock < 90000) {
              throw new Error(`Stock insuficiente: ${dbProduct.nombre}`);
         }
@@ -159,24 +186,22 @@ export class SalesService {
       });
 
       for (const linea of lineasParaCrear) {
-        await tx.producto.update({
-          where: { id: linea.productoId },
-          data: { stock: { decrement: linea.cantidad } }
-        });
+        const prod = dbProducts.find(p => p.id === linea.productoId);
+        if (prod && prod.stock < 90000) {
+            await tx.producto.update({
+              where: { id: linea.productoId },
+              data: { stock: { decrement: linea.cantidad } }
+            });
+        }
       }
       return venta;
     });
   }
 
-  // 3. SUBIR COMPROBANTE (Opcional para efectivo)
+  // 3. SUBIR COMPROBANTE
   async uploadReceipt(saleId: number, receiptUrl?: string) {
-    const dataToUpdate: any = {
-        estado: VentaEstado.PENDIENTE_APROBACION 
-    };
-
-    if (receiptUrl) {
-        dataToUpdate.comprobante = receiptUrl;
-    }
+    const dataToUpdate: any = { estado: VentaEstado.PENDIENTE_APROBACION };
+    if (receiptUrl) dataToUpdate.comprobante = receiptUrl;
 
     const updatedSale = await prisma.venta.update({
       where: { id: saleId },
@@ -186,21 +211,18 @@ export class SalesService {
 
     if (updatedSale.cliente?.user?.email) {
         this.emailService.sendNewReceiptNotification(saleId, updatedSale.cliente.user.email)
-            .catch((err: any) => console.error("Fallo email admin:", err));
+            .catch(console.error);
     }
     return updatedSale;
   }
 
-  // 4. CAMBIAR MÉTODO DE PAGO
+  // 4. CAMBIAR MÉTODO PAGO
   async updatePaymentMethod(saleId: number, medioPago: string) {
     const sale = await prisma.venta.findUnique({ where: { id: saleId } });
     if (!sale) throw new Error("Venta no encontrada");
-    if (sale.estado !== VentaEstado.PENDIENTE_PAGO) throw new Error("No se puede cambiar el método de una venta en proceso");
+    if (sale.estado !== VentaEstado.PENDIENTE_PAGO) throw new Error("Venta en proceso");
 
-    return await prisma.venta.update({
-        where: { id: saleId },
-        data: { medioPago }
-    });
+    return await prisma.venta.update({ where: { id: saleId }, data: { medioPago } });
   }
 
   // 5. CANCELAR ORDEN
@@ -209,9 +231,7 @@ export class SalesService {
         where: { id: saleId },
         include: { lineasVenta: true }
     });
-
-    if (!sale) throw new Error("Venta no encontrada");
-    if (sale.estado !== VentaEstado.PENDIENTE_PAGO) throw new Error("Solo se pueden cancelar órdenes pendientes");
+    if (!sale || sale.estado !== VentaEstado.PENDIENTE_PAGO) throw new Error("No se puede cancelar");
 
     await prisma.$transaction(async (tx) => {
         for (const linea of sale.lineasVenta) {
@@ -220,54 +240,44 @@ export class SalesService {
                 data: { stock: { increment: linea.cantidad } }
             });
         }
-        await tx.venta.update({
-            where: { id: saleId },
-            data: { estado: VentaEstado.CANCELADO }
-        });
+        await tx.venta.update({ where: { id: saleId }, data: { estado: VentaEstado.CANCELADO } });
     });
-
     return { success: true, message: "Orden cancelada" };
   }
 
-  // 6. ACTUALIZAR ESTADO (Admin)
+  // 6. ACTUALIZAR ESTADO
   async updateStatus(saleId: number, status: VentaEstado) {
     const updatedSale = await prisma.venta.update({
       where: { id: saleId },
       data: { estado: status },
       include: { cliente: { include: { user: true } } }
     });
-
     if (updatedSale.cliente?.user?.email) {
-        this.emailService.sendStatusUpdate(updatedSale.cliente.user.email, saleId, status)
-            .catch((err: any) => console.error("Fallo email cliente:", err));
+        this.emailService.sendStatusUpdate(updatedSale.cliente.user.email, saleId, status).catch(console.error);
     }
     return updatedSale;
   }
 
-  // 7. DESPACHAR (Admin)
+  // 7. DESPACHAR
   async dispatchSale(saleId: number, trackingCode: string) {
     const sale = await prisma.venta.findUnique({ where: { id: saleId } });
-    if (!sale) throw new Error("Venta no encontrada");
-    if (sale.estado !== VentaEstado.APROBADO) throw new Error("Debe estar APROBADO");
+    if (!sale || sale.estado !== VentaEstado.APROBADO) throw new Error("Debe estar APROBADO");
 
     const updatedSale = await prisma.venta.update({
       where: { id: saleId },
       data: { estado: VentaEstado.ENVIADO, codigoSeguimiento: trackingCode },
       include: { cliente: { include: { user: true } } }
     });
-
     if (updatedSale.cliente?.user?.email) {
-        this.emailService.sendDispatchNotification(updatedSale.cliente.user.email, saleId, trackingCode)
-            .catch((err: any) => console.error("Fallo email tracking:", err));
+        this.emailService.sendDispatchNotification(updatedSale.cliente.user.email, saleId, trackingCode).catch(console.error);
     }
     return updatedSale;
   }
   
-  // 8. LISTAR TODO (Admin)
+  // 8. LISTAR TODO
   async findAll(page: number = 1, limit: number = 10, month?: number, year?: number, paymentMethod?: string) {
       const skip = (page - 1) * limit;
       let whereClause: any = {};
-      
       if (month && year) {
           const startDate = new Date(year, month - 1, 1);
           const endDate = new Date(year, month, 0, 23, 59, 59, 999);
@@ -277,10 +287,7 @@ export class SalesService {
           const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
           whereClause.fecha = { gte: startDate, lte: endDate };
       }
-
-      if (paymentMethod) {
-          whereClause.medioPago = paymentMethod;
-      }
+      if (paymentMethod) whereClause.medioPago = paymentMethod;
 
       const [total, sales] = await prisma.$transaction([
         prisma.venta.count({ where: whereClause }),
@@ -316,11 +323,10 @@ export class SalesService {
     });
   }
 
-  // 11. BALANCE MENSUAL (Desglosado)
+  // 11. BALANCE MENSUAL
   async getMonthlyBalance(year: number) {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year, 11, 31, 23, 59, 59);
-
     const ventas = await prisma.venta.findMany({
         where: {
             fecha: { gte: startDate, lte: endDate },
@@ -333,7 +339,6 @@ export class SalesService {
     });
 
     const balanceMap = new Map<string, any>();
-    
     for (let i = 0; i < 12; i++) {
         const d = new Date(year, i, 1);
         const monthName = d.toLocaleString('es-ES', { month: 'short' });
@@ -343,28 +348,20 @@ export class SalesService {
     ventas.forEach(v => {
         const monthName = new Date(v.fecha).toLocaleString('es-ES', { month: 'short' });
         const entry = balanceMap.get(monthName);
-        
         if (entry) {
             let saleServices = 0;
             let saleProducts = 0;
-
             v.lineasVenta.forEach(line => {
                 const categoria = line.producto.categoria.nombre.toLowerCase();
-                if (categoria.includes('servicio')) {
-                    saleServices += Number(line.subTotal);
-                } else {
-                    saleProducts += Number(line.subTotal);
-                }
+                if (categoria.includes('servicio')) saleServices += Number(line.subTotal);
+                else saleProducts += Number(line.subTotal);
             });
-            
             saleProducts += Number(v.costoEnvio || 0);
-
             entry.services += saleServices;
             entry.products += saleProducts;
             entry.total += (saleServices + saleProducts);
         }
     });
-
     return Array.from(balanceMap.values());
   }
 }

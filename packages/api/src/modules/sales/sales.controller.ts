@@ -2,8 +2,28 @@ import { Request, Response } from 'express';
 import { SalesService } from './sales.service';
 import { AuthRequest } from '../../shared/middlewares/authMiddleware';
 import { VentaEstado } from '@prisma/client';
+import { upload } from '../../shared/middlewares/uploadMiddleware';
 
 const service = new SalesService();
+
+// --- COTIZACIÓN (Nuevo) ---
+export const quoteShipping = async (req: Request, res: Response) => {
+    try {
+        const { zipCode, items } = req.body;
+        // items espera: [{ id: 1, quantity: 2 }]
+        
+        if (!zipCode) return res.status(400).json({ success: false, error: 'CP requerido' });
+        if (!items || !Array.isArray(items)) return res.status(400).json({ success: false, error: "Items inválidos" });
+
+        // El servicio se encarga de buscar pesos y medidas en DB
+        const cost = await service.getQuote(zipCode, items);
+        
+        return res.json({ success: true, data: { cost } });
+    } catch (e: any) {
+        console.error("Error cotizando:", e.message);
+        res.status(500).json({ success: false, error: e.message });
+    }
+};
 
 export const createSale = async (req: Request, res: Response) => {
     try {
