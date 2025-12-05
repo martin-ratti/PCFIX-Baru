@@ -5,16 +5,14 @@ export class ProductService {
   
   // --- HELPER: Obtener IDs de categorías hijas recursivamente ---
   private async getCategoryIdsRecursively(rootId: number): Promise<number[]> {
-      // 1. Buscamos hijos directos
       const children = await prisma.categoria.findMany({
           where: { padreId: rootId },
           select: { id: true }
       });
       
-      let ids = [rootId]; // Incluimos la categoría padre
+      let ids = [rootId]; 
       
       for (const child of children) {
-          // 2. Llamada recursiva para nietos, bisnietos, etc.
           const subIds = await this.getCategoryIdsRecursively(child.id);
           ids = [...ids, ...subIds];
       }
@@ -23,13 +21,32 @@ export class ProductService {
   }
 
   // --- 1. LISTAR CON FILTROS (Admin & Store) ---
-  async findAll(page: number = 1, limit: number = 10, categoryId?: number, brandId?: number, search?: string, filter?: string) {
+  async findAll(
+      page: number = 1, 
+      limit: number = 10, 
+      categoryId?: number, 
+      brandId?: number, 
+      search?: string, 
+      filter?: string,
+      isAdmin: boolean = false 
+  ) {
     const skip = (page - 1) * limit;
     
-    // Filtro Base: No mostramos eliminados
+    // Filtro Base
     const where: Prisma.ProductoWhereInput = { deletedAt: null };
 
-    // 1. Búsqueda por Texto (Nombre o Descripción)
+    // 🔒 CORRECCIÓN DEFINITIVA: Ocultar Servicios
+    // Usamos 'isNot' en la relación de categoría.
+    // Esto se lee: "Traeme productos donde la categoría NO SEA una que contenga 'Servicio'"
+    if (!isAdmin) {
+        where.categoria = {
+            isNot: {
+                nombre: { contains: 'Servicio', mode: 'insensitive' }
+            }
+        };
+    }
+
+    // 1. Búsqueda por Texto
     if (search) {
         where.OR = [
             { nombre: { contains: search, mode: 'insensitive' } },
@@ -40,7 +57,18 @@ export class ProductService {
     // 2. Filtro por Categoría (Recursivo)
     if (categoryId) {
         const categoryIds = await this.getCategoryIdsRecursively(categoryId);
-        where.categoriaId = { in: categoryIds };
+        
+        // Combinación inteligente de filtros (AND)
+        // Si ya tenemos el filtro de "No Servicios", lo combinamos con el de "Categoría Específica"
+        if (where.categoria) {
+            where.AND = [
+                { categoria: where.categoria }, // Mantiene la exclusión de servicios
+                { categoriaId: { in: categoryIds } } // Aplica la selección del usuario
+            ];
+            delete where.categoria; // Limpiamos la propiedad raíz para evitar conflictos
+        } else {
+            where.categoriaId = { in: categoryIds };
+        }
     }
 
     // 3. Filtro por Marca
@@ -48,28 +76,18 @@ export class ProductService {
         where.marcaId = brandId;
     }
 
-    // 4. Filtros Especiales (Stock Bajo, Ofertas, Destacados)
-    if (filter === 'lowStock') {
-        // Stock menor o igual a 5, pero ignoramos servicios (stock > 90000)
-        where.stock = { lte: 5 }; 
-    }
-    if (filter === 'featured') {
-        where.isFeatured = true;
-    }
-    if (filter === 'hasDiscount') {
-        where.precioOriginal = { not: null };
-    }
+    // 4. Filtros Especiales
+    if (filter === 'lowStock') where.stock = { lte: 5 }; 
+    if (filter === 'featured') where.isFeatured = true;
+    if (filter === 'hasDiscount') where.precioOriginal = { not: null };
 
-    // Ejecutar consulta y conteo en paralelo
+    // Ejecutar consulta
     const [total, products] = await prisma.$transaction([
         prisma.producto.count({ where }),
         prisma.producto.findMany({
             where,
-            include: { 
-                categoria: true, 
-                marca: true 
-            },
-            orderBy: { createdAt: 'desc' }, // Más nuevos primero
+            include: { categoria: true, marca: true },
+            orderBy: { createdAt: 'desc' },
             take: limit,
             skip
         })
@@ -77,16 +95,12 @@ export class ProductService {
 
     return {
         data: products,
-        meta: { 
-            total, 
-            page, 
-            lastPage: Math.ceil(total / limit), 
-            limit 
-        }
+        meta: { total, page, lastPage: Math.ceil(total / limit), limit }
     };
   }
 
-  // --- 2. BUSCAR POR ID ---
+  // --- RESTO DE MÉTODOS (Sin cambios) ---
+  
   async findById(id: number) {
     return await prisma.producto.findFirst({
       where: { id, deletedAt: null },
@@ -94,15 +108,12 @@ export class ProductService {
     });
   }
 
-  // --- 3. CREAR PRODUCTO ---
   async create(data: any) {
-    // Parseamos números por seguridad
     const precio = Number(data.precio);
     const stock = Number(data.stock);
     const categoriaId = Number(data.categoriaId);
     const marcaId = data.marcaId ? Number(data.marcaId) : null;
     
-    // Logística (defaults)
     const peso = data.peso ? Number(data.peso) : 0.5;
     const alto = data.alto ? Number(data.alto) : 10;
     const ancho = data.ancho ? Number(data.ancho) : 10;
@@ -117,16 +128,11 @@ export class ProductService {
         foto: data.foto,
         categoriaId,
         marcaId,
-        // Campos logísticos
-        peso,
-        alto,
-        ancho,
-        profundidad
+        peso, alto, ancho, profundidad
       }
     });
   }
 
-  // --- 4. ACTUALIZAR PRODUCTO ---
   async update(id: number, data: any) {
     const updateData: any = {
         nombre: data.nombre,
@@ -135,17 +141,13 @@ export class ProductService {
         stock: Number(data.stock),
         categoriaId: Number(data.categoriaId),
         marcaId: data.marcaId ? Number(data.marcaId) : null,
-        // Logística
         peso: Number(data.peso),
         alto: Number(data.alto),
         ancho: Number(data.ancho),
         profundidad: Number(data.profundidad)
     };
 
-    // Solo actualizamos foto si viene una nueva
-    if (data.foto) {
-        updateData.foto = data.foto;
-    }
+    if (data.foto) updateData.foto = data.foto;
 
     return await prisma.producto.update({
       where: { id },
@@ -153,15 +155,13 @@ export class ProductService {
     });
   }
 
-  // --- 5. ELIMINAR (Soft Delete) ---
   async delete(id: number) {
     return await prisma.producto.update({
       where: { id },
-      data: { deletedAt: new Date() } // No borramos registro, solo marcamos fecha
+      data: { deletedAt: new Date() }
     });
   }
 
-  // --- 6. RESTAURAR (Opcional, por si borraste por error) ---
   async restore(id: number) {
       return await prisma.producto.update({
           where: { id },
