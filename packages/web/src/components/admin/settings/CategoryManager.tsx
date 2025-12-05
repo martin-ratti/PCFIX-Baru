@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
+import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
 interface Category { 
   id: number; 
@@ -10,22 +11,22 @@ interface Category {
 }
 
 export default function CategoryManager() {
-  const [categories, setCategories] = useState<Category[]>([]); // Árbol (Padres e hijos)
-  const [flatCategories, setFlatCategories] = useState<Category[]>([]); // Lista plana para el select
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null); // Estado para el modal
+  const [categories, setCategories] = useState<Category[]>([]); 
+  const [flatCategories, setFlatCategories] = useState<Category[]>([]); 
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null); 
   
   const { register, handleSubmit, reset } = useForm();
   const addToast = useToastStore(s => s.addToast);
 
   const fetchData = async () => {
     try {
-      // 1. Traemos el árbol jerárquico
-      const resTree = await fetch('http://localhost:3002/api/categories');
+      // 👇 fetchApi (Lista árbol)
+      const resTree = await fetchApi('/categories');
       const jsonTree = await resTree.json();
       if (jsonTree.success) setCategories(jsonTree.data);
 
-      // 2. Traemos lista plana para el selector de "Padre" (evita recursión visual compleja en el select)
-      const resFlat = await fetch('http://localhost:3002/api/categories?flat=true');
+      // 👇 fetchApi (Lista plana)
+      const resFlat = await fetchApi('/categories?flat=true');
       const jsonFlat = await resFlat.json();
       if (jsonFlat.success) setFlatCategories(jsonFlat.data);
     } catch (e) { console.error(e); }
@@ -40,7 +41,8 @@ export default function CategoryManager() {
         padreId: data.padreId ? Number(data.padreId) : null 
       };
 
-      const res = await fetch('http://localhost:3002/api/categories', {
+      // 👇 fetchApi (POST)
+      const res = await fetchApi('/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -57,16 +59,13 @@ export default function CategoryManager() {
     } catch (e) { addToast('Error al crear', 'error'); }
   };
 
-  // Función que abre el modal
-  const requestDelete = (cat: Category) => {
-    setCategoryToDelete(cat);
-  };
+  const requestDelete = (cat: Category) => setCategoryToDelete(cat);
 
-  // Función que ejecuta el borrado real
   const confirmDelete = async () => {
     if (!categoryToDelete) return;
     try {
-      await fetch(`http://localhost:3002/api/categories/${categoryToDelete.id}`, { method: 'DELETE' });
+      // 👇 fetchApi (DELETE)
+      await fetchApi(`/categories/${categoryToDelete.id}`, { method: 'DELETE' });
       fetchData();
       addToast('Categoría eliminada', 'success');
     } catch (e) { 
@@ -78,7 +77,7 @@ export default function CategoryManager() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-      {/* Formulario de Creación */}
+      {/* Formulario */}
       <div className="bg-white p-6 rounded-lg shadow border border-gray-100 sticky top-6">
         <h3 className="text-lg font-bold mb-4 text-secondary">Nueva Categoría</h3>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -100,7 +99,7 @@ export default function CategoryManager() {
         </form>
       </div>
 
-      {/* Lista Jerárquica */}
+      {/* Lista */}
       <div className="md:col-span-2 bg-white p-6 rounded-lg shadow border border-gray-100">
         <h3 className="text-lg font-bold mb-4 text-secondary">Estructura del Catálogo</h3>
         <div className="space-y-3">
@@ -108,15 +107,9 @@ export default function CategoryManager() {
             <div key={cat.id} className="border rounded-lg overflow-hidden shadow-sm">
               <div className="bg-gray-50 p-3 flex justify-between items-center font-bold text-secondary">
                 <span className="flex items-center gap-2">📁 {cat.nombre}</span>
-                <button 
-                  onClick={() => requestDelete(cat)} 
-                  className="text-red-500 hover:text-red-700 text-sm hover:bg-red-50 px-2 py-1 rounded transition-colors"
-                >
-                  Eliminar
-                </button>
+                <button onClick={() => requestDelete(cat)} className="text-red-500 hover:text-red-700 text-sm hover:bg-red-50 px-2 py-1 rounded transition-colors">Eliminar</button>
               </div>
               
-              {/* Subcategorías */}
               {cat.subcategorias && cat.subcategorias.length > 0 ? (
                 <div className="bg-white p-2 pl-8 border-t border-gray-100 space-y-1">
                   {cat.subcategorias.map(sub => (
@@ -124,12 +117,7 @@ export default function CategoryManager() {
                       <span className="flex items-center gap-2">
                         <span className="text-gray-300">↳</span> {sub.nombre}
                       </span>
-                      <button 
-                        onClick={() => requestDelete(sub)} 
-                        className="text-xs text-red-400 hover:text-red-600 hover:underline"
-                      >
-                        Eliminar
-                      </button>
+                      <button onClick={() => requestDelete(sub)} className="text-xs text-red-400 hover:text-red-600 hover:underline">Eliminar</button>
                     </div>
                   ))}
                 </div>
@@ -141,11 +129,10 @@ export default function CategoryManager() {
         </div>
       </div>
 
-      {/* Modal de Confirmación */}
       <ConfirmModal
         isOpen={!!categoryToDelete}
         title="Eliminar Categoría"
-        message={`¿Estás seguro de que deseas eliminar "${categoryToDelete?.nombre}"? Si es una categoría padre, asegúrate de que esté vacía.`}
+        message={`¿Estás seguro de que deseas eliminar "${categoryToDelete?.nombre}"?`}
         confirmText="Sí, Eliminar"
         isDanger={true}
         onConfirm={confirmDelete}

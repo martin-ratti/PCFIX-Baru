@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { toast } from 'sonner';
-import { navigate } from 'astro:transitions/client'; // Importamos el navegador de cliente
+import { navigate } from 'astro:transitions/client';
+import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
 export default function ServiceInquiryForm() {
   const { user, token } = useAuthStore();
@@ -15,25 +16,15 @@ export default function ServiceInquiryForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 1. Validación de contenido
     if (!formData.mensaje.trim()) {
         toast.error('Por favor detalla tu problema para poder ayudarte.');
         return;
     }
 
-    // 2. Validación de Sesión (UX MEJORADA)
     if (!user || !token) {
-        // Guardamos el mensaje en sessionStorage para recuperarlo después del login (Opcional, buen detalle UX)
         sessionStorage.setItem('pendingInquiry', JSON.stringify(formData));
-        
-        toast.info('Necesitas iniciar sesión para enviar consultas. Redirigiendo...', {
-            duration: 2000,
-        });
-        
-        // Redirigir después de un breve delay para que lean el mensaje
-        setTimeout(() => {
-            navigate('/login');
-        }, 1500);
+        toast.info('Necesitas iniciar sesión para enviar consultas. Redirigiendo...', { duration: 2000 });
+        setTimeout(() => { navigate('/login'); }, 1500);
         return;
     }
 
@@ -41,7 +32,8 @@ export default function ServiceInquiryForm() {
     const toastId = toast.loading('Enviando consulta al taller...');
 
     try {
-      const res = await fetch('http://localhost:3002/api/technical', {
+      // 👇 fetchApi
+      const res = await fetchApi('/technical', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -69,7 +61,6 @@ export default function ServiceInquiryForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
       
-      {/* Asunto */}
       <div>
          <label className="block text-sm font-bold text-gray-700 mb-1">Asunto</label>
          <div className="relative">
@@ -90,7 +81,6 @@ export default function ServiceInquiryForm() {
          </div>
       </div>
 
-      {/* Mensaje */}
       <div>
         <label className="block text-sm font-bold text-gray-700 mb-1">Detalle del Problema</label>
         <textarea 
@@ -102,7 +92,6 @@ export default function ServiceInquiryForm() {
         ></textarea>
       </div>
 
-      {/* Botón */}
       <button 
         type="submit"
         disabled={loading}
@@ -121,7 +110,6 @@ export default function ServiceInquiryForm() {
         )}
       </button>
 
-      {/* Mensaje de ayuda visual si no está logueado (Opcional, mejora UX proactiva) */}
       {!user && (
           <p className="text-xs text-center text-gray-400 mt-2">
               * Se te pedirá iniciar sesión antes de enviar.

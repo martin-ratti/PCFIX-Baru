@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
+import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
 interface Brand { id: number; nombre: string; logo: string | null; }
 
@@ -8,18 +9,17 @@ export default function BrandManager() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const { register, handleSubmit, reset, watch } = useForm();
   const addToast = useToastStore(s => s.addToast);
-  // NUEVO: Nombre archivo
   const [logoName, setLogoName] = useState<string | null>(null);
 
   const fetchBrands = () => {
-    fetch('http://localhost:3002/api/brands')
+    // 👇 fetchApi
+    fetchApi('/brands')
       .then(res => res.json())
       .then(data => data.success && setBrands(data.data));
   };
 
   useEffect(() => { fetchBrands(); }, []);
 
-  // Watch file
   const logoWatch = watch('logo');
   useEffect(() => {
       if (logoWatch && logoWatch.length > 0) setLogoName(logoWatch[0].name);
@@ -33,7 +33,8 @@ export default function BrandManager() {
       formData.append('nombre', data.nombre);
       if (data.logo && data.logo[0]) formData.append('logo', data.logo[0]);
 
-      const res = await fetch('http://localhost:3002/api/brands', { method: 'POST', body: formData });
+      // 👇 fetchApi con FormData
+      const res = await fetchApi('/brands', { method: 'POST', body: formData });
       const json = await res.json();
       if (json.success) {
         addToast('Marca creada', 'success');
@@ -47,7 +48,8 @@ export default function BrandManager() {
   const handleDelete = async (id: number) => {
     if(!confirm('¿Borrar marca?')) return;
     try {
-      await fetch(`http://localhost:3002/api/brands/${id}`, { method: 'DELETE' });
+      // 👇 fetchApi DELETE
+      await fetchApi(`/brands/${id}`, { method: 'DELETE' });
       fetchBrands();
       addToast('Marca eliminada', 'success');
     } catch (e) { addToast('Error al eliminar', 'error'); }
@@ -64,7 +66,6 @@ export default function BrandManager() {
             <input {...register('nombre', { required: true })} className="w-full mt-1 p-2 border rounded focus:ring-primary focus:border-primary" placeholder="Ej: Logitech" />
           </div>
 
-          {/* ▼▼▼ INPUT LOGO REDONDEADO ▼▼▼ */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Logo (Opcional)</label>
             <input type="file" id="brand-logo-upload" {...register('logo')} className="hidden" accept="image/*" />
@@ -73,13 +74,12 @@ export default function BrandManager() {
                 <span className="truncate">{logoName || "Seleccionar logo..."}</span>
             </label>
           </div>
-          {/* ▲▲▲ FIN INPUT REDONDEADO ▲▲▲ */}
 
           <button className="w-full bg-secondary text-white py-2 rounded-xl font-bold hover:bg-primary transition-colors shadow-sm">Crear Marca</button>
         </form>
       </div>
 
-      {/* Lista (sin cambios) */}
+      {/* Lista */}
       <div className="md:col-span-2 bg-white p-6 rounded-lg shadow border border-gray-100">
         <h3 className="text-lg font-bold mb-4 text-secondary">Marcas Existentes ({brands.length})</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

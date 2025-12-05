@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Error del Sistema">
+  <div class="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
+    <div class="text-6xl mb-4">🔧</div>
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Estamos teniendo problemas técnicos</h1>
+    <p class="text-gray-600 mb-8 max-w-md">
+      Nuestro equipo de ingenieros ya ha sido notificado. Por favor, intenta recargar la página en unos minutos.
+    </p>
+    <div class="flex gap-4">
+      <a href="/" class="px-6 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+        Ir al Inicio
+      </a>
+      <button onclick="window.location.reload()" class="px-6 py-2 bg-primary text-white rounded-lg font-bold shadow hover:bg-opacity-90 transition-colors">
+        Recargar Página
+      </button>
+    </div>
+  </div>
+</Layout>

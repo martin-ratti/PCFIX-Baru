@@ -21,7 +21,6 @@ export default function SearchBar() {
   };
 
   return (
-    // CAMBIO CRÍTICO: Quitamos 'max-w-md' y ponemos 'w-full max-w-full'
     <form onSubmit={handleSearch} className="relative w-full max-w-full hidden md:block">
       <div className="relative group">
         <input

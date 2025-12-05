@@ -1,9 +1,11 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
 import { prisma } from './shared/database/prismaClient';
+
+// Imports de Rutas
 import authRoutes from './modules/auth/auth.routes';
 import productsRoutes from './modules/products/products.routes';
 import categoriesRoutes from './modules/categories/categories.routes';
@@ -16,23 +18,24 @@ import configRoutes from './modules/config/config.routes';
 import favoritesRoutes from './modules/favorites/favorites.routes';
 import technicalRoutes from './modules/technical/technical.routes';
 
+// Imports de Manejo de Errores
+import { AppError } from './shared/utils/AppError';
+import { globalErrorHandler } from './shared/middlewares/errorMiddleware';
+
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// --- CONFIGURACIÓN DE SEGURIDAD Y CORS (CRÍTICO) ---
+// --- SEGURIDAD Y CONFIGURACIÓN ---
 
-// Lista blanca de dominios permitidos
 const whitelist = [
-  'http://localhost:4321',          // Tu entorno local Astro
-  'http://localhost:3002',          // Tu entorno local API (Swagger/Postman)
-  'https://pcfixbaru.com.ar',       // DOMINIO REAL (Sin www)
-  'https://www.pcfixbaru.com.ar',   // DOMINIO REAL (Con www)
-  // Agrega aquí la URL que te dé Vercel al desplegar (ej: https://pcfix.vercel.app)
+  'http://localhost:4321',          
+  'http://localhost:3002',          
+  'https://pcfixbaru.com.ar',       
+  'https://www.pcfixbaru.com.ar',   
 ];
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
-    // !origin permite peticiones server-to-server o herramientas como Postman
     if (!origin || whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -40,31 +43,23 @@ const corsOptions: cors.CorsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true, // Permite cookies/tokens si los usas
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
-
-// Helmet ayuda a asegurar headers HTTP
-// crossOriginResourcePolicy: "cross-origin" es vital para que las imágenes se vean
-app.use(helmet({ 
-  crossOriginResourcePolicy: { policy: "cross-origin" } 
-}));
-
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(morgan('dev'));
 app.use(express.json());
 
 // --- ARCHIVOS ESTÁTICOS ---
-// Nota para Producción: Recuerda que en Railway/Render los archivos subidos aquí
-// se borrarán en cada despliegue. Idealmente migrar a Cloudinary.
 app.use('/uploads', (req, res, next) => {
   res.header("Cross-Origin-Resource-Policy", "cross-origin");
   next();
 }, express.static(path.join(process.cwd(), 'uploads')));
 
-// --- RUTAS ---
+// --- RUTAS DE LA API ---
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);
@@ -89,12 +84,23 @@ app.get('/health', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Database Check Failed:', error);
-    res.status(500).json({ success: false, message: 'API Error', database: 'Disconnected', error: String(error) });
+    res.status(500).json({ success: false, message: 'API Error', database: 'Disconnected' });
   }
 });
 
+// --- MANEJO DE ERRORES GLOBAL (Siempre al final) ---
+
+// 1. Manejo de rutas inexistentes (404)
+// 👇 CORRECCIÓN: Usamos app.use() sin ruta para evitar el error de path-to-regexp
+app.use((req: Request, res: Response, next: NextFunction) => {
+  next(new AppError(`No se encontró la ruta ${req.originalUrl} en este servidor`, 404));
+});
+
+// 2. Middleware de Errores (Centralizado)
+app.use(globalErrorHandler);
+
+// --- INICIO DEL SERVIDOR ---
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🛡️  CORS Whitelist:`, whitelist);
 });

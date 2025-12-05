@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { navigate } from 'astro:transitions/client';
-// 👇 1. IMPORTAMOS TU MODAL
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
+import { fetchApi } from '../../../utils/api';
 
 interface PaymentFormProps { saleId: number; }
 
@@ -14,11 +14,9 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   
-  // Estado para edición y modal
   const [isEditingPayment, setIsEditingPayment] = useState(false);
   const [tempPaymentMethod, setTempPaymentMethod] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
-  // 👇 2. ESTADO PARA EL MODAL
   const [showCancelModal, setShowCancelModal] = useState(false);
   
   const { token } = useAuthStore();
@@ -26,7 +24,6 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
   const { register, handleSubmit, watch, reset } = useForm();
   const fileWatch = watch('comprobante');
 
-  // Preview
   useEffect(() => {
     if (fileWatch && fileWatch.length > 0) {
         const file = fileWatch[0];
@@ -38,15 +35,14 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
     } else { setPreviewUrl(null); }
   }, [fileWatch]);
 
-  // Carga Datos
   const refreshData = async () => {
       try {
           const headers: Record<string, string> = {};
           if (token) headers['Authorization'] = `Bearer ${token}`;
           
           const [saleRes, configRes] = await Promise.all([
-              fetch(`http://localhost:3002/api/sales/${saleId}`, { headers }),
-              fetch(`http://localhost:3002/api/config`)
+              fetchApi(`/sales/${saleId}`, { headers }),
+              fetchApi(`/config`)
           ]);
           
           const sData = await saleRes.json();
@@ -63,12 +59,10 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
 
   useEffect(() => { if (saleId) refreshData(); }, [saleId, token]);
 
-  // --- ACCIONES ---
-
   const handleChangePaymentMethod = async () => {
       setIsUpdating(true);
       try {
-          const res = await fetch(`http://localhost:3002/api/sales/${saleId}/payment-method`, {
+          const res = await fetchApi(`/sales/${saleId}/payment-method`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
               body: JSON.stringify({ medioPago: tempPaymentMethod })
@@ -82,16 +76,15 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
       finally { setIsUpdating(false); }
   };
 
-  // 👇 3. CLICK EN CANCELAR (Solo abre el modal)
+  // 👇 FUNCIÓN QUE FALTABA
   const handleCancelClick = () => {
       setShowCancelModal(true);
   };
 
-  // 👇 4. LÓGICA REAL DE CANCELACIÓN (Se ejecuta al confirmar el modal)
   const confirmCancellation = async () => {
       setIsUpdating(true);
       try {
-          const res = await fetch(`http://localhost:3002/api/sales/${saleId}/cancel`, {
+          const res = await fetchApi(`/sales/${saleId}/cancel`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
               body: JSON.stringify({ status: 'CANCELADO' }) 
@@ -100,12 +93,8 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
               addToast('Compra cancelada correctamente', 'info');
               navigate('/miscompras');
           } else throw new Error();
-      } catch (e) { 
-          addToast('Error al cancelar', 'error'); 
-      } finally { 
-          setIsUpdating(false); 
-          setShowCancelModal(false); // Cerramos el modal
-      }
+      } catch (e) { addToast('Error al cancelar', 'error'); } 
+      finally { setIsUpdating(false); setShowCancelModal(false); }
   };
 
   const onSubmit = async (data: any) => {
@@ -117,10 +106,10 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
     if (data.comprobante && data.comprobante.length > 0) formData.append('comprobante', data.comprobante[0]);
     
     try {
-        const headers: Record<string, string> = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        const res = await fetch(`http://localhost:3002/api/sales/${saleId}/receipt`, {
-            method: 'POST', headers, body: formData
+        const res = await fetchApi(`/sales/${saleId}/receipt`, {
+            method: 'POST', 
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
         });
         if ((await res.json()).success) {
             addToast(isCash ? "Retiro confirmado" : "¡Comprobante enviado!", 'success');
@@ -129,13 +118,11 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
     } catch (e) { addToast('Error al subir', 'error'); }
   };
 
-  // --- RENDERERS ---
-
+  // Renders
   const renderPaymentInfo = () => {
       if (!sale || !config) return null;
       const usdtRate = Number(config.cotizacionUsdt) || 1150;
 
-      // MODO EDICIÓN
       if (isEditingPayment) {
           return (
               <div className="bg-gray-50 p-6 rounded-2xl border border-blue-200 animate-fade-in">
@@ -167,7 +154,6 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
           );
       }
 
-      // MODO VISUALIZACIÓN (Normal)
       if (sale.medioPago === 'BINANCE') {
           return (
             <div className="space-y-6 animate-fade-in">
@@ -234,8 +220,6 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto animate-fade-in pb-12">
-        
-        {/* Columna 1: Datos */}
         <div className="bg-white p-8 lg:p-10 rounded-3xl shadow-sm border border-gray-100 h-fit relative">
             <div className="flex justify-between items-start mb-8">
                 <div>
@@ -246,7 +230,6 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                    <p className="text-sm text-gray-400 ml-11 mt-1">Método: <strong>{sale.medioPago}</strong></p>
                 </div>
                 {!isEditingPayment && (
-                    /* 👇 5. TEXTO CAMBIADO */
                     <button onClick={() => setIsEditingPayment(true)} className="text-xs font-bold text-blue-600 hover:underline bg-blue-50 px-3 py-1 rounded-full transition-colors">
                         Cambiar Método de Pago
                     </button>
@@ -255,7 +238,6 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             
             {renderPaymentInfo()}
 
-            {/* BOTÓN DE CANCELAR */}
             <div className="mt-8 pt-6 border-t border-gray-100 flex justify-center">
                 <button onClick={handleCancelClick} className="text-red-400 hover:text-red-600 text-sm font-medium flex items-center gap-1 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
@@ -264,7 +246,6 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             </div>
         </div>
 
-        {/* Columna 2: Confirmación */}
         <div className="bg-white p-8 lg:p-10 rounded-3xl shadow-sm border border-gray-100 h-fit">
             <div className="flex items-center gap-3 mb-8">
                 <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-black text-sm">2</div>
@@ -296,7 +277,6 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             </form>
         </div>
 
-        {/* 👇 6. CONFIRM MODAL INTEGRADO */}
         <ConfirmModal 
             isOpen={showCancelModal}
             title="Cancelar Pedido"

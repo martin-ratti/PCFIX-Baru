@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { navigate } from 'astro:transitions/client'; // Importar navegación suave
+import { navigate } from 'astro:transitions/client';
+import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
 const registerSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -36,17 +37,16 @@ export default function RegisterForm() {
     setSuccess(null);
 
     try {
-      const payload = {
-        nombre: data.nombre,
-        apellido: data.apellido,
-        email: data.email,
-        password: data.password
-      };
-
-      const response = await fetch('http://localhost:3002/api/auth/register', {
+      // 👇 Uso de fetchApi (Más limpio, sin URL completa)
+      const response = await fetchApi('/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+            nombre: data.nombre,
+            apellido: data.apellido,
+            email: data.email,
+            password: data.password
+        }),
       });
 
       const result = await response.json();
@@ -58,7 +58,7 @@ export default function RegisterForm() {
       setSuccess('¡Cuenta creada con éxito! Redirigiendo al login...');
       
       setTimeout(async () => {
-        await navigate('/login'); // Navegación suave
+        await navigate('/login');
       }, 2000);
       
     } catch (err: any) {

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-// 👇 Usamos tu store de notificaciones personalizado
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
+import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
 const profileUpdateSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -22,7 +22,6 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   
-  // Hooks de Stores
   const addToast = useToastStore(s => s.addToast);
   const authStore = useAuthStore();
 
@@ -34,7 +33,8 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const res = await fetch(`http://localhost:3002/api/users/${userId}`);
+        // 👇 fetchApi (GET)
+        const res = await fetchApi(`/users/${userId}`);
         const data = await res.json();
 
         if (data.success) {
@@ -46,7 +46,8 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
           throw new Error('Error al cargar perfil');
         }
       } catch (e) {
-        addToast('Error de conexión al cargar perfil', 'error');
+        // Error manejado por fetchApi o log local
+        console.error(e);
       } finally {
         setIsLoading(false);
       }
@@ -59,7 +60,8 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
     setIsSaving(true);
     
     try {
-      const res = await fetch(`http://localhost:3002/api/users/${userId}`, {
+      // 👇 fetchApi (PUT)
+      const res = await fetchApi(`/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -73,7 +75,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
       if (result.success) {
         addToast('Perfil actualizado con éxito', 'success');
         
-        // Actualizamos el usuario en el store global para reflejar cambios en el header inmediatamente
+        // Actualizamos el store local
         if (authStore.user) {
             authStore.login(authStore.token as string, { 
                 ...authStore.user, 
@@ -102,7 +104,6 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
   return (
     <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden max-w-3xl mx-auto animate-fade-in-up">
       
-      {/* Header con degradado Azul a Celeste */}
       <div className="bg-gradient-to-r from-blue-800 to-sky-500 p-8 text-white">
           <div className="flex items-center gap-4">
               <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center text-2xl border border-white/20 backdrop-blur-sm">
@@ -118,10 +119,8 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
       <div className="p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             
-            {/* Sección: Datos Personales */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* Input: Nombre */}
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-gray-700 ml-1">Nombre</label>
                 <div className="relative">
@@ -134,7 +133,6 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
                 {errors.nombre && <p className="text-red-500 text-xs ml-1 font-medium flex items-center gap-1">⚠️ {errors.nombre.message}</p>}
               </div>
 
-              {/* Input: Apellido */}
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-gray-700 ml-1">Apellido</label>
                 <input 
@@ -146,7 +144,6 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
               </div>
             </div>
 
-            {/* Sección: Cuenta */}
             <div className="space-y-2">
               <label className="block text-sm font-bold text-gray-700 ml-1">Correo Electrónico</label>
               <div className="relative group">
@@ -162,7 +159,6 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
               <p className="text-xs text-gray-400 ml-1">El correo electrónico no se puede modificar por seguridad.</p>
             </div>
 
-            {/* Botón de Acción */}
             <div className="pt-4 border-t border-gray-100 flex justify-end">
                 <button 
                   type="submit" 

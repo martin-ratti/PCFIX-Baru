@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { Buffer } from 'node:buffer'; // 👈 ESTO SOLUCIONA EL ERROR
+// 👇 CORRECCIÓN: Usamos require para evitar problemas de tipos en este script suelto
+const { Buffer } = require('buffer');
 
 // TUS CREDENCIALES REALES
 const CLIENT_ID = '1738518b-ae7b-423f-90a4-80c5ee8c160f';
@@ -48,7 +49,7 @@ async function testConnection() {
         console.log("👉 PRUEBA 3: Basic Auth Header a https://api.zippin.com.ar/oauth/token");
         const auth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
         const res3 = await axios.post('https://api.zippin.com.ar/oauth/token', 
-            'grant_type=client_credentials', // Body string simple
+            'grant_type=client_credentials', 
             { 
                 headers: { 
                     'Authorization': `Basic ${auth}`,
@@ -79,7 +80,6 @@ async function testConnection() {
     }
 
     console.log("\n⚠️ RESULTADO FINAL: Ninguna combinación funcionó.");
-    console.log("Esto confirma que las credenciales no están activas del lado de Zippin/Zipnova.");
 }
 
 testConnection();

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { navigate } from 'astro:transitions/client';
 import { useToastStore } from '../../../stores/toastStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
+import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
 export default function ProductListTable() {
   const [products, setProducts] = useState<any[]>([]);
@@ -20,8 +21,9 @@ export default function ProductListTable() {
   // Carga Inicial
   useEffect(() => {
     fetchProducts();
-    fetch('http://localhost:3002/api/categories').then(res => res.json()).then(d => d.success && setCategories(d.data));
-    fetch('http://localhost:3002/api/brands').then(res => res.json()).then(d => d.success && setBrands(d.data));
+    // 👇 fetchApi limpia
+    fetchApi('/categories').then(res => res.json()).then(d => d.success && setCategories(d.data));
+    fetchApi('/brands').then(res => res.json()).then(d => d.success && setBrands(d.data));
   }, [selectedCat, selectedBrand, onlyLowStock]);
 
   // Debounce para búsqueda
@@ -31,13 +33,14 @@ export default function ProductListTable() {
   }, [searchTerm]);
 
   const fetchProducts = () => {
-    let url = `http://localhost:3002/api/products?limit=50`;
+    // 👇 URL relativa (fetchApi agrega el dominio y /api)
+    let url = `/products?limit=50`;
     if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
     if (selectedCat) url += `&categoryId=${selectedCat}`;
     if (selectedBrand) url += `&brandId=${selectedBrand}`;
     if (onlyLowStock) url += `&filter=lowStock`;
 
-    fetch(url)
+    fetchApi(url)
       .then(res => res.json())
       .then(data => data.success && setProducts(data.data))
       .catch(console.error);
@@ -46,7 +49,8 @@ export default function ProductListTable() {
   const handleDelete = async () => {
       if (!deleteId) return;
       try {
-          const res = await fetch(`http://localhost:3002/api/products/${deleteId}`, { method: 'DELETE' });
+          // 👇 fetchApi DELETE
+          const res = await fetchApi(`/products/${deleteId}`, { method: 'DELETE' });
           if (res.ok) {
               addToast('Producto eliminado', 'success');
               fetchProducts();
@@ -107,7 +111,7 @@ export default function ProductListTable() {
             </a>
         </div>
 
-        {/* TABLA DE PRODUCTOS (Sin Imágenes) */}
+        {/* TABLA DE PRODUCTOS */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <table className="w-full text-left border-collapse">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-400 font-bold">

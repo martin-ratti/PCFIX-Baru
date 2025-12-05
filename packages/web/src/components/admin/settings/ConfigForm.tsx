@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-// 👇 1. Volvemos a tu store nativo
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
+import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
 interface ConfigData {
   nombreBanco: string;
@@ -19,17 +19,16 @@ interface ConfigData {
 export default function ConfigForm() {
   const { register, handleSubmit, setValue } = useForm<ConfigData>();
   const { token } = useAuthStore();
-  
-  // 👇 Hook de tu sistema de notificaciones
   const addToast = useToastStore(s => s.addToast);
   
   const [isLoading, setIsLoading] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false); // Estado para el botón de Binance
+  const [isSyncing, setIsSyncing] = useState(false); 
 
   // 1. Carga Inicial
   useEffect(() => {
     if(token) {
-        fetch('http://localhost:3002/api/config', {
+        // 👇 fetchApi (GET)
+        fetchApi('/config', {
             headers: { 'Authorization': `Bearer ${token}` }
         })
           .then(res => res.json())
@@ -46,17 +45,19 @@ export default function ConfigForm() {
               setValue('cotizacionUsdt', data.data.cotizacionUsdt);
             }
           })
-          .catch(() => {
-              addToast('Error al cargar configuración', 'error');
+          .catch(e => {
+              console.error(e);
+              // No es crítico mostrar error aquí, fetchApi ya manejó si fue 500
           });
     }
   }, [setValue, token]);
 
-  // 2. Guardar Configuración General
+  // 2. Guardar Configuración
   const onSubmit = async (data: ConfigData) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:3002/api/config', {
+      // 👇 fetchApi (PUT)
+      const res = await fetchApi('/config', {
         method: 'PUT',
         headers: { 
             'Content-Type': 'application/json',
@@ -67,24 +68,24 @@ export default function ConfigForm() {
       const json = await res.json();
       
       if (json.success) {
-        // 👇 Feedback con tu sistema
         addToast('Configuración actualizada correctamente', 'success');
       } else {
         throw new Error(json.error || 'Fallo al guardar');
       }
     } catch (e: any) { 
-        addToast(e.message || 'Error de conexión', 'error');
+        addToast(e.message || 'Error al guardar', 'error');
     }
     finally { setIsLoading(false); }
   };
 
-  // 3. Acción de Sincronizar Binance (Adaptada a tu Toast)
+  // 3. Sincronizar Binance
   const handleSyncUsdt = async (e: React.MouseEvent) => {
       e.preventDefault(); 
-      setIsSyncing(true); // Activamos spinner en el botón
+      setIsSyncing(true);
       
       try {
-          const res = await fetch('http://localhost:3002/api/config/sync-usdt', {
+          // 👇 fetchApi (POST)
+          const res = await fetchApi('/config/sync-usdt', {
               method: 'POST',
               headers: { 'Authorization': `Bearer ${token}` }
           });
@@ -93,8 +94,6 @@ export default function ConfigForm() {
           if (json.success) {
               const nuevoValor = Number(json.data.cotizacionUsdt);
               setValue('cotizacionUsdt', nuevoValor);
-              
-              // 👇 Feedback de éxito con tu toast
               addToast(`¡Cotización actualizada a $${nuevoValor} ARS!`, 'success');
           } else {
               throw new Error(json.error);
@@ -111,7 +110,7 @@ export default function ConfigForm() {
       
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         
-        {/* SECCIÓN 1: BANCO */}
+        {/* BANCO */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center gap-2">
                 <span className="text-2xl">🏦</span> Transferencia Bancaria
@@ -136,7 +135,7 @@ export default function ConfigForm() {
             </div>
         </div>
 
-        {/* SECCIÓN 2: CRYPTO & COTIZACIÓN */}
+        {/* CRYPTO */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center gap-2">
                 <span className="text-2xl">🪙</span> Crypto & Cotizaciones
@@ -151,7 +150,6 @@ export default function ConfigForm() {
                     <input {...register('binanceAlias')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400/30 outline-none transition-all" />
                 </div>
                 
-                {/* INPUT DE COTIZACIÓN + BOTÓN */}
                 <div className="md:col-span-2 bg-yellow-50 p-4 rounded-lg border border-yellow-100">
                     <label className="block text-sm font-bold text-yellow-800 mb-1">Cotización 1 USDT (ARS)</label>
                     <div className="flex gap-3">
@@ -189,7 +187,7 @@ export default function ConfigForm() {
             </div>
         </div>
 
-        {/* SECCIÓN 3: LOCAL FÍSICO */}
+        {/* LOCAL */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center gap-2">
                 <span className="text-2xl">📍</span> Retiro en Local

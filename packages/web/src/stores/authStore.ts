@@ -24,11 +24,17 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       user: null,
       isAuthenticated: false,
-      login: (token, user) => set({ token, user, isAuthenticated: true }),
-      logout: () => set({ token: null, user: null, isAuthenticated: false }),
+      login: (token, user) => {
+          // Opcional: Podrías poner un timer aquí para hacer logout automático si expira
+          set({ token, user, isAuthenticated: true });
+      },
+      logout: () => {
+          localStorage.removeItem('auth-storage'); // Limpieza profunda
+          set({ token: null, user: null, isAuthenticated: false });
+      },
     }),
     {
-      name: 'auth-storage', // Nombre en localStorage
+      name: 'auth-storage',
       storage: createJSONStorage(() => localStorage), 
     }
   )

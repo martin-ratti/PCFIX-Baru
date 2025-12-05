@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
+import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
 interface Brand { id: number; nombre: string; }
 interface Banner { id: number; imagen: string; marca: Brand; }
@@ -11,12 +12,15 @@ export default function BannerManager() {
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
   const addToast = useToastStore(s => s.addToast);
-  // NUEVO: Nombre archivo
   const [bannerName, setBannerName] = useState<string | null>(null);
 
-  const fetchData = async () => { /* ... mismo fetch ... */
+  const fetchData = async () => {
     try {
-      const [brandRes, bannerRes] = await Promise.all([fetch('http://localhost:3002/api/brands'), fetch('http://localhost:3002/api/banners')]);
+      // 👇 fetchApi con Promise.all
+      const [brandRes, bannerRes] = await Promise.all([
+          fetchApi('/brands'), 
+          fetchApi('/banners')
+      ]);
       const brandData = await brandRes.json();
       const bannerData = await bannerRes.json();
       if(brandData.success) setBrands(brandData.data);
@@ -25,14 +29,13 @@ export default function BannerManager() {
   };
   useEffect(() => { fetchData(); }, []);
 
-  // Watch file
   const bannerWatch = watch('imagenFile');
   useEffect(() => {
       if (bannerWatch && bannerWatch.length > 0) setBannerName(bannerWatch[0].name);
       else setBannerName(null);
   }, [bannerWatch]);
 
-  const onSubmit = async (data: any) => { /* ... mismo submit ... */
+  const onSubmit = async (data: any) => {
     if(banners.length >= 5) { addToast("Límite de banners alcanzado (Máx 5)", 'error'); return; }
     setIsLoading(true);
     try {
@@ -40,7 +43,8 @@ export default function BannerManager() {
       formData.append('marcaId', data.marcaId);
       if (data.imagenFile && data.imagenFile[0]) formData.append('imagen', data.imagenFile[0]);
 
-      const res = await fetch('http://localhost:3002/api/banners', { method: 'POST', body: formData });
+      // 👇 fetchApi con FormData (Sin content-type manual)
+      const res = await fetchApi('/banners', { method: 'POST', body: formData });
       const json = await res.json();
       if (json.success) {
         addToast('Banner creado', 'success');
@@ -50,9 +54,15 @@ export default function BannerManager() {
       } else { throw new Error(json.error); }
     } catch (e: any) { addToast(e.message, 'error'); } finally { setIsLoading(false); }
   };
-  const handleDelete = async (id: number) => { /* ... mismo delete ... */
+
+  const handleDelete = async (id: number) => {
     if(!confirm('¿Eliminar banner?')) return;
-    try { await fetch(`http://localhost:3002/api/banners/${id}`, { method: 'DELETE' }); fetchData(); addToast('Banner eliminado', 'success'); } catch (e) { addToast('Error', 'error'); }
+    try { 
+        // 👇 fetchApi DELETE
+        await fetchApi(`/banners/${id}`, { method: 'DELETE' }); 
+        fetchData(); 
+        addToast('Banner eliminado', 'success'); 
+    } catch (e) { addToast('Error', 'error'); }
   };
 
   return (
@@ -70,7 +80,6 @@ export default function BannerManager() {
             {errors.marcaId && <p className="text-red-500 text-xs mt-1">Requerido</p>}
           </div>
           
-          {/* ▼▼▼ INPUT BANNER REDONDEADO ▼▼▼ */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Imagen (Horizontal)</label>
             <input type="file" id="banner-upload" accept="image/*" {...register('imagenFile', { required: "Imagen requerida" })} className="hidden" />
@@ -85,7 +94,6 @@ export default function BannerManager() {
             </label>
             {errors.imagenFile && <p className="text-red-500 text-xs mt-1">Requerido</p>}
           </div>
-          {/* ▲▲▲ FIN INPUT REDONDEADO ▲▲▲ */}
 
           <button disabled={isLoading} className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-all disabled:opacity-50 shadow-sm">
             {isLoading ? 'Subiendo...' : 'Publicar Banner'}
@@ -93,7 +101,7 @@ export default function BannerManager() {
         </form>
       </div>
 
-      {/* Visualización (sin cambios) */}
+      {/* Visualización */}
       <div className="lg:col-span-2">
         <h3 className="text-lg font-bold mb-4 text-secondary flex justify-between">Banners Activos <span className="text-sm font-normal text-gray-500">{banners.length} / 5</span></h3>
         {banners.length === 0 ? ( <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200"><p className="text-gray-400">No hay banners activos en el Home.</p></div> ) : (

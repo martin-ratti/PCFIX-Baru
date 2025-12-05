@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
-// 👇 IMPORTAR EL NUEVO BOTÓN
 import GoogleLoginButton from './GoogleLoginButton';
+import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
 const loginSchema = z.object({
   email: z.string().email('Correo inválido'),
@@ -26,7 +26,8 @@ export default function LoginForm() {
   const onSubmit = async (data: LoginSchema) => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3002/api/auth/login', {
+      // 👇 Uso de fetchApi (Más limpio, sin URL base)
+      const response = await fetchApi('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -45,7 +46,7 @@ export default function LoginForm() {
       }, 100);
       
     } catch (err: any) {
-      addToast(err.message, 'error');
+      addToast(err.message || 'Error al iniciar sesión', 'error');
       setIsLoading(false);
     }
   };
@@ -70,17 +71,11 @@ export default function LoginForm() {
         </button>
       </form>
 
-      {/* SEPARADOR */}
       <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200"></div>
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">O continúa con</span>
-        </div>
+        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
+        <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-500">O continúa con</span></div>
       </div>
 
-      {/* 👇 BOTÓN DE GOOGLE */}
       <GoogleLoginButton />
 
       <p className="mt-6 text-center text-sm text-gray-600">¿No tienes cuenta? <a href="/registro" className="text-primary font-bold hover:underline">Regístrate</a></p>
