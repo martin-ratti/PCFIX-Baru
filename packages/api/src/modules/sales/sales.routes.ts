@@ -14,9 +14,15 @@ router.post('/', authenticate, Controller.createSale);
 router.get('/', authenticate, requireAdmin, Controller.getAllSales);
 
 // --- RUTAS CON ID ---
+router.get('/:id', authenticate, Controller.getSaleById);
+
+// Cliente (Acciones sobre su propia orden)
 router.post('/:id/receipt', authenticate, upload.single('comprobante'), Controller.uploadReceipt);
+router.put('/:id/payment-method', authenticate, Controller.updatePaymentMethod); // Cambiar método
+router.put('/:id/cancel', authenticate, Controller.cancelOrder); // Cancelar
+
+// Admin (Acciones de gestión)
 router.put('/:id/status', authenticate, requireAdmin, Controller.updateStatus);
 router.put('/:id/dispatch', authenticate, requireAdmin, Controller.dispatchSale);
-router.get('/:id', authenticate, Controller.getSaleById);
 
 export default router;

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-// 👇 CAMBIO 1: Usamos 'sonner' directamente (más moderno y consistente)
-import { toast } from 'sonner'; 
+// 👇 Usamos tu store de notificaciones personalizado
+import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 
 const profileUpdateSchema = z.object({
@@ -20,13 +20,17 @@ interface EditProfileFormProps {
 
 export default function EditProfileForm({ userId }: EditProfileFormProps) {
   const [isLoading, setIsLoading] = useState(true);
-  // Eliminamos useToastStore, usaremos 'toast' directo
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Hooks de Stores
+  const addToast = useToastStore(s => s.addToast);
   const authStore = useAuthStore();
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<ProfileData>({
     resolver: zodResolver(profileUpdateSchema),
   });
 
+  // 1. Cargar datos del perfil
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -42,20 +46,18 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
           throw new Error('Error al cargar perfil');
         }
       } catch (e) {
-        // 👇 Feedback visual de error
-        toast.error('No se pudo cargar la información del perfil');
+        addToast('Error de conexión al cargar perfil', 'error');
       } finally {
         setIsLoading(false);
       }
     };
     loadProfile();
-  }, [userId, setValue]);
+  }, [userId, setValue, addToast]);
 
+  // 2. Guardar cambios
   const onSubmit = async (data: ProfileData) => {
-    setIsLoading(true);
-    // 👇 Toast de carga (opcional, le da un toque pro)
-    const toastId = toast.loading('Guardando cambios...');
-
+    setIsSaving(true);
+    
     try {
       const res = await fetch(`http://localhost:3002/api/users/${userId}`, {
         method: 'PUT',
@@ -69,21 +71,24 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
       const result = await res.json();
       
       if (result.success) {
-        // 👇 CAMBIO 2: Toast de éxito usando Sonner
-        toast.success('Perfil actualizado correctamente', { id: toastId });
+        addToast('Perfil actualizado con éxito', 'success');
         
+        // Actualizamos el usuario en el store global para reflejar cambios en el header inmediatamente
         if (authStore.user) {
-            authStore.login(authStore.token as string, { ...authStore.user, nombre: data.nombre, apellido: data.apellido });
+            authStore.login(authStore.token as string, { 
+                ...authStore.user, 
+                nombre: data.nombre, 
+                apellido: data.apellido 
+            });
         }
       } else {
         throw new Error(result.error || 'Fallo al guardar');
       }
 
     } catch (error: any) {
-      // 👇 Feedback de error
-      toast.error(error.message || 'Error al actualizar el perfil', { id: toastId });
+      addToast(error.message || 'Error al actualizar', 'error');
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -97,7 +102,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
   return (
     <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden max-w-3xl mx-auto animate-fade-in-up">
       
-      {/* Header con degradado Azul a Celeste (Legibilidad mejorada) */}
+      {/* Header con degradado Azul a Celeste */}
       <div className="bg-gradient-to-r from-blue-800 to-sky-500 p-8 text-white">
           <div className="flex items-center gap-4">
               <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center text-2xl border border-white/20 backdrop-blur-sm">
@@ -113,7 +118,10 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
       <div className="p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             
+            {/* Sección: Datos Personales */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Input: Nombre */}
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-gray-700 ml-1">Nombre</label>
                 <div className="relative">
@@ -126,6 +134,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
                 {errors.nombre && <p className="text-red-500 text-xs ml-1 font-medium flex items-center gap-1">⚠️ {errors.nombre.message}</p>}
               </div>
 
+              {/* Input: Apellido */}
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-gray-700 ml-1">Apellido</label>
                 <input 
@@ -137,6 +146,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
               </div>
             </div>
 
+            {/* Sección: Cuenta */}
             <div className="space-y-2">
               <label className="block text-sm font-bold text-gray-700 ml-1">Correo Electrónico</label>
               <div className="relative group">
@@ -152,14 +162,18 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
               <p className="text-xs text-gray-400 ml-1">El correo electrónico no se puede modificar por seguridad.</p>
             </div>
 
+            {/* Botón de Acción */}
             <div className="pt-4 border-t border-gray-100 flex justify-end">
                 <button 
                   type="submit" 
-                  disabled={isLoading} 
+                  disabled={isSaving} 
                   className="bg-primary hover:bg-primary/90 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-primary/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
                 >
-                  {isLoading ? (
-                      <>Guardando...</>
+                  {isSaving ? (
+                      <>
+                        <div className="h-4 w-4 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
+                        Guardando...
+                      </>
                   ) : (
                       <>Guardar Cambios</>
                   )}

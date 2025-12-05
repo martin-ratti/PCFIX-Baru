@@ -185,6 +185,7 @@ model Configuracion {
   alias           String  @default("PCFIX.VENTAS")
   // Envío
   costoEnvioFijo  Decimal @default(5000) @db.Decimal(10, 2)
+  cotizacionUsdt  Decimal @default(1150) @db.Decimal(10, 2)
   
   // 👇 NUEVOS CAMPOS DE CONFIG
   binanceAlias    String? @default("PCFIX.USDT")

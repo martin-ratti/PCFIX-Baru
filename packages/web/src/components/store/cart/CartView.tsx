@@ -32,9 +32,10 @@ export default function CartView() {
       fetch('http://localhost:3002/api/config')
         .then(res => res.json())
         .then(data => {
-            if(data.success) {
+            if(data.success && data.data) {
                 setBaseShippingCost(Number(data.data.costoEnvioFijo));
-                setLocalAddress(data.data.direccionLocal || 'Dirección no configurada');
+                // Guardamos la dirección real de la DB
+                setLocalAddress(data.data.direccionLocal || 'Dirección no configurada'); 
             }
         })
         .catch(err => console.error("Error config:", err));
@@ -50,6 +51,7 @@ export default function CartView() {
         return;
     }
     setIsCalculatingShipping(true);
+    // Simulación de cálculo (en producción llamarías a tu API de envíos)
     setTimeout(() => {
         setShippingCost(baseShippingCost); 
         setIsCalculatingShipping(false);
@@ -63,12 +65,15 @@ export default function CartView() {
         window.location.href = '/login';
         return;
     }
+
+    // Validación: Si es envío, debe haber calculado el costo
     if (deliveryType === 'ENVIO' && shippingCost === null) {
         addToast("Calcula el envío para continuar", 'error');
         document.getElementById('zipCodeInput')?.focus();
         return;
     }
-    // Regla de negocio: Efectivo solo en local
+    
+    // Validación: Efectivo solo en local
     if (deliveryType === 'ENVIO' && paymentMethod === 'EFECTIVO') {
          addToast("Pago en efectivo solo disponible para retiro en local", 'error');
          return;
@@ -132,7 +137,7 @@ export default function CartView() {
                     <span className="px-2 font-medium text-sm min-w-[1.5rem] text-center">{item.quantity}</span>
                     <button onClick={() => increaseQuantity(item.id)} className="px-2 hover:bg-gray-100 text-gray-600 font-bold">+</button>
                   </div>
-                  <button onClick={() => removeItem(item.id)} className="text-gray-400 hover:text-red-500 transition-colors">🗑️</button>
+                  <button onClick={() => removeItem(item.id)} className="text-gray-400 hover:text-red-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></button>
                </div>
             </div>
         ))}
@@ -159,27 +164,28 @@ export default function CartView() {
           {/* Lógica de Envío */}
           {deliveryType === 'ENVIO' ? (
                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 animate-fade-in">
-                   <p className="text-xs font-bold text-gray-500 uppercase mb-2">Calcular Costo</p>
+                   <p className="text-xs font-bold text-gray-500 uppercase mb-2">Calculadora de Envío</p>
                    {shippingCost === null ? (
                        <div className="flex gap-2">
                            <input type="text" id="zipCodeInput" placeholder="Cód. Postal" value={zipCode} onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 4))} className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary outline-none" />
                            <button onClick={handleCalculateShipping} disabled={isCalculatingShipping} className="bg-secondary text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-opacity-90 whitespace-nowrap">
-                               {isCalculatingShipping ? '...' : 'Calc'}
+                               {isCalculatingShipping ? '...' : 'Calcular'}
                            </button>
                        </div>
                    ) : (
                        <div className="flex justify-between items-center">
-                           <span className="text-sm text-secondary font-medium">CP {zipCode}</span>
+                           <span className="text-sm text-secondary font-medium">A domicilio (CP {zipCode})</span>
                            <div className="text-right">
                                <span className="block font-bold text-secondary">${shippingCost.toLocaleString('es-AR')}</span>
-                               <button onClick={() => setShippingCost(null)} className="text-[10px] text-blue-500 hover:underline">Cambiar</button>
+                               <button onClick={() => setShippingCost(null)} className="text-[10px] text-blue-500 hover:underline">Cambiar CP</button>
                            </div>
                        </div>
                    )}
                </div>
           ) : (
                <div className="bg-green-50 p-4 rounded-lg border border-green-100 animate-fade-in">
-                   <p className="text-xs font-bold text-green-700 uppercase mb-1">Retiro en Local (Sin Cargo)</p>
+                   <p className="text-xs font-bold text-green-700 uppercase mb-1">Retiro Sin Cargo</p>
+                   {/* Aquí mostramos la dirección dinámica */}
                    <p className="text-sm text-gray-700 font-medium">{localAddress}</p>
                </div>
           )}
@@ -194,6 +200,7 @@ export default function CartView() {
               >
                   <option value="TRANSFERENCIA">🏦 Transferencia Bancaria</option>
                   <option value="BINANCE">🪙 Crypto (Binance Pay)</option>
+                  {/* Solo mostramos Efectivo si es retiro */}
                   {deliveryType === 'RETIRO' && <option value="EFECTIVO">💵 Efectivo en Local</option>}
               </select>
           </div>
@@ -203,13 +210,17 @@ export default function CartView() {
              <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>${subtotal.toLocaleString('es-AR')}</span></div>
              {deliveryType === 'ENVIO' && <div className="flex justify-between text-gray-600"><span>Envío</span><span>{shippingCost !== null ? `$${shippingCost.toLocaleString('es-AR')}` : 'Calculando...'}</span></div>}
              <div className="flex justify-between items-end pt-2 border-t border-dashed">
-                <span className="text-lg font-bold text-secondary">Total</span>
+                <span className="text-lg font-bold text-secondary">Total Final</span>
                 <span className="text-3xl font-black text-primary">${totalFinal.toLocaleString('es-AR')}</span>
              </div>
           </div>
           
-          <button onClick={handleCheckout} disabled={isProcessing || (deliveryType === 'ENVIO' && shippingCost === null)} className="w-full bg-green-600 text-white font-bold py-3.5 rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform active:scale-[0.98]">
-            {isProcessing ? 'Procesando...' : 'Confirmar Compra'}
+          <button 
+              onClick={handleCheckout} 
+              disabled={isProcessing || (deliveryType === 'ENVIO' && shippingCost === null)} 
+              className="w-full bg-green-600 text-white font-bold py-3.5 rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform active:scale-[0.98]"
+          >
+            {isProcessing ? 'Procesando...' : 'Finalizar Compra'}
           </button>
           
           <div className="flex justify-between items-center mt-2">
@@ -219,7 +230,15 @@ export default function CartView() {
         </div>
       </div>
 
-      <ConfirmModal isOpen={isClearModalOpen} title="Vaciar Carrito" message="¿Eliminar todos los productos?" confirmText="Sí, vaciar" isDanger={true} onConfirm={() => { clearCart(); setIsClearModalOpen(false); }} onCancel={() => setIsClearModalOpen(false)} />
+      <ConfirmModal
+        isOpen={isClearModalOpen}
+        title="Vaciar Carrito"
+        message="¿Eliminar todos los productos?"
+        confirmText="Sí, vaciar"
+        isDanger={true}
+        onConfirm={() => { clearCart(); setIsClearModalOpen(false); }}
+        onCancel={() => setIsClearModalOpen(false)}
+      />
     </div>
   );
 }
