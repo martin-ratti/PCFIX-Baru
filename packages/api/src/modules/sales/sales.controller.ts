@@ -122,3 +122,18 @@ export const getBalance = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, error: e.message });
     }
 };
+
+export const createManualSale = async (req: Request, res: Response) => {
+    try {
+        // El admin que ejecuta la acción
+        const adminId = (req as AuthRequest).user?.id; 
+        const { customerEmail, items, medioPago, estado } = req.body;
+        
+        if (!adminId) return res.status(401).json({ error: 'Unauthorized' });
+
+        const sale = await service.createManualSale(adminId, customerEmail, items, medioPago, estado);
+        res.status(201).json({ success: true, data: sale });
+    } catch (e: any) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+};

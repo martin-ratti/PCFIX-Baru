@@ -9,41 +9,24 @@ export class TechnicalService {
     this.emailService = new EmailService();
   }
 
-  // ==========================================
-  //           CONSULTAS TÉCNICAS
-  // ==========================================
+  // --- PARTE 1: CONSULTAS TÉCNICAS ---
 
-  // 1. Crear Consulta (Usuario) -> Notifica Admin
   async createInquiry(userId: number, asunto: string, mensaje: string) {
-    // Primero obtenemos el usuario para saber su email/nombre
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error("Usuario no encontrado");
 
-    // Guardamos en DB
     const inquiry = await prisma.consultaTecnica.create({
-      data: {
-        userId,
-        asunto,
-        mensaje,
-        estado: 'PENDIENTE'
-      }
+      data: { userId, asunto, mensaje, estado: 'PENDIENTE' }
     });
 
-    // Notificamos al Admin (Fire & Forget: no esperamos a que termine para responder al usuario)
     if (user.email) {
-        console.log(`📧 Notificando nueva consulta de: ${user.email}`);
         this.emailService.sendNewInquiryNotification(
-            user.email,
-            user.nombre || 'Usuario',
-            asunto,
-            mensaje
+            user.email, user.nombre || 'Usuario', asunto, mensaje
         ).catch((err: any) => console.error("Fallo email nueva consulta:", err));
     }
-
     return inquiry;
   }
 
-  // 2. Obtener todas (Admin)
   async findAllInquiries(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     const [total, items] = await prisma.$transaction([
@@ -58,7 +41,6 @@ export class TechnicalService {
     return { data: items, meta: { total, page, lastPage: Math.ceil(total/limit), limit } };
   }
 
-  // 3. Obtener propias (Usuario)
   async findInquiriesByUserId(userId: number) {
     return await prisma.consultaTecnica.findMany({
         where: { userId },
@@ -66,33 +48,21 @@ export class TechnicalService {
     });
   }
 
-  // 4. Responder Consulta (Admin) -> Notifica Usuario
   async replyInquiry(id: number, respuesta: string) {
     const consulta = await prisma.consultaTecnica.update({
         where: { id },
-        data: {
-            respuesta,
-            estado: EstadoConsulta.RESPONDIDO,
-            respondedAt: new Date()
-        },
+        data: { respuesta, estado: EstadoConsulta.RESPONDIDO, respondedAt: new Date() },
         include: { user: true }
     });
 
-    if (consulta.user && consulta.user.email) {
-        console.log(`📧 Enviando respuesta a: ${consulta.user.email}`);
-        this.emailService.sendReplyNotification(
-            consulta.user.email, 
-            consulta.asunto, 
-            respuesta
-        ).catch((err: any) => console.error("Fallo al enviar email de respuesta:", err));
+    if (consulta.user?.email) {
+        this.emailService.sendReplyNotification(consulta.user.email, consulta.asunto, respuesta)
+            .catch((err: any) => console.error("Fallo al enviar email de respuesta:", err));
     }
-
     return consulta;
   }
 
-  // ==========================================
-  //        GESTIÓN DE PRECIOS (TARIFAS)
-  // ==========================================
+  // --- PARTE 2: GESTIÓN DE PRECIOS (TARIFAS) ---
 
   async getServicePrices() {
     return await prisma.serviceItem.findMany({
@@ -101,10 +71,33 @@ export class TechnicalService {
     });
   }
 
+  // 👇 AQUÍ ESTÁ LA MAGIA DE LA SINCRONIZACIÓN
   async updateServicePrice(id: number, price: number) {
-    return await prisma.serviceItem.update({
+    // 1. Actualizamos el Servicio (Lo que se ve en la web pública)
+    const serviceItem = await prisma.serviceItem.update({
       where: { id },
       data: { price }
     });
+
+    // 2. SINCRONIZACIÓN AUTOMÁTICA CON EL POS
+    // Buscamos el producto que corresponde a este servicio
+    // Convención: El producto se llama "Servicio: " + Titulo del servicio
+    const productName = `Servicio: ${serviceItem.title}`;
+    
+    const product = await prisma.producto.findFirst({
+        where: { nombre: productName }
+    });
+
+    if (product) {
+        console.log(`🔄 Sincronizando precio POS para "${productName}": $${product.precio} -> $${price}`);
+        await prisma.producto.update({
+            where: { id: product.id },
+            data: { precio: price } // Actualizamos el precio en la tabla de productos
+        });
+    } else {
+        console.warn(`⚠️ No se encontró producto POS para el servicio: ${serviceItem.title}`);
+    }
+
+    return serviceItem;
   }
 }

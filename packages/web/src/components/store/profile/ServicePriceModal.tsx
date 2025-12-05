@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { useServiceStore, type ServiceItem } from '../../../stores/serviceStore';
-import { toast } from 'sonner';
+// 👇 CAMBIO 1: Usamos tu store de toasts
+import { useToastStore } from '../../../stores/toastStore';
 
 export default function ServicePriceModal() {
   const { user, token } = useAuthStore();
   const { items, fetchItems, updateItem } = useServiceStore();
+  const addToast = useToastStore(s => s.addToast); // 👇 Hook del toast
   
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editValues, setEditValues] = useState<ServiceItem[]>([]);
 
-  // 1. Cargar datos al abrir el modal
+  // Cargar datos al abrir
   useEffect(() => {
     if (isOpen) {
-      console.log("⚡ Modal Abierto. Cargando...");
       fetchItems().then(() => {
         setTimeout(() => {
             const currentItems = useServiceStore.getState().items;
@@ -30,12 +31,15 @@ export default function ServicePriceModal() {
     e.preventDefault();
     setLoading(true);
     let errorCount = 0;
+    let successCount = 0;
 
     try {
       const promises = editValues.map(async (item) => {
         const original = items.find((i) => i.id === item.id);
+        
+        // Solo si cambió el precio
         if (original && original.price !== item.price) {
-            const res = await fetch(`http://127.0.0.1:3002/api/technical/prices/${item.id}`, {
+            const res = await fetch(`http://localhost:3002/api/technical/prices/${item.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -47,23 +51,30 @@ export default function ServicePriceModal() {
             if (!res.ok) {
                 errorCount++;
                 throw new Error('Error saving');
+            } else {
+                successCount++;
             }
-            updateItem(item.id, { price: Number(item.price) });
         }
       });
 
       await Promise.all(promises);
 
-      if (errorCount === 0) {
-          toast.success('Tarifas actualizadas correctamente');
+      if (errorCount === 0 && successCount > 0) {
+          // 👇 CAMBIO 2: Feedback con tu Toast personalizado
+          addToast('Tarifas actualizadas correctamente', 'success');
           setIsOpen(false);
-          fetchItems();
+          
+          // 👇 CAMBIO 3: CRÍTICO - Recargar datos globales
+          // Esto hará que el componente ServicePriceList se actualice solo
+          await fetchItems(); 
+      } else if (successCount === 0 && errorCount === 0) {
+          setIsOpen(false); // No hubo cambios
       } else {
-          toast.warning('Algunas tarifas no se pudieron actualizar');
+          addToast('Algunas tarifas no se pudieron actualizar', 'error');
       }
+
     } catch (error) {
-      console.error("🔥 Error general:", error);
-      toast.error('Error de conexión al guardar');
+      addToast('Error de conexión al guardar', 'error');
     } finally {
       setLoading(false);
     }
@@ -76,43 +87,21 @@ export default function ServicePriceModal() {
 
   return (
     <>
-      {/* BOTÓN TRIGGER (Texto actualizado a "Actualizar tarifas") */}
       <button 
         onClick={() => setIsOpen(true)}
-        className="
-            flex items-center gap-2 
-            px-5 py-2.5 h-10
-            bg-gray-900 hover:bg-gray-800 
-            text-white text-sm font-bold 
-            rounded-full
-            shadow-lg shadow-gray-900/20
-            transform active:scale-95 hover:scale-105 transition-all duration-200
-            whitespace-nowrap
-        "
+        className="flex items-center gap-2 px-5 py-2.5 h-10 bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold rounded-full shadow-lg shadow-gray-900/20 transform active:scale-95 hover:scale-105 transition-all duration-200 whitespace-nowrap"
         title="Editar precios de servicios técnicos"
       >
-        <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="16" height="16" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-            className="text-yellow-400"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-400">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
         </svg>
-        
-        {/* TEXTO CAMBIADO */}
         <span>Actualizar tarifas</span>
       </button>
 
-      {/* --- MODAL --- */}
       {isOpen && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+            
             <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                 <div className="flex items-center gap-2">
                     <div className="p-2 bg-yellow-100 rounded-lg text-yellow-600">
@@ -143,7 +132,6 @@ export default function ServicePriceModal() {
                         </div>
                     </div>
                 ))}
-                {editValues.length === 0 && <p className="text-center text-gray-400 text-sm">Cargando datos...</p>}
             </form>
 
             <div className="p-5 border-t border-gray-100 flex gap-3 bg-gray-50/50">

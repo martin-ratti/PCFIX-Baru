@@ -1,0 +1,21 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/ui/layout/Header.astro';
+import Footer from '../../components/ui/layout/Footer.astro';
+import ManualSaleForm from '../../components/admin/sales/ManualSaleForm';
+import AdminGuard from '../../components/guards/AdminGuard';
+---
+
+<Layout title="PCFIX | Venta Manual">
+  <Header />
+  <main class="container mx-auto px-6 py-12 bg-light min-h-screen">
+    <AdminGuard client:only="react">
+        <div class="mb-6">
+            <h1 class="text-3xl font-black text-primary">Punto de Venta (POS)</h1>
+            <p class="text-gray-500">Registrar ventas manuales o servicios técnicos en el local.</p>
+        </div>
+        <ManualSaleForm client:load />
+    </AdminGuard>
+  </main>
+  <Footer />
+</Layout>

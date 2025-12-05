@@ -14,6 +14,7 @@ router.post('/', authenticate, Controller.createSale);
 router.get('/', authenticate, requireAdmin, Controller.getAllSales);
 
 // --- RUTAS CON ID ---
+router.post('/manual', authenticate, requireAdmin, Controller.createManualSale);
 router.get('/:id', authenticate, Controller.getSaleById);
 
 // Cliente (Acciones sobre su propia orden)

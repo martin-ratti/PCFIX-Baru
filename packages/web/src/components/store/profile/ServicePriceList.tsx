@@ -1,26 +1,39 @@
 import React, { useEffect } from 'react';
-// Importamos el store y el tipo ServiceItem
 import { useServiceStore, type ServiceItem } from '../../../stores/serviceStore';
 
 export default function ServicePriceList() {
   const { items, fetchItems, isLoading } = useServiceStore();
 
+  // Forzar la carga de datos frescos al montar el componente
   useEffect(() => {
-    if (items.length === 0) fetchItems();
+    fetchItems();
   }, []);
 
-  if (isLoading && items.length === 0) return <div className="p-10 text-center text-gray-500">Cargando precios...</div>;
+  if (isLoading && items.length === 0) {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {[1,2,3,4].map(i => (
+                <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-48 animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                    <div className="h-8 bg-gray-200 rounded w-1/2 mb-4"></div>
+                    <div className="h-16 bg-gray-100 rounded w-full"></div>
+                </div>
+            ))}
+        </div>
+      );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-        {/* Ahora TypeScript sabe que 'p' es un ServiceItem */}
         {items.map((p: ServiceItem) => (
-            <div key={p.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div key={p.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all hover:-translate-y-1 duration-300 flex flex-col">
                 <h3 className="font-bold text-lg text-secondary mb-2">{p.title}</h3>
-                <p className="text-3xl font-black text-primary mb-3">
-                    ${p.price.toLocaleString('es-AR')}
-                </p>
-                <p className="text-sm text-gray-500 leading-relaxed">{p.description}</p>
+                <div className="mt-auto">
+                    <p className="text-3xl font-black text-primary mb-3 tracking-tight">
+                        ${p.price.toLocaleString('es-AR')}
+                    </p>
+                    <p className="text-sm text-gray-500 leading-relaxed">{p.description}</p>
+                </div>
             </div>
         ))}
     </div>
