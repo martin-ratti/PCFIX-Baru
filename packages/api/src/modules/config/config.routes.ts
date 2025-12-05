@@ -1,6 +1,14 @@
 import { Router } from 'express';
-import * as ConfigController from './config.controller';
+import * as Controller from './config.controller';
+import { authenticate, requireAdmin } from '../../shared/middlewares/authMiddleware';
+
 const router = Router();
-router.get('/', ConfigController.get);
-router.put('/', ConfigController.update);
+
+// Rutas existentes
+router.get('/', Controller.getConfig); // Pública (para el checkout)
+router.put('/', authenticate, requireAdmin, Controller.updateConfig);
+
+// 👇 NUEVA RUTA: Trigger de actualización
+router.post('/sync-usdt', authenticate, requireAdmin, Controller.syncUsdt);
+
 export default router;

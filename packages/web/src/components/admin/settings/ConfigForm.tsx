@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-// 👇 Volvemos a tu store
+// 👇 1. Volvemos a tu store nativo
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 
@@ -18,11 +18,15 @@ interface ConfigData {
 
 export default function ConfigForm() {
   const { register, handleSubmit, setValue } = useForm<ConfigData>();
-  // 👇 Hook de tu store
-  const addToast = useToastStore(s => s.addToast);
   const { token } = useAuthStore();
+  
+  // 👇 Hook de tu sistema de notificaciones
+  const addToast = useToastStore(s => s.addToast);
+  
   const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false); // Estado para el botón de Binance
 
+  // 1. Carga Inicial
   useEffect(() => {
     if(token) {
         fetch('http://localhost:3002/api/config', {
@@ -42,13 +46,15 @@ export default function ConfigForm() {
               setValue('cotizacionUsdt', data.data.cotizacionUsdt);
             }
           })
-          .catch(() => addToast('Error al cargar configuración', 'error'));
+          .catch(() => {
+              addToast('Error al cargar configuración', 'error');
+          });
     }
   }, [setValue, token]);
 
+  // 2. Guardar Configuración General
   const onSubmit = async (data: ConfigData) => {
     setIsLoading(true);
-    
     try {
       const res = await fetch('http://localhost:3002/api/config', {
         method: 'PUT',
@@ -61,6 +67,7 @@ export default function ConfigForm() {
       const json = await res.json();
       
       if (json.success) {
+        // 👇 Feedback con tu sistema
         addToast('Configuración actualizada correctamente', 'success');
       } else {
         throw new Error(json.error || 'Fallo al guardar');
@@ -71,50 +78,136 @@ export default function ConfigForm() {
     finally { setIsLoading(false); }
   };
 
+  // 3. Acción de Sincronizar Binance (Adaptada a tu Toast)
+  const handleSyncUsdt = async (e: React.MouseEvent) => {
+      e.preventDefault(); 
+      setIsSyncing(true); // Activamos spinner en el botón
+      
+      try {
+          const res = await fetch('http://localhost:3002/api/config/sync-usdt', {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const json = await res.json();
+          
+          if (json.success) {
+              const nuevoValor = Number(json.data.cotizacionUsdt);
+              setValue('cotizacionUsdt', nuevoValor);
+              
+              // 👇 Feedback de éxito con tu toast
+              addToast(`¡Cotización actualizada a $${nuevoValor} ARS!`, 'success');
+          } else {
+              throw new Error(json.error);
+          }
+      } catch (e: any) {
+          addToast('Error conectando con Binance', 'error');
+      } finally {
+          setIsSyncing(false);
+      }
+  };
+
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
+      
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-         {/* ... (El resto del JSX de los inputs se mantiene IDÉNTICO al anterior) ... */}
-         {/* Si necesitas que te lo repita completo dímelo, pero solo cambió la lógica de arriba */}
-         
-         {/* SECCIÓN 1: BANCO */}
-         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+        
+        {/* SECCIÓN 1: BANCO */}
+        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center gap-2">
                 <span className="text-2xl">🏦</span> Transferencia Bancaria
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div><label className="block text-sm font-medium text-gray-700">Banco</label><input {...register('nombreBanco')} className="w-full mt-1 p-2 border rounded-lg" /></div>
-                <div><label className="block text-sm font-medium text-gray-700">Titular</label><input {...register('titular')} className="w-full mt-1 p-2 border rounded-lg" /></div>
-                <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700">CBU</label><input {...register('cbu')} className="w-full mt-1 p-2 border rounded-lg font-mono" /></div>
-                <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700">Alias</label><input {...register('alias')} className="w-full mt-1 p-2 border rounded-lg uppercase font-bold" /></div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Nombre del Banco</label>
+                  <input {...register('nombreBanco')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Titular</label>
+                  <input {...register('titular')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
+                </div>
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">CBU / CVU</label>
+                    <input {...register('cbu')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none font-mono transition-all" />
+                </div>
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">Alias</label>
+                    <input {...register('alias')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none font-bold uppercase transition-all" />
+                </div>
             </div>
         </div>
 
-        {/* SECCIÓN 2: CRYPTO */}
+        {/* SECCIÓN 2: CRYPTO & COTIZACIÓN */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center gap-2">
                 <span className="text-2xl">🪙</span> Crypto & Cotizaciones
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div><label className="block text-sm font-medium text-gray-700">Pay ID</label><input {...register('binanceCbu')} className="w-full mt-1 p-2 border rounded-lg font-mono" /></div>
-                <div><label className="block text-sm font-medium text-gray-700">Alias</label><input {...register('binanceAlias')} className="w-full mt-1 p-2 border rounded-lg" /></div>
-                <div><label className="block text-sm font-medium text-gray-700">1 USDT (ARS)</label><input type="number" {...register('cotizacionUsdt')} className="w-full mt-1 p-2 border rounded-lg font-bold text-green-600" /></div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Binance Pay ID (o Email)</label>
+                    <input {...register('binanceCbu')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400/30 outline-none font-mono transition-all" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Alias / Usuario</label>
+                    <input {...register('binanceAlias')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400/30 outline-none transition-all" />
+                </div>
+                
+                {/* INPUT DE COTIZACIÓN + BOTÓN */}
+                <div className="md:col-span-2 bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                    <label className="block text-sm font-bold text-yellow-800 mb-1">Cotización 1 USDT (ARS)</label>
+                    <div className="flex gap-3">
+                        <div className="relative flex-1">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-600 font-bold">$</span>
+                            <input 
+                                type="number" 
+                                {...register('cotizacionUsdt')} 
+                                className="w-full pl-8 p-2 border border-yellow-200 rounded-lg font-bold text-gray-800 focus:ring-2 focus:ring-yellow-400 outline-none" 
+                                placeholder="1150" 
+                            />
+                        </div>
+                        <button 
+                            onClick={handleSyncUsdt}
+                            disabled={isSyncing}
+                            className="bg-black text-yellow-400 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-2 whitespace-nowrap disabled:opacity-70"
+                        >
+                            {isSyncing ? (
+                                <>
+                                   <div className="w-4 h-4 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div>
+                                   <span>Buscando...</span>
+                                </>
+                            ) : (
+                                <>
+                                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                                   <span>Sincronizar Binance</span>
+                                </>
+                            )}
+                        </button>
+                    </div>
+                    <p className="text-xs text-yellow-700 mt-1">
+                        Este valor se usará para calcular el total en crypto en el checkout.
+                    </p>
+                </div>
             </div>
         </div>
 
-        {/* SECCIÓN 3: LOCAL */}
+        {/* SECCIÓN 3: LOCAL FÍSICO */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center gap-2">
                 <span className="text-2xl">📍</span> Retiro en Local
             </h2>
             <div className="space-y-4">
-                <div><label className="block text-sm font-medium text-gray-700">Dirección</label><input {...register('direccionLocal')} className="w-full mt-1 p-2 border rounded-lg" /></div>
-                <div><label className="block text-sm font-medium text-gray-700">Horarios</label><input {...register('horariosLocal')} className="w-full mt-1 p-2 border rounded-lg" /></div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Dirección Completa</label>
+                    <input {...register('direccionLocal')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-green-400/30 outline-none transition-all" />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Horarios de Atención</label>
+                    <input {...register('horariosLocal')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-green-400/30 outline-none transition-all" />
+                </div>
             </div>
         </div>
         
-        <div className="flex justify-end pt-4">
-            <button disabled={isLoading} className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50">
+        <div className="flex justify-end pt-4 sticky bottom-0 bg-gray-50 py-4 -mx-4 px-4 border-t border-gray-200 md:static md:bg-transparent md:border-0 md:p-0">
+            <button disabled={isLoading} className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none w-full md:w-auto">
                 {isLoading ? 'Guardando...' : 'Guardar Configuración'}
             </button>
         </div>

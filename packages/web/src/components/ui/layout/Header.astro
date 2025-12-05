@@ -13,20 +13,28 @@ import SearchBar from '../../ui/forms/SearchBar.tsx';
 let categories = [];
 
 try {
-  const API_URL = "http://127.0.0.1:3002/api/categories";
-  
-  const response = await fetch(API_URL);
+  // Usamos 127.0.0.1 y un timeout para no colgar la carga si la API está lenta
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 1000); // 1 segundo máx
+
+  const response = await fetch("http://127.0.0.1:3002/api/categories", {
+    signal: controller.signal
+  });
+  clearTimeout(timeoutId);
   
   if (response.ok) {
     const json = await response.json();
     if (json.success) {
       categories = json.data;
     }
-  } else {
-    console.warn(`⚠️ API respondió con error: ${response.status}`);
   }
 } catch (e) { 
-  console.error("❌ Error conectando con API de Categorías:", (e as any).message);
+  // Fallo silencioso en desarrollo para no llenar la consola de errores rojos
+  // Esto es normal si el backend se está reiniciando
+  if (import.meta.env.DEV) {
+      console.warn("⚠️ API Categorías no disponible momentáneamente.");
+  }
+  categories = [];
 }
 ---
 
@@ -47,7 +55,7 @@ try {
       <div class="w-full flex items-center gap-4">
         <SearchBar client:load />
         <AdminLinks client:load />
-              </div>
+      </div>
     </div>
 
     {/* 3. DERECHA */}
