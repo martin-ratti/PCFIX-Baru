@@ -1,113 +1,171 @@
 import { prisma } from '../../shared/database/prismaClient';
-import { CreateProductDTO } from './products.schema';
-
-// Extendemos para incluir los nuevos campos de logística
-type ProductInput = CreateProductDTO & { 
-    isFeatured?: boolean; 
-    marcaId?: number | null;
-    peso?: number;
-    alto?: number;
-    ancho?: number;
-    profundidad?: number;
-};
+import { Prisma } from '@prisma/client';
 
 export class ProductService {
   
-  // ... findAll (igual que antes) ...
-  async findAll(categoryId?: number, marcaId?: number, lowStock?: boolean, search?: string, limit?: number, isFeatured?: boolean, hasDiscount?: boolean) {
-    const whereClause: any = {
-      deletedAt: null,
-      ...(categoryId ? { categoriaId: categoryId } : {}),
-      ...(marcaId ? { marcaId: marcaId } : {}),
-      ...(lowStock ? { stock: { lte: 5 } } : {}),
-      ...(isFeatured ? { isFeatured: true } : {}),
-      ...(hasDiscount ? { precioOriginal: { not: null } } : {}),
-    };
-
-    if (search) {
-      whereClause.OR = [
-        { nombre: { contains: search, mode: 'insensitive' } },
-        { descripcion: { contains: search, mode: 'insensitive' } }
-      ];
-    }
-
-    const products = await prisma.producto.findMany({
-      where: whereClause,
-      include: { categoria: true, marca: true },
-      orderBy: { createdAt: 'desc' },
-      take: limit || undefined
-    });
-
-    if (search) {
-      const term = search.toLowerCase();
-      return products.filter(p => {
-        const text = `${p.nombre} ${p.descripcion}`.toLowerCase();
-        const words = text.split(/[\s\-_.,;]+/);
-        return words.some(w => w.startsWith(term));
+  // --- HELPER: Obtener IDs de categorías hijas recursivamente ---
+  private async getCategoryIdsRecursively(rootId: number): Promise<number[]> {
+      // 1. Buscamos hijos directos
+      const children = await prisma.categoria.findMany({
+          where: { padreId: rootId },
+          select: { id: true }
       });
-    }
-
-    return products;
+      
+      let ids = [rootId]; // Incluimos la categoría padre
+      
+      for (const child of children) {
+          // 2. Llamada recursiva para nietos, bisnietos, etc.
+          const subIds = await this.getCategoryIdsRecursively(child.id);
+          ids = [...ids, ...subIds];
+      }
+      
+      return ids;
   }
 
-  // ... findById (igual) ...
+  // --- 1. LISTAR CON FILTROS (Admin & Store) ---
+  async findAll(page: number = 1, limit: number = 10, categoryId?: number, brandId?: number, search?: string, filter?: string) {
+    const skip = (page - 1) * limit;
+    
+    // Filtro Base: No mostramos eliminados
+    const where: Prisma.ProductoWhereInput = { deletedAt: null };
+
+    // 1. Búsqueda por Texto (Nombre o Descripción)
+    if (search) {
+        where.OR = [
+            { nombre: { contains: search, mode: 'insensitive' } },
+            { descripcion: { contains: search, mode: 'insensitive' } }
+        ];
+    }
+
+    // 2. Filtro por Categoría (Recursivo)
+    if (categoryId) {
+        const categoryIds = await this.getCategoryIdsRecursively(categoryId);
+        where.categoriaId = { in: categoryIds };
+    }
+
+    // 3. Filtro por Marca
+    if (brandId) {
+        where.marcaId = brandId;
+    }
+
+    // 4. Filtros Especiales (Stock Bajo, Ofertas, Destacados)
+    if (filter === 'lowStock') {
+        // Stock menor o igual a 5, pero ignoramos servicios (stock > 90000)
+        where.stock = { lte: 5 }; 
+    }
+    if (filter === 'featured') {
+        where.isFeatured = true;
+    }
+    if (filter === 'hasDiscount') {
+        where.precioOriginal = { not: null };
+    }
+
+    // Ejecutar consulta y conteo en paralelo
+    const [total, products] = await prisma.$transaction([
+        prisma.producto.count({ where }),
+        prisma.producto.findMany({
+            where,
+            include: { 
+                categoria: true, 
+                marca: true 
+            },
+            orderBy: { createdAt: 'desc' }, // Más nuevos primero
+            take: limit,
+            skip
+        })
+    ]);
+
+    return {
+        data: products,
+        meta: { 
+            total, 
+            page, 
+            lastPage: Math.ceil(total / limit), 
+            limit 
+        }
+    };
+  }
+
+  // --- 2. BUSCAR POR ID ---
   async findById(id: number) {
-    return await prisma.producto.findFirst({ 
+    return await prisma.producto.findFirst({
       where: { id, deletedAt: null },
       include: { categoria: true, marca: true }
     });
   }
 
-  async create(data: ProductInput) {
-    const categoria = await prisma.categoria.findUnique({ where: { id: data.categoriaId } });
-    if (!categoria) throw new Error('Categoría no encontrada');
+  // --- 3. CREAR PRODUCTO ---
+  async create(data: any) {
+    // Parseamos números por seguridad
+    const precio = Number(data.precio);
+    const stock = Number(data.stock);
+    const categoriaId = Number(data.categoriaId);
+    const marcaId = data.marcaId ? Number(data.marcaId) : null;
+    
+    // Logística (defaults)
+    const peso = data.peso ? Number(data.peso) : 0.5;
+    const alto = data.alto ? Number(data.alto) : 10;
+    const ancho = data.ancho ? Number(data.ancho) : 10;
+    const profundidad = data.profundidad ? Number(data.profundidad) : 10;
 
     return await prisma.producto.create({
       data: {
         nombre: data.nombre,
         descripcion: data.descripcion,
-        precio: data.precio,
-        precioOriginal: data.precioOriginal,
-        stock: data.stock,
+        precio,
+        stock,
         foto: data.foto,
-        isFeatured: data.isFeatured || false,
-        categoriaId: data.categoriaId,
-        marcaId: data.marcaId || null,
-        // Nuevos campos
-        peso: data.peso,
-        alto: data.alto,
-        ancho: data.ancho,
-        profundidad: data.profundidad
+        categoriaId,
+        marcaId,
+        // Campos logísticos
+        peso,
+        alto,
+        ancho,
+        profundidad
       }
     });
   }
 
-  async update(id: number, data: Partial<ProductInput>) {
-    const exists = await this.findById(id);
-    if (!exists) throw new Error('Producto no encontrado');
+  // --- 4. ACTUALIZAR PRODUCTO ---
+  async update(id: number, data: any) {
+    const updateData: any = {
+        nombre: data.nombre,
+        descripcion: data.descripcion,
+        precio: Number(data.precio),
+        stock: Number(data.stock),
+        categoriaId: Number(data.categoriaId),
+        marcaId: data.marcaId ? Number(data.marcaId) : null,
+        // Logística
+        peso: Number(data.peso),
+        alto: Number(data.alto),
+        ancho: Number(data.ancho),
+        profundidad: Number(data.profundidad)
+    };
+
+    // Solo actualizamos foto si viene una nueva
+    if (data.foto) {
+        updateData.foto = data.foto;
+    }
 
     return await prisma.producto.update({
       where: { id },
-      data: {
-        nombre: data.nombre,
-        descripcion: data.descripcion,
-        precio: data.precio,
-        precioOriginal: data.precioOriginal,
-        stock: data.stock,
-        foto: data.foto,
-        isFeatured: data.isFeatured,
-        categoriaId: data.categoriaId,
-        marcaId: data.marcaId,
-        // Nuevos campos
-        peso: data.peso,
-        alto: data.alto,
-        ancho: data.ancho,
-        profundidad: data.profundidad
-      }
+      data: updateData
     });
   }
 
+  // --- 5. ELIMINAR (Soft Delete) ---
   async delete(id: number) {
-    return await prisma.producto.update({ where: { id }, data: { deletedAt: new Date() } });
+    return await prisma.producto.update({
+      where: { id },
+      data: { deletedAt: new Date() } // No borramos registro, solo marcamos fecha
+    });
+  }
+
+  // --- 6. RESTAURAR (Opcional, por si borraste por error) ---
+  async restore(id: number) {
+      return await prisma.producto.update({
+          where: { id },
+          data: { deletedAt: null }
+      });
   }
 }

@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 const productService = new ProductService();
 
+// Helpers de parsing
 const parseNumber = (val: any): number | undefined | null => {
   if (val === undefined || val === 'undefined') return undefined;
   if (val === null || val === 'null' || val === '') return null;
@@ -20,17 +21,29 @@ const parseBoolean = (val: any): boolean | undefined => {
 export const getAll = async (req: Request, res: Response) => {
   try {
     const categoryId = req.query.categoryId ? Number(req.query.categoryId) : undefined;
-    const marcaId = req.query.marcaId ? Number(req.query.marcaId) : undefined;
-    const lowStock = req.query.lowStock === 'true';
+    const marcaId = req.query.brandId ? Number(req.query.brandId) : undefined; // OJO: brandId o marcaId según frontend
     const search = req.query.search ? String(req.query.search) : undefined;
-    const limit = req.query.limit ? Number(req.query.limit) : undefined;
-    const isFeatured = req.query.isFeatured === 'true';
-    const hasDiscount = req.query.hasDiscount === 'true';
+    const limit = req.query.limit ? Number(req.query.limit) : 10;
+    const page = req.query.page ? Number(req.query.page) : 1;
     
-    const products = await productService.findAll(categoryId, marcaId, lowStock, search, limit, isFeatured, hasDiscount);
-    res.json({ success: true, data: products });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Error al obtener productos' });
+    // LÓGICA DE FILTRO UNIFICADO
+    // El frontend puede enviar ?filter=lowStock o ?filter=featured o ?filter=hasDiscount
+    // O pasamos parámetros booleanos y construimos el string 'filter' aquí.
+    let filterString = req.query.filter ? String(req.query.filter) : undefined;
+
+    if (!filterString) {
+        if (req.query.lowStock === 'true') filterString = 'lowStock';
+        else if (req.query.isFeatured === 'true') filterString = 'featured';
+        else if (req.query.hasDiscount === 'true') filterString = 'hasDiscount';
+    }
+    
+    // Llamada corregida con 6 argumentos:
+    // findAll(page, limit, categoryId, brandId, search, filterString)
+    const result = await productService.findAll(page, limit, categoryId, marcaId, search, filterString);
+    
+    res.json({ success: true, ...result }); // Spread para data y meta
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Error al obtener productos' });
   }
 };
 
@@ -62,7 +75,6 @@ export const create = async (req: Request, res: Response) => {
       precioOriginal: parseNumber(req.body.precioOriginal),
       stock: parseNumber(req.body.stock),
       
-      // 👇 NUEVOS CAMPOS PARSEADOS
       peso: parseNumber(req.body.peso) || 0.5,
       alto: parseNumber(req.body.alto) || 10,
       ancho: parseNumber(req.body.ancho) || 10,
@@ -116,8 +128,10 @@ export const update = async (req: Request, res: Response) => {
       foto: fotoUrl
     };
 
+    // Eliminamos undefined
     const cleanData = Object.fromEntries(Object.entries(rawData).filter(([_, v]) => v !== undefined));
     const data = updateSchema.parse(cleanData);
+    
     const updatedProduct = await productService.update(id, data as any);
     res.json({ success: true, data: updatedProduct });
 

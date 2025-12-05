@@ -9,9 +9,25 @@ export const createSale = async (req: Request, res: Response) => {
     try {
         const userId = (req as AuthRequest).user?.id;
         const { items, subtotal, cpDestino, tipoEntrega, medioPago } = req.body;
+        
         if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
 
         const sale = await service.createSale(userId, items, subtotal, cpDestino, tipoEntrega, medioPago);
+        res.status(201).json({ success: true, data: sale });
+    } catch (e: any) {
+        console.error(e);
+        res.status(500).json({ success: false, error: e.message });
+    }
+};
+
+export const createManualSale = async (req: Request, res: Response) => {
+    try {
+        const adminId = (req as AuthRequest).user?.id; 
+        const { customerEmail, items, medioPago, estado } = req.body;
+        
+        if (!adminId) return res.status(401).json({ error: 'Unauthorized' });
+
+        const sale = await service.createManualSale(adminId, customerEmail, items, medioPago, estado);
         res.status(201).json({ success: true, data: sale });
     } catch (e: any) {
         res.status(500).json({ success: false, error: e.message });
@@ -21,12 +37,11 @@ export const createSale = async (req: Request, res: Response) => {
 export const uploadReceipt = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        // Archivo opcional (para efectivo)
         let receiptUrl = undefined;
         if (req.file) {
             receiptUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
-
+        
         const updated = await service.uploadReceipt(Number(id), receiptUrl);
         res.json({ success: true, data: updated });
     } catch (e: any) {
@@ -38,6 +53,11 @@ export const updatePaymentMethod = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { medioPago } = req.body;
+        
+        if (!['TRANSFERENCIA', 'BINANCE', 'EFECTIVO'].includes(medioPago)) {
+             return res.status(400).json({ success: false, error: 'Medio de pago inválido' });
+        }
+
         const updated = await service.updatePaymentMethod(Number(id), medioPago);
         res.json({ success: true, data: updated });
     } catch (e: any) {
@@ -59,6 +79,7 @@ export const getMySales = async (req: Request, res: Response) => {
     try {
         const userId = (req as AuthRequest).user?.id;
         if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
         const sales = await service.findByUserId(userId);
         res.json({ success: true, data: sales });
     } catch (e: any) {
@@ -76,14 +97,14 @@ export const getSaleById = async (req: Request, res: Response) => {
     }
 };
 
-// --- ADMIN ---
-
 export const getAllSales = async (req: Request, res: Response) => {
     try {
         const page = Number(req.query.page) || 1;
         const month = req.query.month ? Number(req.query.month) : undefined;
         const year = req.query.year ? Number(req.query.year) : undefined;
-        const result = await service.findAll(page, 20, month, year);
+        const paymentMethod = req.query.paymentMethod ? String(req.query.paymentMethod) : undefined;
+
+        const result = await service.findAll(page, 20, month, year, paymentMethod);
         res.json({ success: true, ...result });
     } catch (e: any) {
         res.status(500).json({ success: false, error: e.message });
@@ -94,6 +115,7 @@ export const updateStatus = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
+        if (!Object.values(VentaEstado).includes(status)) return res.status(400).json({ success: false, error: 'Invalid status' });
         const updated = await service.updateStatus(Number(id), status);
         res.json({ success: true, data: updated });
     } catch (e: any) {
@@ -105,7 +127,7 @@ export const dispatchSale = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { trackingCode } = req.body;
-        if (!trackingCode) return res.status(400).json({ success: false, error: 'Code required' });
+        if (!trackingCode) return res.status(400).json({ success: false, error: 'Tracking required' });
         const updated = await service.dispatchSale(Number(id), trackingCode);
         res.json({ success: true, data: updated });
     } catch (e: any) {
@@ -118,21 +140,6 @@ export const getBalance = async (req: Request, res: Response) => {
         const year = req.query.year ? Number(req.query.year) : new Date().getFullYear();
         const data = await service.getMonthlyBalance(year);
         res.json({ success: true, data });
-    } catch (e: any) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-};
-
-export const createManualSale = async (req: Request, res: Response) => {
-    try {
-        // El admin que ejecuta la acción
-        const adminId = (req as AuthRequest).user?.id; 
-        const { customerEmail, items, medioPago, estado } = req.body;
-        
-        if (!adminId) return res.status(401).json({ error: 'Unauthorized' });
-
-        const sale = await service.createManualSale(adminId, customerEmail, items, medioPago, estado);
-        res.status(201).json({ success: true, data: sale });
     } catch (e: any) {
         res.status(500).json({ success: false, error: e.message });
     }
