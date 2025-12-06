@@ -6,22 +6,41 @@ export interface Props {
     product: {
         name: string;
         price: number;
+        originalPrice?: number | null; // Agregamos esta propiedad a la interfaz
         imageUrl: ImageMetadata | string;
         imageAlt: string;
     }
 }
 
 const { product } = Astro.props;
+const hasDiscount = product.originalPrice && product.originalPrice > product.price;
 ---
 <div class="bg-white rounded-lg overflow-hidden shadow-xl transform hover:-translate-y-2 transition-transform duration-300">
-    <a href="/producto/id-del-producto">
+    <a href={`/producto/${product.name}`}> {/* Asumo URL, ajustar según routing */}
         {typeof product.imageUrl === 'string' ?
             <img class="w-full h-48 object-cover" src={product.imageUrl} alt={product.imageAlt} /> :
             <Image class="w-full h-48 object-cover" src={product.imageUrl} alt={product.imageAlt} />
         }
         <div class="p-4">
             <h3 class="text-lg font-bold text-secondary">{product.name}</h3>
-            <p class="mt-2 text-xl font-black text-primary">${product.price.toLocaleString('es-AR')}</p>
+            
+            <div class="mt-2 min-h-[3.5rem] flex flex-col justify-center">
+                {hasDiscount ? (
+                    <>
+                        <span class="text-sm text-gray-400 line-through decoration-gray-400 leading-tight">
+                            ${product.originalPrice?.toLocaleString('es-AR')}
+                        </span>
+                        <p class="text-xl font-black text-primary leading-tight">
+                            ${product.price.toLocaleString('es-AR')}
+                        </p>
+                    </>
+                ) : (
+                    <p class="text-xl font-black text-primary">
+                        ${product.price.toLocaleString('es-AR')}
+                    </p>
+                )}
+            </div>
+
             <button class="mt-4 w-full bg-primary text-light font-bold py-2 px-4 rounded-lg hover:bg-opacity-80 transition-colors duration-300">
                 Agregar al Carrito
             </button>
