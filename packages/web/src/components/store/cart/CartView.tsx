@@ -4,10 +4,12 @@ import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
 import { navigate } from 'astro:transitions/client';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
-// 👇 Importación de la utilidad centralizada
 import { fetchApi } from '../../../utils/api';
+// 👇 Importamos el ErrorBoundary
+import ErrorBoundary from '../../ui/feedback/ErrorBoundary';
 
-export default function CartView() {
+// 1. COMPONENTE INTERNO (Lógica del carrito)
+function CartContent() {
   const { items, removeItem, increaseQuantity, decreaseQuantity, clearCart } = useCartStore();
   const { user, token, isAuthenticated } = useAuthStore();
   const addToast = useToastStore(s => s.addToast);
@@ -28,7 +30,6 @@ export default function CartView() {
 
   useEffect(() => {
       setIsClient(true);
-      // 👇 Uso de fetchApi (GET simple)
       fetchApi('/config')
         .then(res => res.json())
         .then(data => {
@@ -54,7 +55,6 @@ export default function CartView() {
     try {
         const itemsPayload = items.map(i => ({ id: i.id, quantity: i.quantity }));
 
-        // 👇 Uso de fetchApi (POST con Auth opcional)
         const response = await fetchApi('/sales/quote', {
             method: 'POST',
             headers: {
@@ -101,7 +101,6 @@ export default function CartView() {
     
     setIsProcessing(true);
     try {
-        // 👇 Uso de fetchApi para crear venta
         const res = await fetchApi('/sales', {
             method: 'POST',
             headers: { 
@@ -132,6 +131,7 @@ export default function CartView() {
   if (items.length === 0) {
     return (
       <div className="text-center py-20 bg-white rounded-lg border border-gray-100 shadow-sm">
+        <div className="text-6xl mb-4">🛒</div>
         <h1 className="text-3xl font-bold text-secondary mb-4">Tu carrito está vacío</h1>
         <a href="/productos" className="bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-opacity-90 transition-colors">Ir a la Tienda</a>
       </div>
@@ -223,4 +223,19 @@ export default function CartView() {
       <ConfirmModal isOpen={isClearModalOpen} title="Vaciar Carrito" message="¿Eliminar todo?" confirmText="Sí, vaciar" isDanger={true} onConfirm={() => { clearCart(); setIsClearModalOpen(false); }} onCancel={() => setIsClearModalOpen(false)} />
     </div>
   );
+}
+
+// 2. EXPORTACIÓN ENVUELTA (Safety First)
+export default function CartView() {
+    return (
+        <ErrorBoundary fallback={
+            <div className="p-8 text-center border-2 border-red-100 rounded-xl bg-red-50">
+                <h3 className="text-red-800 font-bold mb-2">Error en el carrito</h3>
+                <p className="text-red-600 text-sm mb-4">Ocurrió un problema al cargar tu pedido. Por favor intenta recargar.</p>
+                <button onClick={() => window.location.reload()} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm">Recargar Página</button>
+            </div>
+        }>
+            <CartContent />
+        </ErrorBoundary>
+    );
 }

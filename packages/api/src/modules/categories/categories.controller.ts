@@ -3,59 +3,25 @@ import { CategoryService } from './categories.service';
 
 const categoryService = new CategoryService();
 
-// 1. Obtener Categorías
 export const getAll = async (req: Request, res: Response) => {
   try {
-    // Si viene ?flat=true, pedimos la lista plana
     const flat = req.query.flat === 'true';
-    
-    // Llamada unificada al servicio
+    // 👇 CORRECCIÓN: Un solo argumento
     const categories = await categoryService.findAll(flat);
-    
     res.json({ success: true, data: categories });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
-  }
+  } catch (error: any) { res.status(500).json({ success: false, error: error.message }); }
 };
 
-// 2. Obtener por ID
-export const getById = async (req: Request, res: Response) => {
-  try {
-    const id = Number(req.params.id);
-    const category = await categoryService.findById(id);
-    if (!category) return res.status(404).json({ success: false, error: 'Categoría no encontrada' });
-    res.json({ success: true, data: category });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-};
-
-// 3. Crear Categoría
 export const create = async (req: Request, res: Response) => {
   try {
     const { nombre, padreId } = req.body;
+    if (!nombre) return res.status(400).json({ success: false, error: 'Nombre requerido' });
     
-    if (!nombre) return res.status(400).json({ success: false, error: 'El nombre es obligatorio' });
-
-    // Pasamos un OBJETO, como espera la nueva definición del servicio
-    const newCategory = await categoryService.create({ 
-        nombre, 
-        padreId: padreId ? Number(padreId) : null 
-    });
-    
-    res.status(201).json({ success: true, data: newCategory });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
-  }
+    // 👇 CORRECCIÓN: Pasamos un objeto
+    const newCat = await categoryService.create({ nombre, padreId: padreId ? Number(padreId) : null });
+    res.status(201).json({ success: true, data: newCat });
+  } catch (error: any) { res.status(500).json({ success: false, error: error.message }); }
 };
 
-// 4. Eliminar Categoría
-export const remove = async (req: Request, res: Response) => {
-  try {
-    const id = Number(req.params.id);
-    await categoryService.delete(id);
-    res.json({ success: true, message: 'Categoría eliminada' });
-  } catch (error: any) {
-    res.status(400).json({ success: false, error: error.message });
-  }
-};
+export const getById = async (req: Request, res: Response) => { try { const cat = await categoryService.findById(Number(req.params.id)); if (!cat) return res.status(404).json({error:'Not found'}); res.json({success:true, data: cat}); } catch (e:any) { res.status(500).json({error: e.message}); } };
+export const remove = async (req: Request, res: Response) => { try { await categoryService.delete(Number(req.params.id)); res.json({success:true}); } catch (e:any) { res.status(400).json({error: e.message}); } };

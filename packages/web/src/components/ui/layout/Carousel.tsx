@@ -3,12 +3,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import ProductCard from '../../store/product/ProductCard';
 
-// Importamos los estilos base de Swiper
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-// Definimos la interfaz localmente para compatibilidad
 export interface CarouselProduct {
   id: string;
   name: string;
@@ -27,7 +25,6 @@ interface CarouselProps {
 }
 
 export default function Carousel({ title, products }: CarouselProps) {
-  // Evitamos el loop si hay menos productos que los visibles para prevenir errores visuales
   const shouldLoop = products.length >= 4;
 
   if (!products || products.length === 0) return null;
@@ -36,13 +33,9 @@ export default function Carousel({ title, products }: CarouselProps) {
     <section className="mb-16 relative">
       <h2 className="text-3xl font-bold text-center mb-10 text-secondary">{title}</h2>
       
-      {/* 🖌️ ESTILOS PERSONALIZADOS SWIPER
-          Sobreescribimos las clases por defecto para darle branding.
-      */}
       <style>{`
-        /* Puntitos (Pagination) */
         .swiper-pagination-bullet {
-          background-color: #cbd5e1; /* Gris suave */
+          background-color: #cbd5e1;
           opacity: 1;
           width: 10px;
           height: 10px;
@@ -50,12 +43,10 @@ export default function Carousel({ title, products }: CarouselProps) {
           margin: 0 6px !important;
         }
         .swiper-pagination-bullet-active {
-          background-color: #2563eb; /* AZUL DE TU MARCA */
-          width: 30px; /* Efecto píldora estirada */
+          background-color: #2563eb;
+          width: 30px;
           border-radius: 6px;
         }
-        
-        /* Flechas de Navegación */
         .swiper-button-next, .swiper-button-prev {
           color: #1e293b;
           background-color: rgba(255, 255, 255, 0.9);
@@ -70,18 +61,8 @@ export default function Carousel({ title, products }: CarouselProps) {
           transform: scale(1.1);
           color: #2563eb;
         }
-        .swiper-button-next::after, .swiper-button-prev::after {
-          font-size: 18px;
-          font-weight: bold;
-        }
-        
-        /* Ajuste de padding para que no se corten las sombras de las cards */
-        .swiper {
-            padding-bottom: 50px !important;
-            padding-top: 10px !important;
-            padding-left: 10px !important;
-            padding-right: 10px !important;
-        }
+        .swiper-button-next::after, .swiper-button-prev::after { font-size: 18px; font-weight: bold; }
+        .swiper { padding: 10px 10px 50px 10px !important; }
       `}</style>
 
       <div className="relative px-4 md:px-12">
@@ -91,15 +72,8 @@ export default function Carousel({ title, products }: CarouselProps) {
           slidesPerView={1}
           loop={shouldLoop}
           navigation={true} 
-          pagination={{ 
-              clickable: true,
-              dynamicBullets: true // Oculta los puntos lejanos si hay muchos
-          }}
-          autoplay={{
-            delay: 5000,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true
-          }}
+          pagination={{ clickable: true, dynamicBullets: true }}
+          autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
           breakpoints={{
             640: { slidesPerView: 2 },
             768: { slidesPerView: 3 },
@@ -109,7 +83,10 @@ export default function Carousel({ title, products }: CarouselProps) {
         >
           {products.map((product) => (
             <SwiperSlide key={product.id} className="h-auto">
-              <ProductCard product={product} />
+              <ProductCard 
+                product={product} 
+                disableTransition={true} // 👈 CORRECCIÓN CRÍTICA
+              />
             </SwiperSlide>
           ))}
         </Swiper>

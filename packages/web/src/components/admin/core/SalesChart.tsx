@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useAuthStore } from '../../../stores/authStore';
 import { navigate } from 'astro:transitions/client';
+import { fetchApi } from '../../../utils/api'; // Usamos fetchApi para consistencia
 
 export default function SalesChart() {
   const { token } = useAuthStore();
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [year, setYear] = useState(new Date().getFullYear());
   const availableYears = [2024, 2025, 2026];
@@ -13,11 +14,13 @@ export default function SalesChart() {
   useEffect(() => {
     if (token) {
         setLoading(true);
-        fetch(`http://localhost:3002/api/sales/balance?year=${year}`, {
+        // fetchApi maneja la URL base automáticamente
+        fetchApi(`/sales/balance?year=${year}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
         .then(res => res.json())
         .then(res => { if (res.success) setData(res.data); })
+        .catch(err => console.error("Error chart:", err))
         .finally(() => setLoading(false));
     }
   }, [token, year]);
@@ -31,11 +34,10 @@ export default function SalesChart() {
   const formatCurrency = (value: number) => 
     new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(value);
 
-  // Cálculo de totales para el header
   const totalServices = data.reduce((acc: any, curr: any) => acc + curr.services, 0);
   const totalProducts = data.reduce((acc: any, curr: any) => acc + curr.products, 0);
 
-  if (loading && data.length === 0) return <div className="h-[350px] w-full bg-gray-50 rounded-2xl animate-pulse"></div>;
+  if (loading && data.length === 0) return <div className="h-[450px] w-full bg-gray-50 rounded-2xl animate-pulse"></div>;
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[450px] flex flex-col">
@@ -64,54 +66,55 @@ export default function SalesChart() {
             </select>
         </div>
 
-        <div className="flex-1 w-full min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} margin={{ top: 10, right: 0, left: -15, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                    <XAxis 
-                        dataKey="name" 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{ fill: '#9ca3af', fontSize: 12 }} 
-                        dy={10}
-                        tickFormatter={(val) => val.charAt(0).toUpperCase() + val.slice(1)}
-                    />
-                    <YAxis 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{ fill: '#9ca3af', fontSize: 11 }}
-                        tickFormatter={(value) => `$${value / 1000}k`}
-                    />
-                    <Tooltip 
-                        cursor={{ fill: '#f9fafb' }}
-                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
-                        formatter={(value: number) => [formatCurrency(value)]}
-                    />
-                    <Legend verticalAlign="top" height={36} iconType="circle" />
-                    
-                    {/* BARRA PRODUCTOS (Azul) */}
-                    <Bar 
-                        dataKey="products" 
-                        name="Productos" 
-                        fill="#4f46e5" 
-                        radius={[4, 4, 0, 0]} 
-                        maxBarSize={50}
-                        onClick={handleBarClick}
-                        cursor="pointer"
-                    />
-                    
-                    {/* BARRA SERVICIOS (Verde) */}
-                    <Bar 
-                        dataKey="services" 
-                        name="Servicios" 
-                        fill="#10b981" 
-                        radius={[4, 4, 0, 0]} 
-                        maxBarSize={50}
-                        onClick={handleBarClick}
-                        cursor="pointer"
-                    />
-                </BarChart>
-            </ResponsiveContainer>
+        {/* 👇 CONTENEDOR CON ALTURA EXPLÍCITA PARA EVITAR ERROR DE RECHARTS */}
+        <div className="flex-1 w-full min-h-0 relative"> 
+            <div className="absolute inset-0">
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data} margin={{ top: 10, right: 0, left: -15, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                        <XAxis 
+                            dataKey="name" 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fill: '#9ca3af', fontSize: 12 }} 
+                            dy={10}
+                            tickFormatter={(val) => val.charAt(0).toUpperCase() + val.slice(1)}
+                        />
+                        <YAxis 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fill: '#9ca3af', fontSize: 11 }}
+                            tickFormatter={(value) => `$${value / 1000}k`}
+                        />
+                        <Tooltip 
+                            cursor={{ fill: '#f9fafb' }}
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
+                            formatter={(value: number) => [formatCurrency(value)]}
+                        />
+                        <Legend verticalAlign="top" height={36} iconType="circle" />
+                        
+                        <Bar 
+                            dataKey="products" 
+                            name="Productos" 
+                            fill="#4f46e5" 
+                            radius={[4, 4, 0, 0]} 
+                            maxBarSize={50}
+                            onClick={handleBarClick}
+                            cursor="pointer"
+                        />
+                        
+                        <Bar 
+                            dataKey="services" 
+                            name="Servicios" 
+                            fill="#10b981" 
+                            radius={[4, 4, 0, 0]} 
+                            maxBarSize={50}
+                            onClick={handleBarClick}
+                            cursor="pointer"
+                        />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
         </div>
     </div>
   );

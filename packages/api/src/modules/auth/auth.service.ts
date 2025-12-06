@@ -1,10 +1,8 @@
 import bcrypt from 'bcryptjs';
 import { prisma } from '../../shared/database/prismaClient';
 import { JwtTokenService } from '../../shared/services/JwtTokenService';
-// 1. IMPORTAR LA LIBRERÍA DE GOOGLE
 import { OAuth2Client } from 'google-auth-library';
 
-// Tipos locales
 interface RegisterDTO {
   email: string;
   nombre: string;
@@ -19,12 +17,10 @@ interface LoginDTO {
 
 export class AuthService {
   private tokenService: JwtTokenService;
-  // 2. CLIENTE DE GOOGLE
   private googleClient: OAuth2Client;
 
   constructor() {
     this.tokenService = new JwtTokenService();
-    // Necesitas definir GOOGLE_CLIENT_ID en tu .env
     this.googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
   }
 
@@ -43,7 +39,6 @@ export class AuthService {
       },
     });
     
-    // Crear perfil de cliente automáticamente
     await prisma.cliente.create({ data: { userId: newUser.id } });
 
     const { password, ...userWithoutPassword } = newUser;
@@ -72,9 +67,7 @@ export class AuthService {
     return { user: userWithoutPassword, token };
   }
 
-  // 3. NUEVO MÉTODO: LOGIN CON GOOGLE
   async loginWithGoogle(googleToken: string) {
-    // A. Verificar el token con Google (Seguridad Crítica)
     const ticket = await this.googleClient.verifyIdToken({
         idToken: googleToken,
         audience: process.env.GOOGLE_CLIENT_ID,
@@ -84,11 +77,8 @@ export class AuthService {
     if (!payload || !payload.email) throw new Error('Token de Google inválido');
 
     const { email, given_name, family_name, sub: googleId } = payload;
-
-    // B. Buscar si el usuario ya existe
     let user = await prisma.user.findUnique({ where: { email } });
 
-    // C. Si no existe, lo creamos (Registro automático)
     if (!user) {
         user = await prisma.user.create({
             data: {
@@ -96,8 +86,7 @@ export class AuthService {
                 nombre: given_name || 'Usuario',
                 apellido: family_name || '',
                 googleId: googleId,
-                role: 'USER', // Por defecto
-                // No guardamos password porque entra por social
+                role: 'USER',
             }
         });
         

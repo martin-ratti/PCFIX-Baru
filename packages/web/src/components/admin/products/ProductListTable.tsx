@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { navigate } from 'astro:transitions/client';
 import { useToastStore } from '../../../stores/toastStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
-import { fetchApi } from '../../../utils/api'; // 👇 API Utility
+import { fetchApi } from '../../../utils/api';
+import ErrorBoundary from '../../ui/feedback/ErrorBoundary'; // 👇
 
-export default function ProductListTable() {
+// 1. COMPONENTE INTERNO
+function ProductListContent() {
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   
-  // Filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCat, setSelectedCat] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
@@ -21,19 +22,16 @@ export default function ProductListTable() {
   // Carga Inicial
   useEffect(() => {
     fetchProducts();
-    // 👇 fetchApi limpia
     fetchApi('/categories').then(res => res.json()).then(d => d.success && setCategories(d.data));
     fetchApi('/brands').then(res => res.json()).then(d => d.success && setBrands(d.data));
   }, [selectedCat, selectedBrand, onlyLowStock]);
 
-  // Debounce para búsqueda
   useEffect(() => {
       const timer = setTimeout(() => fetchProducts(), 500);
       return () => clearTimeout(timer);
   }, [searchTerm]);
 
   const fetchProducts = () => {
-    // 👇 URL relativa (fetchApi agrega el dominio y /api)
     let url = `/products?limit=50`;
     if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
     if (selectedCat) url += `&categoryId=${selectedCat}`;
@@ -49,7 +47,6 @@ export default function ProductListTable() {
   const handleDelete = async () => {
       if (!deleteId) return;
       try {
-          // 👇 fetchApi DELETE
           const res = await fetchApi(`/products/${deleteId}`, { method: 'DELETE' });
           if (res.ok) {
               addToast('Producto eliminado', 'success');
@@ -62,10 +59,9 @@ export default function ProductListTable() {
   return (
     <div className="space-y-6 animate-fade-in">
         
-        {/* BARRA DE HERRAMIENTAS */}
+        {/* Barra Herramientas */}
         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center">
             
-            {/* Buscador */}
             <div className="relative w-full md:w-1/3">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
                 <input 
@@ -77,7 +73,6 @@ export default function ProductListTable() {
                 />
             </div>
 
-            {/* Filtros */}
             <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
                 <select 
                     className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 focus:border-primary outline-none cursor-pointer"
@@ -105,13 +100,12 @@ export default function ProductListTable() {
                 </button>
             </div>
 
-            {/* Botón Nuevo */}
             <a href="/admin/nuevo" className="bg-primary text-white px-5 py-2 rounded-lg font-bold hover:bg-opacity-90 shadow-md transition-all whitespace-nowrap flex items-center gap-2">
                 <span>+</span> Nuevo
             </a>
         </div>
 
-        {/* TABLA DE PRODUCTOS */}
+        {/* Tabla */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <table className="w-full text-left border-collapse">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-400 font-bold">
@@ -126,26 +120,18 @@ export default function ProductListTable() {
                 <tbody className="divide-y divide-gray-100 text-sm">
                     {products.map((p) => (
                         <tr key={p.id} className="hover:bg-blue-50/30 transition-colors group">
-                            
-                            {/* Nombre y Marca */}
                             <td className="p-4 pl-6">
                                 <p className="font-bold text-gray-800 line-clamp-1 text-base">{p.nombre}</p>
                                 <p className="text-xs text-gray-400 font-medium">{p.marca?.nombre || 'Genérico'} • ID: {p.id}</p>
                             </td>
-
-                            {/* Categoría */}
                             <td className="p-4 hidden md:table-cell">
                                 <span className="bg-gray-100 text-gray-600 px-2.5 py-1 rounded-md text-xs font-medium">
                                     {p.categoria?.nombre}
                                 </span>
                             </td>
-
-                            {/* Precio */}
                             <td className="p-4 font-mono font-bold text-gray-700">
                                 ${Number(p.precio).toLocaleString('es-AR')}
                             </td>
-
-                            {/* Stock con Badges */}
                             <td className="p-4 text-center">
                                 {p.stock > 90000 ? (
                                     <span className="text-blue-600 bg-blue-50 px-2 py-1 rounded-md text-xs font-bold border border-blue-100">∞ Serv.</span>
@@ -155,8 +141,6 @@ export default function ProductListTable() {
                                     <span className="text-green-600 bg-green-50 px-2 py-1 rounded-md text-xs font-bold border border-green-100">{p.stock} OK</span>
                                 )}
                             </td>
-
-                            {/* Acciones */}
                             <td className="p-4 text-right pr-6">
                                 <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onClick={() => navigate(`/admin/editar/${p.id}`)} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100" title="Editar">
@@ -180,7 +164,6 @@ export default function ProductListTable() {
             </table>
         </div>
 
-        {/* Modal de Eliminación */}
         <ConfirmModal 
             isOpen={!!deleteId}
             title="Eliminar Producto"
@@ -192,4 +175,13 @@ export default function ProductListTable() {
         />
     </div>
   );
+}
+
+// 2. EXPORTACIÓN PROTEGIDA
+export default function ProductListTable() {
+    return (
+        <ErrorBoundary fallback={<div className="p-4 text-red-500 border border-red-200 rounded">Error cargando productos.</div>}>
+            <ProductListContent />
+        </ErrorBoundary>
+    );
 }

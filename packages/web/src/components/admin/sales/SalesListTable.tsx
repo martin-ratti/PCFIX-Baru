@@ -3,14 +3,15 @@ import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 import SaleDetailModal from './SaleDetailModal';
-import { fetchApi } from '../../../utils/api'; // 👇 API Utility
+import { fetchApi } from '../../../utils/api';
+import ErrorBoundary from '../../ui/feedback/ErrorBoundary'; // 👇
 
-export default function SalesListTable() {
+// 1. COMPONENTE INTERNO
+function SalesListContent() {
   const [sales, setSales] = useState<any[]>([]);
   const [filteredSales, setFilteredSales] = useState<any[]>([]);
   const [filter, setFilter] = useState<'VERIFICATION' | 'TO_SHIP' | 'SHIPPED' | 'ALL'>('VERIFICATION');
   
-  // Filtros
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedPayment, setSelectedPayment] = useState<string>('');
@@ -34,7 +35,6 @@ export default function SalesListTable() {
   const fetchSales = () => {
     if (!token) return;
     
-    // 👇 Uso de fetchApi (Url relativa)
     let url = '/sales?page=1';
     if (selectedMonth) url += `&month=${selectedMonth}`;
     if (selectedYear) url += `&year=${selectedYear}`;
@@ -69,7 +69,6 @@ export default function SalesListTable() {
   const executeAction = async () => {
       if (!actionSale) return;
       try {
-          // 👇 Uso de fetchApi (PUT Status)
           const res = await fetchApi(`/sales/${actionSale.id}/status`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -87,7 +86,7 @@ export default function SalesListTable() {
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden animate-fade-in">
       
-      {/* HEADER DE FILTROS */}
+      {/* Header Filtros */}
       <div className="p-4 bg-gray-50 border-b border-gray-200 flex flex-col gap-4">
         <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
             {['VERIFICATION', 'TO_SHIP', 'SHIPPED', 'ALL'].map(f => (
@@ -128,7 +127,7 @@ export default function SalesListTable() {
         </div>
       </div>
 
-      {/* TABLA */}
+      {/* Tabla */}
       <div className="overflow-x-auto min-h-[300px]">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-white">
@@ -195,4 +194,13 @@ export default function SalesListTable() {
       />
     </div>
   );
+}
+
+// 2. EXPORTACIÓN PROTEGIDA
+export default function SalesListTable() {
+    return (
+        <ErrorBoundary fallback={<div className="p-4 text-red-500 border border-red-200 rounded">Error cargando tabla de ventas.</div>}>
+            <SalesListContent />
+        </ErrorBoundary>
+    );
 }
