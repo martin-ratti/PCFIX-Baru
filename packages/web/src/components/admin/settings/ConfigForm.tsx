@@ -46,6 +46,7 @@ export default function ConfigForm() {
     }
   }, [setValue, token]);
 
+  // Función Guardar General
   const onSubmit = async (data: ConfigData) => {
     setIsLoading(true);
     try {
@@ -56,7 +57,7 @@ export default function ConfigForm() {
       });
       const json = await res.json();
       if (json.success) {
-        addToast('Configuración actualizada correctamente', 'success');
+        addToast('Cambios guardados correctamente', 'success');
       } else throw new Error(json.error);
     } catch (e: any) { addToast(e.message, 'error'); }
     finally { setIsLoading(false); }
@@ -75,11 +76,10 @@ export default function ConfigForm() {
           if (json.success) {
               const nuevoValor = Number(json.data.cotizacionUsdt);
               setValue('cotizacionUsdt', nuevoValor);
-              // Mostramos el toast con formato bonito (coma decimal)
               addToast(`¡Cotización actualizada a $${nuevoValor.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS!`, 'success');
           } else throw new Error(json.error);
       } catch (e: any) {
-          addToast('Error conectando con CriptoYa/Binance', 'error');
+          addToast('Error conectando con CriptoYa', 'error');
       } finally { setIsSyncing(false); }
   };
 
@@ -87,100 +87,137 @@ export default function ConfigForm() {
     <div className="max-w-4xl mx-auto animate-fade-in pb-12">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         
-        {/* BANCO */}
+        {/* === SECCIÓN BANCOS === */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center gap-2">
-                <span className="text-2xl">🏦</span> Transferencia Bancaria
-            </h2>
+            <div className="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
+                <div>
+                    <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <span className="text-2xl">🏦</span> Datos Bancarios
+                    </h2>
+                    <p className="text-sm text-gray-500 mt-1">Esta información se mostrará al cliente al elegir "Transferencia".</p>
+                </div>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Nombre del Banco</label>
-                  <input {...register('nombreBanco')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
+                  <label className="block text-sm font-bold text-gray-700">Nombre del Banco</label>
+                  <input {...register('nombreBanco')} className="w-full mt-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none" placeholder="Ej: Banco Nación" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Titular</label>
-                  <input {...register('titular')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
+                  <label className="block text-sm font-bold text-gray-700">Titular de la Cuenta</label>
+                  <input {...register('titular')} className="w-full mt-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none" placeholder="Ej: Juan Perez" />
                 </div>
                 <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700">CBU / CVU</label>
-                    <input {...register('cbu')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none font-mono transition-all" />
+                    <label className="block text-sm font-bold text-gray-700">CBU / CVU (22 dígitos)</label>
+                    <input {...register('cbu')} className="w-full mt-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none font-mono tracking-wide" placeholder="0000000000000000000000" />
                 </div>
                 <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700">Alias</label>
-                    <input {...register('alias')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none font-bold uppercase transition-all" />
+                    <label className="block text-sm font-bold text-gray-700">Alias</label>
+                    <input {...register('alias')} className="w-full mt-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none font-bold uppercase" placeholder="MI.ALIAS.MP" />
                 </div>
+            </div>
+
+            {/* Botón Específico Banco */}
+            <div className="mt-6 flex justify-end">
+                <button type="submit" disabled={isLoading} className="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-200 transition-colors">
+                    💾 Guardar Datos Bancarios
+                </button>
             </div>
         </div>
 
-        {/* CRYPTO */}
+        {/* === SECCIÓN CRYPTO === */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center gap-2">
-                <span className="text-2xl">🪙</span> Crypto & Cotizaciones
-            </h2>
+            <div className="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
+                <div>
+                    <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <span className="text-2xl">🪙</span> Crypto & Cotizaciones
+                    </h2>
+                    <p className="text-sm text-gray-500 mt-1">Configura tu billetera y el valor del dólar cripto.</p>
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Binance Pay ID (o Email)</label>
-                    <input {...register('binanceCbu')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400/30 outline-none font-mono transition-all" />
+                    <label className="block text-sm font-bold text-gray-700">Binance Pay ID / Email</label>
+                    <input {...register('binanceCbu')} className="w-full mt-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400/30 outline-none font-mono" placeholder="123456789" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Alias / Usuario</label>
-                    <input {...register('binanceAlias')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-yellow-400/30 outline-none transition-all" />
+                    <label className="block text-sm font-bold text-gray-700">Alias / Usuario</label>
+                    <input {...register('binanceAlias')} className="w-full mt-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400/30 outline-none" placeholder="@usuario" />
                 </div>
                 
-                <div className="md:col-span-2 bg-yellow-50 p-4 rounded-lg border border-yellow-100">
-                    <label className="block text-sm font-bold text-yellow-800 mb-1">Cotización 1 USDT (ARS - P2P)</label>
-                    <div className="flex gap-3">
-                        <div className="relative flex-1">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-600 font-bold">$</span>
+                <div className="md:col-span-2 bg-yellow-50 p-5 rounded-xl border border-yellow-200">
+                    <label className="block text-sm font-black text-yellow-900 mb-2">Cotización 1 USDT (Precio ARS)</label>
+                    <div className="flex gap-3 flex-wrap">
+                        <div className="relative flex-1 min-w-[150px]">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-700 font-bold">$</span>
                             <input 
                                 type="number" 
-                                step="0.01" /* 👈 PERMITE DECIMALES */
+                                step="0.01"
                                 {...register('cotizacionUsdt')} 
-                                className="w-full pl-8 p-2 border border-yellow-200 rounded-lg font-bold text-gray-800 focus:ring-2 focus:ring-yellow-400 outline-none" 
+                                className="w-full pl-8 p-3 border border-yellow-300 rounded-lg font-bold text-gray-800 focus:ring-2 focus:ring-yellow-500 outline-none text-lg bg-white" 
                                 placeholder="1200.00" 
                             />
                         </div>
+                        {/* Botón Descriptivo de Sync */}
                         <button 
                             onClick={handleSyncUsdt}
                             disabled={isSyncing}
-                            className="bg-black text-yellow-400 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-2 whitespace-nowrap disabled:opacity-70"
+                            className="bg-black text-yellow-400 px-5 py-3 rounded-lg font-bold text-sm hover:bg-gray-900 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-70 whitespace-nowrap"
+                            title="Obtiene el precio de venta P2P actual"
                         >
                             {isSyncing ? (
-                                <><div className="w-4 h-4 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div><span>Actualizando...</span></>
+                                <><div className="w-4 h-4 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div><span>Consultando...</span></>
                             ) : (
-                                <><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg><span>Sync Binance P2P</span></>
+                                <><span className="text-lg">🔄</span><span>Obtener precio de Internet</span></>
                             )}
                         </button>
                     </div>
-                    <p className="text-xs text-yellow-700 mt-1">
-                        Se actualiza automáticamente cada 4 horas.
+                    <p className="text-xs text-yellow-800 mt-2 font-medium">
+                        * El sistema actualiza este valor automáticamente cada 4 horas usando la referencia P2P.
                     </p>
                 </div>
             </div>
+
+            {/* Botón Específico Crypto */}
+            <div className="mt-6 flex justify-end">
+                <button type="submit" disabled={isLoading} className="text-sm bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg font-bold hover:bg-yellow-200 transition-colors">
+                    💾 Guardar Configuración Crypto
+                </button>
+            </div>
         </div>
 
-        {/* LOCAL */}
+        {/* === SECCIÓN LOCAL === */}
         <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center gap-2">
                 <span className="text-2xl">📍</span> Retiro en Local
             </h2>
             <div className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Dirección Completa</label>
-                    <input {...register('direccionLocal')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-green-400/30 outline-none transition-all" />
+                    <label className="block text-sm font-bold text-gray-700">Dirección Completa</label>
+                    <input {...register('direccionLocal')} className="w-full mt-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400/30 outline-none transition-all" placeholder="Calle 123, Ciudad" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Horarios de Atención</label>
-                    <input {...register('horariosLocal')} className="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-green-400/30 outline-none transition-all" />
+                    <label className="block text-sm font-bold text-gray-700">Horarios de Atención</label>
+                    <input {...register('horariosLocal')} className="w-full mt-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400/30 outline-none transition-all" placeholder="Lun a Vie 9 a 18hs" />
                 </div>
+            </div>
+            
+            {/* Botón Específico Local */}
+            <div className="mt-6 flex justify-end">
+                <button type="submit" disabled={isLoading} className="text-sm bg-green-100 text-green-800 px-4 py-2 rounded-lg font-bold hover:bg-green-200 transition-colors">
+                    💾 Guardar Datos del Local
+                </button>
             </div>
         </div>
         
-        <div className="flex justify-end pt-4 sticky bottom-0 bg-gray-50 py-4 -mx-4 px-4 border-t border-gray-200 md:static md:bg-transparent md:border-0 md:p-0">
-            <button disabled={isLoading} className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none w-full md:w-auto">
-                {isLoading ? 'Guardando...' : 'Guardar Configuración'}
+        {/* Botón Flotante Global (Opcional, pero útil si cambiaste varias cosas) */}
+        <div className="sticky bottom-4 z-10 flex justify-center">
+            <button disabled={isLoading} className="bg-gray-900 text-white px-8 py-3 rounded-full font-bold hover:bg-black transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none flex items-center gap-2">
+                <span>💾</span> Guardar TODOS los Cambios
             </button>
         </div>
+
       </form>
     </div>
   );

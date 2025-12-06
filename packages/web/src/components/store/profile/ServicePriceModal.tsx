@@ -1,26 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { useServiceStore, type ServiceItem } from '../../../stores/serviceStore';
-// 👇 CAMBIO 1: Usamos tu store de toasts
 import { useToastStore } from '../../../stores/toastStore';
+import { fetchApi } from '../../../utils/api';
 
-export default function ServicePriceModal() {
-  const { user, token } = useAuthStore();
-  const { items, fetchItems, updateItem } = useServiceStore();
-  const addToast = useToastStore(s => s.addToast); // 👇 Hook del toast
+// 👇 Aceptamos children para personalizar el botón disparador
+interface Props {
+    children?: React.ReactNode;
+}
+
+export default function ServicePriceModal({ children }: Props) {
+  const { user } = useAuthStore();
+  const { items, fetchItems } = useServiceStore();
+  const addToast = useToastStore(s => s.addToast);
   
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editValues, setEditValues] = useState<ServiceItem[]>([]);
 
-  // Cargar datos al abrir
   useEffect(() => {
     if (isOpen) {
       fetchItems().then(() => {
         setTimeout(() => {
             const currentItems = useServiceStore.getState().items;
             setEditValues([...currentItems]); 
-        }, 100);
+        }, 50);
       });
     }
   }, [isOpen]);
@@ -36,108 +40,86 @@ export default function ServicePriceModal() {
     try {
       const promises = editValues.map(async (item) => {
         const original = items.find((i) => i.id === item.id);
-        
-        // Solo si cambió el precio
         if (original && original.price !== item.price) {
-            const res = await fetch(`http://localhost:3002/api/technical/prices/${item.id}`, {
+            const res = await fetchApi(`/technical/prices/${item.id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ price: Number(item.price) })
             });
-
-            if (!res.ok) {
-                errorCount++;
-                throw new Error('Error saving');
-            } else {
-                successCount++;
-            }
+            if (!res.ok) { errorCount++; throw new Error('Error'); } 
+            else { successCount++; }
         }
       });
 
       await Promise.all(promises);
 
       if (errorCount === 0 && successCount > 0) {
-          // 👇 CAMBIO 2: Feedback con tu Toast personalizado
-          addToast('Tarifas actualizadas correctamente', 'success');
+          addToast('Tarifas actualizadas', 'success');
           setIsOpen(false);
-          
-          // 👇 CAMBIO 3: CRÍTICO - Recargar datos globales
-          // Esto hará que el componente ServicePriceList se actualice solo
-          await fetchItems(); 
+          await fetchItems();
       } else if (successCount === 0 && errorCount === 0) {
-          setIsOpen(false); // No hubo cambios
+          setIsOpen(false);
       } else {
-          addToast('Algunas tarifas no se pudieron actualizar', 'error');
+          addToast('Error al actualizar algunos precios', 'error');
       }
-
-    } catch (error) {
-      addToast('Error de conexión al guardar', 'error');
-    } finally {
-      setLoading(false);
-    }
+    } catch { addToast('Error de conexión', 'error'); } 
+    finally { setLoading(false); }
   };
 
   const handleChange = (id: number, val: string) => {
-    const numVal = parseInt(val) || 0;
-    setEditValues(prev => prev.map(p => p.id === id ? { ...p, price: numVal } : p));
+    const numVal = val === '' ? 0 : parseInt(val);
+    setEditValues(prev => prev.map(p => p.id === id ? { ...p, price: isNaN(numVal) ? 0 : numVal } : p));
   };
 
   return (
     <>
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-5 py-2.5 h-10 bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold rounded-full shadow-lg shadow-gray-900/20 transform active:scale-95 hover:scale-105 transition-all duration-200 whitespace-nowrap"
-        title="Editar precios de servicios técnicos"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-400">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-        </svg>
-        <span>Actualizar tarifas</span>
-      </button>
+      {/* 👇 EL TRIGGER AHORA ES LO QUE VENGA DE FUERA */}
+      <div onClick={() => setIsOpen(true)} className="cursor-pointer">
+          {children || (
+              // Fallback por si no pasan children (botón por defecto)
+              <button className="px-3 py-1 bg-gray-200 text-xs font-bold rounded">Tarifas</button>
+          )}
+      </div>
 
+      {/* MODAL (Igual que antes) */}
       {isOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
-            
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                <div className="flex items-center gap-2">
-                    <div className="p-2 bg-yellow-100 rounded-lg text-yellow-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in cursor-default">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100 flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/80 backdrop-blur-sm sticky top-0 z-10">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-yellow-100 rounded-lg text-yellow-600 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z" clipRule="evenodd" /></svg>
                     </div>
-                    <h3 className="font-bold text-lg text-gray-800">Gestión de Tarifas</h3>
+                    <div>
+                        <h3 className="font-bold text-lg text-gray-800 leading-tight">Precios de Servicios</h3>
+                        <p className="text-xs text-gray-500">Actualiza las tarifas del taller</p>
+                    </div>
                 </div>
-                <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50">✕</button>
+                <button onClick={(e) => { e.stopPropagation(); setIsOpen(false); }} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50">&times;</button>
             </div>
             
-            <form className="p-6 space-y-5 max-h-[60vh] overflow-y-auto">
-                {editValues.map((item) => (
-                    <div key={item.id} className="group">
-                        <div className="flex justify-between items-center mb-1">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">{item.title}</label>
-                            {item.price !== items.find(i => i.id === item.id)?.price && (
-                                <span className="text-[10px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded font-bold">Modificado</span>
-                            )}
+            <div className="p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+                {editValues.map((item) => {
+                    const isModified = item.price !== items.find(i => i.id === item.id)?.price;
+                    return (
+                        <div key={item.id} className={`group transition-all ${isModified ? 'bg-yellow-50/50 -mx-2 px-2 py-2 rounded-lg border border-yellow-100' : ''}`}>
+                            <div className="flex justify-between items-center mb-1.5">
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">{item.title}</label>
+                                {isModified && <span className="text-[10px] bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full font-bold shadow-sm">Modificado</span>}
+                            </div>
+                            <div className="relative group-focus-within:scale-[1.01] transition-transform">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold select-none">$</span>
+                                <input type="number" value={item.price} onChange={(e) => handleChange(item.id, e.target.value)} className={`w-full pl-7 pr-3 py-3 bg-gray-50 border rounded-xl focus:ring-2 outline-none font-mono text-lg font-bold text-gray-800 transition-all ${isModified ? 'border-yellow-300 focus:ring-yellow-200 bg-white' : 'border-gray-200 focus:ring-primary/20 focus:border-primary focus:bg-white'}`} />
+                            </div>
                         </div>
-                        <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
-                            <input 
-                                type="number" 
-                                value={item.price}
-                                onChange={(e) => handleChange(item.id, e.target.value)}
-                                className="w-full pl-7 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none font-mono text-lg font-bold text-gray-800 transition-all"
-                            />
-                        </div>
-                    </div>
-                ))}
-            </form>
+                    );
+                })}
+            </div>
 
-            <div className="p-5 border-t border-gray-100 flex gap-3 bg-gray-50/50">
-                <button onClick={() => setIsOpen(false)} type="button" className="flex-1 px-4 py-2.5 text-gray-600 font-bold hover:bg-gray-200/50 rounded-xl transition-colors">Cancelar</button>
-                <button onClick={handleSave} disabled={loading} type="button" className="flex-1 px-4 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/20 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2">
-                    {loading ? 'Guardando...' : 'Guardar'}
+            <div className="p-5 border-t border-gray-100 flex gap-3 bg-white sticky bottom-0 z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
+                <button onClick={(e) => { e.stopPropagation(); setIsOpen(false); }} type="button" className="flex-1 px-4 py-3 text-gray-600 font-bold hover:bg-gray-100 rounded-xl transition-colors text-sm">Cancelar</button>
+                <button onClick={handleSave} disabled={loading} type="button" className="flex-1 px-4 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 text-sm">
+                    {loading ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div><span>Guardando...</span></> : <><span>Guardar Cambios</span></>}
                 </button>
             </div>
           </div>
