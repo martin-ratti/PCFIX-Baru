@@ -11,7 +11,7 @@ export interface CarouselProduct {
   id: string;
   name: string;
   price: number;
-  originalPrice?: number | null; 
+  originalPrice?: number | null;
   imageUrl: string;
   imageAlt: string;
   stock: number;
@@ -32,7 +32,7 @@ export default function Carousel({ title, products }: CarouselProps) {
   return (
     <section className="mb-16 relative">
       <h2 className="text-3xl font-bold text-center mb-10 text-secondary">{title}</h2>
-      
+
       <style>{`
         .swiper-pagination-bullet {
           background-color: #cbd5e1;
@@ -71,7 +71,7 @@ export default function Carousel({ title, products }: CarouselProps) {
           spaceBetween={24}
           slidesPerView={1}
           loop={shouldLoop}
-          navigation={true} 
+          navigation={true}
           pagination={{ clickable: true, dynamicBullets: true }}
           autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
           breakpoints={{
@@ -83,9 +83,9 @@ export default function Carousel({ title, products }: CarouselProps) {
         >
           {products.map((product) => (
             <SwiperSlide key={product.id} className="h-auto">
-              <ProductCard 
-                product={product} 
-                disableTransition={true} // 👈 CORRECCIÓN CRÍTICA
+              <ProductCard
+                product={product}
+                disableTransition={true}
               />
             </SwiperSlide>
           ))}

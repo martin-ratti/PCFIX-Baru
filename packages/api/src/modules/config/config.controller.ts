@@ -13,7 +13,6 @@ export const getConfig = async (req: Request, res: Response) => {
         });
 
         if (!config) {
-            // Si no existe, creamos una por defecto (Autoreparación)
             const newConfig = await prisma.configuracion.create({
                 data: {
                     nombreBanco: "Banco Galicia",
@@ -36,7 +35,7 @@ export const getConfig = async (req: Request, res: Response) => {
 export const updateConfig = async (req: Request, res: Response) => {
     try {
         const data = req.body;
-        
+
         const updated = await prisma.configuracion.update({
             where: { id: 1 },
             data: {
@@ -63,22 +62,20 @@ export const updateConfig = async (req: Request, res: Response) => {
     }
 };
 
-// 👇 NUEVO: Sincronizar Cotización con Binance (Trigger)
+// Sincronizar Cotización
 export const syncUsdt = async (req: Request, res: Response) => {
     try {
-        // 1. Obtener precio real desde la API externa
         const price = await cryptoService.getUsdtPrice();
-        
-        // 2. Guardar en DB automáticamente
+
         const updated = await prisma.configuracion.update({
             where: { id: 1 },
             data: { cotizacionUsdt: price }
         });
 
-        res.json({ 
-            success: true, 
-            data: updated, 
-            message: `Cotización actualizada a $${price} ARS` 
+        res.json({
+            success: true,
+            data: updated,
+            message: `Cotización actualizada a $${price} ARS`
         });
     } catch (e: any) {
         console.error("Error sync:", e);

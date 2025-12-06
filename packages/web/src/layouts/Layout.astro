@@ -2,13 +2,11 @@
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 
-// 👇 COMPONENTES GLOBALES FLOTANTES
 import ToastContainer from '../components/ui/feedback/ToastContainer'; 
 import WhatsAppButton from '../components/ui/feedback/WhatsAppButton';
 
 interface Props { 
     title: string;
-    // 👇 Nuevas Props Opcionales para SEO (No rompen nada si no las pasas)
     description?: string;
     image?: string;
     price?: number;
@@ -21,7 +19,6 @@ const {
     price 
 } = Astro.props;
 
-// Lógica SEO: Construcción de URL absoluta para que WhatsApp detecte la imagen
 const siteUrl = import.meta.env.SITE || 'https://pcfixbaru.com.ar';
 const absoluteImageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
 const canonicalURL = new URL(Astro.url.pathname, siteUrl);
@@ -35,12 +32,11 @@ const canonicalURL = new URL(Astro.url.pathname, siteUrl);
         <link rel="icon" type="image/png" href="/favicon.svg" />
         <meta name="generator" content={Astro.generator} />
         
-        {/* SEO Básico */}
         <title>{title}</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={canonicalURL} />
 
-        {/* Open Graph (Facebook, WhatsApp) */}
+
         <meta property="og:type" content={price ? "product" : "website"} />
         <meta property="og:url" content={canonicalURL} />
         <meta property="og:title" content={title} />
@@ -48,13 +44,13 @@ const canonicalURL = new URL(Astro.url.pathname, siteUrl);
         <meta property="og:image" content={absoluteImageUrl} />
         <meta property="og:site_name" content="PC FIX" />
 
-        {/* Twitter Card */}
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={absoluteImageUrl} />
 
-        {/* Datos de Precio (Si es producto) */}
+
         {price && (
             <>
                 <meta property="product:price:amount" content={price.toString()} />
@@ -66,7 +62,7 @@ const canonicalURL = new URL(Astro.url.pathname, siteUrl);
     </head>
     <body class="bg-gray-50 min-h-screen flex flex-col text-gray-900 selection:bg-primary/20">
         
-        {/* 👇 NOTIFICACIONES Y CHAT FLOTANTE */}
+
         <ToastContainer client:load />
         <WhatsAppButton /> 
 

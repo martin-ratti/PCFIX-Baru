@@ -1,5 +1,3 @@
-// packages/web/src/data/mock-data.ts
-
 export interface Product {
   id: string;
   name: string;
@@ -13,7 +11,6 @@ export interface Product {
   isFeatured?: boolean;
 }
 
-// Helper para imágenes rápidas
 const getImg = (text: string) => `https://placehold.co/600x600/111626/F2F2F2?text=${text}`;
 
 export const featuredProducts: Product[] = [
@@ -43,7 +40,7 @@ export const customCarousel = {
 };
 
 export const allProducts: Product[] = [
-  ...featuredProducts, 
+  ...featuredProducts,
   ...saleProducts.filter(p => !featuredProducts.find(fp => fp.id === p.id)),
   ...customCarousel.products.filter(p => !featuredProducts.find(fp => fp.id === p.id) && !saleProducts.find(sp => sp.id === p.id))
 ];

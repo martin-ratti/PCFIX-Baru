@@ -16,13 +16,12 @@ export class FavoriteService {
         });
     }
 
-    // CORRECCIÓN: productId es el argumento, productoId es el campo de la DB
     async toggleFavorite(userId: number, productId: number) {
         const existingFavorite = await prisma.favorite.findUnique({
             where: {
                 userId_productoId: {
                     userId,
-                    productoId: productId, // Asignamos el argumento al campo
+                    productoId: productId,
                 }
             }
         });

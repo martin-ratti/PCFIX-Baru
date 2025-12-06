@@ -25,7 +25,6 @@ export const create = async (req: Request, res: Response) => {
     const newBanner = await bannerService.create(marcaId, imagenUrl);
     res.status(201).json({ success: true, data: newBanner });
   } catch (error: any) {
-    // Borrar la imagen subida si falla la creación en BD (opcional, buena práctica)
     res.status(400).json({ success: false, error: error.message });
   }
 };

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-// 1. Volvemos a importar 'persist' y añadimos 'createJSONStorage'
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Product } from '../data/mock-data';
 
@@ -17,7 +16,6 @@ interface CartState {
 }
 
 export const useCartStore = create<CartState>()(
-  // 2. Volvemos a envolver todo con el middleware 'persist'
   persist(
     (set) => ({
       items: [],
@@ -48,8 +46,7 @@ export const useCartStore = create<CartState>()(
       clearCart: () => set({ items: [] }),
     }),
     {
-      name: 'cart-session-storage', // Nombre para el sessionStorage
-      // 3. LA SOLUCIÓN: Le decimos a Zustand que use sessionStorage
+      name: 'cart-session-storage',
       storage: createJSONStorage(() => sessionStorage),
     }
   )

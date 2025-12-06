@@ -6,7 +6,7 @@ const router = Router();
 // 1. Listar todas
 router.get('/', CategoryController.getAll);
 
-// 👇 2. Obtener una por ID (NUEVA RUTA)
+// 2. Obtener una por ID
 router.get('/:id', CategoryController.getById);
 
 // 3. Crear (Admin)

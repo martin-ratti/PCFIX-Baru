@@ -10,9 +10,9 @@ export const createInquiry = async (req: Request, res: Response) => {
     try {
         const userId = (req as AuthRequest).user?.id;
         const { asunto, mensaje } = req.body;
-        
+
         if (!userId) return res.status(401).json({ success: false, error: 'Usuario no autenticado' });
-        
+
         const inquiry = await service.createInquiry(userId, asunto, mensaje);
         res.status(201).json({ success: true, data: inquiry });
     } catch (e: any) {
@@ -34,7 +34,7 @@ export const getMyInquiries = async (req: Request, res: Response) => {
     try {
         const userId = (req as AuthRequest).user?.id;
         if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
-        
+
         const results = await service.findInquiriesByUserId(userId);
         res.json({ success: true, data: results });
     } catch (e: any) {
@@ -53,7 +53,7 @@ export const replyInquiry = async (req: Request, res: Response) => {
     }
 };
 
-// --- PRECIOS (NUEVO) ---
+// --- PRECIOS ---
 
 export const getPrices = async (req: Request, res: Response) => {
     try {

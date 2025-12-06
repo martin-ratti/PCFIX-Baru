@@ -16,17 +16,14 @@ interface ToastState {
 
 export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
-  
+
   addToast: (message, type = 'info') => {
-    // Generamos ID único
     const id = Math.random().toString(36).substring(2, 9);
-    
-    // Agregamos el mensaje al array
+
     set((state) => ({
       toasts: [...state.toasts, { id, message, type }]
     }));
 
-    // Auto-eliminar después de 3 segundos
     setTimeout(() => {
       set((state) => ({
         toasts: state.toasts.filter((t) => t.id !== id)

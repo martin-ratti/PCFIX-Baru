@@ -22,14 +22,13 @@ export default function StoreNavigation() {
       .catch(console.error);
   }, []);
 
-  // SI ES ADMIN O NO ESTAMOS EN CLIENTE -> NO RENDERIZAR NADA
   if (!isClient || user?.role === 'ADMIN') return null;
 
   return (
     <div className="flex items-center space-x-8">
       {/* Dropdown de Categorías */}
-      <div 
-        className="relative group z-50" 
+      <div
+        className="relative group z-50"
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
       >
@@ -40,10 +39,9 @@ export default function StoreNavigation() {
           </svg>
         </button>
 
-        <div 
-          className={`absolute top-full left-0 w-56 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden transition-all duration-200 origin-top ${
-            isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
-          }`}
+        <div
+          className={`absolute top-full left-0 w-56 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden transition-all duration-200 origin-top ${isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
+            }`}
         >
           <div className="py-2">
             {categories.length > 0 ? (

@@ -8,14 +8,9 @@ import Carousel from '../components/ui/layout/Carousel.tsx';
 import BrandCarousel from '../components/ui/layout/BrandCarousel.tsx';
 import HomeBanners from '../components/ui/layout/HomeBanners.tsx';
 
-// 👇 NUEVOS COMPONENTES
 import FeaturesSection from '../components/ui/layout/FeaturesSection.astro';
 import CategoryGrid from '../components/ui/layout/CategoryGrid.astro';
 import PromoBanner from '../components/ui/layout/PromoBanner.astro';
-
-// ... (INTERFACES Y LOGICA DE FETCH IGUAL QUE ANTES - COPIA TU CÓDIGO DE LÓGICA AQUÍ)
-// ...
-// ... (Solo pego el template actualizado)
 
 interface ProductDB { id: number; nombre: string; descripcion: string; precio: string | number; precioOriginal: string | number | null; stock: number; foto: string | null; categoriaId: number; isFeatured: boolean; }
 interface ProductCardProps { id: string; name: string; price: number; imageUrl: string; imageAlt: string; originalPrice?: number | null; stock: number; slug: string; description: string; }
@@ -32,7 +27,7 @@ let errorApi = false;
 
 try {
   const [prodRes, brandRes, bannerRes] = await Promise.all([
-     fetch('http://localhost:3002/api/products?limit=30'), // Traemos un pool para distribuir
+     fetch('http://localhost:3002/api/products?limit=30'), 
      fetch('http://localhost:3002/api/brands'),
      fetch('http://localhost:3002/api/banners')
   ]);
@@ -41,7 +36,6 @@ try {
     const result = await prodRes.json();
     if (result.success) {
       allProducts = result.data;
-      // Filtros en memoria para el home (o podrías hacer fetchs especificos como en tu version anterior)
       featuredProducts = allProducts.filter(p => p.isFeatured).slice(0,8).map(mapProductToCard);
       saleProducts = allProducts.filter(p => p.precioOriginal).slice(0,8).map(mapProductToCard);
       newArrivalsProducts = allProducts.slice(0, 8).map(mapProductToCard);
@@ -64,18 +58,18 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
   
   <main class="min-h-screen bg-light pb-12">
     
-    {/* 1. Banners Principales */}
+
     <div class="container mx-auto px-6 pt-6">
       {banners.length > 0 ? <HomeBanners banners={banners} client:load /> : null}
     </div>
 
-    {/* 2. Barra de Confianza (NUEVO) */}
+
     <FeaturesSection />
 
-    {/* 3. Grilla de Categorías (NUEVO) */}
+
     <CategoryGrid />
 
-    {/* 4. Productos Destacados */}
+
     <div class="container mx-auto px-6 space-y-16 py-8">
       {featuredProducts.length > 0 && (
         <div class="space-y-4">
@@ -83,10 +77,10 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
         </div>
       )}
 
-      {/* 5. Banner Promocional (NUEVO - Rompe la monotonía) */}
+
       <PromoBanner />
           
-      {/* 6. Ofertas */}
+
       {saleProducts.length > 0 && (
         <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 relative overflow-hidden">
            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-pink-500"></div>
@@ -94,7 +88,7 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
         </div>
       )}
       
-      {/* 7. Novedades */}
+
       {newArrivalsProducts.length > 0 && (
         <div class="space-y-4">
           <Carousel title="🆕 Recién Llegados" products={newArrivalsProducts} client:visible />
@@ -105,7 +99,7 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
     </div>
   </main>
 
-  {/* 8. Marcas */}
+
   <div class="bg-white border-t border-gray-100 pt-12 pb-4"><BrandCarousel brands={brands} client:visible /></div>
   
   <Footer />

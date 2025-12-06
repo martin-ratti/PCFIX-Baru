@@ -1,4 +1,3 @@
-// packages/web/src/stores/authStore.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -25,17 +24,16 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       login: (token, user) => {
-          // Opcional: Podrías poner un timer aquí para hacer logout automático si expira
-          set({ token, user, isAuthenticated: true });
+        set({ token, user, isAuthenticated: true });
       },
       logout: () => {
-          localStorage.removeItem('auth-storage'); // Limpieza profunda
-          set({ token: null, user: null, isAuthenticated: false });
+        localStorage.removeItem('auth-storage');
+        set({ token: null, user: null, isAuthenticated: false });
       },
     }),
     {
       name: 'auth-storage',
-      storage: createJSONStorage(() => localStorage), 
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

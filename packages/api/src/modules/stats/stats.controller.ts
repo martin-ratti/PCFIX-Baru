@@ -3,23 +3,17 @@ import { prisma } from '../../shared/database/prismaClient';
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
-    // Ejecutamos consultas en paralelo
     const [
       totalProducts,
       lowStockProducts,
       totalUsers,
       recentSales,
-      pendingInquiries // 👇 NUEVO
+      pendingInquiries
     ] = await Promise.all([
       prisma.producto.count({ where: { deletedAt: null } }),
-      
       prisma.producto.count({ where: { deletedAt: null, stock: { lte: 5 } } }),
-
       prisma.user.count(),
-
       prisma.venta.count(),
-
-      // 👇 CONTAMOS LAS CONSULTAS PENDIENTES
       prisma.consultaTecnica.count({ where: { estado: 'PENDIENTE' } })
     ]);
 
@@ -30,7 +24,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         lowStockProducts,
         totalUsers,
         recentSales,
-        pendingInquiries // 👇 ENVIAMOS AL FRONT
+        pendingInquiries
       }
     });
 

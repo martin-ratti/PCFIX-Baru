@@ -14,18 +14,18 @@ export const getAll = async (req: Request, res: Response) => {
   }
 };
 
-// 👇 2. Obtener por ID (ESTE ES EL QUE FALTABA O FALLABA)
+// 2. Obtener por ID
 export const getById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ success: false, error: 'ID inválido' });
 
     const category = await categoryService.findById(id);
-    
+
     if (!category) {
-        return res.status(404).json({ success: false, error: 'Categoría no encontrada' });
+      return res.status(404).json({ success: false, error: 'Categoría no encontrada' });
     }
-    
+
     res.json({ success: true, data: category });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
@@ -37,7 +37,7 @@ export const create = async (req: Request, res: Response) => {
   try {
     const { nombre, padreId } = req.body;
     if (!nombre) return res.status(400).json({ success: false, error: 'Nombre requerido' });
-    
+
     const newCat = await categoryService.create({ nombre, padreId: padreId ? Number(padreId) : null });
     res.status(201).json({ success: true, data: newCat });
   } catch (error: any) {

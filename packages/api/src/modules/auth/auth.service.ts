@@ -38,7 +38,7 @@ export class AuthService {
         role: 'USER',
       },
     });
-    
+
     await prisma.cliente.create({ data: { userId: newUser.id } });
 
     const { password, ...userWithoutPassword } = newUser;
@@ -47,7 +47,7 @@ export class AuthService {
 
   async login(data: LoginDTO) {
     const user = await prisma.user.findUnique({ where: { email: data.email } });
-    
+
     if (!user) throw new Error('Credenciales inválidas');
 
     if (!user.password) {
@@ -69,10 +69,10 @@ export class AuthService {
 
   async loginWithGoogle(googleToken: string) {
     const ticket = await this.googleClient.verifyIdToken({
-        idToken: googleToken,
-        audience: process.env.GOOGLE_CLIENT_ID,
+      idToken: googleToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
-    
+
     const payload = ticket.getPayload();
     if (!payload || !payload.email) throw new Error('Token de Google inválido');
 
@@ -80,36 +80,32 @@ export class AuthService {
     let user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-        user = await prisma.user.create({
-            data: {
-                email,
-                nombre: given_name || 'Usuario',
-                apellido: family_name || '',
-                googleId: googleId,
-                role: 'USER',
-            }
-        });
-        
-        // Crear perfil de cliente automáticamente
-        await prisma.cliente.create({ data: { userId: user.id } });
-    } else {
-        // Si existe pero no tenía googleId (ej: se registró por form antes), lo vinculamos
-        if (!user.googleId) {
-            user = await prisma.user.update({
-                where: { id: user.id },
-                data: { googleId }
-            });
+      user = await prisma.user.create({
+        data: {
+          email,
+          nombre: given_name || 'Usuario',
+          apellido: family_name || '',
+          googleId: googleId,
+          role: 'USER',
         }
+      });
+
+      await prisma.cliente.create({ data: { userId: user.id } });
+    } else {
+      if (!user.googleId) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { googleId }
+        });
+      }
     }
 
-    // D. Generar NUESTRO token JWT (Igual que en login normal)
     const token = this.tokenService.generate({
-        id: user.id,
-        email: user.email,
-        role: user.role,
+      id: user.id,
+      email: user.email,
+      role: user.role,
     });
 
-    // Devolvemos el usuario y nuestro token (no el de Google)
     const { password, ...userWithoutPassword } = user;
     return { user: userWithoutPassword, token };
   }

@@ -5,10 +5,10 @@ import { authenticate, requireAdmin } from '../../shared/middlewares/authMiddlew
 const router = Router();
 
 // Rutas existentes
-router.get('/', Controller.getConfig); // Pública (para el checkout)
+router.get('/', Controller.getConfig);
 router.put('/', authenticate, requireAdmin, Controller.updateConfig);
 
-// 👇 NUEVA RUTA: Trigger de actualización
+// Trigger de actualización
 router.post('/sync-usdt', authenticate, requireAdmin, Controller.syncUsdt);
 
 export default router;

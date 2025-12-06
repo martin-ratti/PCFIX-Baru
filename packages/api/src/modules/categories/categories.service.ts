@@ -2,41 +2,37 @@ import { prisma } from '../../shared/database/prismaClient';
 import { Prisma } from '@prisma/client';
 
 export class CategoryService {
-  
-  // 1. Obtener todas (Ocultando Servicios)
+
+  // 1. Obtener todas
   async findAll(flat: boolean = false) {
-    
-    // 🔥 FILTRO: Excluir "Servicio" de los listados de categorías
+
     const excludeServices: Prisma.CategoriaWhereInput = {
-        NOT: {
-            nombre: { contains: 'Servicio', mode: 'insensitive' }
-        }
+      NOT: {
+        nombre: { contains: 'Servicio', mode: 'insensitive' }
+      }
     };
 
     if (flat) {
       return await prisma.categoria.findMany({
-          where: excludeServices,
-          orderBy: { nombre: 'asc' }
+        where: excludeServices,
+        orderBy: { nombre: 'asc' }
       });
     }
 
-    // Árbol jerárquico
     return await prisma.categoria.findMany({
-      where: { 
-          padreId: null,
-          ...excludeServices 
+      where: {
+        padreId: null,
+        ...excludeServices
       },
-      include: { 
-          subcategorias: {
-              where: excludeServices,
-              orderBy: { nombre: 'asc' }
-          }
+      include: {
+        subcategorias: {
+          where: excludeServices,
+          orderBy: { nombre: 'asc' }
+        }
       },
       orderBy: { nombre: 'asc' }
     });
   }
-
-  // ... (RESTO DE MÉTODOS ESTÁNDAR) ...
 
   async findById(id: number) {
     return await prisma.categoria.findUnique({ where: { id }, include: { subcategorias: true } });

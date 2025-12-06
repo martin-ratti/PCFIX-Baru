@@ -6,8 +6,7 @@ import { upload } from '../../shared/middlewares/uploadMiddleware';
 const router = Router();
 
 // --- RUTAS PÚBLICAS O SEMI-PÚBLICAS ---
-// Endpoint para cotizar (necesario para el carrito)
-router.post('/quote', authenticate, Controller.quoteShipping); 
+router.post('/quote', authenticate, Controller.quoteShipping);
 
 // --- RUTAS AUTENTICADAS ---
 router.get('/balance', authenticate, requireAdmin, Controller.getBalance);

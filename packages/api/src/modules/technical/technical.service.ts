@@ -20,9 +20,9 @@ export class TechnicalService {
     });
 
     if (user.email) {
-        this.emailService.sendNewInquiryNotification(
-            user.email, user.nombre || 'Usuario', asunto, mensaje
-        ).catch((err: any) => console.error("Fallo email nueva consulta:", err));
+      this.emailService.sendNewInquiryNotification(
+        user.email, user.nombre || 'Usuario', asunto, mensaje
+      ).catch((err: any) => console.error("Fallo email nueva consulta:", err));
     }
     return inquiry;
   }
@@ -30,34 +30,34 @@ export class TechnicalService {
   async findAllInquiries(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     const [total, items] = await prisma.$transaction([
-        prisma.consultaTecnica.count(),
-        prisma.consultaTecnica.findMany({
-            include: { user: true },
-            orderBy: { createdAt: 'desc' },
-            take: limit,
-            skip
-        })
+      prisma.consultaTecnica.count(),
+      prisma.consultaTecnica.findMany({
+        include: { user: true },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip
+      })
     ]);
-    return { data: items, meta: { total, page, lastPage: Math.ceil(total/limit), limit } };
+    return { data: items, meta: { total, page, lastPage: Math.ceil(total / limit), limit } };
   }
 
   async findInquiriesByUserId(userId: number) {
     return await prisma.consultaTecnica.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' }
+      where: { userId },
+      orderBy: { createdAt: 'desc' }
     });
   }
 
   async replyInquiry(id: number, respuesta: string) {
     const consulta = await prisma.consultaTecnica.update({
-        where: { id },
-        data: { respuesta, estado: EstadoConsulta.RESPONDIDO, respondedAt: new Date() },
-        include: { user: true }
+      where: { id },
+      data: { respuesta, estado: EstadoConsulta.RESPONDIDO, respondedAt: new Date() },
+      include: { user: true }
     });
 
     if (consulta.user?.email) {
-        this.emailService.sendReplyNotification(consulta.user.email, consulta.asunto, respuesta)
-            .catch((err: any) => console.error("Fallo al enviar email de respuesta:", err));
+      this.emailService.sendReplyNotification(consulta.user.email, consulta.asunto, respuesta)
+        .catch((err: any) => console.error("Fallo al enviar email de respuesta:", err));
     }
     return consulta;
   }
@@ -71,31 +71,27 @@ export class TechnicalService {
     });
   }
 
-  // 👇 AQUÍ ESTÁ LA MAGIA DE LA SINCRONIZACIÓN
+  // SINCRONIZACIÓN AUTOMÁTICA CON EL POS
   async updateServicePrice(id: number, price: number) {
-    // 1. Actualizamos el Servicio (Lo que se ve en la web pública)
+    // 1. Actualizamos el Servicio
     const serviceItem = await prisma.serviceItem.update({
       where: { id },
       data: { price }
     });
 
-    // 2. SINCRONIZACIÓN AUTOMÁTICA CON EL POS
-    // Buscamos el producto que corresponde a este servicio
-    // Convención: El producto se llama "Servicio: " + Titulo del servicio
     const productName = `Servicio: ${serviceItem.title}`;
-    
+
     const product = await prisma.producto.findFirst({
-        where: { nombre: productName }
+      where: { nombre: productName }
     });
 
     if (product) {
-        console.log(`🔄 Sincronizando precio POS para "${productName}": $${product.precio} -> $${price}`);
-        await prisma.producto.update({
-            where: { id: product.id },
-            data: { precio: price } // Actualizamos el precio en la tabla de productos
-        });
+      await prisma.producto.update({
+        where: { id: product.id },
+        data: { precio: price }
+      });
     } else {
-        console.warn(`⚠️ No se encontró producto POS para el servicio: ${serviceItem.title}`);
+      console.warn(`⚠️ No se encontró producto POS para el servicio: ${serviceItem.title}`);
     }
 
     return serviceItem;

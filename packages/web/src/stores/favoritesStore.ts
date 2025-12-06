@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 interface FavoritesState {
-  favoriteIds: number[]; // Solo guardamos IDs para acceso rápido
+  favoriteIds: number[];
   setFavorites: (ids: number[]) => void;
   addFavorite: (id: number) => void;
   removeFavorite: (id: number) => void;
@@ -11,31 +11,29 @@ interface FavoritesState {
 
 export const useFavoritesStore = create<FavoritesState>((set, get) => ({
   favoriteIds: [],
-  
+
   setFavorites: (ids) => set({ favoriteIds: ids }),
-  
-  addFavorite: (id) => set((state) => ({ 
-    favoriteIds: [...state.favoriteIds, id] 
+
+  addFavorite: (id) => set((state) => ({
+    favoriteIds: [...state.favoriteIds, id]
   })),
-  
-  removeFavorite: (id) => set((state) => ({ 
-    favoriteIds: state.favoriteIds.filter((fid) => fid !== id) 
+
+  removeFavorite: (id) => set((state) => ({
+    favoriteIds: state.favoriteIds.filter((fid) => fid !== id)
   })),
-  
+
   isFavorite: (id) => get().favoriteIds.includes(id),
 
   fetchFavorites: async (userId: number) => {
     try {
-      // Pedimos los favoritos al backend
       const res = await fetch(`http://localhost:3002/api/favorites/${userId}`);
       const json = await res.json();
       if (json.success) {
-        // Extraemos solo los IDs para el chequeo rápido
         const ids = json.data.map((p: any) => p.id);
         set({ favoriteIds: ids });
       }
     } catch (error) {
-      console.error("Error sincronizando favoritos:", error);
+
     }
   }
 }));

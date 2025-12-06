@@ -4,7 +4,6 @@ export class EmailService {
   private transporter;
 
   constructor() {
-    // Configuración del transporte SMTP (Gmail)
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
@@ -16,16 +15,14 @@ export class EmailService {
     });
   }
 
-  // --- MÉTODO BASE (Privado o Público según necesidad) ---
   async sendEmail(to: string, subject: string, htmlContent: string) {
     try {
-      const info = await this.transporter.sendMail({
+      await this.transporter.sendMail({
         from: `"PCFIX Notificaciones" <${process.env.SMTP_USER}>`,
         to,
         subject,
         html: htmlContent,
       });
-      console.log(`📧 Email enviado a ${to}: ${info.messageId}`);
       return true;
     } catch (error) {
       console.error('🔥 Error enviando email:', error);
@@ -33,11 +30,7 @@ export class EmailService {
     }
   }
 
-  // ==========================================
-  //      MÉTODOS DE SOPORTE TÉCNICO
-  // ==========================================
-
-  // 1. Notificar al Admin de una NUEVA consulta (User -> Admin)
+  // Notificar Consulta
   async sendNewInquiryNotification(userEmail: string, userName: string, subject: string, message: string) {
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
     const emailSubject = `🔧 Nueva Consulta Técnica: ${subject}`;
@@ -59,10 +52,10 @@ export class EmailService {
     return await this.sendEmail(adminEmail, emailSubject, html);
   }
 
-  // 2. Notificar al Usuario de una RESPUESTA (Admin -> User)
+  // Notificar Respuesta
   async sendReplyNotification(userEmail: string, asuntoOriginal: string, respuestaTecnico: string) {
     const subject = `Respuesta a tu consulta: ${asuntoOriginal}`;
-    
+
     const html = `
       <div style="font-family: sans-serif; color: #333; max-width: 600px;">
         <h2 style="color: #1d4ed8;">Soporte Técnico PCFIX</h2>
@@ -84,15 +77,11 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  // ==========================================
-  //           MÉTODOS DE VENTAS
-  // ==========================================
-
-  // 3. Notificar al Admin de un COMPROBANTE SUBIDO (User -> Admin)
+  // Notificar Comprobante
   async sendNewReceiptNotification(saleId: number, userEmail: string) {
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || ''; 
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
     const subject = `💸 Nuevo Comprobante - Orden #${saleId}`;
-    
+
     const html = `
       <div style="font-family: sans-serif; color: #333;">
         <h2 style="color: #16a34a;">Pago Pendiente de Revisión</h2>
@@ -104,13 +93,13 @@ export class EmailService {
     return await this.sendEmail(adminEmail, subject, html);
   }
 
-  // 4. Notificar al Cliente cambio de ESTADO (Admin -> User)
+  // Notificar Cambio de Estado
   async sendStatusUpdate(userEmail: string, saleId: number, newStatus: string) {
     const statusMap: Record<string, string> = {
-        'APROBADO': '¡Tu pago fue aprobado! Estamos preparando tu pedido.',
-        'RECHAZADO': 'Hubo un problema con tu pago. Por favor revisa el comprobante o contáctanos.',
-        'CANCELADO': 'Tu pedido ha sido cancelado.',
-        'PENDIENTE_APROBACION': 'Estamos verificando tu pago. Te avisaremos pronto.'
+      'APROBADO': '¡Tu pago fue aprobado! Estamos preparando tu pedido.',
+      'RECHAZADO': 'Hubo un problema con tu pago. Por favor revisa el comprobante o contáctanos.',
+      'CANCELADO': 'Tu pedido ha sido cancelado.',
+      'PENDIENTE_APROBACION': 'Estamos verificando tu pago. Te avisaremos pronto.'
     };
 
     const mensaje = statusMap[newStatus] || `El estado de tu pedido cambió a: ${newStatus}`;
@@ -128,7 +117,7 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  // 5. Notificar al Cliente de DESPACHO (Admin -> User)
+  // Notificar Despacho
   async sendDispatchNotification(userEmail: string, saleId: number, trackingCode: string) {
     const subject = `🚀 ¡Tu pedido #${saleId} está en camino!`;
     const trackingLink = `https://www.correoargentino.com.ar/formularios/e-commerce?id=${trackingCode}`;

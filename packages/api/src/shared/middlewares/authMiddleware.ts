@@ -1,7 +1,7 @@
 // packages/api/src/shared/middlewares/authMiddleware.ts
 import { Request, Response, NextFunction } from 'express';
 import { JwtTokenService } from '../services/JwtTokenService';
-import { prisma } from '../database/prismaClient'; // Importamos Prisma
+import { prisma } from '../database/prismaClient';
 
 const tokenService = new JwtTokenService();
 
@@ -16,28 +16,24 @@ export interface AuthRequest extends Request {
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ success: false, error: 'Token no proporcionado o formato inválido' });
     }
 
     const token = authHeader.split(' ')[1];
-    
-    // 1. Verificación Criptográfica
+
     const decoded: any = tokenService.verify(token);
-    
-    // 2. 🔒 SEGURIDAD CRÍTICA: Verificación de Existencia
-    // Nos aseguramos de que el usuario no haya sido eliminado o bloqueado
+
     const userExists = await prisma.user.findUnique({
-        where: { id: decoded.id },
-        select: { id: true, email: true, role: true } // Solo traemos lo necesario
+      where: { id: decoded.id },
+      select: { id: true, email: true, role: true }
     });
 
     if (!userExists) {
-        return res.status(401).json({ success: false, error: 'El usuario ya no existe o fue deshabilitado' });
+      return res.status(401).json({ success: false, error: 'El usuario ya no existe o fue deshabilitado' });
     }
 
-    // Inyectamos el usuario fresco de la DB
     (req as AuthRequest).user = userExists as any;
 
     next();

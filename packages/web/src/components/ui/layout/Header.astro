@@ -19,11 +19,11 @@ try {
 } catch (e) { if (import.meta.env.DEV) console.warn("⚠️ API Categorías offline."); categories = []; }
 ---
 
-{/* Header Sticky con Transición Suave */}
+
 <header class="bg-accent shadow-md sticky top-0 z-50 transition-all duration-300 ease-in-out border-b border-white/5" id="main-header">
   <nav class="container mx-auto px-6 py-3 flex justify-between items-center gap-6 transition-all duration-300" id="header-nav">
     
-    {/* IZQUIERDA */}
+
     <div class="shrink-0 flex items-center gap-6">
       <a href="/" class="block hover:opacity-90 transition-opacity">
         <Image 
@@ -38,7 +38,7 @@ try {
       <CategoryDropdown initialCategories={categories} client:load />
     </div>
     
-    {/* CENTRO */}
+
     <div class="flex-1 flex justify-center w-full max-w-5xl">
       <div class="w-full flex items-center gap-4">
         <SearchBar client:load />
@@ -46,7 +46,7 @@ try {
       </div>
     </div>
 
-    {/* DERECHA */}
+
     <div class="flex items-center gap-6 shrink-0">
       <PublicLinks client:load />
       <div class="h-6 w-px bg-white/10 mx-2 hidden md:block"></div>
@@ -59,7 +59,7 @@ try {
 </header>
 
 <style>
-    /* Estilo "Compacto" al hacer scroll */
+
     header.is-scrolled {
         @apply shadow-xl bg-accent/95 backdrop-blur-md py-0;
     }
@@ -74,7 +74,7 @@ try {
 </style>
 
 <script>
-    // 👇 ESTO ES CLAVE PARA QUE FUNCIONE CON NAVEGACIÓN DE ASTRO
+
     document.addEventListener('astro:page-load', () => {
         const header = document.getElementById('main-header');
         
@@ -86,10 +86,10 @@ try {
             }
         };
 
-        // Escuchar scroll
+
         window.addEventListener('scroll', handleScroll);
         
-        // Ejecutar una vez al cargar por si ya estamos scrolleados
+
         handleScroll();
     });
 </script>

@@ -6,7 +6,6 @@ export class JwtTokenService {
   private readonly expiresIn = '7d';
 
   constructor() {
-    // 🔒 SEGURIDAD: Fail Fast. Si no hay secreto, la app explota al inicio (mejor que arrancar insegura)
     if (!process.env.JWT_SECRET) {
       throw new Error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
     }

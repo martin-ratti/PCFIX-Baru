@@ -2,8 +2,8 @@
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro'; 
-import Header from '../../components/ui/layout/Header.astro'; // Vuelve Header
-import Footer from '../../components/ui/layout/Footer.astro'; // Vuelve Footer
+import Header from '../../components/ui/layout/Header.astro';
+import Footer from '../../components/ui/layout/Footer.astro';
 import AddToCart from '../../components/store/product/AddToCart.tsx';
 
 interface Product {
@@ -47,12 +47,11 @@ if (!product) {
     image={product.foto || undefined}
     price={Number(product.precio)}
 >
-  {/* 👇 HEADER AGREGADO */}
   <Header />
 
   <main class="container mx-auto px-6 py-12 min-h-[80vh]">
     
-    {/* Breadcrumb */}
+
     <nav class="text-sm text-gray-500 mb-8 flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-2">
       <a href="/" class="hover:text-primary transition-colors">Inicio</a> 
       <span>/</span> 
@@ -63,7 +62,7 @@ if (!product) {
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start animate-fade-in">
       
-      {/* COLUMNA IMAGEN (6/12 - Un poco más grande para destacar) */}
+
       <div class="lg:col-span-6 bg-white rounded-2xl border border-gray-100 p-8 flex items-center justify-center relative overflow-hidden shadow-sm group">
          {product.precioOriginal && Number(product.precioOriginal) > Number(product.precio) && (
             <div class="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg z-10">
@@ -78,10 +77,10 @@ if (!product) {
          />
       </div>
 
-      {/* COLUMNA INFO (6/12) */}
+
       <div class="lg:col-span-6 space-y-8">
         
-        {/* Título y Categoría */}
+
         <div>
           <div class="flex items-center gap-2 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
               <span>{product.marca?.nombre || 'General'}</span>
@@ -92,7 +91,7 @@ if (!product) {
             {product.nombre}
           </h1>
           
-          {/* Stock Badge */}
+
           <div class="flex items-center gap-2">
              <span class={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${product.stock > 0 ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
                {product.stock > 0 ? 'Disponible' : 'Sin Stock'}
@@ -105,7 +104,7 @@ if (!product) {
           </div>
         </div>
 
-        {/* Precios */}
+
         <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200/60">
           {product.precioOriginal && Number(product.precioOriginal) > Number(product.precio) ? (
             <div class="flex flex-col">
@@ -127,7 +126,7 @@ if (!product) {
             </p>
           )}
           
-          {/* BOTONES DE ACCIÓN */}
+
           <div class="mt-8 flex gap-3">
               <div class="flex-grow">
                  <AddToCart 
@@ -147,7 +146,7 @@ if (!product) {
                  />
               </div>
 
-              {/* BOTÓN COMPARTIR */}
+
               <button 
                   id="share-btn"
                   class="bg-white border-2 border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 p-3 rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center w-14 group relative"
@@ -161,7 +160,7 @@ if (!product) {
           </div>
         </div>
 
-        {/* Descripción */}
+
         <div>
           <h3 class="text-lg font-bold text-secondary mb-4 flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
@@ -172,7 +171,7 @@ if (!product) {
           </div>
         </div>
 
-        {/* Beneficios */}
+
         <div class="grid grid-cols-2 gap-4">
           <div class="flex items-center gap-3 p-4 bg-blue-50/50 border border-blue-100 rounded-xl">
               <div class="p-2 bg-white text-blue-600 rounded-full shadow-sm">
@@ -198,12 +197,10 @@ if (!product) {
     </div>
   </main>
 
-  {/* 👇 FOOTER AGREGADO */}
   <Footer />
 </Layout>
 
 <script>
-    // Lógica Client-Side para compartir
     const shareBtn = document.getElementById('share-btn');
     
     if (shareBtn) {
@@ -216,13 +213,11 @@ if (!product) {
                 try {
                     await navigator.share({ title, text, url });
                 } catch (err) {
-                    // El usuario canceló, no pasa nada
+                    // Canceled
                 }
             } else {
-                // Fallback para PC: Copiar al portapapeles
                 try {
                     await navigator.clipboard.writeText(url || '');
-                    // Cambiamos el icono temporalmente para dar feedback visual
                     const originalHTML = shareBtn.innerHTML;
                     shareBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><polyline points="20 6 9 17 4 12"/></svg>`;
                     setTimeout(() => shareBtn.innerHTML = originalHTML, 2000);

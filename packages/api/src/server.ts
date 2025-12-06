@@ -21,7 +21,7 @@ import technicalRoutes from './modules/technical/technical.routes';
 // Imports de Manejo de Errores y Servicios
 import { AppError } from './shared/utils/AppError';
 import { globalErrorHandler } from './shared/middlewares/errorMiddleware';
-import { CronService } from './shared/services/cron.service'; // 👇 Importamos Cron
+import { CronService } from './shared/services/cron.service';
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -29,15 +29,14 @@ const PORT = process.env.PORT || 3002;
 // --- SEGURIDAD Y CONFIGURACIÓN ---
 
 const whitelist = [
-  'http://localhost:4321',          
-  'http://localhost:3002',          
-  'https://pcfixbaru.com.ar',       
-  'https://www.pcfixbaru.com.ar',   
+  'http://localhost:4321',
+  'http://localhost:3002',
+  'https://pcfixbaru.com.ar',
+  'https://www.pcfixbaru.com.ar',
 ];
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
-    // Permitir requests sin origin (como Postman o Server-to-Server)
     if (!origin || whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -78,9 +77,9 @@ app.use('/api/technical', technicalRoutes);
 app.get('/health', async (req: Request, res: Response) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.status(200).json({ 
-      success: true, 
-      message: 'API is healthy', 
+    res.status(200).json({
+      success: true,
+      message: 'API is healthy',
       database: 'Connected',
       environment: process.env.NODE_ENV || 'development'
     });
@@ -105,12 +104,11 @@ app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 
-  // Iniciar Cron Jobs
   try {
-      new CronService().start();
+    new CronService().start();
   } catch (e) {
-      console.error('❌ Error iniciando Cron Jobs:', e);
+    console.error('❌ Error iniciando Cron Jobs:', e);
   }
 });
 
-export default app; // Exportar app para tests si fuera necesario
+export default app;
