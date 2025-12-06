@@ -4,13 +4,12 @@ import { useServiceStore, type ServiceItem } from '../../../stores/serviceStore'
 import { useToastStore } from '../../../stores/toastStore';
 import { fetchApi } from '../../../utils/api';
 
-// 👇 Aceptamos children para personalizar el botón disparador
 interface Props {
     children?: React.ReactNode;
 }
 
 export default function ServicePriceModal({ children }: Props) {
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore(); // Get token here
   const { items, fetchItems } = useServiceStore();
   const addToast = useToastStore(s => s.addToast);
   
@@ -41,13 +40,16 @@ export default function ServicePriceModal({ children }: Props) {
       const promises = editValues.map(async (item) => {
         const original = items.find((i) => i.id === item.id);
         if (original && original.price !== item.price) {
+            // 👇 FIX: Add Authorization header
             const res = await fetchApi(`/technical/prices/${item.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
                 body: JSON.stringify({ price: Number(item.price) })
             });
-            if (!res.ok) { errorCount++; throw new Error('Error'); } 
-            else { successCount++; }
+            if (!res.ok) { errorCount++; throw new Error(); } else { successCount++; }
         }
       });
 
@@ -62,7 +64,7 @@ export default function ServicePriceModal({ children }: Props) {
       } else {
           addToast('Error al actualizar algunos precios', 'error');
       }
-    } catch { addToast('Error de conexión', 'error'); } 
+    } catch { addToast('Error de conexión o permisos', 'error'); } 
     finally { setLoading(false); }
   };
 
@@ -73,15 +75,12 @@ export default function ServicePriceModal({ children }: Props) {
 
   return (
     <>
-      {/* 👇 EL TRIGGER AHORA ES LO QUE VENGA DE FUERA */}
-      <div onClick={() => setIsOpen(true)} className="cursor-pointer">
+      <div onClick={() => setIsOpen(true)}>
           {children || (
-              // Fallback por si no pasan children (botón por defecto)
               <button className="px-3 py-1 bg-gray-200 text-xs font-bold rounded">Tarifas</button>
           )}
       </div>
 
-      {/* MODAL (Igual que antes) */}
       {isOpen && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in cursor-default">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100 flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
