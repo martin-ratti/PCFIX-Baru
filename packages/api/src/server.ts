@@ -18,9 +18,10 @@ import configRoutes from './modules/config/config.routes';
 import favoritesRoutes from './modules/favorites/favorites.routes';
 import technicalRoutes from './modules/technical/technical.routes';
 
-// Imports de Manejo de Errores
+// Imports de Manejo de Errores y Servicios
 import { AppError } from './shared/utils/AppError';
 import { globalErrorHandler } from './shared/middlewares/errorMiddleware';
+import { CronService } from './shared/services/cron.service'; // 👇 Importamos Cron
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -36,6 +37,7 @@ const whitelist = [
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
+    // Permitir requests sin origin (como Postman o Server-to-Server)
     if (!origin || whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -91,16 +93,24 @@ app.get('/health', async (req: Request, res: Response) => {
 // --- MANEJO DE ERRORES GLOBAL (Siempre al final) ---
 
 // 1. Manejo de rutas inexistentes (404)
-// 👇 CORRECCIÓN: Usamos app.use() sin ruta para evitar el error de path-to-regexp
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`No se encontró la ruta ${req.originalUrl} en este servidor`, 404));
 });
 
-// 2. Middleware de Errores (Centralizado)
+// 2. Middleware de Errores
 app.use(globalErrorHandler);
 
 // --- INICIO DEL SERVIDOR ---
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  // Iniciar Cron Jobs
+  try {
+      new CronService().start();
+  } catch (e) {
+      console.error('❌ Error iniciando Cron Jobs:', e);
+  }
 });
+
+export default app; // Exportar app para tests si fuera necesario

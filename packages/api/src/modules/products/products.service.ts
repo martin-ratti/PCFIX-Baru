@@ -88,7 +88,24 @@ export class ProductService {
   // ... (Resto de métodos: findById, create, update, delete se mantienen igual)
   async findById(id: number) { return await prisma.producto.findFirst({ where: { id, deletedAt: null }, include: { categoria: true, marca: true } }); }
   async create(data: any) { return await prisma.producto.create({ data: { nombre: data.nombre, descripcion: data.descripcion, precio: Number(data.precio), stock: Number(data.stock), foto: data.foto, categoriaId: Number(data.categoriaId), marcaId: data.marcaId ? Number(data.marcaId) : null, peso: Number(data.peso||0.5), alto: Number(data.alto||10), ancho: Number(data.ancho||10), profundidad: Number(data.profundidad||10) } }); }
-  async update(id: number, data: any) { const updateData: any = { ...data, precio: Number(data.precio), stock: Number(data.stock), categoriaId: Number(data.categoriaId) }; if (data.foto) updateData.foto = data.foto; return await prisma.producto.update({ where: { id }, data: updateData }); }
-  async delete(id: number) { return await prisma.producto.update({ where: { id }, data: { deletedAt: new Date() } }); }
+    async update(id: number, data: any) {
+    // Solo asignamos si el valor existe, para evitar NaN en updates parciales
+    const updateData: any = { ...data };
+
+    if (data.precio !== undefined) updateData.precio = Number(data.precio);
+    if (data.stock !== undefined) updateData.stock = Number(data.stock);
+    if (data.categoriaId !== undefined) updateData.categoriaId = Number(data.categoriaId);
+    if (data.marcaId !== undefined) updateData.marcaId = data.marcaId ? Number(data.marcaId) : null;
+    
+    // Logística
+    if (data.peso !== undefined) updateData.peso = Number(data.peso);
+    if (data.alto !== undefined) updateData.alto = Number(data.alto);
+    if (data.ancho !== undefined) updateData.ancho = Number(data.ancho);
+    if (data.profundidad !== undefined) updateData.profundidad = Number(data.profundidad);
+
+    if (data.foto) updateData.foto = data.foto;
+    
+    return await prisma.producto.update({ where: { id }, data: updateData });
+  }  async delete(id: number) { return await prisma.producto.update({ where: { id }, data: { deletedAt: new Date() } }); }
   async restore(id: number) { return await prisma.producto.update({ where: { id }, data: { deletedAt: null } }); }
 }

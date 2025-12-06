@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
-import { fetchApi } from '../../../utils/api'; // 👇 API Utility
+import { fetchApi } from '../../../utils/api';
+import ConfirmModal from '../../ui/feedback/ConfirmModal'; // 👇 Modal
 
 interface Brand { id: number; nombre: string; }
 interface Banner { id: number; imagen: string; marca: Brand; }
@@ -13,10 +14,12 @@ export default function BannerManager() {
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
   const addToast = useToastStore(s => s.addToast);
   const [bannerName, setBannerName] = useState<string | null>(null);
+  
+  // Estado para eliminar
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const fetchData = async () => {
     try {
-      // 👇 fetchApi con Promise.all
       const [brandRes, bannerRes] = await Promise.all([
           fetchApi('/brands'), 
           fetchApi('/banners')
@@ -43,7 +46,6 @@ export default function BannerManager() {
       formData.append('marcaId', data.marcaId);
       if (data.imagenFile && data.imagenFile[0]) formData.append('imagen', data.imagenFile[0]);
 
-      // 👇 fetchApi con FormData (Sin content-type manual)
       const res = await fetchApi('/banners', { method: 'POST', body: formData });
       const json = await res.json();
       if (json.success) {
@@ -55,14 +57,14 @@ export default function BannerManager() {
     } catch (e: any) { addToast(e.message, 'error'); } finally { setIsLoading(false); }
   };
 
-  const handleDelete = async (id: number) => {
-    if(!confirm('¿Eliminar banner?')) return;
+  const confirmDelete = async () => {
+    if(!deleteId) return;
     try { 
-        // 👇 fetchApi DELETE
-        await fetchApi(`/banners/${id}`, { method: 'DELETE' }); 
+        await fetchApi(`/banners/${deleteId}`, { method: 'DELETE' }); 
         fetchData(); 
         addToast('Banner eliminado', 'success'); 
     } catch (e) { addToast('Error', 'error'); }
+    finally { setDeleteId(null); }
   };
 
   return (
@@ -108,7 +110,7 @@ export default function BannerManager() {
         <div className="grid grid-cols-1 gap-6">
           {banners.map(b => (
             <div key={b.id} className="relative group rounded-xl overflow-hidden shadow-md bg-black">
-              <button onClick={() => handleDelete(b.id)} className="absolute top-3 right-3 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20 hover:bg-red-700 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+              <button onClick={() => setDeleteId(b.id)} className="absolute top-3 right-3 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20 hover:bg-red-700 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
               <img src={b.imagen} alt={`Banner ${b.marca.nombre}`} className="w-full h-48 object-cover opacity-90" />
               <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 to-transparent p-4"><span className="text-white font-bold flex items-center gap-2">Link: <span className="bg-white/20 px-2 py-0.5 rounded text-sm uppercase backdrop-blur-sm">{b.marca.nombre}</span></span></div>
             </div>
@@ -116,6 +118,16 @@ export default function BannerManager() {
         </div>
         )}
       </div>
+
+      <ConfirmModal 
+        isOpen={!!deleteId} 
+        title="Eliminar Banner" 
+        message="¿Estás seguro? Se eliminará del inicio." 
+        confirmText="Sí, eliminar" 
+        isDanger={true} 
+        onConfirm={confirmDelete} 
+        onCancel={() => setDeleteId(null)} 
+      />
     </div>
   );
 }

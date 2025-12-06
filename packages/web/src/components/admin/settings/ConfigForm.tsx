@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
-import { fetchApi } from '../../../utils/api'; // 👇 API Utility
+import { fetchApi } from '../../../utils/api';
 
 interface ConfigData {
   nombreBanco: string;
@@ -17,20 +17,17 @@ interface ConfigData {
 }
 
 export default function ConfigForm() {
-  const { register, handleSubmit, setValue } = useForm<ConfigData>();
+  const { register, handleSubmit, setValue, watch } = useForm<ConfigData>();
   const { token } = useAuthStore();
   const addToast = useToastStore(s => s.addToast);
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false); 
 
-  // 1. Carga Inicial
+  // Carga Inicial
   useEffect(() => {
     if(token) {
-        // 👇 fetchApi (GET)
-        fetchApi('/config', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
+        fetchApi('/config', { headers: { 'Authorization': `Bearer ${token}` } })
           .then(res => res.json())
           .then(data => {
             if (data.success && data.data) {
@@ -42,49 +39,33 @@ export default function ConfigForm() {
               setValue('binanceCbu', data.data.binanceCbu);
               setValue('direccionLocal', data.data.direccionLocal);
               setValue('horariosLocal', data.data.horariosLocal);
-              setValue('cotizacionUsdt', data.data.cotizacionUsdt);
+              setValue('cotizacionUsdt', Number(data.data.cotizacionUsdt));
             }
           })
-          .catch(e => {
-              console.error(e);
-              // No es crítico mostrar error aquí, fetchApi ya manejó si fue 500
-          });
+          .catch(console.error);
     }
   }, [setValue, token]);
 
-  // 2. Guardar Configuración
   const onSubmit = async (data: ConfigData) => {
     setIsLoading(true);
     try {
-      // 👇 fetchApi (PUT)
       const res = await fetchApi('/config', {
         method: 'PUT',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(data)
       });
       const json = await res.json();
-      
       if (json.success) {
         addToast('Configuración actualizada correctamente', 'success');
-      } else {
-        throw new Error(json.error || 'Fallo al guardar');
-      }
-    } catch (e: any) { 
-        addToast(e.message || 'Error al guardar', 'error');
-    }
+      } else throw new Error(json.error);
+    } catch (e: any) { addToast(e.message, 'error'); }
     finally { setIsLoading(false); }
   };
 
-  // 3. Sincronizar Binance
   const handleSyncUsdt = async (e: React.MouseEvent) => {
       e.preventDefault(); 
       setIsSyncing(true);
-      
       try {
-          // 👇 fetchApi (POST)
           const res = await fetchApi('/config/sync-usdt', {
               method: 'POST',
               headers: { 'Authorization': `Bearer ${token}` }
@@ -94,20 +75,16 @@ export default function ConfigForm() {
           if (json.success) {
               const nuevoValor = Number(json.data.cotizacionUsdt);
               setValue('cotizacionUsdt', nuevoValor);
-              addToast(`¡Cotización actualizada a $${nuevoValor} ARS!`, 'success');
-          } else {
-              throw new Error(json.error);
-          }
+              // Mostramos el toast con formato bonito (coma decimal)
+              addToast(`¡Cotización actualizada a $${nuevoValor.toLocaleString('es-AR', { minimumFractionDigits: 2 })} ARS!`, 'success');
+          } else throw new Error(json.error);
       } catch (e: any) {
-          addToast('Error conectando con Binance', 'error');
-      } finally {
-          setIsSyncing(false);
-      }
+          addToast('Error conectando con CriptoYa/Binance', 'error');
+      } finally { setIsSyncing(false); }
   };
 
   return (
-    <div className="max-w-4xl mx-auto animate-fade-in">
-      
+    <div className="max-w-4xl mx-auto animate-fade-in pb-12">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         
         {/* BANCO */}
@@ -151,15 +128,16 @@ export default function ConfigForm() {
                 </div>
                 
                 <div className="md:col-span-2 bg-yellow-50 p-4 rounded-lg border border-yellow-100">
-                    <label className="block text-sm font-bold text-yellow-800 mb-1">Cotización 1 USDT (ARS)</label>
+                    <label className="block text-sm font-bold text-yellow-800 mb-1">Cotización 1 USDT (ARS - P2P)</label>
                     <div className="flex gap-3">
                         <div className="relative flex-1">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-600 font-bold">$</span>
                             <input 
                                 type="number" 
+                                step="0.01" /* 👈 PERMITE DECIMALES */
                                 {...register('cotizacionUsdt')} 
                                 className="w-full pl-8 p-2 border border-yellow-200 rounded-lg font-bold text-gray-800 focus:ring-2 focus:ring-yellow-400 outline-none" 
-                                placeholder="1150" 
+                                placeholder="1200.00" 
                             />
                         </div>
                         <button 
@@ -168,20 +146,14 @@ export default function ConfigForm() {
                             className="bg-black text-yellow-400 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-2 whitespace-nowrap disabled:opacity-70"
                         >
                             {isSyncing ? (
-                                <>
-                                   <div className="w-4 h-4 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div>
-                                   <span>Buscando...</span>
-                                </>
+                                <><div className="w-4 h-4 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div><span>Actualizando...</span></>
                             ) : (
-                                <>
-                                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
-                                   <span>Sincronizar Binance</span>
-                                </>
+                                <><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg><span>Sync Binance P2P</span></>
                             )}
                         </button>
                     </div>
                     <p className="text-xs text-yellow-700 mt-1">
-                        Este valor se usará para calcular el total en crypto en el checkout.
+                        Se actualiza automáticamente cada 4 horas.
                     </p>
                 </div>
             </div>
