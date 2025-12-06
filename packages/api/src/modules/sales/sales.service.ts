@@ -3,6 +3,15 @@ import { VentaEstado } from '@prisma/client';
 import { EmailService } from '../../shared/services/EmailService';
 import { ShippingService, ShippingItem } from '../../shared/services/ShippingService';
 
+interface SaleItemInput { id: number; quantity: number; }
+
+// 👇 INTERFAZ CORREGIDA (Sin precioUnitario)
+interface SaleLineItem {
+    productoId: number;
+    cantidad: number;
+    subTotal: number;
+}
+
 export class SalesService {
   private emailService: EmailService;
   private shippingService: ShippingService;
@@ -12,19 +21,14 @@ export class SalesService {
     this.shippingService = new ShippingService();
   }
 
-  // --- NUEVO MÉTODO: COTIZAR (Para el Carrito) ---
+  // --- 1. COTIZAR ENVÍO ---
   async getQuote(zipCode: string, items: { id: number; quantity: number }[]) {
-    // 1. Obtener datos reales de los productos (Peso y Dimensiones)
     const productIds = items.map((i) => Number(i.id));
     const dbProducts = await prisma.producto.findMany({
       where: { id: { in: productIds } },
-      select: { 
-        id: true, peso: true, 
-        alto: true, ancho: true, profundidad: true 
-      }
+      select: { id: true, peso: true, alto: true, ancho: true, profundidad: true }
     });
 
-    // 2. Mapear a formato logístico
     const shippingItems: ShippingItem[] = items.map((item) => {
       const product = dbProducts.find((p) => p.id === Number(item.id));
       return {
@@ -36,62 +40,48 @@ export class SalesService {
       };
     });
 
-    // 3. Consultar a Zippin
     return await this.shippingService.calculateCost(zipCode, shippingItems);
   }
 
-  // 1. CREAR VENTA (Checkout Web)
-  async createSale(
-      userId: number, 
-      items: any[], 
-      _frontendSubtotal: number, 
-      cpDestino?: string,
-      tipoEntrega: string = 'ENVIO', 
-      medioPago: string = 'TRANSFERENCIA'
-  ) {
+  // --- 2. CREAR VENTA WEB (Checkout) ---
+  async createSale(userId: number, items: any[], _frontendSubtotal: number, cpDestino?: string, tipoEntrega: string = 'ENVIO', medioPago: string = 'TRANSFERENCIA') {
     let cliente = await prisma.cliente.findUnique({ where: { userId } });
-    if (!cliente) {
-      cliente = await prisma.cliente.create({ data: { userId } });
-    }
+    if (!cliente) cliente = await prisma.cliente.create({ data: { userId } });
 
     const productIds = items.map((i: any) => Number(i.id));
-    const dbProducts = await prisma.producto.findMany({
-        where: { id: { in: productIds } },
-        select: { 
-            id: true, peso: true, precio: true, stock: true, nombre: true,
-            alto: true, ancho: true, profundidad: true 
-        }
-    });
+    const dbProducts = await prisma.producto.findMany({ where: { id: { in: productIds } } });
 
     let subtotalReal = 0;
-    const lineasParaCrear: { productoId: number; cantidad: number; subTotal: number }[] = [];
+    const lineasParaCrear: SaleLineItem[] = [];
     const itemsParaEnvio: ShippingItem[] = [];
 
     for (const item of items) {
         const dbProduct = dbProducts.find(p => p.id === Number(item.id));
         if (!dbProduct) throw new Error(`Producto ${item.id} no encontrado`);
-        if (dbProduct.stock < item.quantity) throw new Error(`Stock insuficiente: ${dbProduct.nombre}`);
+        
+        if (dbProduct.stock < 90000 && dbProduct.stock < item.quantity) {
+            throw new Error(`Stock insuficiente: ${dbProduct.nombre}`);
+        }
 
         const precio = Number(dbProduct.precio);
-        const subTotal = precio * item.quantity;
-        subtotalReal += subTotal;
+        subtotalReal += precio * item.quantity;
         
-        lineasParaCrear.push({
-            productoId: dbProduct.id,
-            cantidad: item.quantity,
-            subTotal: subTotal
+        // 👇 Sin precioUnitario
+        lineasParaCrear.push({ 
+            productoId: dbProduct.id, 
+            cantidad: item.quantity, 
+            subTotal: precio * item.quantity
         });
-
-        itemsParaEnvio.push({
-            weight: Number(dbProduct.peso) || 0.1,
-            height: dbProduct.alto || 10,
-            width: dbProduct.ancho || 10,
-            depth: dbProduct.profundidad || 10,
-            quantity: item.quantity
+        
+        itemsParaEnvio.push({ 
+            weight: Number(dbProduct.peso)||0.1, 
+            height: dbProduct.alto||10, 
+            width: dbProduct.ancho||10, 
+            depth: dbProduct.profundidad||10, 
+            quantity: item.quantity 
         });
     }
 
-    // Calcular envío usando Zippin
     let costoEnvio = 0;
     if (tipoEntrega === 'ENVIO') {
         if (cpDestino) {
@@ -102,16 +92,12 @@ export class SalesService {
         }
     }
 
-    const finalTotal = subtotalReal + costoEnvio;
-
     return await prisma.$transaction(async (tx) => {
       const venta = await tx.venta.create({
         data: {
           cliente: { connect: { id: cliente!.id } },
-          montoTotal: finalTotal,
-          costoEnvio: costoEnvio,
-          tipoEntrega: tipoEntrega,
-          medioPago: medioPago,
+          montoTotal: subtotalReal + costoEnvio,
+          costoEnvio, tipoEntrega, medioPago,
           metodoEnvio: tipoEntrega === 'RETIRO' ? "RETIRO_LOCAL" : "ZIPPIN_LOGISTICA",
           estado: VentaEstado.PENDIENTE_PAGO,
           lineasVenta: { create: lineasParaCrear }
@@ -120,192 +106,112 @@ export class SalesService {
       });
 
       for (const linea of lineasParaCrear) {
-        await tx.producto.update({
-          where: { id: linea.productoId },
-          data: { stock: { decrement: linea.cantidad } }
-        });
-      }
-      return venta;
-    });
-  }
-
-  // 2. VENTA MANUAL (POS Admin)
-  async createManualSale(
-      adminUserId: number, 
-      targetUserEmail: string, 
-      items: any[], 
-      medioPago: string,
-      estadoInicial: VentaEstado = VentaEstado.ENTREGADO 
-  ) {
-    let user = await prisma.user.findUnique({ where: { email: targetUserEmail } });
-    if (!user) throw new Error("Cliente no encontrado.");
-
-    let cliente = await prisma.cliente.findUnique({ where: { userId: user.id } });
-    if (!cliente) cliente = await prisma.cliente.create({ data: { userId: user.id } });
-
-    const productIds = items.map((i: any) => Number(i.id));
-    const dbProducts = await prisma.producto.findMany({
-        where: { id: { in: productIds } },
-        select: { id: true, precio: true, stock: true, nombre: true }
-    });
-
-    let subtotalReal = 0;
-    const lineasParaCrear: { productoId: number; cantidad: number; subTotal: number }[] = [];
-
-    for (const item of items) {
-        const dbProduct = dbProducts.find(p => p.id === Number(item.id));
-        if (!dbProduct) throw new Error(`Producto ${item.id} no encontrado`);
-        
-        if (dbProduct.stock < item.quantity && dbProduct.stock < 90000) {
-             throw new Error(`Stock insuficiente: ${dbProduct.nombre}`);
-        }
-
-        const precio = Number(dbProduct.precio);
-        const subTotal = precio * item.quantity;
-        subtotalReal += subTotal;
-
-        lineasParaCrear.push({
-            productoId: dbProduct.id,
-            cantidad: item.quantity,
-            subTotal: subTotal
-        });
-    }
-
-    return await prisma.$transaction(async (tx) => {
-      const venta = await tx.venta.create({
-        data: {
-          cliente: { connect: { id: cliente!.id } },
-          montoTotal: subtotalReal,
-          costoEnvio: 0, 
-          tipoEntrega: "RETIRO",
-          medioPago: medioPago,
-          metodoEnvio: "POS_MANUAL", 
-          estado: estadoInicial,
-          lineasVenta: { create: lineasParaCrear }
-        }
-      });
-
-      for (const linea of lineasParaCrear) {
         const prod = dbProducts.find(p => p.id === linea.productoId);
         if (prod && prod.stock < 90000) {
-            await tx.producto.update({
-              where: { id: linea.productoId },
-              data: { stock: { decrement: linea.cantidad } }
-            });
+            await tx.producto.update({ where: { id: linea.productoId }, data: { stock: { decrement: linea.cantidad } } });
         }
       }
       return venta;
     });
   }
 
-  // 3. SUBIR COMPROBANTE
-  async uploadReceipt(saleId: number, receiptUrl?: string) {
-    const dataToUpdate: any = { estado: VentaEstado.PENDIENTE_APROBACION };
-    if (receiptUrl) dataToUpdate.comprobante = receiptUrl;
+  // --- 3. CREAR VENTA MANUAL (POS) ---
+  async createManualSale(data: { customerEmail: string, items: SaleItemInput[], medioPago: string, estado: string }) {
+      
+      let user = await prisma.user.findUnique({ where: { email: data.customerEmail } });
+      
+      if (!user) {
+          user = await prisma.user.create({
+              data: {
+                  email: data.customerEmail,
+                  nombre: 'Cliente',
+                  apellido: 'Mostrador',
+                  password: '', 
+                  role: 'USER'
+              }
+          });
+      }
 
-    const updatedSale = await prisma.venta.update({
-      where: { id: saleId },
-      data: dataToUpdate,
-      include: { cliente: { include: { user: true } } }
-    });
+      let client = await prisma.cliente.findUnique({ where: { userId: user.id } });
+      if (!client) client = await prisma.cliente.create({ data: { userId: user.id, direccion: 'Local', telefono: '' } });
 
-    if (updatedSale.cliente?.user?.email) {
-        this.emailService.sendNewReceiptNotification(saleId, updatedSale.cliente.user.email)
-            .catch(console.error);
-    }
-    return updatedSale;
+      const productIds = data.items.map(i => i.id);
+      const dbProducts = await prisma.producto.findMany({ where: { id: { in: productIds } } });
+
+      let total = 0;
+      const saleLines: SaleLineItem[] = [];
+
+      for (const item of data.items) {
+          const product = dbProducts.find(p => p.id === item.id);
+          if (!product) throw new Error(`Producto ${item.id} no encontrado`);
+
+          if (product.stock < 90000 && product.stock < item.quantity) {
+              throw new Error(`Stock insuficiente para ${product.nombre}. Hay ${product.stock}.`);
+          }
+
+          const price = Number(product.precio);
+          total += price * item.quantity;
+          
+          // 👇 Sin precioUnitario
+          saleLines.push({ 
+              productoId: product.id, 
+              cantidad: item.quantity, 
+              subTotal: price * item.quantity 
+          });
+      }
+
+      return await prisma.$transaction(async (tx) => {
+          const sale = await tx.venta.create({
+              data: {
+                  clienteId: client!.id,
+                  fecha: new Date(),
+                  estado: data.estado as any,
+                  medioPago: data.medioPago,
+                  montoTotal: total,
+                  tipoEntrega: 'RETIRO',
+                  lineasVenta: { create: saleLines }
+              }
+          });
+
+          for (const line of saleLines) {
+              const product = dbProducts.find(p => p.id === line.productoId);
+              if (product && product.stock < 90000) { 
+                  await tx.producto.update({ where: { id: line.productoId }, data: { stock: { decrement: line.cantidad } } });
+              }
+          }
+          return sale;
+      });
   }
 
-  // 4. CAMBIAR MÉTODO PAGO
-  async updatePaymentMethod(saleId: number, medioPago: string) {
-    const sale = await prisma.venta.findUnique({ where: { id: saleId } });
-    if (!sale) throw new Error("Venta no encontrada");
-    if (sale.estado !== VentaEstado.PENDIENTE_PAGO) throw new Error("Venta en proceso");
-
-    return await prisma.venta.update({ where: { id: saleId }, data: { medioPago } });
-  }
-
-  // 5. CANCELAR ORDEN
-  async cancelOrder(saleId: number) {
-    const sale = await prisma.venta.findUnique({ 
-        where: { id: saleId },
-        include: { lineasVenta: true }
-    });
-    if (!sale || sale.estado !== VentaEstado.PENDIENTE_PAGO) throw new Error("No se puede cancelar");
-
-    await prisma.$transaction(async (tx) => {
-        for (const linea of sale.lineasVenta) {
-            await tx.producto.update({
-                where: { id: linea.productoId },
-                data: { stock: { increment: linea.cantidad } }
-            });
-        }
-        await tx.venta.update({ where: { id: saleId }, data: { estado: VentaEstado.CANCELADO } });
-    });
-    return { success: true, message: "Orden cancelada" };
-  }
-
-  // 6. ACTUALIZAR ESTADO
-  async updateStatus(saleId: number, status: VentaEstado) {
-    const updatedSale = await prisma.venta.update({
-      where: { id: saleId },
-      data: { estado: status },
-      include: { cliente: { include: { user: true } } }
-    });
-    if (updatedSale.cliente?.user?.email) {
-        this.emailService.sendStatusUpdate(updatedSale.cliente.user.email, saleId, status).catch(console.error);
-    }
-    return updatedSale;
-  }
-
-  // 7. DESPACHAR
-  async dispatchSale(saleId: number, trackingCode: string) {
-    const sale = await prisma.venta.findUnique({ where: { id: saleId } });
-    if (!sale || sale.estado !== VentaEstado.APROBADO) throw new Error("Debe estar APROBADO");
-
-    const updatedSale = await prisma.venta.update({
-      where: { id: saleId },
-      data: { estado: VentaEstado.ENVIADO, codigoSeguimiento: trackingCode },
-      include: { cliente: { include: { user: true } } }
-    });
-    if (updatedSale.cliente?.user?.email) {
-        this.emailService.sendDispatchNotification(updatedSale.cliente.user.email, saleId, trackingCode).catch(console.error);
-    }
-    return updatedSale;
-  }
-  
-  // 8. LISTAR TODO
-  async findAll(page: number = 1, limit: number = 10, month?: number, year?: number, paymentMethod?: string) {
-      const skip = (page - 1) * limit;
-      let whereClause: any = {};
+  // --- RESTO DE MÉTODOS ---
+  async findAll(page: number, limit: number, userId?: number, month?: number, year?: number, paymentMethod?: string) {
+      const where: any = {};
+      if (userId) where.cliente = { userId };
+      
       if (month && year) {
           const startDate = new Date(year, month - 1, 1);
-          const endDate = new Date(year, month, 0, 23, 59, 59, 999);
-          whereClause.fecha = { gte: startDate, lte: endDate };
+          const endDate = new Date(year, month, 0, 23, 59, 59);
+          where.fecha = { gte: startDate, lte: endDate };
       } else if (year) {
           const startDate = new Date(year, 0, 1);
-          const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
-          whereClause.fecha = { gte: startDate, lte: endDate };
+          const endDate = new Date(year, 11, 31, 23, 59, 59);
+          where.fecha = { gte: startDate, lte: endDate };
       }
-      if (paymentMethod) whereClause.medioPago = paymentMethod;
+      if (paymentMethod) where.medioPago = paymentMethod;
 
       const [total, sales] = await prisma.$transaction([
-        prisma.venta.count({ where: whereClause }),
-        prisma.venta.findMany({
-          where: whereClause,
-          include: { 
-            cliente: { include: { user: true } },
-            lineasVenta: { include: { producto: true } } 
-          },
-          orderBy: { fecha: 'desc' },
-          take: limit,
-          skip
-        })
+          prisma.venta.count({ where }),
+          prisma.venta.findMany({
+              where,
+              include: { cliente: { include: { user: true } }, lineasVenta: { include: { producto: true } } },
+              orderBy: { fecha: 'desc' },
+              skip: (page - 1) * limit,
+              take: limit
+          })
       ]);
-      return { data: sales, meta: { total, page, lastPage: Math.ceil(total/limit), limit } };
+      return { data: sales, meta: { total, page, lastPage: Math.ceil(total / limit), limit } };
   }
 
-  // 9. BUSCAR POR ID
   async findById(id: number) {
       return await prisma.venta.findUnique({
           where: { id },
@@ -313,7 +219,6 @@ export class SalesService {
       });
   }
 
-  // 10. MIS COMPRAS
   async findByUserId(userId: number, limit: number = 20) {
     return await prisma.venta.findMany({
       where: { cliente: { userId } },
@@ -323,7 +228,6 @@ export class SalesService {
     });
   }
 
-  // 11. BALANCE MENSUAL
   async getMonthlyBalance(year: number) {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year, 11, 31, 23, 59, 59);
@@ -352,9 +256,12 @@ export class SalesService {
             let saleServices = 0;
             let saleProducts = 0;
             v.lineasVenta.forEach(line => {
-                const categoria = line.producto.categoria.nombre.toLowerCase();
-                if (categoria.includes('servicio')) saleServices += Number(line.subTotal);
-                else saleProducts += Number(line.subTotal);
+                const categoria = line.producto.categoria?.nombre.toLowerCase() || '';
+                if (categoria.includes('servicio') || line.producto.stock > 90000) {
+                    saleServices += Number(line.subTotal);
+                } else {
+                    saleProducts += Number(line.subTotal);
+                }
             });
             saleProducts += Number(v.costoEnvio || 0);
             entry.services += saleServices;
@@ -363,5 +270,38 @@ export class SalesService {
         }
     });
     return Array.from(balanceMap.values());
+  }
+
+  async uploadReceipt(saleId: number, receiptUrl?: string) {
+    const dataToUpdate: any = { estado: VentaEstado.PENDIENTE_APROBACION };
+    if (receiptUrl) dataToUpdate.comprobante = receiptUrl;
+    const updated = await prisma.venta.update({ where: { id: saleId }, data: dataToUpdate, include: { cliente: { include: { user: true } } } });
+    if(updated.cliente?.user?.email) this.emailService.sendNewReceiptNotification(saleId, updated.cliente.user.email).catch(console.error);
+    return updated;
+  }
+
+  async updatePaymentMethod(saleId: number, medioPago: string) {
+    return await prisma.venta.update({ where: { id: saleId }, data: { medioPago } });
+  }
+
+  async cancelOrder(saleId: number) {
+    const sale = await prisma.venta.findUnique({ where: { id: saleId }, include: { lineasVenta: true } });
+    if (!sale) throw new Error("Venta no encontrada");
+    await prisma.$transaction(async (tx) => {
+        for (const linea of sale.lineasVenta) {
+            const prod = await tx.producto.findUnique({ where: { id: linea.productoId } });
+            if (prod && prod.stock < 90000) {
+                await tx.producto.update({ where: { id: linea.productoId }, data: { stock: { increment: linea.cantidad } } });
+            }
+        }
+        await tx.venta.update({ where: { id: saleId }, data: { estado: VentaEstado.CANCELADO } });
+    });
+    return { success: true };
+  }
+
+  async updateStatus(saleId: number, status: VentaEstado) {
+    const updated = await prisma.venta.update({ where: { id: saleId }, data: { estado: status }, include: { cliente: { include: { user: true } } } });
+    if(updated.cliente?.user?.email) this.emailService.sendStatusUpdate(updated.cliente.user.email, saleId, status).catch(console.error);
+    return updated;
   }
 }
