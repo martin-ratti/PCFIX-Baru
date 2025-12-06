@@ -5,10 +5,8 @@ import { useToastStore } from '../../../stores/toastStore';
 import { navigate } from 'astro:transitions/client';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 import { fetchApi } from '../../../utils/api';
-// 👇 Importamos el ErrorBoundary
 import ErrorBoundary from '../../ui/feedback/ErrorBoundary';
 
-// 1. COMPONENTE INTERNO (Lógica del carrito)
 function CartContent() {
   const { items, removeItem, increaseQuantity, decreaseQuantity, clearCart } = useCartStore();
   const { user, token, isAuthenticated } = useAuthStore();
@@ -40,6 +38,14 @@ function CartContent() {
         })
         .catch(err => console.error("Error config:", err));
   }, []);
+
+  // 👇 CORRECCIÓN DEL BUG: Resetear pago al cambiar entrega
+  useEffect(() => {
+      // Si cambiamos a ENVIO y teníamos EFECTIVO, forzamos TRANSFERENCIA
+      if (deliveryType === 'ENVIO' && paymentMethod === 'EFECTIVO') {
+          setPaymentMethod('TRANSFERENCIA');
+      }
+  }, [deliveryType, paymentMethod]); // Escucha cambios en deliveryType
 
   const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
   const finalShippingCost = deliveryType === 'ENVIO' ? (shippingCost || 0) : 0;
@@ -94,8 +100,10 @@ function CartContent() {
         return;
     }
     
+    // Validación de seguridad adicional
     if (deliveryType === 'ENVIO' && paymentMethod === 'EFECTIVO') {
          addToast("Pago en efectivo solo disponible para retiro en local", 'error');
+         setPaymentMethod('TRANSFERENCIA'); // Auto-fix si falla el useEffect por alguna razón
          return;
     }
     
@@ -167,7 +175,7 @@ function CartContent() {
           
           <div className="grid grid-cols-2 gap-2">
               <button onClick={() => setDeliveryType('ENVIO')} className={`p-3 rounded-lg border text-sm font-bold transition-colors ${deliveryType === 'ENVIO' ? 'border-primary bg-blue-50 text-primary' : 'hover:bg-gray-50'}`}>Envío</button>
-              <button onClick={() => { setDeliveryType('RETIRO'); if(paymentMethod === 'TRANSFERENCIA') setPaymentMethod('EFECTIVO'); }} className={`p-3 rounded-lg border text-sm font-bold transition-colors ${deliveryType === 'RETIRO' ? 'border-green-500 bg-green-50 text-green-700' : 'hover:bg-gray-50'}`}>Retiro</button>
+              <button onClick={() => setDeliveryType('RETIRO')} className={`p-3 rounded-lg border text-sm font-bold transition-colors ${deliveryType === 'RETIRO' ? 'border-green-500 bg-green-50 text-green-700' : 'hover:bg-gray-50'}`}>Retiro</button>
           </div>
 
           {deliveryType === 'ENVIO' ? (
@@ -225,7 +233,6 @@ function CartContent() {
   );
 }
 
-// 2. EXPORTACIÓN ENVUELTA (Safety First)
 export default function CartView() {
     return (
         <ErrorBoundary fallback={
