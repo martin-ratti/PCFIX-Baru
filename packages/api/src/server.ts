@@ -30,6 +30,8 @@ const PORT = process.env.PORT || 3002;
 
 const whitelist = [
   'http://localhost:4321',
+  'http://localhost:4322',
+  'http://localhost:4323',
   'http://localhost:3002',
   'https://pcfixbaru.com.ar',
   'https://www.pcfixbaru.com.ar',

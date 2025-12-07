@@ -1,0 +1,32 @@
+
+Running 1 test using 1 worker
+
+  Ô£ÿ  1 [chromium] ÔÇ║ e2e\checkout.spec.ts:4:5 ÔÇ║ Checkout Flow ÔÇ║ should allow user to login, add to cart, and checkout (6.7s)
+
+
+  1) [chromium] ÔÇ║ e2e\checkout.spec.ts:4:5 ÔÇ║ Checkout Flow ÔÇ║ should allow user to login, add to cart, and checkout 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/checkout\/\d+/[39m
+    Received string:  [31m"http://localhost:4321/carrito"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 5000ms[22m
+    [2m    9 ├ù unexpected value "http://localhost:4321/carrito"[22m
+
+
+      38 |
+      39 |         // 5. Verify Redirect to Checkout Success
+    > 40 |         await expect(page).toHaveURL(/\/checkout\/\d+/);
+         |                            ^
+      41 |         await expect(page.locator('text=┬íGracias por tu compra!')).toBeVisible({ timeout: 10000 });
+      42 |     });
+      43 | });
+        at C:\Users\Marto\Desktop\PCFIX-Baru\packages\web\e2e\checkout.spec.ts:40:28
+
+    Error Context: test-results\checkout-Checkout-Flow-sho-411b3-in-add-to-cart-and-checkout-chromium\error-context.md
+
+  1 failed
+    [chromium] ÔÇ║ e2e\checkout.spec.ts:4:5 ÔÇ║ Checkout Flow ÔÇ║ should allow user to login, add to cart, and checkout 

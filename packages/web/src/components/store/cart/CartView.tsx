@@ -4,8 +4,9 @@ import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
 import { navigate } from 'astro:transitions/client';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
-import { fetchApi } from '../../../utils/api';
 import ErrorBoundary from '../../ui/feedback/ErrorBoundary';
+
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
 
 function CartContent() {
     const { items, removeItem, increaseQuantity, decreaseQuantity, clearCart } = useCartStore();
@@ -28,15 +29,23 @@ function CartContent() {
 
     useEffect(() => {
         setIsClient(true);
-        fetchApi('/config')
-            .then(res => res.json())
-            .then(data => {
+        // Non-blocking config fetch - errors are logged but don't crash the page
+        const loadConfig = async () => {
+            try {
+                const res = await fetch(
+                    (import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api') + '/config'
+                );
+                const data = await res.json();
                 if (data.success && data.data) {
                     setBaseShippingCost(Number(data.data.costoEnvioFijo));
                     setLocalAddress(data.data.direccionLocal || 'Dirección no configurada');
                 }
-            })
-            .catch(err => console.error("Error config:", err));
+            } catch (err) {
+                console.error("Error loading config:", err);
+                // Continue with defaults, don't crash the page
+            }
+        };
+        loadConfig();
     }, []);
 
 
@@ -60,7 +69,7 @@ function CartContent() {
         try {
             const itemsPayload = items.map(i => ({ id: i.id, quantity: i.quantity }));
 
-            const response = await fetchApi('/sales/quote', {
+            const response = await fetch(`${API_URL}/sales/quote`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -108,18 +117,21 @@ function CartContent() {
 
         setIsProcessing(true);
         try {
-            const res = await fetchApi('/sales', {
+            const payload = {
+                items: items.map(i => ({ id: i.id, quantity: i.quantity })),
+                subtotal: Number(subtotal),
+                cpDestino: deliveryType === 'ENVIO' ? zipCode : undefined,
+                tipoEntrega: deliveryType,
+                medioPago: paymentMethod
+            };
+
+            const res = await fetch(`${API_URL}/sales`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    items: items,
-                    cpDestino: deliveryType === 'ENVIO' ? zipCode : undefined,
-                    tipoEntrega: deliveryType,
-                    medioPago: paymentMethod
-                })
+                body: JSON.stringify(payload)
             });
 
             const json = await res.json();

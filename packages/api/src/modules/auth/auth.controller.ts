@@ -28,6 +28,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
+  console.log('📧 Login attempt:', req.body?.email);
   try {
     const data = loginSchema.parse(req.body);
     const result = await authService.login(data);
@@ -39,14 +40,14 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const loginGoogle = async (req: Request, res: Response) => {
-    try {
-        const { token } = req.body;
-        if (!token) return res.status(400).json({ success: false, error: 'Falta el token de Google' });
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ success: false, error: 'Falta el token de Google' });
 
-        const result = await authService.loginWithGoogle(token);
-        res.json({ success: true, data: result });
-    } catch (e: any) {
-        console.error("Google Login Error:", e.message);
-        res.status(401).json({ success: false, error: 'Error autenticando con Google' });
-    }
+    const result = await authService.loginWithGoogle(token);
+    res.json({ success: true, data: result });
+  } catch (e: any) {
+    console.error("Google Login Error:", e.message);
+    res.status(401).json({ success: false, error: 'Error autenticando con Google' });
+  }
 };

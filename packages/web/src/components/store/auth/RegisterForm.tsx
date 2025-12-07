@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { navigate } from 'astro:transitions/client';
-import { fetchApi } from '../../../utils/api';
+
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
 
 const registerSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -58,7 +59,7 @@ export default function RegisterForm() {
     setSuccess(null);
 
     try {
-      const response = await fetchApi('/auth/register', {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

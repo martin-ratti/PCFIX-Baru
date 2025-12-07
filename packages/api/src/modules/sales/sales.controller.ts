@@ -23,12 +23,12 @@ export const quoteShipping = async (req: Request, res: Response) => {
 const createSaleSchema = z.object({
     items: z.array(z.object({
         id: z.string().or(z.number()),
-        cantidad: z.number().min(1)
+        quantity: z.number().min(1)
     })).min(1),
     subtotal: z.number().min(0),
-    cpDestino: z.string().min(4),
+    cpDestino: z.string().min(4).optional(),
     tipoEntrega: z.enum(['ENVIO', 'RETIRO']),
-    medioPago: z.enum(['MERCADOPAGO', 'EFECTIVO', 'VIUMI'])
+    medioPago: z.enum(['MERCADOPAGO', 'EFECTIVO', 'VIUMI', 'TRANSFERENCIA', 'BINANCE'])
 });
 
 export const createSale = async (req: Request, res: Response) => {
@@ -115,7 +115,7 @@ export const updatePaymentMethod = async (req: Request, res: Response) => {
         const { id } = req.params;
         const { medioPago } = req.body;
 
-        if (!['TRANSFERENCIA', 'BINANCE', 'EFECTIVO'].includes(medioPago)) {
+        if (!['TRANSFERENCIA', 'BINANCE', 'EFECTIVO', 'MERCADOPAGO', 'VIUMI'].includes(medioPago)) {
             return res.status(400).json({ success: false, error: 'Medio de pago inválido' });
         }
 

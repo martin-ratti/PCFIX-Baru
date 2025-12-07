@@ -5,7 +5,8 @@ import { z } from 'zod';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
 import GoogleLoginButton from './GoogleLoginButton';
-import { fetchApi } from '../../../utils/api'; // 👇 API Utility
+
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
 
 const loginSchema = z.object({
   email: z.string().email('Correo inválido'),
@@ -46,8 +47,7 @@ export default function LoginForm() {
   const onSubmit = async (data: LoginSchema) => {
     setIsLoading(true);
     try {
-      // 👇 Uso de fetchApi (Más limpio, sin URL base)
-      const response = await fetchApi('/auth/login', {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
