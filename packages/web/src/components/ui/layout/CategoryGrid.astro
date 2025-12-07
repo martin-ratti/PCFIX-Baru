@@ -1,15 +1,18 @@
 ---
-import { Image } from 'astro:assets';
-import cpuImage from '../../../assets/categories/cpu.jpg'; 
-import gpuImage from '../../../assets/categories/gpu.jpg';
-import monitorImage from '../../../assets/categories/monitor.jpg';
-import todoImage from '../../../assets/categories/todo.jpg';
+import { Image } from "astro:assets";
+import cpuImage from "../../../assets/categories/cpu.jpg";
+import gpuImage from "../../../assets/categories/gpu.jpg";
+import monitorImage from "../../../assets/categories/monitor.jpg";
+import todoImage from "../../../assets/categories/todo.jpg";
 
-
-const cardBaseClass = "group relative overflow-hidden rounded-2xl bg-gray-100 aspect-square flex flex-col items-center justify-end p-4 hover:shadow-xl transition-all border border-transparent hover:border-primary/20 cursor-pointer";
-const gradientClass = "absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-90 transition-opacity z-10";
-const imageClass = "absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500";
-const textClass = "relative z-20 text-white font-bold tracking-wide text-center group-hover:text-primary-light transition-colors";
+const cardBaseClass =
+  "group relative overflow-hidden rounded-2xl bg-gray-100 aspect-square flex flex-col items-center justify-end p-4 hover:shadow-xl transition-all border border-transparent hover:border-primary/20 cursor-pointer";
+const gradientClass =
+  "absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-90 transition-opacity z-10";
+const imageClass =
+  "absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500";
+const textClass =
+  "relative z-20 text-white font-bold tracking-wide text-center group-hover:text-primary-light transition-colors";
 ---
 
 <section class="py-12 bg-white">
@@ -18,69 +21,66 @@ const textClass = "relative z-20 text-white font-bold tracking-wide text-center 
       <span class="w-1 h-8 bg-primary rounded-full"></span>
       Explora por Categoría
     </h2>
-    
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-      
-
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto"
+    >
       <a href="/productos?search=Procesador" class={cardBaseClass}>
         <div class={gradientClass}></div>
-        <Image 
-          src={cpuImage} 
-          alt="Procesador de computadora" 
-          width={400} 
+        <Image
+          src={cpuImage}
+          alt="Procesador de computadora"
+          width={400}
           quality={"mid"}
           class={imageClass}
         />
         <span class={textClass}>Procesadores</span>
       </a>
 
-
       <a href="/productos?search=Placa de Video" class={cardBaseClass}>
         <div class={gradientClass}></div>
-        <Image 
-          src={gpuImage} 
-          alt="Tarjeta gráfica potente" 
+        <Image
+          src={gpuImage}
+          alt="Tarjeta gráfica potente"
           width={400}
           quality={"mid"}
-          class={imageClass} 
+          class={imageClass}
         />
         <span class={textClass}>Placas de Video</span>
       </a>
 
-
       <a href="/productos?search=Monitor" class={cardBaseClass}>
         <div class={gradientClass}></div>
-        <Image 
-          src={monitorImage} 
-          alt="Monitor de alta resolución" 
+        <Image
+          src={monitorImage}
+          alt="Monitor de alta resolución"
           width={400}
           quality={"mid"}
-          class={imageClass} 
+          class={imageClass}
         />
         <span class={textClass}>Monitores</span>
       </a>
-      
 
       <a href="/productos" class={cardBaseClass}>
-
-        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors z-10"></div>
+        <div
+          class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors z-10"
+        >
+        </div>
         <div class={gradientClass}></div>
-        
-        <Image 
-          src={todoImage} 
-          alt="Ver todo el catálogo" 
+
+        <Image
+          src={todoImage}
+          alt="Ver todo el catálogo"
           width={400}
           quality={"mid"}
-          class={imageClass} 
+          class={imageClass}
         />
-        
+
         <div class="relative z-20 flex flex-col items-center">
           <span class="text-2xl mb-1 drop-shadow-md"></span>
           <span class={textClass}>Ver Todo</span>
         </div>
       </a>
-
     </div>
   </div>
 </section>

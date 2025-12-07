@@ -84,7 +84,7 @@ export default function ProductCard({ product, disableTransition = false }: Prod
     <>
       <div
         onClick={() => navigate(`/producto/${product.id}`)}
-        className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 relative group h-full flex flex-col cursor-pointer"
+        className="w-full bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 relative group h-full flex flex-col cursor-pointer"
       >
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
           {discountPercent > 0 && <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">-{discountPercent}%</span>}

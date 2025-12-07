@@ -1,43 +1,56 @@
 ---
-import { Image } from 'astro:assets';
-import logo from '../../../assets/logo.png'; 
+import { Image } from "astro:assets";
+import logo from "../../../assets/logo.png";
 
-import CartIcon from '../../store/cart/CartIcon.tsx'; 
-import UserMenu from '../../ui/layout/UserMenu.tsx'; 
-import AdminLinks from '../../admin/core/AdminLinks.tsx'; 
-import CategoryDropdown from '../../ui/layout/CategoryDropdown.tsx'; 
-import PublicLinks from '../../ui/layout/PublicLinks.tsx'; 
-import SearchBar from '../../ui/forms/SearchBar.tsx'; 
+import CartIcon from "../../store/cart/CartIcon.tsx";
+import UserMenu from "../../ui/layout/UserMenu.tsx";
+import AdminLinks from "../../admin/core/AdminLinks.tsx";
+import CategoryDropdown from "../../ui/layout/CategoryDropdown.tsx";
+import PublicLinks from "../../ui/layout/PublicLinks.tsx";
+import SearchBar from "../../ui/forms/SearchBar.tsx";
+import MobileMenu from "../../ui/layout/MobileMenu.tsx";
 
 let categories = [];
 try {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 1000); 
-  const response = await fetch("http://127.0.0.1:3002/api/categories", { signal: controller.signal });
+  const timeoutId = setTimeout(() => controller.abort(), 1000);
+  const response = await fetch("http://127.0.0.1:3002/api/categories", {
+    signal: controller.signal,
+  });
   clearTimeout(timeoutId);
-  if (response.ok) { const json = await response.json(); if (json.success) categories = json.data; }
-} catch (e) { if (import.meta.env.DEV) console.warn("⚠️ API Categorías offline."); categories = []; }
+  if (response.ok) {
+    const json = await response.json();
+    if (json.success) categories = json.data;
+  }
+} catch (e) {
+  if (import.meta.env.DEV) console.warn("⚠️ API Categorías offline.");
+  categories = [];
+}
 ---
 
-
-<header class="bg-accent shadow-md sticky top-0 z-50 transition-all duration-300 ease-in-out border-b border-white/5" id="main-header">
-  <nav class="container mx-auto px-6 py-3 flex justify-between items-center gap-6 transition-all duration-300" id="header-nav">
-    
-
+<header
+  class="w-full bg-accent shadow-md sticky top-0 z-50 transition-all duration-300 ease-in-out border-b border-white/5"
+  id="main-header"
+>
+  <nav
+    class="container mx-auto px-6 py-3 flex justify-between items-center gap-6 transition-all duration-300"
+    id="header-nav"
+  >
     <div class="shrink-0 flex items-center gap-6">
       <a href="/" class="block hover:opacity-90 transition-opacity">
-        <Image 
-            src={logo} 
-            alt="PCFIX Logo" 
-            width={150} 
-            class="object-contain h-auto transition-all duration-300 origin-left" 
-            id="header-logo"
+        <Image
+          src={logo}
+          alt="PCFIX Logo"
+          width={150}
+          class="object-contain h-auto transition-all duration-300 origin-left w-32 md:w-auto"
+          id="header-logo"
         />
       </a>
       <div class="h-6 w-px bg-white/10 mx-2 hidden md:block"></div>
-      <CategoryDropdown initialCategories={categories} client:load />
+      <div class="hidden md:block">
+        <CategoryDropdown initialCategories={categories} client:load />
+      </div>
     </div>
-    
 
     <div class="flex-1 flex justify-center w-full max-w-5xl">
       <div class="w-full flex items-center gap-4">
@@ -46,50 +59,50 @@ try {
       </div>
     </div>
 
-
     <div class="flex items-center gap-6 shrink-0">
-      <PublicLinks client:load />
+      <div class="hidden md:block">
+        <PublicLinks client:load />
+      </div>
       <div class="h-6 w-px bg-white/10 mx-2 hidden md:block"></div>
       <div class="flex items-center gap-4">
         <CartIcon client:load />
-        <UserMenu client:load />
+        <div class="hidden md:block">
+          <UserMenu client:load />
+        </div>
+        <MobileMenu client:load />
       </div>
     </div>
   </nav>
 </header>
 
 <style>
+  header.is-scrolled {
+    @apply shadow-xl bg-accent/95 backdrop-blur-md py-0;
+  }
 
-    header.is-scrolled {
-        @apply shadow-xl bg-accent/95 backdrop-blur-md py-0;
-    }
-    
-    header.is-scrolled #header-nav {
-        @apply py-2; 
-    }
+  header.is-scrolled #header-nav {
+    @apply py-2;
+  }
 
-    header.is-scrolled #header-logo {
-        @apply w-32;
-    }
+  header.is-scrolled #header-logo {
+    @apply w-32;
+  }
 </style>
 
 <script>
+  document.addEventListener("astro:page-load", () => {
+    const header = document.getElementById("main-header");
 
-    document.addEventListener('astro:page-load', () => {
-        const header = document.getElementById('main-header');
-        
-        const handleScroll = () => {
-            if (window.scrollY > 30) {
-                header?.classList.add('is-scrolled');
-            } else {
-                header?.classList.remove('is-scrolled');
-            }
-        };
+    const handleScroll = () => {
+      if (window.scrollY > 30) {
+        header?.classList.add("is-scrolled");
+      } else {
+        header?.classList.remove("is-scrolled");
+      }
+    };
 
+    window.addEventListener("scroll", handleScroll);
 
-        window.addEventListener('scroll', handleScroll);
-        
-
-        handleScroll();
-    });
+    handleScroll();
+  });
 </script>
