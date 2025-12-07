@@ -46,6 +46,35 @@ if (!product) {
   image={product.foto || undefined}
   price={Number(product.precio)}
 >
+  <Fragment slot="head">
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        name: product.nombre,
+        image: product.foto ? [product.foto] : [],
+        description: product.descripcion,
+        sku: product.id,
+        brand: {
+          "@type": "Brand",
+          name: product.marca?.nombre || "Generico",
+        },
+        offers: {
+          "@type": "Offer",
+          url: Astro.url.href,
+          priceCurrency: "ARS",
+          price: product.precio,
+          availability:
+            product.stock > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+          itemCondition: "https://schema.org/NewCondition",
+        },
+      })}
+    />
+  </Fragment>
+
   <main class="container mx-auto px-6 py-12 min-h-[80vh]">
     <nav
       class="text-sm text-gray-500 mb-8 flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-2"

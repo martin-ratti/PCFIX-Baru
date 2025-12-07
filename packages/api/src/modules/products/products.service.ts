@@ -21,7 +21,8 @@ export class ProductService {
         brandId?: number,
         search?: string,
         filter?: string,
-        sort?: string
+        sort?: string,
+        selectMinimal: boolean = false
     ) {
         const skip = (page - 1) * limit;
         const where: Prisma.ProductoWhereInput = { deletedAt: null };
@@ -50,15 +51,28 @@ export class ProductService {
         else if (sort === 'price_desc') orderBy = { precio: 'desc' }; // Mayor precio
         else if (sort === 'name_asc') orderBy = { nombre: 'asc' };    // A-Z
 
+        const queryOptions: any = {
+            where,
+            orderBy,
+            take: limit,
+            skip
+        };
+
+        if (selectMinimal) {
+            queryOptions.select = {
+                id: true,
+                nombre: true,
+                precio: true,
+                foto: true,
+                categoria: { select: { nombre: true } }
+            };
+        } else {
+            queryOptions.include = { categoria: true, marca: true };
+        }
+
         const [total, products] = await prisma.$transaction([
             prisma.producto.count({ where }),
-            prisma.producto.findMany({
-                where,
-                include: { categoria: true, marca: true },
-                orderBy,
-                take: limit,
-                skip
-            })
+            prisma.producto.findMany(queryOptions)
         ]);
 
         return {

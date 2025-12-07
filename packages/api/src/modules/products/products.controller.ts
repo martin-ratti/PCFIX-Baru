@@ -16,10 +16,11 @@ export const getAll = async (req: Request, res: Response) => {
     const page = req.query.page ? Number(req.query.page) : 1;
     let filter = req.query.filter ? String(req.query.filter) : undefined;
     const sort = req.query.order ? String(req.query.order) : 'newest';
+    const selectMinimal = req.query.minimal === 'true';
 
-    const result = await productService.findAll(page, limit, categoryId, brandId, search, filter, sort);
+    const result = await productService.findAll(page, limit, categoryId, brandId, search, filter, sort, selectMinimal);
 
-    res.json({ success: true, ...result });
+    res.json({ success: true, data: result.data, meta: result.meta });
   } catch (error: any) { res.status(500).json({ success: false, error: error.message }); }
 };
 export const getForPOS = async (req: Request, res: Response) => { try { const search = req.query.search ? String(req.query.search) : undefined; const limit = req.query.limit ? Number(req.query.limit) : 20; const products = await productService.findAllPOS(search, limit); res.json({ success: true, data: products }); } catch (error: any) { res.status(500).json({ success: false, error: error.message }); } };

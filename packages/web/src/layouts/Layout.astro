@@ -65,6 +65,7 @@ const canonicalURL = new URL(Astro.url.pathname, siteUrl);
         }
 
         <ClientRouter />
+        <slot name="head" />
     </head>
     <body
         class="bg-gray-50 min-h-screen flex flex-col text-gray-900 selection:bg-primary/20"

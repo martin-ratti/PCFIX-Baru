@@ -7,7 +7,8 @@ import UserMenu from "../../ui/layout/UserMenu.tsx";
 import AdminLinks from "../../admin/core/AdminLinks.tsx";
 import CategoryDropdown from "../../ui/layout/CategoryDropdown.tsx";
 import PublicLinks from "../../ui/layout/PublicLinks.tsx";
-import SearchBar from "../../ui/forms/SearchBar.tsx";
+import LiveSearch from "../../ui/forms/LiveSearch.tsx";
+import ErrorBoundary from "../../ui/feedback/ErrorBoundary.tsx";
 import MobileMenu from "../../ui/layout/MobileMenu.tsx";
 
 let categories = [];
@@ -55,7 +56,9 @@ try {
 
     <div class="flex-1 flex justify-center w-full max-w-5xl">
       <div class="w-full flex items-center gap-4">
-        <SearchBar client:load />
+        <ErrorBoundary client:load name="LiveSearch">
+          <LiveSearch client:load />
+        </ErrorBoundary>
         <AdminLinks client:load />
       </div>
     </div>
@@ -73,37 +76,37 @@ try {
         <MobileMenu client:load />
       </div>
     </div>
+
+    <style>
+      header.is-scrolled {
+        @apply shadow-xl bg-accent/95 backdrop-blur-md py-0;
+      }
+
+      header.is-scrolled #header-nav {
+        @apply py-2;
+      }
+
+      header.is-scrolled #header-logo {
+        @apply w-32;
+      }
+    </style>
+
+    <script>
+      document.addEventListener("astro:page-load", () => {
+        const header = document.getElementById("main-header");
+
+        const handleScroll = () => {
+          if (window.scrollY > 30) {
+            header?.classList.add("is-scrolled");
+          } else {
+            header?.classList.remove("is-scrolled");
+          }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+
+        handleScroll();
+      });
+    </script>
   </nav>
 </header>
-
-<style>
-  header.is-scrolled {
-    @apply shadow-xl bg-accent/95 backdrop-blur-md py-0;
-  }
-
-  header.is-scrolled #header-nav {
-    @apply py-2;
-  }
-
-  header.is-scrolled #header-logo {
-    @apply w-32;
-  }
-</style>
-
-<script>
-  document.addEventListener("astro:page-load", () => {
-    const header = document.getElementById("main-header");
-
-    const handleScroll = () => {
-      if (window.scrollY > 30) {
-        header?.classList.add("is-scrolled");
-      } else {
-        header?.classList.remove("is-scrolled");
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    handleScroll();
-  });
-</script>
