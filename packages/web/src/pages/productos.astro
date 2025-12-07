@@ -85,8 +85,25 @@ try {
     }
   }
 
+  if (marcaId) {
+    try {
+      // Note: Assuming endpoint /brands/:id exists. If not, I might need to filter from a list.
+      // Based on typical REST patterns in this project.
+      const brandResponse = await fetch(`${API_URL}/brands/${marcaId}`);
+      if (brandResponse.ok) {
+        const brandJson = await brandResponse.json();
+        if (brandJson.success) {
+          brandName = brandJson.data.nombre;
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching brand name", e);
+    }
+  }
+
   if (search) title = `Resultados para: "${search}"`;
   else if (categoryName) title = categoryName;
+  else if (brandName) title = brandName;
   else title = "Todos los Productos";
 } catch (error) {
   console.error("Error cargando catálogo:", error);
@@ -121,7 +138,7 @@ try {
 
               {marcaId && (
                 <span class="text-xs bg-purple-50 text-purple-700 px-3 py-1 rounded-full font-bold border border-purple-100">
-                  Marca: {marcaId}
+                  {brandName ? brandName : `Marca: ${marcaId}`}
                 </span>
               )}
             </div>

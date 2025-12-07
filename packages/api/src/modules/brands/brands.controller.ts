@@ -12,6 +12,17 @@ export const getAll = async (req: Request, res: Response) => {
   }
 };
 
+export const getById = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    const brand = await brandService.findById(id);
+    if (!brand) return res.status(404).json({ success: false, error: 'Marca no encontrada' });
+    res.json({ success: true, data: brand });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Error obteniendo marca' });
+  }
+};
+
 export const create = async (req: Request, res: Response) => {
   try {
     const { nombre } = req.body;

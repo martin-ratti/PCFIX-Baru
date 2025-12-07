@@ -7,6 +7,10 @@ export class BrandService {
     });
   }
 
+  async findById(id: number) {
+    return await prisma.marca.findUnique({ where: { id } });
+  }
+
   async create(nombre: string, logo?: string) {
     const existing = await prisma.marca.findUnique({ where: { nombre } });
     if (existing) throw new Error('La marca ya existe');
@@ -15,7 +19,7 @@ export class BrandService {
       data: { nombre, logo }
     });
   }
-  
+
   async delete(id: number) {
     return await prisma.marca.delete({ where: { id } });
   }

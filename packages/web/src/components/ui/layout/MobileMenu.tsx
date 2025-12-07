@@ -19,7 +19,8 @@ export default function MobileMenu() {
 
     useEffect(() => {
         setIsClient(true);
-        fetch('/api/categories')
+        const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+        fetch(`${API_URL}/categories`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) setCategories(data.data);

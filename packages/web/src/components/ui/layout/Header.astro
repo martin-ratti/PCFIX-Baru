@@ -14,7 +14,8 @@ let categories = [];
 try {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 1000);
-  const response = await fetch("http://127.0.0.1:3002/api/categories", {
+  const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
+  const response = await fetch(`${API_URL}/categories`, {
     signal: controller.signal,
   });
   clearTimeout(timeoutId);
