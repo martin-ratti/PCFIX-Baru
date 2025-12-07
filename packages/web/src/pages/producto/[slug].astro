@@ -1,10 +1,9 @@
 ---
 export const prerender = false;
 
-import Layout from '../../layouts/Layout.astro'; 
-import Header from '../../components/ui/layout/Header.astro';
-import Footer from '../../components/ui/layout/Footer.astro';
-import AddToCart from '../../components/store/product/AddToCart.tsx';
+import Layout from "../../layouts/Layout.astro";
+
+import AddToCart from "../../components/store/product/AddToCart.tsx";
 
 interface Product {
   id: number;
@@ -15,17 +14,17 @@ interface Product {
   stock: number;
   foto: string | null;
   categoriaId: number;
-  marca?: { nombre: string }; 
-  categoria?: { nombre: string }; 
+  marca?: { nombre: string };
+  categoria?: { nombre: string };
 }
 
 const { slug } = Astro.params;
 let product: Product | null = null;
 
 try {
-  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+  const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
   const response = await fetch(`${API_URL}/products/${slug}`);
-  
+
   if (response.ok) {
     const result = await response.json();
     if (result.success) {
@@ -37,194 +36,270 @@ try {
 }
 
 if (!product) {
-  return new Response(null, { status: 404, statusText: 'Not Found' });
+  return new Response(null, { status: 404, statusText: "Not Found" });
 }
 ---
 
-<Layout 
-    title={`PCFIX | ${product.nombre}`} 
-    description={product.descripcion}
-    image={product.foto || undefined}
-    price={Number(product.precio)}
+<Layout
+  title={`PCFIX | ${product.nombre}`}
+  description={product.descripcion}
+  image={product.foto || undefined}
+  price={Number(product.precio)}
 >
-  <Header />
-
   <main class="container mx-auto px-6 py-12 min-h-[80vh]">
-    
-
-    <nav class="text-sm text-gray-500 mb-8 flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-2">
-      <a href="/" class="hover:text-primary transition-colors">Inicio</a> 
-      <span>/</span> 
-      <a href="/productos" class="hover:text-primary transition-colors">Productos</a>
+    <nav
+      class="text-sm text-gray-500 mb-8 flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-2"
+    >
+      <a href="/" class="hover:text-primary transition-colors">Inicio</a>
+      <span>/</span>
+      <a href="/productos" class="hover:text-primary transition-colors"
+        >Productos</a
+      >
       <span>/</span>
       <span class="text-gray-900 font-medium truncate">{product.nombre}</span>
     </nav>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start animate-fade-in">
-      
-
-      <div class="lg:col-span-6 bg-white rounded-2xl border border-gray-100 p-8 flex items-center justify-center relative overflow-hidden shadow-sm group">
-         {product.precioOriginal && Number(product.precioOriginal) > Number(product.precio) && (
-            <div class="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg z-10">
-              OFERTA
-            </div>
-         )}
-         <img 
-            src={product.foto || 'https://placehold.co/600x600/png?text=Sin+Imagen'} 
-            alt={product.nombre}
-            class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
-            transition:name={`image-${product.id}`} 
-         />
+    <div
+      class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start animate-fade-in"
+    >
+      <div
+        class="lg:col-span-6 bg-white rounded-2xl border border-gray-100 p-8 flex items-center justify-center relative overflow-hidden shadow-sm group"
+      >
+        {
+          product.precioOriginal &&
+            Number(product.precioOriginal) > Number(product.precio) && (
+              <div class="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg z-10">
+                OFERTA
+              </div>
+            )
+        }
+        <img
+          src={product.foto ||
+            "https://placehold.co/600x600/png?text=Sin+Imagen"}
+          alt={product.nombre}
+          class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
+          transition:name={`image-${product.id}`}
+        />
       </div>
 
-
       <div class="lg:col-span-6 space-y-8">
-        
-
         <div>
-          <div class="flex items-center gap-2 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
-              <span>{product.marca?.nombre || 'General'}</span>
-              <span>•</span>
-              <span>{product.categoria?.nombre || 'Hardware'}</span>
+          <div
+            class="flex items-center gap-2 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider"
+          >
+            <span>{product.marca?.nombre || "General"}</span>
+            <span>•</span>
+            <span>{product.categoria?.nombre || "Hardware"}</span>
           </div>
-          <h1 class="text-3xl md:text-4xl font-black text-secondary leading-tight tracking-tight mb-3">
+          <h1
+            class="text-3xl md:text-4xl font-black text-secondary leading-tight tracking-tight mb-3"
+          >
             {product.nombre}
           </h1>
-          
 
           <div class="flex items-center gap-2">
-             <span class={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${product.stock > 0 ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
-               {product.stock > 0 ? 'Disponible' : 'Sin Stock'}
-             </span>
-             {product.stock > 0 && product.stock < 5 && (
-               <span class="text-xs text-orange-600 font-bold animate-pulse">
-                 ¡Últimas {product.stock} unidades!
-               </span>
-             )}
+            <span
+              class={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${product.stock > 0 ? "bg-green-100 text-green-800 border-green-200" : "bg-red-100 text-red-800 border-red-200"}`}
+            >
+              {product.stock > 0 ? "Disponible" : "Sin Stock"}
+            </span>
+            {
+              product.stock > 0 && product.stock < 5 && (
+                <span class="text-xs text-orange-600 font-bold animate-pulse">
+                  ¡Últimas {product.stock} unidades!
+                </span>
+              )
+            }
           </div>
         </div>
-
 
         <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200/60">
-          {product.precioOriginal && Number(product.precioOriginal) > Number(product.precio) ? (
-            <div class="flex flex-col">
-              <span class="text-gray-400 line-through text-lg font-medium mb-1">
-                ${Number(product.precioOriginal).toLocaleString('es-AR')}
-              </span>
-              <div class="flex items-center gap-3">
-                <span class="text-5xl font-black text-primary tracking-tighter">
-                  ${Number(product.precio).toLocaleString('es-AR')}
+          {
+            product.precioOriginal &&
+            Number(product.precioOriginal) > Number(product.precio) ? (
+              <div class="flex flex-col">
+                <span class="text-gray-400 line-through text-lg font-medium mb-1">
+                  ${Number(product.precioOriginal).toLocaleString("es-AR")}
                 </span>
-                <span class="bg-green-100 text-green-700 px-2 py-1 rounded-lg font-bold text-sm">
-                  {Math.round(((Number(product.precioOriginal) - Number(product.precio)) / Number(product.precioOriginal)) * 100)}% OFF
-                </span>
+                <div class="flex items-center gap-3">
+                  <span class="text-5xl font-black text-primary tracking-tighter">
+                    ${Number(product.precio).toLocaleString("es-AR")}
+                  </span>
+                  <span class="bg-green-100 text-green-700 px-2 py-1 rounded-lg font-bold text-sm">
+                    {Math.round(
+                      ((Number(product.precioOriginal) -
+                        Number(product.precio)) /
+                        Number(product.precioOriginal)) *
+                        100,
+                    )}
+                    % OFF
+                  </span>
+                </div>
               </div>
-            </div>
-          ) : (
-            <p class="text-5xl font-black text-primary tracking-tighter">
-              ${Number(product.precio).toLocaleString('es-AR')}
-            </p>
-          )}
-          
+            ) : (
+              <p class="text-5xl font-black text-primary tracking-tighter">
+                ${Number(product.precio).toLocaleString("es-AR")}
+              </p>
+            )
+          }
 
           <div class="mt-8 flex gap-3">
-              <div class="flex-grow">
-                 <AddToCart 
-                   client:load 
-                   stock={product.stock} 
-                   product={{
-                     id: product.id.toString(),
-                     name: product.nombre,
-                     slug: product.id.toString(),
-                     price: Number(product.precio),
-                     imageUrl: product.foto || '',
-                     imageAlt: product.nombre,
-                     description: product.descripcion,
-                     stock: product.stock,
-                     originalPrice: product.precioOriginal ? Number(product.precioOriginal) : undefined
-                   }}
-                 />
-              </div>
+            <div class="flex-grow">
+              <AddToCart
+                client:load
+                stock={product.stock}
+                product={{
+                  id: product.id.toString(),
+                  name: product.nombre,
+                  slug: product.id.toString(),
+                  price: Number(product.precio),
+                  imageUrl: product.foto || "",
+                  imageAlt: product.nombre,
+                  description: product.descripcion,
+                  stock: product.stock,
+                  originalPrice: product.precioOriginal
+                    ? Number(product.precioOriginal)
+                    : undefined,
+                }}
+              />
+            </div>
 
-
-              <button 
-                  id="share-btn"
-                  class="bg-white border-2 border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 p-3 rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center w-14 group relative"
-                  aria-label="Compartir"
-                  data-title={product.nombre}
-                  data-text={`Mira este ${product.nombre} en PC FIX`}
-                  data-url={Astro.url.href}
+            <button
+              id="share-btn"
+              class="bg-white border-2 border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 p-3 rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center w-14 group relative"
+              aria-label="Compartir"
+              data-title={product.nombre}
+              data-text={`Mira este ${product.nombre} en PC FIX`}
+              data-url={Astro.url.href}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><circle cx="18" cy="5" r="3"></circle><circle
+                  cx="6"
+                  cy="12"
+                  r="3"></circle><circle cx="18" cy="19" r="3"></circle><line
+                  x1="8.59"
+                  x2="15.42"
+                  y1="13.51"
+                  y2="17.49"></line><line
+                  x1="15.41"
+                  x2="8.59"
+                  y1="6.51"
+                  y2="10.49"></line></svg
               >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
-              </button>
+            </button>
           </div>
         </div>
 
-
         <div>
-          <h3 class="text-lg font-bold text-secondary mb-4 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+          <h3
+            class="text-lg font-bold text-secondary mb-4 flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 text-primary"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              ><path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clip-rule="evenodd"></path></svg
+            >
             Detalles del Producto
           </h3>
-          <div class="text-gray-600 leading-relaxed text-base bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+          <div
+            class="text-gray-600 leading-relaxed text-base bg-white p-6 rounded-xl border border-gray-100 shadow-sm"
+          >
             <p class="whitespace-pre-line">{product.descripcion}</p>
           </div>
         </div>
 
-
         <div class="grid grid-cols-2 gap-4">
-          <div class="flex items-center gap-3 p-4 bg-blue-50/50 border border-blue-100 rounded-xl">
-              <div class="p-2 bg-white text-blue-600 rounded-full shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
-              </div>
-              <div class="text-sm">
-                <p class="font-bold text-gray-800">Envío Rápido</p>
-                <p class="text-gray-500 text-xs">A todo el país</p>
-              </div>
+          <div
+            class="flex items-center gap-3 p-4 bg-blue-50/50 border border-blue-100 rounded-xl"
+          >
+            <div class="p-2 bg-white text-blue-600 rounded-full shadow-sm">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-5 h-5"
+                ><path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
+                ></path></svg
+              >
+            </div>
+            <div class="text-sm">
+              <p class="font-bold text-gray-800">Envío Rápido</p>
+              <p class="text-gray-500 text-xs">A todo el país</p>
+            </div>
           </div>
-          <div class="flex items-center gap-3 p-4 bg-green-50/50 border border-green-100 rounded-xl">
-              <div class="p-2 bg-white text-green-600 rounded-full shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>
-              </div>
-              <div class="text-sm">
-                <p class="font-bold text-gray-800">Garantía</p>
-                <p class="text-gray-500 text-xs">12 meses oficial</p>
-              </div>
+          <div
+            class="flex items-center gap-3 p-4 bg-green-50/50 border border-green-100 rounded-xl"
+          >
+            <div class="p-2 bg-white text-green-600 rounded-full shadow-sm">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="w-5 h-5"
+                ><path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"
+                ></path></svg
+              >
+            </div>
+            <div class="text-sm">
+              <p class="font-bold text-gray-800">Garantía</p>
+              <p class="text-gray-500 text-xs">12 meses oficial</p>
+            </div>
           </div>
         </div>
-
       </div>
     </div>
   </main>
-
-  <Footer />
 </Layout>
 
 <script>
-    const shareBtn = document.getElementById('share-btn');
-    
-    if (shareBtn) {
-        shareBtn.addEventListener('click', async () => {
-            const title = shareBtn.dataset.title;
-            const text = shareBtn.dataset.text;
-            const url = shareBtn.dataset.url;
+  const shareBtn = document.getElementById("share-btn");
 
-            if (navigator.share) {
-                try {
-                    await navigator.share({ title, text, url });
-                } catch (err) {
-                    // Canceled
-                }
-            } else {
-                try {
-                    await navigator.clipboard.writeText(url || '');
-                    const originalHTML = shareBtn.innerHTML;
-                    shareBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><polyline points="20 6 9 17 4 12"/></svg>`;
-                    setTimeout(() => shareBtn.innerHTML = originalHTML, 2000);
-                } catch (err) {
-                    console.error('Error al copiar', err);
-                }
-            }
-        });
-    }
+  if (shareBtn) {
+    shareBtn.addEventListener("click", async () => {
+      const title = shareBtn.dataset.title;
+      const text = shareBtn.dataset.text;
+      const url = shareBtn.dataset.url;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, text, url });
+        } catch (err) {
+          // Canceled
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(url || "");
+          const originalHTML = shareBtn.innerHTML;
+          shareBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><polyline points="20 6 9 17 4 12"/></svg>`;
+          setTimeout(() => (shareBtn.innerHTML = originalHTML), 2000);
+        } catch (err) {
+          console.error("Error al copiar", err);
+        }
+      }
+    });
+  }
 </script>

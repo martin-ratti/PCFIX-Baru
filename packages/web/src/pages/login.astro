@@ -1,16 +1,16 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/ui/layout/Header.astro';
-import Footer from '../components/ui/layout/Footer.astro';
-import LoginForm from '../components/store/auth/LoginForm.tsx';
-import GuestGuard from '../components/guards/GuestGuard.tsx';
+import Layout from "../layouts/Layout.astro";
+
+import LoginForm from "../components/store/auth/LoginForm.tsx";
+import GuestGuard from "../components/guards/GuestGuard.tsx";
 ---
+
 <Layout title="PCFIX | Iniciar Sesión">
-  <Header />
-  <main class="container mx-auto px-6 py-12 flex justify-center items-center min-h-[60vh]">
+  <main
+    class="container mx-auto px-6 py-12 flex justify-center items-center min-h-[60vh]"
+  >
     <GuestGuard client:only="react">
       <LoginForm client:load />
     </GuestGuard>
   </main>
-  <Footer />
 </Layout>

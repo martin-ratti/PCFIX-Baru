@@ -1,21 +1,23 @@
 ---
 export const prerender = false;
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/ui/layout/Header.astro';
-import Footer from '../../components/ui/layout/Footer.astro';
-import CategoryManager from '../../components/admin/settings/CategoryManager';
-import AdminGuard from '../../components/guards/AdminGuard';
+import Layout from "../../layouts/Layout.astro";
+
+import CategoryManager from "../../components/admin/settings/CategoryManager";
+import AdminGuard from "../../components/guards/AdminGuard";
 ---
+
 <Layout title="PCFIX | Categorías">
-  <Header />
   <main class="container mx-auto px-6 py-12 bg-light min-h-screen">
     <AdminGuard client:only="react">
       <div class="mb-8">
-        <a href="/admin" class="text-sm text-gray-500 hover:text-primary transition-colors mb-2 inline-flex items-center gap-1">&larr; Volver al Dashboard</a>
+        <a
+          href="/admin"
+          class="text-sm text-gray-500 hover:text-primary transition-colors mb-2 inline-flex items-center gap-1"
+          >&larr; Volver al Dashboard</a
+        >
         <h1 class="text-3xl font-black text-primary">Gestión de Categorías</h1>
       </div>
       <CategoryManager client:load />
     </AdminGuard>
   </main>
-  <Footer />
 </Layout>

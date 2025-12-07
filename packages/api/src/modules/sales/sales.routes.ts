@@ -19,7 +19,12 @@ router.post('/manual', authenticate, requireAdmin, Controller.createManualSale);
 router.get('/:id', authenticate, Controller.getSaleById);
 
 router.post('/:id/receipt', authenticate, upload.single('comprobante'), Controller.uploadReceipt);
+// Webhook (Public)
+router.post('/webhook/viumi', Controller.handleViumiWebhook);
+
 router.put('/:id/payment-method', authenticate, Controller.updatePaymentMethod);
+router.put('/:id/payment-method', authenticate, Controller.updatePaymentMethod);
+router.post('/:id/viumi-preference', authenticate, Controller.createViumiPreference);
 router.put('/:id/cancel', authenticate, Controller.cancelOrder);
 
 router.put('/:id/status', authenticate, requireAdmin, Controller.updateStatus);

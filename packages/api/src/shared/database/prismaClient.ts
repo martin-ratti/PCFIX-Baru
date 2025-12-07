@@ -11,4 +11,4 @@ export const prisma =
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 prisma.$connect()
-  .catch((e) => console.error('❌ Error conectando a PostgreSQL', e));
+  .catch((e: any) => console.error('❌ Error conectando a PostgreSQL', e));

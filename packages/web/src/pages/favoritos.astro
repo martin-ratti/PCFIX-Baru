@@ -1,26 +1,21 @@
 ---
 export const prerender = false;
 
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/ui/layout/Header.astro';
-import Footer from '../components/ui/layout/Footer.astro';
-import FavoritesPageContent from '../components/store/profile/FavoritesPageContent'; 
-import UserGuard from '../components/guards/UserGuard.tsx';
+import Layout from "../layouts/Layout.astro";
+
+import FavoritesPageContent from "../components/store/profile/FavoritesPageContent";
+import UserGuard from "../components/guards/UserGuard.tsx";
 ---
 
 <Layout title="PCFIX | Mis Favoritos">
-    <Header />
-    
     <main class="container mx-auto px-6 py-12 min-h-screen">
         <h1 class="text-3xl font-black text-primary mb-8 border-b pb-3">
             Mi Lista de Deseos
         </h1>
-        
+
         {/* Solo usuarios normales pueden ver esto */}
         <UserGuard client:only="react">
             <FavoritesPageContent client:load />
         </UserGuard>
     </main>
-    
-    <Footer />
 </Layout>

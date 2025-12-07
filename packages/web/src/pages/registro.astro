@@ -1,16 +1,15 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/ui/layout/Header.astro';
-import Footer from '../components/ui/layout/Footer.astro';
-import RegisterForm from '../components/store/auth/RegisterForm.tsx';
-import GuestGuard from '../components/guards/GuestGuard.tsx';
+import Layout from "../layouts/Layout.astro";
+import RegisterForm from "../components/store/auth/RegisterForm.tsx";
+import GuestGuard from "../components/guards/GuestGuard.tsx";
 ---
+
 <Layout title="PCFIX | Crear Cuenta">
-  <Header />
-  <main class="container mx-auto px-6 py-8 flex justify-center items-center min-h-[70vh]">
+  <main
+    class="container mx-auto px-6 py-8 flex justify-center items-center min-h-[70vh]"
+  >
     <GuestGuard client:only="react">
       <RegisterForm client:load />
     </GuestGuard>
   </main>
-  <Footer />
 </Layout>

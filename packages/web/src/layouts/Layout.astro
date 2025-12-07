@@ -1,26 +1,30 @@
 ---
-import '../styles/global.css';
-import { ClientRouter } from 'astro:transitions';
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 
-import ToastContainer from '../components/ui/feedback/ToastContainer'; 
-import WhatsAppButton from '../components/ui/feedback/WhatsAppButton';
+import ToastContainer from "../components/ui/feedback/ToastContainer";
+import WhatsAppButton from "../components/ui/feedback/WhatsAppButton";
+import Header from "../components/ui/layout/Header.astro";
+import Footer from "../components/ui/layout/Footer.astro";
 
-interface Props { 
+interface Props {
     title: string;
     description?: string;
     image?: string;
     price?: number;
 }
 
-const { 
-    title, 
-    description = "Tu tienda de confianza para hardware y tecnología.", 
-    image = "/images/default-og.png", 
-    price 
+const {
+    title,
+    description = "Tu tienda de confianza para hardware y tecnología.",
+    image = "/images/default-og.png",
+    price,
 } = Astro.props;
 
-const siteUrl = import.meta.env.SITE || 'https://pcfixbaru.com.ar';
-const absoluteImageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
+const siteUrl = import.meta.env.SITE || "https://pcfixbaru.com.ar";
+const absoluteImageUrl = image.startsWith("http")
+    ? image
+    : `${siteUrl}${image}`;
 const canonicalURL = new URL(Astro.url.pathname, siteUrl);
 ---
 
@@ -31,11 +35,10 @@ const canonicalURL = new URL(Astro.url.pathname, siteUrl);
         <meta name="viewport" content="width=device-width" />
         <link rel="icon" type="image/png" href="/favicon.svg" />
         <meta name="generator" content={Astro.generator} />
-        
+
         <title>{title}</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={canonicalURL} />
-
 
         <meta property="og:type" content={price ? "product" : "website"} />
         <meta property="og:url" content={canonicalURL} />
@@ -44,30 +47,37 @@ const canonicalURL = new URL(Astro.url.pathname, siteUrl);
         <meta property="og:image" content={absoluteImageUrl} />
         <meta property="og:site_name" content="PC FIX" />
 
-
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={absoluteImageUrl} />
 
-
-        {price && (
-            <>
-                <meta property="product:price:amount" content={price.toString()} />
-                <meta property="product:price:currency" content="ARS" />
-            </>
-        )}
+        {
+            price && (
+                <>
+                    <meta
+                        property="product:price:amount"
+                        content={price.toString()}
+                    />
+                    <meta property="product:price:currency" content="ARS" />
+                </>
+            )
+        }
 
         <ClientRouter />
     </head>
-    <body class="bg-gray-50 min-h-screen flex flex-col text-gray-900 selection:bg-primary/20">
-        
+    <body
+        class="bg-gray-50 min-h-screen flex flex-col text-gray-900 selection:bg-primary/20"
+    >
+        <Header />
 
         <ToastContainer client:load />
-        <WhatsAppButton /> 
+        <WhatsAppButton />
 
         <div class="flex-1">
             <slot />
         </div>
+
+        <Footer />
     </body>
 </html>

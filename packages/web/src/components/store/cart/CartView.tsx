@@ -17,7 +17,7 @@ function CartContent() {
     const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
     const [deliveryType, setDeliveryType] = useState<'ENVIO' | 'RETIRO'>('ENVIO');
-    const [paymentMethod, setPaymentMethod] = useState<'TRANSFERENCIA' | 'BINANCE' | 'EFECTIVO'>('TRANSFERENCIA');
+    const [paymentMethod, setPaymentMethod] = useState<'TRANSFERENCIA' | 'BINANCE' | 'EFECTIVO' | 'VIUMI'>('TRANSFERENCIA');
 
     const [zipCode, setZipCode] = useState('');
     const [shippingCost, setShippingCost] = useState<number | null>(null);
@@ -207,6 +207,7 @@ function CartContent() {
                         <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as any)} className="w-full p-2 border rounded-lg text-sm bg-white">
                             <option value="TRANSFERENCIA">🏦 Transferencia Bancaria</option>
                             <option value="BINANCE">🪙 Crypto (Binance Pay)</option>
+                            <option value="VIUMI">💳 Tarjeta de Débito/Crédito (ViüMi)</option>
                             {deliveryType === 'RETIRO' && <option value="EFECTIVO">💵 Efectivo en Local</option>}
                         </select>
                     </div>

@@ -1,43 +1,58 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/ui/layout/Header.astro';
-import Footer from '../components/ui/layout/Footer.astro';
+import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="PCFIX | Envíos y Entregas">
-  <Header />
-  
-  <main class="container mx-auto px-6 py-12 bg-white max-w-4xl shadow-sm my-8 rounded-xl border border-gray-100">
-    <h1 class="text-3xl font-black text-secondary mb-8 border-b pb-4">Política de Envíos</h1>
-    
+  <main
+    class="container mx-auto px-6 py-12 bg-white max-w-4xl shadow-sm my-8 rounded-xl border border-gray-100"
+  >
+    <h1 class="text-3xl font-black text-secondary mb-8 border-b pb-4">
+      Política de Envíos
+    </h1>
+
     <div class="space-y-8 text-gray-600 leading-relaxed">
       <section>
         <h2 class="text-xl font-bold text-primary mb-3">1. Cobertura</h2>
-        <p>Realizamos envíos a todo el territorio de la República Argentina a través de <strong>Correo Argentino</strong>. Llegamos a tu domicilio o a la sucursal más cercana.</p>
+        <p>
+          Realizamos envíos a todo el territorio de la República Argentina a
+          través de <strong>Correo Argentino</strong>. Llegamos a tu domicilio o
+          a la sucursal más cercana.
+        </p>
       </section>
 
       <section>
-        <h2 class="text-xl font-bold text-primary mb-3">2. Tiempos de Entrega</h2>
+        <h2 class="text-xl font-bold text-primary mb-3">
+          2. Tiempos de Entrega
+        </h2>
         <p>El tiempo de entrega depende de tu ubicación:</p>
         <ul class="list-disc pl-6 mt-2 space-y-1">
-            <li><strong>CABA y GBA:</strong> 2 a 4 días hábiles.</li>
-            <li><strong>Interior del País:</strong> 3 a 7 días hábiles.</li>
-            <li><strong>Tierra del Fuego:</strong> 7 a 10 días hábiles.</li>
+          <li><strong>CABA y GBA:</strong> 2 a 4 días hábiles.</li>
+          <li><strong>Interior del País:</strong> 3 a 7 días hábiles.</li>
+          <li><strong>Tierra del Fuego:</strong> 7 a 10 días hábiles.</li>
         </ul>
-        <p class="mt-2 text-sm italic">* Los tiempos comienzan a correr una vez acreditado el pago.</p>
+        <p class="mt-2 text-sm italic">
+          * Los tiempos comienzan a correr una vez acreditado el pago.
+        </p>
       </section>
 
       <section>
         <h2 class="text-xl font-bold text-primary mb-3">3. Costo de Envío</h2>
-        <p>El costo se calcula automáticamente en el carrito ingresando tu Código Postal. Actualmente contamos con una tarifa promocional base para paquetería estándar.</p>
+        <p>
+          El costo se calcula automáticamente en el carrito ingresando tu Código
+          Postal. Actualmente contamos con una tarifa promocional base para
+          paquetería estándar.
+        </p>
       </section>
 
       <section>
         <h2 class="text-xl font-bold text-primary mb-3">4. Seguimiento</h2>
-        <p>Una vez despachado tu pedido, recibirás un email con el <strong>Código de Seguimiento</strong>. Podrás ver el estado de tu envío en la sección "Mis Compras" o directamente en la web del correo.</p>
+        <p>
+          Una vez despachado tu pedido, recibirás un email con el <strong
+            >Código de Seguimiento</strong
+          >. Podrás ver el estado de tu envío en la sección "Mis Compras" o
+          directamente en la web del correo.
+        </p>
       </section>
     </div>
   </main>
-
-  <Footer />
 </Layout>

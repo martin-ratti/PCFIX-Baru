@@ -1,66 +1,83 @@
 ---
 export const prerender = true;
 
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/ui/layout/Header.astro';
-import Footer from '../components/ui/layout/Footer.astro';
+import Layout from "../layouts/Layout.astro";
 
 const faqs = [
   {
     q: "¿Realizan envíos a todo el país?",
-    a: "Sí, realizamos envíos a toda Argentina a través de Andreani y Correo Argentino. El costo se calcula en el checkout."
+    a: "Sí, realizamos envíos a toda Argentina a través de Andreani y Correo Argentino. El costo se calcula en el checkout.",
   },
   {
     q: "¿Los productos tienen garantía?",
-    a: "Absolutamente. Todos nuestros productos cuentan con la garantía oficial del fabricante (generalmente 12 a 36 meses) más 72hs de cambio directo con nosotros."
+    a: "Absolutamente. Todos nuestros productos cuentan con la garantía oficial del fabricante (generalmente 12 a 36 meses) más 72hs de cambio directo con nosotros.",
   },
   {
     q: "¿Puedo retirar mi compra personalmente?",
-    a: "Sí, puedes seleccionar 'Retiro en Local' al finalizar tu compra y pasar a buscarlo por nuestro showroom en Springfield."
+    a: "Sí, puedes seleccionar 'Retiro en Local' al finalizar tu compra y pasar a buscarlo por nuestro showroom en Springfield.",
   },
   {
     q: "¿Hacen factura A?",
-    a: "Sí, emitimos Factura A y B. Solo asegúrate de cargar tu CUIT correctamente en los datos de facturación."
+    a: "Sí, emitimos Factura A y B. Solo asegúrate de cargar tu CUIT correctamente en los datos de facturación.",
   },
   {
     q: "¿Cuáles son los medios de pago?",
-    a: "Aceptamos tarjetas de crédito/débito, Mercado Pago, transferencia bancaria (con descuento) y efectivo en el local."
-  }
+    a: "Aceptamos tarjetas de crédito/débito, Mercado Pago, transferencia bancaria (con descuento) y efectivo en el local.",
+  },
 ];
 ---
 
 <Layout title="PCFIX | Preguntas Frecuentes">
-  <Header slot="header" />
-
   <main class="container mx-auto px-6 py-12 min-h-screen">
     <div class="max-w-3xl mx-auto">
-      <h1 class="text-4xl font-black text-primary mb-8 text-center">Preguntas Frecuentes</h1>
+      <h1 class="text-4xl font-black text-primary mb-8 text-center">
+        Preguntas Frecuentes
+      </h1>
 
       <div class="space-y-4">
-        {faqs.map((faq) => (
-          <details class="group bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-6 bg-white text-secondary hover:bg-gray-50 transition-colors">
-              <span>{faq.q}</span>
-              <span class="transition group-open:rotate-180">
-                <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-              </span>
-            </summary>
-            <div class="text-muted px-6 pb-6 leading-relaxed animate-in slide-in-from-top-2 duration-200">
-              {faq.a}
-            </div>
-          </details>
-        ))}
+        {
+          faqs.map((faq) => (
+            <details class="group bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-6 bg-white text-secondary hover:bg-gray-50 transition-colors">
+                <span>{faq.q}</span>
+                <span class="transition group-open:rotate-180">
+                  <svg
+                    fill="none"
+                    height="24"
+                    shape-rendering="geometricPrecision"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    viewBox="0 0 24 24"
+                    width="24"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </span>
+              </summary>
+              <div class="text-muted px-6 pb-6 leading-relaxed animate-in slide-in-from-top-2 duration-200">
+                {faq.a}
+              </div>
+            </details>
+          ))
+        }
       </div>
 
       <div class="mt-12 text-center bg-accent/10 p-8 rounded-lg">
-        <h3 class="text-xl font-bold text-secondary mb-2">¿No encontraste tu respuesta?</h3>
-        <p class="text-muted mb-4">Nuestro equipo de soporte está listo para ayudarte.</p>
-        <a href="/contacto" class="inline-block bg-secondary text-white px-6 py-2 rounded-lg hover:bg-primary transition-colors font-medium">
+        <h3 class="text-xl font-bold text-secondary mb-2">
+          ¿No encontraste tu respuesta?
+        </h3>
+        <p class="text-muted mb-4">
+          Nuestro equipo de soporte está listo para ayudarte.
+        </p>
+        <a
+          href="/contacto"
+          class="inline-block bg-secondary text-white px-6 py-2 rounded-lg hover:bg-primary transition-colors font-medium"
+        >
           Contactar Soporte
         </a>
       </div>
     </div>
   </main>
-
-  <Footer />
 </Layout>

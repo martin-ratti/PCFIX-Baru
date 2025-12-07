@@ -1,22 +1,19 @@
 ---
 export const prerender = false;
 
-import Layout from '../../../layouts/Layout.astro';
-import Header from '../../../components/ui/layout/Header.astro';
-import Footer from '../../../components/ui/layout/Footer.astro';
-import EditProductForm from '../../../components/admin/products/EditProductForm';
-import AdminGuard from '../../../components/guards/AdminGuard';
+import Layout from "../../../layouts/Layout.astro";
+
+import EditProductForm from "../../../components/admin/products/EditProductForm";
+import AdminGuard from "../../../components/guards/AdminGuard";
 
 const { id } = Astro.params;
 if (!id) return new Response(null, { status: 404 });
 ---
 
-<Layout title={'PCFIX | Editar ' + id}>
-  <Header />
+<Layout title={"PCFIX | Editar " + id}>
   <main class="container mx-auto px-6 py-12 bg-light min-h-screen">
     <AdminGuard client:only="react">
       <EditProductForm productId={id} client:load />
     </AdminGuard>
   </main>
-  <Footer />
 </Layout>

@@ -49,12 +49,7 @@ export class AuthService {
     const user = await prisma.user.findUnique({ where: { email: data.email } });
 
     if (!user) throw new Error('Credenciales inválidas');
-
-    if (!user.password) {
-      throw new Error('Esta cuenta usa inicio de sesión social (Google). Por favor inicia sesión con ese método.');
-    }
-
-    const isMatch = await bcrypt.compare(data.password, user.password);
+    const isMatch = await bcrypt.compare(data.password, user.password || '');
     if (!isMatch) throw new Error('Credenciales inválidas');
 
     const token = this.tokenService.generate({

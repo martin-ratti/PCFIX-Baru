@@ -5,8 +5,6 @@ import { ShippingService, ShippingItem } from '../../shared/services/ShippingSer
 
 interface SaleItemInput { id: number; quantity: number; }
 
-interface SaleItemInput { id: number; quantity: number; }
-
 interface SaleLineItem {
     productoId: number;
     cantidad: number;
@@ -31,7 +29,7 @@ export class SalesService {
         });
 
         const shippingItems: ShippingItem[] = items.map((item) => {
-            const product = dbProducts.find((p) => p.id === Number(item.id));
+            const product = dbProducts.find((p: any) => p.id === Number(item.id));
             return {
                 weight: Number(product?.peso) || 0.5,
                 height: product?.alto || 10,
@@ -42,6 +40,38 @@ export class SalesService {
         });
 
         return await this.shippingService.calculateCost(zipCode, shippingItems);
+    }
+
+    // --- VIUMI ---
+    async createViumiPreference(saleId: number) {
+        const sale = await prisma.venta.findUnique({
+            where: { id: saleId },
+            include: { cliente: { include: { user: true } }, lineasVenta: { include: { producto: true } } }
+        });
+        if (!sale) throw new Error("Venta no encontrada");
+
+        // Define callback URL (where user returns after paying)
+        const callbackUrl = `${process.env.APP_URL || 'http://localhost:4321'}/checkout/viumi-success`;
+
+        // Transform items
+        const items = sale.lineasVenta.map((line: any) => ({
+            nombre: line.producto.nombre,
+            cantidad: line.cantidad,
+            precio: Number(line.subTotal) / line.cantidad
+        }));
+
+        // Add shipping if any (as an item)
+        if (Number(sale.costoEnvio) > 0) {
+            items.push({
+                nombre: "Envío",
+                cantidad: 1,
+                precio: Number(sale.costoEnvio)
+            });
+        }
+
+        // Initialize service
+        const viumiService = new (require('../../shared/services/ViumiService').ViumiService)();
+        return await viumiService.createPaymentPreference(sale, items, callbackUrl);
     }
 
     // 2. CREAR VENTA WEB
@@ -57,7 +87,7 @@ export class SalesService {
         const itemsParaEnvio: ShippingItem[] = [];
 
         for (const item of items) {
-            const dbProduct = dbProducts.find(p => p.id === Number(item.id));
+            const dbProduct = dbProducts.find((p: any) => p.id === Number(item.id));
             if (!dbProduct) throw new Error(`Producto ${item.id} no encontrado`);
 
             if (dbProduct.stock < 90000 && dbProduct.stock < item.quantity) {
@@ -65,8 +95,6 @@ export class SalesService {
             }
 
             const precio = Number(dbProduct.precio);
-            subtotalReal += precio * item.quantity;
-
             subtotalReal += precio * item.quantity;
 
             lineasParaCrear.push({
@@ -94,7 +122,7 @@ export class SalesService {
             }
         }
 
-        return await prisma.$transaction(async (tx) => {
+        return await prisma.$transaction(async (tx: any) => {
             const venta = await tx.venta.create({
                 data: {
                     cliente: { connect: { id: cliente!.id } },
@@ -108,7 +136,7 @@ export class SalesService {
             });
 
             for (const linea of lineasParaCrear) {
-                const prod = dbProducts.find(p => p.id === linea.productoId);
+                const prod = dbProducts.find((p: any) => p.id === linea.productoId);
                 if (prod && prod.stock < 90000) {
                     await tx.producto.update({ where: { id: linea.productoId }, data: { stock: { decrement: linea.cantidad } } });
                 }
@@ -144,7 +172,7 @@ export class SalesService {
         const saleLines: SaleLineItem[] = [];
 
         for (const item of data.items) {
-            const product = dbProducts.find(p => p.id === item.id);
+            const product = dbProducts.find((p: any) => p.id === item.id);
             if (!product) throw new Error(`Producto ${item.id} no encontrado`);
 
             if (product.stock < 90000 && product.stock < item.quantity) {
@@ -154,8 +182,6 @@ export class SalesService {
             const price = Number(product.precio);
             total += price * item.quantity;
 
-            total += price * item.quantity;
-
             saleLines.push({
                 productoId: product.id,
                 cantidad: item.quantity,
@@ -163,7 +189,7 @@ export class SalesService {
             });
         }
 
-        return await prisma.$transaction(async (tx) => {
+        return await prisma.$transaction(async (tx: any) => {
             const sale = await tx.venta.create({
                 data: {
                     clienteId: client!.id,
@@ -177,7 +203,7 @@ export class SalesService {
             });
 
             for (const line of saleLines) {
-                const product = dbProducts.find(p => p.id === line.productoId);
+                const product = dbProducts.find((p: any) => p.id === line.productoId);
                 if (product && product.stock < 90000) {
                     await tx.producto.update({ where: { id: line.productoId }, data: { stock: { decrement: line.cantidad } } });
                 }
@@ -252,13 +278,13 @@ export class SalesService {
             balanceMap.set(monthName, { name: monthName, products: 0, services: 0, total: 0, monthIndex: i + 1 });
         }
 
-        ventas.forEach(v => {
+        ventas.forEach((v: any) => {
             const monthName = new Date(v.fecha).toLocaleString('es-ES', { month: 'short' });
             const entry = balanceMap.get(monthName);
             if (entry) {
                 let saleServices = 0;
                 let saleProducts = 0;
-                v.lineasVenta.forEach(line => {
+                v.lineasVenta.forEach((line: any) => {
                     const categoria = line.producto.categoria?.nombre.toLowerCase() || '';
                     if (categoria.includes('servicio') || line.producto.stock > 90000) {
                         saleServices += Number(line.subTotal);
@@ -290,7 +316,7 @@ export class SalesService {
     async cancelOrder(saleId: number) {
         const sale = await prisma.venta.findUnique({ where: { id: saleId }, include: { lineasVenta: true } });
         if (!sale) throw new Error("Venta no encontrada");
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
             for (const linea of sale.lineasVenta) {
                 const prod = await tx.producto.findUnique({ where: { id: linea.productoId } });
                 if (prod && prod.stock < 90000) {

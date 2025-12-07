@@ -1,15 +1,13 @@
 ---
 export const prerender = false;
 
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/ui/layout/Header.astro';
-import Footer from '../../components/ui/layout/Footer.astro';
-import ProductListTable from '../../components/admin/products/ProductListTable';
-import AdminGuard from '../../components/guards/AdminGuard';
+import Layout from "../../layouts/Layout.astro";
+
+import ProductListTable from "../../components/admin/products/ProductListTable";
+import AdminGuard from "../../components/guards/AdminGuard";
 ---
 
 <Layout title="PCFIX | Inventario">
-  <Header />
   <main class="container mx-auto px-6 py-12 bg-light min-h-screen">
     <AdminGuard client:only="react">
       <div class="mb-8">
@@ -19,5 +17,4 @@ import AdminGuard from '../../components/guards/AdminGuard';
       <ProductListTable client:load />
     </AdminGuard>
   </main>
-  <Footer />
 </Layout>

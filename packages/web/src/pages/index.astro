@@ -1,21 +1,47 @@
 ---
 export const prerender = false;
 
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/ui/layout/Header.astro';
-import Footer from '../components/ui/layout/Footer.astro';
-import Carousel from '../components/ui/layout/Carousel.tsx';
-import BrandCarousel from '../components/ui/layout/BrandCarousel.tsx';
-import HomeBanners from '../components/ui/layout/HomeBanners.tsx';
+import Layout from "../layouts/Layout.astro";
+import Carousel from "../components/ui/layout/Carousel.tsx";
+import BrandCarousel from "../components/ui/layout/BrandCarousel.tsx";
+import HomeBanners from "../components/ui/layout/HomeBanners.tsx";
 
-import FeaturesSection from '../components/ui/layout/FeaturesSection.astro';
-import CategoryGrid from '../components/ui/layout/CategoryGrid.astro';
-import PromoBanner from '../components/ui/layout/PromoBanner.astro';
+import FeaturesSection from "../components/ui/layout/FeaturesSection.astro";
+import CategoryGrid from "../components/ui/layout/CategoryGrid.astro";
+import PromoBanner from "../components/ui/layout/PromoBanner.astro";
 
-interface ProductDB { id: number; nombre: string; descripcion: string; precio: string | number; precioOriginal: string | number | null; stock: number; foto: string | null; categoriaId: number; isFeatured: boolean; }
-interface ProductCardProps { id: string; name: string; price: number; imageUrl: string; imageAlt: string; originalPrice?: number | null; stock: number; slug: string; description: string; }
-interface Brand { id: number; nombre: string; logo: string | null; }
-interface Banner { id: number; imagen: string; marca: Brand; }
+interface ProductDB {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  precio: string | number;
+  precioOriginal: string | number | null;
+  stock: number;
+  foto: string | null;
+  categoriaId: number;
+  isFeatured: boolean;
+}
+interface ProductCardProps {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  imageAlt: string;
+  originalPrice?: number | null;
+  stock: number;
+  slug: string;
+  description: string;
+}
+interface Brand {
+  id: number;
+  nombre: string;
+  logo: string | null;
+}
+interface Banner {
+  id: number;
+  imagen: string;
+  marca: Brand;
+}
 
 let allProducts: ProductDB[] = [];
 let featuredProducts: ProductCardProps[] = [];
@@ -27,80 +53,122 @@ let errorApi = false;
 
 try {
   const [prodRes, brandRes, bannerRes] = await Promise.all([
-     fetch('http://localhost:3002/api/products?limit=30'), 
-     fetch('http://localhost:3002/api/brands'),
-     fetch('http://localhost:3002/api/banners')
+    fetch("http://localhost:3002/api/products?limit=30"),
+    fetch("http://localhost:3002/api/brands"),
+    fetch("http://localhost:3002/api/banners"),
   ]);
-  
+
   if (prodRes.ok) {
     const result = await prodRes.json();
     if (result.success) {
       allProducts = result.data;
-      featuredProducts = allProducts.filter(p => p.isFeatured).slice(0,8).map(mapProductToCard);
-      saleProducts = allProducts.filter(p => p.precioOriginal).slice(0,8).map(mapProductToCard);
+      featuredProducts = allProducts
+        .filter((p) => p.isFeatured)
+        .slice(0, 8)
+        .map(mapProductToCard);
+      saleProducts = allProducts
+        .filter((p) => p.precioOriginal)
+        .slice(0, 8)
+        .map(mapProductToCard);
       newArrivalsProducts = allProducts.slice(0, 8).map(mapProductToCard);
     }
-  } else { errorApi = true; }
-  
-  if (brandRes.ok) { const r = await brandRes.json(); if(r.success) brands = r.data; }
-  if (bannerRes.ok) { const r = await bannerRes.json(); if(r.success) banners = r.data; }
-} catch (error) { console.error("Error:", error); errorApi = true; }
+  } else {
+    errorApi = true;
+  }
+
+  if (brandRes.ok) {
+    const r = await brandRes.json();
+    if (r.success) brands = r.data;
+  }
+  if (bannerRes.ok) {
+    const r = await bannerRes.json();
+    if (r.success) banners = r.data;
+  }
+} catch (error) {
+  console.error("Error:", error);
+  errorApi = true;
+}
 
 function mapProductToCard(p: ProductDB): ProductCardProps {
   return {
-    id: p.id.toString(), name: p.nombre, price: Number(p.precio), imageUrl: p.foto || '', imageAlt: p.nombre, stock: p.stock, originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null, slug: p.id.toString(), description: p.descripcion
+    id: p.id.toString(),
+    name: p.nombre,
+    price: Number(p.precio),
+    imageUrl: p.foto || "",
+    imageAlt: p.nombre,
+    stock: p.stock,
+    originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null,
+    slug: p.id.toString(),
+    description: p.descripcion,
   };
 }
 ---
 
 <Layout title="PCFIX | Tu Tienda de Tecnología">
-  <Header />
-  
   <main class="min-h-screen bg-light pb-12">
-    
-
     <div class="container mx-auto px-6 pt-6">
-      {banners.length > 0 ? <HomeBanners banners={banners} client:load /> : null}
+      {
+        banners.length > 0 ? (
+          <HomeBanners banners={banners} client:load />
+        ) : null
+      }
     </div>
-
 
     <FeaturesSection />
 
-
     <CategoryGrid />
 
-
     <div class="container mx-auto px-6 space-y-16 py-8">
-      {featuredProducts.length > 0 && (
-        <div class="space-y-4">
-          <Carousel title="🔥 Destacados de la Semana" products={featuredProducts} client:visible />
-        </div>
-      )}
-
+      {
+        featuredProducts.length > 0 && (
+          <div class="space-y-4">
+            <Carousel
+              title="🔥 Destacados de la Semana"
+              products={featuredProducts}
+              client:visible
+            />
+          </div>
+        )
+      }
 
       <PromoBanner />
-          
 
-      {saleProducts.length > 0 && (
-        <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 relative overflow-hidden">
-           <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-pink-500"></div>
-           <Carousel title="⚡ Ofertas Relámpago" products={saleProducts} client:visible />
-        </div>
-      )}
-      
+      {
+        saleProducts.length > 0 && (
+          <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-pink-500" />
+            <Carousel
+              title="⚡ Ofertas Relámpago"
+              products={saleProducts}
+              client:visible
+            />
+          </div>
+        )
+      }
 
-      {newArrivalsProducts.length > 0 && (
-        <div class="space-y-4">
-          <Carousel title="🆕 Recién Llegados" products={newArrivalsProducts} client:visible />
-        </div>
-      )}
+      {
+        newArrivalsProducts.length > 0 && (
+          <div class="space-y-4">
+            <Carousel
+              title="🆕 Recién Llegados"
+              products={newArrivalsProducts}
+              client:visible
+            />
+          </div>
+        )
+      }
 
-      {!errorApi && allProducts.length === 0 && <div class="text-center py-32 opacity-50"><p>Cargando...</p></div>}
+      {
+        !errorApi && allProducts.length === 0 && (
+          <div class="text-center py-32 opacity-50">
+            <p>Cargando...</p>
+          </div>
+        )
+      }
     </div>
   </main>
 
-
-  <div class="bg-white border-t border-gray-100 pt-12 pb-4"><BrandCarousel brands={brands} client:visible /></div>
-  
-  <Footer />
+  <div class="bg-white border-t border-gray-100 pt-12 pb-4">
+    <BrandCarousel brands={brands} client:visible />
+  </div>
 </Layout>

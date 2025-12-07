@@ -60,6 +60,11 @@ app.use('/uploads', (req, res, next) => {
   next();
 }, express.static(path.join(process.cwd(), 'uploads')));
 
+// --- RATE LIMITING ---
+import { authLimiter, apiLimiter } from './shared/middlewares/rateLimitMiddleware';
+app.use('/api/', apiLimiter);
+app.use('/api/auth', authLimiter);
+
 // --- RUTAS DE LA API ---
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);

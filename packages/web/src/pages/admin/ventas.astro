@@ -1,18 +1,16 @@
 ---
 export const prerender = false;
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/ui/layout/Header.astro';
-import Footer from '../../components/ui/layout/Footer.astro';
-import SalesListTable from '../../components/admin/sales/SalesListTable';
-import AdminGuard from '../../components/guards/AdminGuard';
+import Layout from "../../layouts/Layout.astro";
+
+import SalesListTable from "../../components/admin/sales/SalesListTable";
+import AdminGuard from "../../components/guards/AdminGuard";
 ---
+
 <Layout title="PCFIX | Ventas">
-  <Header />
   <main class="container mx-auto px-6 py-12 bg-light min-h-screen">
     <AdminGuard client:only="react">
       <h1 class="text-3xl font-black text-primary mb-8">Historial de Ventas</h1>
       <SalesListTable client:load />
     </AdminGuard>
   </main>
-  <Footer />
 </Layout>

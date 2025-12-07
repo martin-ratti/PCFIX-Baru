@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { z } from 'zod';
 import { SalesService } from './sales.service';
 import { AuthRequest } from '../../shared/middlewares/authMiddleware';
 import { VentaEstado } from '@prisma/client';
@@ -19,15 +20,55 @@ export const quoteShipping = async (req: Request, res: Response) => {
     }
 };
 
+const createSaleSchema = z.object({
+    items: z.array(z.object({
+        id: z.string().or(z.number()),
+        cantidad: z.number().min(1)
+    })).min(1),
+    subtotal: z.number().min(0),
+    cpDestino: z.string().min(4),
+    tipoEntrega: z.enum(['ENVIO', 'RETIRO']),
+    medioPago: z.enum(['MERCADOPAGO', 'EFECTIVO', 'VIUMI'])
+});
+
 export const createSale = async (req: Request, res: Response) => {
     try {
         const userId = (req as AuthRequest).user?.id;
-        const { items, subtotal, cpDestino, tipoEntrega, medioPago } = req.body;
-
         if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
 
-        const sale = await service.createSale(userId, items, subtotal, cpDestino, tipoEntrega, medioPago);
+        const data = createSaleSchema.parse(req.body);
+
+        const sale = await service.createSale(userId, data.items, data.subtotal, data.cpDestino, data.tipoEntrega, data.medioPago);
         res.status(201).json({ success: true, data: sale });
+    } catch (e: any) {
+        if (e instanceof z.ZodError) {
+            return res.status(400).json({ success: false, error: 'Datos de venta inválidos', details: e.errors });
+        }
+        res.status(500).json({ success: false, error: e.message });
+    }
+};
+
+
+
+
+
+export const handleViumiWebhook = async (req: Request, res: Response) => {
+    try {
+        console.log('🔔 ViüMi Webhook:', req.body);
+        // Implement logic to verify and update order based on req.body
+        // For now just acknowledge
+        res.sendStatus(200);
+    } catch (e) {
+        console.error(e);
+        res.sendStatus(500);
+    }
+};
+
+export const createViumiPreference = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const link = await service.createViumiPreference(Number(id));
+        res.json({ success: true, data: { url: link } });
     } catch (e: any) {
         res.status(500).json({ success: false, error: e.message });
     }
