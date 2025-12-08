@@ -92,8 +92,16 @@ try {
     </style>
 
     <script>
+      // Store reference to cleanup function
+      let scrollCleanup: (() => void) | null = null;
+
       document.addEventListener("astro:page-load", () => {
         const header = document.getElementById("main-header");
+
+        // Clean up previous scroll listener if exists
+        if (scrollCleanup) {
+          scrollCleanup();
+        }
 
         const handleScroll = () => {
           if (window.scrollY > 30) {
@@ -103,9 +111,23 @@ try {
           }
         };
 
-        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("scroll", handleScroll, { passive: true });
 
+        // Store cleanup function for next navigation
+        scrollCleanup = () => {
+          window.removeEventListener("scroll", handleScroll);
+        };
+
+        // Initial check
         handleScroll();
+      });
+
+      // Also cleanup on before-swap for View Transitions
+      document.addEventListener("astro:before-swap", () => {
+        if (scrollCleanup) {
+          scrollCleanup();
+          scrollCleanup = null;
+        }
       });
     </script>
   </nav>
