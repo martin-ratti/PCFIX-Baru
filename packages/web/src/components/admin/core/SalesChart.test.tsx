@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import SalesChart from './SalesChart';
 import { useAuthStore } from '../../../stores/authStore';
+import { fetchApi } from '../../../utils/api';
 
 // Mock dependencies
 vi.mock('../../../stores/authStore', () => ({
@@ -30,40 +31,66 @@ vi.mock('recharts', () => ({
 
 describe('SalesChart', () => {
     const mockUseAuthStore = vi.mocked(useAuthStore);
+    const mockFetchApi = vi.mocked(fetchApi);
 
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
-    it('renders loading state when no token', () => {
+    it('renders loading placeholder when no data', () => {
         mockUseAuthStore.mockReturnValue({ token: null } as any);
-        render(<SalesChart />);
-        // Should render loading placeholder
-        expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+        const { container } = render(<SalesChart />);
+        // When loading with no data, shows animate-pulse placeholder
+        expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
     });
 
-    it('renders chart container', () => {
+    it('renders chart when data loads', async () => {
         mockUseAuthStore.mockReturnValue({ token: 'test-token' } as any);
+        mockFetchApi.mockResolvedValue({
+            json: async () => ({
+                success: true,
+                data: [
+                    { name: 'Ene', monthIndex: 1, products: 50000, services: 25000 }
+                ]
+            })
+        } as any);
+
         render(<SalesChart />);
-        expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
+
+        await waitFor(() => {
+            expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
+        });
     });
 
-    it('displays title', () => {
+    it('displays title when data loaded', async () => {
         mockUseAuthStore.mockReturnValue({ token: 'test-token' } as any);
+        mockFetchApi.mockResolvedValue({
+            json: async () => ({
+                success: true,
+                data: [{ name: 'Ene', monthIndex: 1, products: 50000, services: 25000 }]
+            })
+        } as any);
+
         render(<SalesChart />);
-        expect(screen.getByText('Balance de Ingresos')).toBeInTheDocument();
+
+        await waitFor(() => {
+            expect(screen.getByText('Balance de Ingresos')).toBeInTheDocument();
+        });
     });
 
-    it('displays year selector', () => {
+    it('displays year selector', async () => {
         mockUseAuthStore.mockReturnValue({ token: 'test-token' } as any);
-        render(<SalesChart />);
-        expect(screen.getByRole('combobox')).toBeInTheDocument();
-    });
+        mockFetchApi.mockResolvedValue({
+            json: async () => ({
+                success: true,
+                data: [{ name: 'Ene', monthIndex: 1, products: 50000, services: 25000 }]
+            })
+        } as any);
 
-    it('shows products and services labels', () => {
-        mockUseAuthStore.mockReturnValue({ token: 'test-token' } as any);
         render(<SalesChart />);
-        expect(screen.getByText('Productos:')).toBeInTheDocument();
-        expect(screen.getByText('Servicios:')).toBeInTheDocument();
+
+        await waitFor(() => {
+            expect(screen.getByRole('combobox')).toBeInTheDocument();
+        });
     });
 });

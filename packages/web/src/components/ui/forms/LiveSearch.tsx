@@ -21,10 +21,6 @@ export default function LiveSearch() {
     // Set isClient on mount
     useEffect(() => setIsClient(true), []);
 
-    // Don't render for admin users
-    if (!isClient) return null;
-    if (user?.role === 'ADMIN') return null;
-
     // Load history on mount
     useEffect(() => {
         const saved = localStorage.getItem('search_history');
@@ -48,9 +44,11 @@ export default function LiveSearch() {
 
     // Live Search logic
     useEffect(() => {
+        // Don't trigger search for admin or before client hydration
+        if (!isClient || user?.role === 'ADMIN') return;
+
         if (term.length < 2) {
             setResults([]);
-            // keep open if focused to show history? handled by onFocus
             if (term.length === 0) {
                 // Show history logic could be here if we want list to change
             }
@@ -87,7 +85,11 @@ export default function LiveSearch() {
         }, 300); // 300ms Debounce
 
         return () => clearTimeout(timeoutId);
-    }, [term]);
+    }, [term, isClient, user?.role]);
+
+    // Early returns AFTER all hooks
+    if (!isClient) return null;
+    if (user?.role === 'ADMIN') return null;
 
     const saveToHistory = (query: string) => {
         const newHistory = [query, ...history.filter(h => h !== query)].slice(0, 5);
@@ -127,6 +129,7 @@ export default function LiveSearch() {
                 : part
         );
     };
+
 
     return (
         <div ref={wrapperRef} className="relative w-full max-w-full hidden md:block z-50">
