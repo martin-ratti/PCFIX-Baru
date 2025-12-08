@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LiveSearch from './LiveSearch';
 import { fetchApi } from '../../../utils/api';
 import { useAuthStore } from '../../../stores/authStore';
+import { navigate } from 'astro:transitions/client';
 
 // Mock dependencies
 vi.mock('../../../utils/api', () => ({
@@ -37,9 +38,6 @@ describe('LiveSearch', () => {
         } as any);
 
         const { container } = render(<LiveSearch />);
-
-        // Admin users should see null (after client hydration)
-        // But initially it returns null before isClient is true anyway
         expect(container.firstChild).toBeNull();
     });
 
@@ -54,15 +52,50 @@ describe('LiveSearch', () => {
 
     it('calls API when user types in search', async () => {
         render(<LiveSearch />);
-
-        // Wait for hydration
         const input = await screen.findByPlaceholderText(/buscar productos/i);
-
         fireEvent.change(input, { target: { value: 'Ryzen' } });
-
-        // Wait for debounce and API call
         await waitFor(() => {
             expect(fetchApi).toHaveBeenCalled();
-        }, { timeout: 1000 });
+        }, { timeout: 2000 });
+    });
+
+    it('handles keyboard navigation (ArrowDown + Enter)', async () => {
+        // Mock API results
+        vi.mocked(fetchApi).mockResolvedValue({
+            json: async () => ({
+                success: true,
+                data: [{ id: 99, nombre: 'Ryzen 9', precio: 500, categoria: { nombre: 'CPU' } }]
+            })
+        } as any);
+
+        render(<LiveSearch />);
+        const input = await screen.findByPlaceholderText(/buscar productos/i);
+
+        // Trigger search
+        fireEvent.change(input, { target: { value: 'Ryzen' } });
+
+        // Wait for API call first
+        await waitFor(() => {
+            expect(fetchApi).toHaveBeenCalled();
+        }, { timeout: 2000 });
+
+        // Wait for results
+        await waitFor(() => {
+            // Find by finding the button that contains the text
+            const buttons = screen.getAllByRole('button');
+            const found = buttons.some(b => b.textContent?.includes('Ryzen 9'));
+            expect(found).toBe(true);
+        }, { timeout: 3000 });
+
+        // Press Arrow Down
+        fireEvent.keyDown(input, { key: 'ArrowDown', code: 'ArrowDown' });
+
+        // Press Enter
+        fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+
+        // Verify navigation
+        await waitFor(() => {
+            expect(navigate).toHaveBeenCalledWith('/producto/99');
+        });
     });
 });

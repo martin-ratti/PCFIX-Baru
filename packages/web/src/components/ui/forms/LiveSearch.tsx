@@ -2,9 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { navigate } from 'astro:transitions/client';
 import { fetchApi } from '../../../utils/api';
 import { useAuthStore } from '../../../stores/authStore';
-// Removed lucide-react import 
-// Previous analysis showed usage of lucide-react in RegisterForm was removed. So it is likely NOT available.
-// I will use SVGs.
 
 export default function LiveSearch() {
     const { user } = useAuthStore();
@@ -14,12 +11,18 @@ export default function LiveSearch() {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [history, setHistory] = useState<string[]>([]);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const wrapperRef = useRef<HTMLDivElement>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
 
     // Set isClient on mount
     useEffect(() => setIsClient(true), []);
+
+    // Reset selection when results change
+    useEffect(() => {
+        setSelectedIndex(-1);
+    }, [results]);
 
     // Load history on mount
     useEffect(() => {
@@ -110,14 +113,37 @@ export default function LiveSearch() {
         saveToHistory(product.nombre);
         setIsOpen(false);
         setTerm('');
-        navigate(`/producto/${product.id}`); // Using ID as slug based on service optimization
+        navigate(`/producto/${product.id}`);
     };
 
     const handleHistoryClick = (val: string) => {
         setTerm(val);
-        // Let the effect trigger the search or navigate directly?
-        // Usually users expect clicking history to search or fill. 
-        // Let's fill and trigger search via effect
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (!isOpen) return;
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                setSelectedIndex(prev => (prev < results.length - 1 ? prev + 1 : prev));
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                setSelectedIndex(prev => (prev > -1 ? prev - 1 : -1));
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (selectedIndex >= 0 && results[selectedIndex]) {
+                    goToProduct(results[selectedIndex]);
+                } else {
+                    handleSearch(e as any);
+                }
+                break;
+            case 'Escape':
+                setIsOpen(false);
+                break;
+        }
     };
 
     const highlightMatch = (text: string, query: string) => {
@@ -130,7 +156,6 @@ export default function LiveSearch() {
         );
     };
 
-
     return (
         <div ref={wrapperRef} className="relative w-full max-w-full hidden md:block z-50">
             <form onSubmit={handleSearch} className="relative group">
@@ -139,6 +164,7 @@ export default function LiveSearch() {
                     placeholder="Buscar productos (ej: GPU, RAM)..."
                     value={term}
                     onChange={(e) => setTerm(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     onFocus={() => setIsOpen(true)}
                     className="w-full pl-11 pr-4 py-2.5 rounded-lg border border-blue-200/30 bg-blue-900/20 text-white placeholder-blue-200 focus:bg-white focus:text-gray-900 focus:border-white focus:ring-2 focus:ring-blue-400 outline-none transition-all shadow-inner font-medium"
                 />
@@ -177,11 +203,12 @@ export default function LiveSearch() {
                     {/* Results Section */}
                     {term.length >= 2 && results.length > 0 && (
                         <ul>
-                            {results.map((product) => (
+                            {results.map((product, index) => (
                                 <li key={product.id}>
                                     <button
                                         onClick={() => goToProduct(product)}
-                                        className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors flex justify-between items-center group border-b border-gray-50 last:border-0"
+                                        className={`w-full text-left px-4 py-3 transition-colors flex justify-between items-center group border-b border-gray-50 last:border-0 ${index === selectedIndex ? 'bg-blue-100' : 'hover:bg-blue-50'
+                                            }`}
                                     >
                                         <div className="flex flex-col">
                                             <span className="font-medium text-gray-800 text-sm line-clamp-1 group-hover:text-primary transition-colors">

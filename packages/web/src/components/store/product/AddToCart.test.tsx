@@ -14,6 +14,17 @@ vi.mock('../../../stores/toastStore', () => ({
 vi.mock('astro:transitions/client', () => ({
     navigate: vi.fn()
 }));
+// Mock StockAlertModal to verify it's rendered and receives props
+vi.mock('./StockAlertModal', () => ({
+    default: ({ isOpen, onClose, productName }: any) => (
+        isOpen ? (
+            <div data-testid="stock-alert-modal">
+                MockModal: {productName}
+                <button onClick={onClose}>Close</button>
+            </div>
+        ) : null
+    )
+}));
 
 const mockProduct = {
     id: '1',
@@ -59,11 +70,23 @@ describe('AddToCart', () => {
         });
     });
 
-    it('renders out of stock message when stock is 0', () => {
+    it('renders out of stock message and avisame button when stock is 0', () => {
         const outOfStockProduct = { ...mockProduct, stock: 0 };
         render(<AddToCart product={outOfStockProduct as any} stock={0} />);
 
         expect(screen.getByText('Producto Agotado')).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: /agregar al carrito/i })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /avísame/i })).toBeInTheDocument();
+    });
+
+    it('opens modal when avisame button is clicked', async () => {
+        const outOfStockProduct = { ...mockProduct, stock: 0 };
+        render(<AddToCart product={outOfStockProduct as any} stock={0} />);
+
+        const avisameBtn = screen.getByRole('button', { name: /avísame/i });
+        fireEvent.click(avisameBtn);
+
+        expect(screen.getByTestId('stock-alert-modal')).toBeInTheDocument();
+        expect(screen.getByText(`MockModal: ${outOfStockProduct.name}`)).toBeInTheDocument();
     });
 });
