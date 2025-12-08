@@ -70,11 +70,13 @@ describe('ProductCard', () => {
         }));
     });
 
-    it('shows "Sin Stock" when stock is 0', () => {
+    it('shows "Avísame" button when stock is 0', () => {
         const noStockProduct = { ...mockProduct, stock: 0 };
         render(<ProductCard product={noStockProduct} />);
 
-        expect(screen.getByText('Sin Stock')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Sin Stock/i })).toBeDisabled();
+        // Expect "Avísame" button to be present
+        expect(screen.getByRole('button', { name: /Avísame/i })).toBeInTheDocument();
+        // And "Agregar" should not be present (or we just check Avísame)
+        expect(screen.queryByRole('button', { name: /Agregar/i })).not.toBeInTheDocument();
     });
 });
