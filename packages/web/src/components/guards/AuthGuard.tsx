@@ -21,17 +21,17 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       // 2. Chequeo Disco (LocalStorage)
       const storedAuth = localStorage.getItem('auth-storage');
       if (storedAuth) {
-         try {
-            const parsed = JSON.parse(storedAuth);
-            if (parsed.state?.isAuthenticated) {
-                setIsLoading(false);
-                return;
-            }
-         } catch(e) {}
+        try {
+          const parsed = JSON.parse(storedAuth);
+          if (parsed.state?.isAuthenticated) {
+            setIsLoading(false);
+            return;
+          }
+        } catch (e) { }
       }
 
       // 3. No logueado -> Login
-      window.location.href = '/login';
+      window.location.href = '/auth/login';
     };
 
     checkAccess();

@@ -1,10 +1,10 @@
 ---
 export const prerender = false;
 
-import Layout from "../../layouts/Layout.astro";
+import Layout from "../../../layouts/Layout.astro";
 
-import EditProfileForm from "../../components/store/profile/EditProfileForm";
-import AuthGuard from "../../components/guards/AuthGuard.tsx";
+import EditProfileForm from "../../../components/store/profile/EditProfileForm";
+import AuthGuard from "../../../components/guards/AuthGuard.tsx";
 
 const { id } = Astro.params;
 if (!id) return new Response(null, { status: 404 });

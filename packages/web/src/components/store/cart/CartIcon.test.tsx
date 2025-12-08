@@ -75,6 +75,6 @@ describe('CartIcon', () => {
     it('links to /carrito', () => {
         render(<CartIcon />);
         const link = screen.getByRole('link');
-        expect(link).toHaveAttribute('href', '/carrito');
+        expect(link).toHaveAttribute('href', '/tienda/carrito');
     });
 });

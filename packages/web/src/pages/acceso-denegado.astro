@@ -38,8 +38,8 @@ import Layout from "../layouts/Layout.astro";
       </a>
       {/* Botón dinámico: Logout para cambiar de cuenta si se equivocó */}
       <a
-        href="/login"
-        onclick="localStorage.removeItem('auth-storage'); window.location.href='/login'; return false;"
+        href="/auth/login"
+        onclick="localStorage.removeItem('auth-storage'); window.location.href='/auth/login'; return false;"
         class="px-8 py-3 border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors"
       >
         Cambiar de Cuenta

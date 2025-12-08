@@ -62,7 +62,7 @@ export default function StoreNavigation() {
       </div>
 
       {/* Link a Nosotros */}
-      <a href="/nosotros" className="text-secondary hover:text-primary transition-colors font-medium">
+      <a href="/info/nosotros" className="text-secondary hover:text-primary transition-colors font-medium">
         Nosotros
       </a>
     </div>

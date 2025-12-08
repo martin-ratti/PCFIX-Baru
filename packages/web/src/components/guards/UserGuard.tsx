@@ -17,16 +17,16 @@ export default function UserGuard({ children }: UserGuardProps) {
       let isAuth = isAuthenticated;
 
       if (!isAuth && storedAuth) {
-         try {
-            const parsed = JSON.parse(storedAuth);
-            isAuth = parsed.state.isAuthenticated;
-            role = parsed.state.user?.role;
-         } catch(e) {}
+        try {
+          const parsed = JSON.parse(storedAuth);
+          isAuth = parsed.state.isAuthenticated;
+          role = parsed.state.user?.role;
+        } catch (e) { }
       }
 
       if (!isAuth) {
         // No logueado -> Replace a Login
-        window.location.replace('/login');
+        window.location.replace('/auth/login');
         return;
       }
 

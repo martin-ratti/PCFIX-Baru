@@ -12,15 +12,15 @@ export default function PublicLinks() {
 
   return (
     <div className="flex items-center gap-6">
-      <a href="/nosotros" className={linkClass}>
+      <a href="/info/nosotros" className={linkClass}>
         Nosotros
       </a>
-      
-      <a href="/servicios" className={linkClass}>
+
+      <a href="/tienda/servicios" className={linkClass}>
         {/* Contenedor translúcido para el emoji */}
         <div className="p-1.5 rounded-lg bg-white/10 group-hover:bg-white/20 transition-all flex items-center justify-center">
-            {/* Usamos el mismo emoji que en la tarjeta de producto */}
-            <span className="text-lg leading-none filter drop-shadow-sm">🛠️</span>
+          {/* Usamos el mismo emoji que en la tarjeta de producto */}
+          <span className="text-lg leading-none filter drop-shadow-sm">🛠️</span>
         </div>
         <span>Servicio Técnico</span>
       </a>

@@ -18,7 +18,7 @@ export default function CartIcon() {
   const totalItems = items.reduce((total, item) => total + item.quantity, 0);
 
   return (
-    <a href="/carrito" className="relative p-2 transition-transform hover:scale-110">
+    <a href="/tienda/carrito" className="relative p-2 transition-transform hover:scale-110">
       <img src={cartIcon.src} alt="Carrito de compras" className="w-8 h-8" />
 
       {isClient && totalItems > 0 && (

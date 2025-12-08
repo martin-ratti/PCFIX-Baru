@@ -91,7 +91,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             });
             if (res.ok) {
                 addToast('Compra cancelada correctamente', 'info');
-                navigate('/miscompras');
+                navigate('/cuenta/miscompras');
             } else throw new Error();
         } catch (e) { addToast('Error al cancelar', 'error'); }
         finally { setIsUpdating(false); setShowCancelModal(false); }
@@ -253,7 +253,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         ? 'Estamos verificando tu pago. Te avisaremos por email.'
                         : 'Tu compra fue aprobada exitosamente.'}
                 </p>
-                <a href="/miscompras" className="px-8 py-3 bg-primary text-white font-bold rounded-xl shadow-lg">Ver Mis Compras</a>
+                <a href="/cuenta/miscompras" className="px-8 py-3 bg-primary text-white font-bold rounded-xl shadow-lg">Ver Mis Compras</a>
             </div>
         );
     }

@@ -52,21 +52,21 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
   const handleAddToCart = async () => {
     if (stock === 0) return;
     setIsAdding(true);
-    
+
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     // 1. Agregamos el producto base al carrito
     // Convertimos originalPrice null -> undefined para satisfacer TS
     const productToAdd = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        originalPrice: product.originalPrice === null ? undefined : product.originalPrice, // FIX
-        imageUrl: product.imageUrl,
-        imageAlt: product.imageAlt,
-        stock: product.stock,
-        slug: product.slug,
-        description: product.description
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice === null ? undefined : product.originalPrice, // FIX
+      imageUrl: product.imageUrl,
+      imageAlt: product.imageAlt,
+      stock: product.stock,
+      slug: product.slug,
+      description: product.description
     };
 
     // Agregamos el primer ítem
@@ -74,41 +74,41 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
 
     // 2. Si la cantidad local es > 1, incrementamos en el store
     if (quantity > 1) {
-        for (let i = 0; i < quantity - 1; i++) {
-            increaseCartItem(product.id);
-        }
+      for (let i = 0; i < quantity - 1; i++) {
+        increaseCartItem(product.id);
+      }
     }
-    
+
     addToast(`¡${quantity}x ${product.name} agregado!`, 'success');
     setIsAdding(false);
-    navigate('/carrito');
+    navigate('/tienda/carrito');
   };
 
   const handleToggleFavorite = async () => {
     if (!isAuthenticated || !user?.id) {
-        addToast("Inicia sesión para guardar favoritos", 'info');
-        return;
+      addToast("Inicia sesión para guardar favoritos", 'info');
+      return;
     }
 
     if (isFavorited) removeFavorite(Number(product.id));
     else addFavorite(Number(product.id));
-    
+
     setIsTogglingFav(true);
     try {
-        const res = await fetch('http://localhost:3002/api/favorites/toggle', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.id, productId: Number(product.id) })
-        });
-        const json = await res.json();
-        if (!json.success) throw new Error(json.error);
-        addToast(json.data.message, 'success');
+      const res = await fetch('http://localhost:3002/api/favorites/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, productId: Number(product.id) })
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      addToast(json.data.message, 'success');
     } catch (e) {
-        if (isFavorited) addFavorite(Number(product.id));
-        else removeFavorite(Number(product.id));
-        addToast('Error al guardar favorito', 'error');
+      if (isFavorited) addFavorite(Number(product.id));
+      else removeFavorite(Number(product.id));
+      addToast('Error al guardar favorito', 'error');
     } finally {
-        setIsTogglingFav(false);
+      setIsTogglingFav(false);
     }
   };
 
@@ -124,10 +124,10 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
-        
+
         {/* Selector de Cantidad */}
         <div className="flex items-center border-2 border-gray-200 rounded-xl h-12 bg-white shadow-sm w-full sm:w-auto justify-between sm:justify-start">
-          <button 
+          <button
             onClick={handleDecrease}
             className="w-12 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-gray-50 rounded-l-xl transition-colors font-bold text-lg"
             disabled={quantity <= 1}
@@ -135,7 +135,7 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
             −
           </button>
           <span className="w-12 text-center font-black text-lg text-secondary select-none">{quantity}</span>
-          <button 
+          <button
             onClick={handleIncrease}
             className="w-12 h-full flex items-center justify-center text-gray-500 hover:text-primary hover:bg-gray-50 rounded-r-xl transition-colors font-bold text-lg"
             disabled={quantity >= stock}
@@ -145,7 +145,7 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
         </div>
 
         {/* Botón Agregar */}
-        <button 
+        <button
           onClick={handleAddToCart}
           disabled={isAdding}
           className="flex-1 h-12 bg-primary text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:bg-opacity-90 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 w-full sm:w-auto"
@@ -163,19 +163,18 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
         </button>
 
         {/* Botón Favorito */}
-        <button 
-            onClick={handleToggleFavorite}
-            disabled={isTogglingFav}
-            className={`h-12 w-12 flex items-center justify-center rounded-xl border-2 transition-all ${
-                isFavorited 
-                    ? 'border-red-100 bg-red-50 text-red-500' 
-                    : 'border-gray-200 bg-white text-gray-400 hover:border-red-200 hover:text-red-400'
+        <button
+          onClick={handleToggleFavorite}
+          disabled={isTogglingFav}
+          className={`h-12 w-12 flex items-center justify-center rounded-xl border-2 transition-all ${isFavorited
+              ? 'border-red-100 bg-red-50 text-red-500'
+              : 'border-gray-200 bg-white text-gray-400 hover:border-red-200 hover:text-red-400'
             }`}
-            title={isFavorited ? "Quitar de favoritos" : "Guardar en favoritos"}
+          title={isFavorited ? "Quitar de favoritos" : "Guardar en favoritos"}
         >
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} className="w-6 h-6 transition-transform active:scale-90">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.053-4.393 2.365-.796-1.312-2.46-2.365-4.393-2.365C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-            </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} className="w-6 h-6 transition-transform active:scale-90">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.053-4.393 2.365-.796-1.312-2.46-2.365-4.393-2.365C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+          </svg>
         </button>
 
       </div>

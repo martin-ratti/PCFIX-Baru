@@ -85,13 +85,13 @@ export default function MobileMenu() {
                                     </div>
                                 </div>
                                 <div className="grid gap-2">
-                                    <a href={`/perfil/${user?.id}`} className="text-sm text-gray-700 hover:text-primary font-medium flex items-center gap-2">
+                                    <a href={`/cuenta/perfil/${user?.id}`} className="text-sm text-gray-700 hover:text-primary font-medium flex items-center gap-2">
                                         <span>👤 Mi Perfil</span>
                                     </a>
                                     {!isAdmin && (
                                         <>
-                                            <a href="/miscompras" className="text-sm text-gray-700 hover:text-primary font-medium">🛍️ Mis Compras</a>
-                                            <a href="/favoritos" className="text-sm text-gray-700 hover:text-primary font-medium">❤️ Favoritos</a>
+                                            <a href="/cuenta/miscompras" className="text-sm text-gray-700 hover:text-primary font-medium">🛍️ Mis Compras</a>
+                                            <a href="/cuenta/favoritos" className="text-sm text-gray-700 hover:text-primary font-medium">❤️ Favoritos</a>
                                         </>
                                     )}
                                     {isAdmin && (
@@ -104,8 +104,8 @@ export default function MobileMenu() {
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 gap-3">
-                                <a href="/login" className="text-center py-2.5 border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-50 transition-colors">Ingresar</a>
-                                <a href="/registro" className="text-center py-2.5 bg-primary text-white rounded-lg font-bold shadow-md hover:opacity-90 transition-opacity">Registrarse</a>
+                                <a href="/auth/login" className="text-center py-2.5 border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-50 transition-colors">Ingresar</a>
+                                <a href="/auth/registro" className="text-center py-2.5 bg-primary text-white rounded-lg font-bold shadow-md hover:opacity-90 transition-opacity">Registrarse</a>
                             </div>
                         )}
                     </div>
@@ -130,10 +130,10 @@ export default function MobileMenu() {
 
                             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${showCategories ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
                                 <div className="pl-4 pr-2 py-1 space-y-1 bg-gray-50/50 rounded-b-lg mb-2">
-                                    <a href="/productos" className="block px-4 py-2 text-sm text-primary font-bold hover:bg-white rounded-md">Ver Todo</a>
+                                    <a href="/tienda/productos" className="block px-4 py-2 text-sm text-primary font-bold hover:bg-white rounded-md">Ver Todo</a>
                                     {categories.map(cat => (
                                         <div key={cat.id}>
-                                            <a href={`/productos?categoryId=${cat.id}`} className="block px-4 py-2 text-sm text-gray-600 hover:text-primary hover:bg-white rounded-md transition-colors">
+                                            <a href={`/tienda/productos?categoryId=${cat.id}`} className="block px-4 py-2 text-sm text-gray-600 hover:text-primary hover:bg-white rounded-md transition-colors">
                                                 {cat.nombre}
                                             </a>
                                         </div>
@@ -142,9 +142,9 @@ export default function MobileMenu() {
                             </div>
                         </div>
 
-                        <a href="/servicios" className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">Servicios</a>
-                        <a href="/contacto" className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">Contacto</a>
-                        <a href="/faq" className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">Ayuda</a>
+                        <a href="/tienda/servicios" className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">Servicios</a>
+                        <a href="/info/contacto" className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">Contacto</a>
+                        <a href="/info/faq" className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">Ayuda</a>
                     </nav>
 
                 </div>

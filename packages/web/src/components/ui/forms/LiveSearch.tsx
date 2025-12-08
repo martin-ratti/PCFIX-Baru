@@ -90,7 +90,7 @@ export default function LiveSearch() {
         if (term.trim()) {
             saveToHistory(term.trim());
             setIsOpen(false);
-            navigate(`/productos?search=${encodeURIComponent(term.trim())}`);
+            navigate(`/tienda/productos?search=${encodeURIComponent(term.trim())}`);
         }
     };
 

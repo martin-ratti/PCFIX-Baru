@@ -98,7 +98,7 @@ function CartContent() {
     const handleCheckout = async () => {
         if (!isAuthenticated || !user || !token) {
             addToast("Inicia sesión para comprar", 'error');
-            window.location.href = '/login';
+            window.location.href = '/auth/login';
             return;
         }
 
@@ -152,7 +152,7 @@ function CartContent() {
             <div className="text-center py-20 bg-white rounded-lg border border-gray-100 shadow-sm">
                 <div className="text-6xl mb-4">🛒</div>
                 <h1 className="text-3xl font-bold text-secondary mb-4">Tu carrito está vacío</h1>
-                <a href="/productos" className="bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-opacity-90 transition-colors">Ir a la Tienda</a>
+                <a href="/tienda/productos" className="bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-opacity-90 transition-colors">Ir a la Tienda</a>
             </div>
         );
     }

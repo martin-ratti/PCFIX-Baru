@@ -134,7 +134,7 @@ export default function LoginForm() {
 
       <GoogleLoginButton />
 
-      <p className="mt-6 text-center text-sm text-gray-600">¿No tienes cuenta? <a href="/registro" className="text-primary font-bold hover:underline">Regístrate</a></p>
+      <p className="mt-6 text-center text-sm text-gray-600">¿No tienes cuenta? <a href="/auth/registro" className="text-primary font-bold hover:underline">Regístrate</a></p>
     </div>
   );
 }

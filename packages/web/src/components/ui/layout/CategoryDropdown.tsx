@@ -51,7 +51,7 @@ export default function CategoryDropdown({ initialCategories = [] }: Props) {
 
 
               <a
-                href={`/productos?categoryId=${cat.id}`}
+                href={`/tienda/productos?categoryId=${cat.id}`}
                 className="flex justify-between items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors font-medium"
               >
                 <span>{cat.nombre}</span>
@@ -74,7 +74,7 @@ export default function CategoryDropdown({ initialCategories = [] }: Props) {
                         {cat.nombre}
                       </div>
                       {cat.subcategorias.map(sub => (
-                        <a key={sub.id} href={`/productos?categoryId=${sub.id}`} className="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-primary transition-colors">
+                        <a key={sub.id} href={`/tienda/productos?categoryId=${sub.id}`} className="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-primary transition-colors">
                           {sub.nombre}
                         </a>
                       ))}

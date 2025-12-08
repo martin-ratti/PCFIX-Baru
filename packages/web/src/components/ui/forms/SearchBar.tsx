@@ -60,7 +60,7 @@ export default function SearchBar() {
     e.preventDefault();
     if (term.trim()) {
       setIsOpen(false);
-      navigate(`/productos?search=${encodeURIComponent(term.trim())}`);
+      navigate(`/tienda/productos?search=${encodeURIComponent(term.trim())}`);
     }
   };
 

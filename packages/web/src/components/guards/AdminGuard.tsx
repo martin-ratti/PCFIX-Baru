@@ -27,7 +27,7 @@ export default function AdminGuard({ children }: AdminGuardProps) {
         try {
           const parsed = JSON.parse(storedAuth);
           const storedUser = parsed.state?.user;
-          
+
           if (storedUser?.role === 'ADMIN') {
             setIsAuthorized(true);
             setIsChecking(false);
@@ -39,10 +39,10 @@ export default function AdminGuard({ children }: AdminGuardProps) {
       // 3. Fallo: Redirección DESTRUCTIVA (Replace)
       // Esto evita el bucle infinito al dar "Atrás"
       if (!isAuthenticated) {
-         window.location.replace('/login'); 
+        window.location.replace('/auth/login');
       } else {
-         // Logueado pero sin permisos
-         window.location.replace('/acceso-denegado');
+        // Logueado pero sin permisos
+        window.location.replace('/acceso-denegado');
       }
     };
 

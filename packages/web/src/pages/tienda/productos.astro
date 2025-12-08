@@ -1,10 +1,10 @@
 ---
 export const prerender = false;
 
-import Layout from "../layouts/Layout.astro";
+import Layout from "../../layouts/Layout.astro";
 
-import ProductCard from "../components/store/product/ProductCard.tsx";
-import SortSelector from "../components/store/product/SortSelector.tsx";
+import ProductCard from "../../components/store/product/ProductCard.tsx";
+import SortSelector from "../../components/store/product/SortSelector.tsx";
 
 interface ProductDB {
   id: number;
@@ -187,3 +187,4 @@ try {
     }
   </main>
 </Layout>
+

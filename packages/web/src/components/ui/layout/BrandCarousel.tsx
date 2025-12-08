@@ -46,7 +46,7 @@ export default function BrandCarousel({ brands }: BrandCarouselProps) {
           {brands.map((brand) => (
             <SwiperSlide key={brand.id} className="flex items-center justify-center h-24">
               <a
-                href={`/productos?marcaId=${brand.id}`}
+                href={`/tienda/productos?marcaId=${brand.id}`}
                 className="group w-full h-full flex items-center justify-center transition-all duration-300 opacity-60 hover:opacity-100"
                 title={`Ver productos de ${brand.nombre}`}
               >

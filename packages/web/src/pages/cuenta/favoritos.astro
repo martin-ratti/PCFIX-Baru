@@ -1,10 +1,10 @@
 ---
 export const prerender = false;
 
-import Layout from "../layouts/Layout.astro";
+import Layout from "../../layouts/Layout.astro";
 
-import FavoritesPageContent from "../components/store/profile/FavoritesPageContent";
-import UserGuard from "../components/guards/UserGuard.tsx";
+import FavoritesPageContent from "../../components/store/profile/FavoritesPageContent";
+import UserGuard from "../../components/guards/UserGuard.tsx";
 ---
 
 <Layout title="PCFIX | Mis Favoritos">
@@ -19,3 +19,4 @@ import UserGuard from "../components/guards/UserGuard.tsx";
         </UserGuard>
     </main>
 </Layout>
+

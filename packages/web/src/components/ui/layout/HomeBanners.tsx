@@ -40,7 +40,7 @@ export default function HomeBanners({ banners }: HomeBannersProps) {
           {banners.map((banner) => (
             <SwiperSlide key={banner.id} className="relative bg-gray-900">
               <a
-                href={`/productos?marcaId=${banner.marca.id}`}
+                href={`/tienda/productos?marcaId=${banner.marca.id}`}
                 className="block w-full h-full relative"
               >
                 <img

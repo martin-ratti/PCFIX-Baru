@@ -79,7 +79,7 @@ export default function RegisterForm() {
       setSuccess('¡Cuenta creada con éxito! Redirigiendo al login...');
 
       setTimeout(async () => {
-        await navigate('/login');
+        await navigate('/auth/login');
       }, 2000);
 
     } catch (err: any) {
@@ -219,7 +219,7 @@ export default function RegisterForm() {
       </form>
 
       <p className="mt-4 text-center text-sm text-gray-600">
-        ¿Ya tienes cuenta? <a href="/login" className="text-primary font-bold hover:underline">Inicia Sesión</a>
+        ¿Ya tienes cuenta? <a href="/auth/login" className="text-primary font-bold hover:underline">Inicia Sesión</a>
       </p>
     </div>
   );
