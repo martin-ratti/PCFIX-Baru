@@ -48,15 +48,8 @@ export const createSale = async (req: Request, res: Response) => {
     }
 };
 
-
-
-
-
 export const handleViumiWebhook = async (req: Request, res: Response) => {
     try {
-        console.log('🔔 ViüMi Webhook:', req.body);
-        // Implement logic to verify and update order based on req.body
-        // For now just acknowledge
         res.sendStatus(200);
     } catch (e) {
         console.error(e);
