@@ -59,11 +59,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // --- ARCHIVOS ESTÁTICOS ---
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-// Middleware para logs
+// Middleware para logs y debug
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+  console.log(`[DEBUG] ${req.method} ${req.url}`);
+  console.log(`[DEBUG] Headers:`, req.headers['content-type']);
+  console.log(`[DEBUG] Body:`, req.body);
   next();
 });
 

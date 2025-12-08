@@ -1,7 +1,24 @@
 export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   const BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
 
-  const res = await fetch(`${BASE_URL}${endpoint}`, options);
+  const defaultHeaders: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  // Check if body is FormData (browser sets Content-Type automatically with boundary)
+  if (options.body instanceof FormData) {
+    delete (defaultHeaders as any)['Content-Type'];
+  }
+
+  const mergedOptions: RequestInit = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers,
+    },
+  };
+
+  const res = await fetch(`${BASE_URL}${endpoint}`, mergedOptions);
 
   // Only redirect on truly critical server errors (5xx) that the user can't recover from
   // Let 4xx errors (validation, auth, etc.) be handled by the calling component
