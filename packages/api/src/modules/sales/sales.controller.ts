@@ -157,8 +157,9 @@ export const getAllSales = async (req: Request, res: Response) => {
         const month = req.query.month ? Number(req.query.month) : undefined;
         const year = req.query.year ? Number(req.query.year) : undefined;
         const paymentMethod = req.query.paymentMethod ? String(req.query.paymentMethod) : undefined;
+        const date = req.query.date ? String(req.query.date) : undefined;
 
-        const result = await service.findAll(page, 20, undefined, month, year, paymentMethod);
+        const result = await service.findAll(page, 20, undefined, month, year, paymentMethod, date);
         res.json({ success: true, ...result });
     } catch (e: any) {
         res.status(500).json({ success: false, error: e.message });

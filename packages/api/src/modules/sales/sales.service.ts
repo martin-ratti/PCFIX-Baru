@@ -213,11 +213,17 @@ export class SalesService {
     }
 
 
-    async findAll(page: number, limit: number, userId?: number, month?: number, year?: number, paymentMethod?: string) {
+    async findAll(page: number, limit: number, userId?: number, month?: number, year?: number, paymentMethod?: string, date?: string) {
         const where: any = {};
         if (userId) where.cliente = { userId };
 
-        if (month && year) {
+        if (date) {
+            // Filter by specific date (YYYY-MM-DD)
+            const [y, m, d] = date.split('-').map(Number);
+            const startDate = new Date(y, m - 1, d, 0, 0, 0);
+            const endDate = new Date(y, m - 1, d, 23, 59, 59);
+            where.fecha = { gte: startDate, lte: endDate };
+        } else if (month && year) {
             const startDate = new Date(year, month - 1, 1);
             const endDate = new Date(year, month, 0, 23, 59, 59);
             where.fecha = { gte: startDate, lte: endDate };

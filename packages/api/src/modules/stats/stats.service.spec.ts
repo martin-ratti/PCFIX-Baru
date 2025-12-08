@@ -2,10 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockPrisma = vi.hoisted(() => ({
     $transaction: vi.fn(),
-    producto: { count: vi.fn() },
+    producto: { count: vi.fn(), findMany: vi.fn(), findUnique: vi.fn() },
     user: { count: vi.fn() },
-    venta: { count: vi.fn() },
-    consultaTecnica: { count: vi.fn() }
+    venta: { count: vi.fn(), findMany: vi.fn(), groupBy: vi.fn() },
+    consultaTecnica: { count: vi.fn() },
+    lineaVenta: { groupBy: vi.fn(), findFirst: vi.fn() }
 }));
 
 vi.mock('../../shared/database/prismaClient', () => ({
@@ -20,6 +21,11 @@ describe('StatsService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         service = new StatsService();
+        // Reset default implementations
+        mockPrisma.venta.findMany.mockResolvedValue([]);
+        mockPrisma.producto.findMany.mockResolvedValue([]);
+        mockPrisma.venta.groupBy.mockResolvedValue([]);
+        mockPrisma.lineaVenta.groupBy.mockResolvedValue([]);
     });
 
     describe('getDashboardStats', () => {
@@ -50,6 +56,57 @@ describe('StatsService', () => {
                 recentSales: 0,
                 pendingInquiries: 0
             });
+        });
+    });
+
+    describe('getSalesIntelligence', () => {
+        it('should calculate KPIs accurately', async () => {
+            // Mock Date to ensure deterministic tests if logic depends on "now"
+            // (Wait, service uses new Date inside. We can't easily mock system time without layout change or vitest timers)
+            // For now we assume calculations are consistent.
+
+            // 1. Gross Revenue & Ticket (2 sales of 1000 and 2000)
+            mockPrisma.venta.findMany.mockResolvedValueOnce([
+                { montoTotal: 1000, fecha: new Date() },
+                { montoTotal: 2000, fecha: new Date() }
+            ]);
+
+            // 2. Low Stock (should return logic based on count)
+            mockPrisma.producto.count.mockResolvedValueOnce(15);
+
+            // 3. Inventory Value (2 products: 10 qty * 100 price, 5 qty * 200 price)
+            mockPrisma.producto.findMany.mockResolvedValueOnce([
+                { stock: 10, precio: 100 },
+                { stock: 5, precio: 200 }
+            ]);
+
+            // 4. Pending Support
+            mockPrisma.consultaTecnica.count.mockResolvedValueOnce(3);
+
+            // 4. Sales Trend (return empty or mocked for simplicity, focusing on known return structure)
+            mockPrisma.venta.findMany.mockResolvedValueOnce([]); // Sales last 30 days
+
+            // 5. Top Products
+            mockPrisma.lineaVenta.groupBy.mockResolvedValueOnce([
+                { productoId: 101, _sum: { cantidad: 50 } }
+            ]);
+            mockPrisma.producto.findUnique.mockResolvedValue({ nombre: 'Top Product' });
+
+            // 6. Dead Stock
+            mockPrisma.producto.findMany.mockResolvedValueOnce([]); // No dead stock candidates for this test
+
+            const result = await service.getSalesIntelligence();
+
+            // KPIs Check
+            expect(result.kpis.grossRevenue).toBe(3000); // 1000 + 2000
+            expect(result.kpis.lowStockProducts).toBe(15);
+            expect(result.kpis.inventoryValue).toBe(2000); // (10*100) + (5*200) = 1000 + 1000
+            expect(result.kpis.pendingSupport).toBe(3);
+
+            // Top Products Check
+            expect(result.charts.topProducts).toEqual([
+                { name: 'Top Product', quantity: 50 }
+            ]);
         });
     });
 });

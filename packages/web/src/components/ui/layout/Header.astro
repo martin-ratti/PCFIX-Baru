@@ -44,7 +44,7 @@ try {
           src={logo}
           alt="PCFIX Logo"
           width={150}
-          class="object-contain h-auto transition-all duration-300 origin-left w-32 md:w-auto"
+          class="object-contain transition-all duration-300 origin-left h-20 w-auto"
           id="header-logo"
         />
       </a>
@@ -76,59 +76,59 @@ try {
         <MobileMenu client:load />
       </div>
     </div>
-
-    <style>
-      header.is-scrolled {
-        @apply shadow-xl bg-accent/95 backdrop-blur-md py-0;
-      }
-
-      header.is-scrolled #header-nav {
-        @apply py-2;
-      }
-
-      header.is-scrolled #header-logo {
-        @apply w-32;
-      }
-    </style>
-
-    <script>
-      // Store reference to cleanup function
-      let scrollCleanup: (() => void) | null = null;
-
-      document.addEventListener("astro:page-load", () => {
-        const header = document.getElementById("main-header");
-
-        // Clean up previous scroll listener if exists
-        if (scrollCleanup) {
-          scrollCleanup();
-        }
-
-        const handleScroll = () => {
-          if (window.scrollY > 30) {
-            header?.classList.add("is-scrolled");
-          } else {
-            header?.classList.remove("is-scrolled");
-          }
-        };
-
-        window.addEventListener("scroll", handleScroll, { passive: true });
-
-        // Store cleanup function for next navigation
-        scrollCleanup = () => {
-          window.removeEventListener("scroll", handleScroll);
-        };
-
-        // Initial check
-        handleScroll();
-      });
-
-      // Also cleanup on before-swap for View Transitions
-      document.addEventListener("astro:before-swap", () => {
-        if (scrollCleanup) {
-          scrollCleanup();
-          scrollCleanup = null;
-        }
-      });
-    </script>
   </nav>
+
+  <style>
+    header.is-scrolled {
+      @apply shadow-xl bg-accent/95 backdrop-blur-md;
+    }
+
+    header.is-scrolled #header-nav {
+      @apply py-2;
+    }
+
+    header.is-scrolled #header-logo {
+      @apply h-14;
+    }
+  </style>
+
+  <script>
+    // Store reference to cleanup function
+    let scrollCleanup: (() => void) | null = null;
+
+    document.addEventListener("astro:page-load", () => {
+      const header = document.getElementById("main-header");
+
+      // Clean up previous scroll listener if exists
+      if (scrollCleanup) {
+        scrollCleanup();
+      }
+
+      const handleScroll = () => {
+        if (window.scrollY > 30) {
+          header?.classList.add("is-scrolled");
+        } else {
+          header?.classList.remove("is-scrolled");
+        }
+      };
+
+      window.addEventListener("scroll", handleScroll, { passive: true });
+
+      // Store cleanup function for next navigation
+      scrollCleanup = () => {
+        window.removeEventListener("scroll", handleScroll);
+      };
+
+      // Initial check
+      handleScroll();
+    });
+
+    // Also cleanup on before-swap for View Transitions
+    document.addEventListener("astro:before-swap", () => {
+      if (scrollCleanup) {
+        scrollCleanup();
+        scrollCleanup = null;
+      }
+    });
+  </script>
 </header>

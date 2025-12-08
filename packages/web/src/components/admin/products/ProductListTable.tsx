@@ -38,6 +38,15 @@ function ProductListContent() {
     useEffect(() => {
         fetchApi('/categories').then(res => res.json()).then(d => d.success && setCategories(d.data));
         fetchApi('/brands').then(res => res.json()).then(d => d.success && setBrands(d.data));
+
+        // URL Params Logic
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('filter') === 'lowStock') {
+            setShowLowStock(true);
+        }
+        if (params.get('search')) {
+            setSearchTerm(params.get('search') || '');
+        }
     }, []);
 
     // Carga de productos (con debounce)
