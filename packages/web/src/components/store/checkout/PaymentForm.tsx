@@ -165,8 +165,8 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         ) : (
                             <p className="text-xs text-gray-400 px-1 mt-1">* Efectivo no disponible para envío a domicilio.</p>
                         )}
-                        <label className="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-pointer hover:border-purple-500 transition-colors">
-                            <input type="radio" name="pm" value="VIUMI" checked={tempPaymentMethod === 'VIUMI'} onChange={(e) => setTempPaymentMethod(e.target.value)} className="text-purple-600" />
+                        <label className="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-pointer hover:border-[#4429A6] transition-colors">
+                            <input type="radio" name="pm" value="VIUMI" checked={tempPaymentMethod === 'VIUMI'} onChange={(e) => setTempPaymentMethod(e.target.value)} className="accent-[#4429A6]" />
                             <span>💳 Tarjeta de Débito/Crédito (ViüMi)</span>
                         </label>
                     </div>
@@ -181,12 +181,13 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         if (sale.medioPago === 'VIUMI') {
             return (
                 <div className="space-y-6 animate-fade-in text-center">
-                    <div className="bg-purple-600 p-6 rounded-2xl text-white shadow-lg relative overflow-hidden">
+                    {/* Card con gradiente Viumi */}
+                    <div className="bg-gradient-to-br from-[#4429A6] to-[#3A238C] p-6 rounded-2xl text-white shadow-lg relative overflow-hidden">
                         <p className="text-xs font-bold uppercase tracking-widest mb-1 opacity-80">Total a Pagar</p>
                         <p className="text-4xl font-black tracking-tight">${Number(sale.montoTotal).toLocaleString('es-AR')}</p>
                     </div>
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center">
-                        <button onClick={handlePayWithViumi} className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-purple-700 transition-all shadow-lg flex items-center justify-center gap-2">
+                        <button onClick={handlePayWithViumi} className="w-full bg-gradient-to-r from-[#4429A6] to-[#3A238C] text-white py-3 rounded-xl font-bold text-lg hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2">
                             <span>💳 Pagar con Tarjeta (ViüMi)</span>
                         </button>
                         <p className="text-xs text-gray-400 mt-2">Serás redirigido a un sitio seguro.</p>
@@ -296,10 +297,10 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                 </div>
 
                 {sale.medioPago === 'VIUMI' ? (
-                    <div className="bg-purple-50 p-6 rounded-xl border border-purple-100 text-center animate-fade-in">
+                    <div className="bg-[#4429A6]/5 p-6 rounded-xl border border-[#4429A6]/20 text-center animate-fade-in">
                         <span className="text-4xl mb-4 block">💳</span>
-                        <p className="text-purple-800 font-bold">Pago con Tarjeta</p>
-                        <p className="text-purple-600 text-sm mt-2">
+                        <p className="text-[#3A238C] font-bold">Pago con Tarjeta</p>
+                        <p className="text-[#4429A6] text-sm mt-2">
                             Haz clic en el botón <strong>"Pagar con Tarjeta"</strong> a la izquierda para procesar tu pago de forma segura a través de ViüMi.
                         </p>
                         <p className="text-xs text-gray-400 mt-4">No es necesario subir comprobante.</p>

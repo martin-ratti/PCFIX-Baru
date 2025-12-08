@@ -28,7 +28,6 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-  console.log('📧 Login attempt:', req.body?.email);
   try {
     const data = loginSchema.parse(req.body);
     const result = await authService.login(data);

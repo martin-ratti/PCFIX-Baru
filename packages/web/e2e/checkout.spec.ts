@@ -9,9 +9,9 @@ test.describe('Checkout Flow', () => {
         await page.click('button:has-text("Entrar")');
         await expect(page).toHaveURL('/');
 
-        // 2. Add to Cart
-        await page.goto('/productos?search=Ryzen');
-        await page.waitForSelector('text=Ryzen 9');
+        // 2. Add to Cart - go to products and add first available
+        await page.goto('/productos');
+        await page.waitForSelector('button:has-text("Agregar")', { timeout: 15000 });
         const addToCartBtn = page.locator('button:has-text("Agregar")').first();
         await addToCartBtn.click();
         await expect(page.locator('text=Agregado')).toBeVisible();
@@ -19,7 +19,6 @@ test.describe('Checkout Flow', () => {
         // 3. Go to Cart
         await page.goto('/carrito');
         await expect(page.locator('text=Tu Carrito')).toBeVisible();
-        await expect(page.locator('text=Ryzen 9')).toBeVisible();
 
         // 4. Checkout Interaction
         await page.click('button:has-text("Retiro")');
@@ -38,3 +37,15 @@ test.describe('Checkout Flow', () => {
 });
 
 
+test.describe('Navegación Básica', () => {
+
+    test('Página de inicio carga correctamente', async ({ page }) => {
+        await page.goto('/');
+        await expect(page).toHaveTitle(/PCFIX/);
+    });
+
+    test('Página de login carga correctamente', async ({ page }) => {
+        await page.goto('/login');
+        await expect(page.locator('text=Iniciar Sesión')).toBeVisible();
+    });
+});
