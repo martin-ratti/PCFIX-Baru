@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { navigate } from 'astro:transitions/client';
 import { fetchApi } from '../../../utils/api';
+import { useAuthStore } from '../../../stores/authStore';
 // Removed lucide-react import 
 // Previous analysis showed usage of lucide-react in RegisterForm was removed. So it is likely NOT available.
 // I will use SVGs.
 
 export default function LiveSearch() {
+    const { user } = useAuthStore();
+    const [isClient, setIsClient] = useState(false);
     const [term, setTerm] = useState('');
     const [results, setResults] = useState<any[]>([]);
     const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +17,13 @@ export default function LiveSearch() {
 
     const wrapperRef = useRef<HTMLDivElement>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
+
+    // Set isClient on mount
+    useEffect(() => setIsClient(true), []);
+
+    // Don't render for admin users
+    if (!isClient) return null;
+    if (user?.role === 'ADMIN') return null;
 
     // Load history on mount
     useEffect(() => {

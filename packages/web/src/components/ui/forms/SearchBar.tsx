@@ -54,7 +54,8 @@ export default function SearchBar() {
     return () => clearTimeout(timeoutId);
   }, [term]);
 
-  if (isClient && user?.role === 'ADMIN') return null;
+  if (!isClient) return null;
+  if (user?.role === 'ADMIN') return null;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

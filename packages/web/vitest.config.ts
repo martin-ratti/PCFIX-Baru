@@ -8,8 +8,7 @@ export default getViteConfig({
         setupFiles: './vitest.setup.ts',
         exclude: ['e2e/**/*', 'node_modules/**/*'],
 
-        // Reporter verbose para ver cada test
-        reporters: ['verbose'],
+        // Reporter por defecto (igual que API)
 
         // Mostrar console.logs durante tests
         onConsole: (log) => {

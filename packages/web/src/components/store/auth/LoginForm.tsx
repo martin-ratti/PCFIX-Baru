@@ -77,9 +77,11 @@ export default function LoginForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
           <div className="relative">
             <input
+              id="email"
+              data-testid="input-email"
               {...register('email')}
               type="email"
               className={getInputClasses('email')}
@@ -96,9 +98,11 @@ export default function LoginForm() {
           {errors.email && <p className="text-red-500 text-xs mt-1 font-medium">{errors.email.message}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
           <div className="relative">
             <input
+              id="password"
+              data-testid="input-password"
               {...register('password')}
               type="password"
               className={getInputClasses('password')}

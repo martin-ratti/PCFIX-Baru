@@ -38,13 +38,13 @@ export default function CreateProductForm() {
 
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<ProductSchema>({
     resolver: zodResolver(productSchema),
-    defaultValues: { 
-        stock: 1,
-        // Valores por defecto lógicos para no frustrar al usuario
-        peso: 0.5,
-        alto: 10,
-        ancho: 10,
-        profundidad: 5
+    defaultValues: {
+      stock: 1,
+      // Valores por defecto lógicos para no frustrar al usuario
+      peso: 0.5,
+      alto: 10,
+      ancho: 10,
+      profundidad: 5
     }
   });
 
@@ -63,7 +63,7 @@ export default function CreateProductForm() {
       formData.append('precio', data.precio.toString());
       formData.append('stock', data.stock.toString());
       formData.append('categoriaId', data.categoriaId.toString());
-      
+
       // 2. AGREGAR CAMPOS LOGÍSTICOS AL FORMDATA
       formData.append('peso', data.peso.toString());
       formData.append('alto', data.alto.toString());
@@ -75,7 +75,7 @@ export default function CreateProductForm() {
 
       const response = await fetch('http://localhost:3002/api/products', { method: 'POST', body: formData });
       const result = await response.json();
-      
+
       if (!result.success) throw new Error(result.error);
       addToast('Producto creado exitosamente', 'success');
       reset();
@@ -91,49 +91,49 @@ export default function CreateProductForm() {
     <div className="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-secondary border-b pb-2">Nuevo Producto</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
         {/* Columna Izquierda: Datos Básicos */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nombre</label>
-            <input {...register('nombre')} className="w-full mt-1 p-2 border rounded-md" placeholder="Ej: Ryzen 5 5600X" />
+            <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">Nombre</label>
+            <input id="nombre" data-testid="input-nombre" {...register('nombre')} className="w-full mt-1 p-2 border rounded-md" placeholder="Ej: Ryzen 5 5600X" />
             {errors.nombre && <span className="text-red-500 text-xs">{errors.nombre.message}</span>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-                <label className="block text-sm font-medium text-gray-700">Precio ($)</label>
-                <input type="number" step="0.01" {...register('precio')} className="w-full mt-1 p-2 border rounded-md" />
+              <label htmlFor="precio" className="block text-sm font-medium text-gray-700">Precio ($)</label>
+              <input id="precio" data-testid="input-precio" type="number" step="0.01" {...register('precio')} className="w-full mt-1 p-2 border rounded-md" />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-700">Stock</label>
-                <input type="number" {...register('stock')} className="w-full mt-1 p-2 border rounded-md" />
+              <label htmlFor="stock" className="block text-sm font-medium text-gray-700">Stock</label>
+              <input id="stock" data-testid="input-stock" type="number" {...register('stock')} className="w-full mt-1 p-2 border rounded-md" />
             </div>
           </div>
-          
+
           {/* 3. SECCIÓN LOGÍSTICA (NUEVO) */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h3 className="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-1">
-                📦 Dimensiones y Peso
+              📦 Dimensiones y Peso
             </h3>
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="peso" className="block text-xs font-medium text-gray-600">Peso (kg)</label>
+                <input id="peso" data-testid="input-peso" type="number" step="0.001" {...register('peso')} className="w-full mt-1 p-2 border rounded-md text-sm" />
+              </div>
+              <div className="col-span-1 grid grid-cols-3 gap-2">
                 <div>
-                    <label className="block text-xs font-medium text-gray-600">Peso (kg)</label>
-                    <input type="number" step="0.001" {...register('peso')} className="w-full mt-1 p-2 border rounded-md text-sm" />
+                  <label htmlFor="alto" className="block text-xs font-medium text-gray-600">Alto</label>
+                  <input id="alto" data-testid="input-alto" type="number" {...register('alto')} className="w-full mt-1 p-2 border rounded-md text-sm" placeholder="cm" />
                 </div>
-                <div className="col-span-1 grid grid-cols-3 gap-2">
-                    <div>
-                        <label className="block text-xs font-medium text-gray-600">Alto</label>
-                        <input type="number" {...register('alto')} className="w-full mt-1 p-2 border rounded-md text-sm" placeholder="cm" />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-600">Ancho</label>
-                        <input type="number" {...register('ancho')} className="w-full mt-1 p-2 border rounded-md text-sm" placeholder="cm" />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-600">Prof.</label>
-                        <input type="number" {...register('profundidad')} className="w-full mt-1 p-2 border rounded-md text-sm" placeholder="cm" />
-                    </div>
+                <div>
+                  <label htmlFor="ancho" className="block text-xs font-medium text-gray-600">Ancho</label>
+                  <input id="ancho" data-testid="input-ancho" type="number" {...register('ancho')} className="w-full mt-1 p-2 border rounded-md text-sm" placeholder="cm" />
                 </div>
+                <div>
+                  <label htmlFor="profundidad" className="block text-xs font-medium text-gray-600">Prof.</label>
+                  <input id="profundidad" data-testid="input-prof" type="number" {...register('profundidad')} className="w-full mt-1 p-2 border rounded-md text-sm" placeholder="cm" />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -142,39 +142,39 @@ export default function CreateProductForm() {
         {/* Columna Derecha: Clasificación e Imagen */}
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-             <div>
-                <label className="block text-sm font-medium text-gray-700">Categoría</label>
-                <select {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
+            <div>
+              <label htmlFor="categoriaId" className="block text-sm font-medium text-gray-700">Categoría</label>
+              <select id="categoriaId" data-testid="select-category" {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
                 <option value="">Seleccionar...</option>
                 {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.nombre}</option>)}
-                </select>
-             </div>
-             <div>
-                <label className="block text-sm font-medium text-gray-700">Marca</label>
-                <select {...register('marcaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
+              </select>
+            </div>
+            <div>
+              <label htmlFor="marcaId" className="block text-sm font-medium text-gray-700">Marca</label>
+              <select id="marcaId" data-testid="select-brand" {...register('marcaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
                 <option value="">Sin Marca</option>
                 {brands.map(b => <option key={b.id} value={b.id}>{b.nombre}</option>)}
-                </select>
-             </div>
+              </select>
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Imagen del Producto</label>
             <div className="mt-1">
-                <input type="file" id="product-image-upload" accept="image/*" {...register('fotoFile')} className="hidden" />
-                <label htmlFor="product-image-upload" className="flex items-center justify-center w-full px-6 py-8 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 flex-col">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                    </svg>
-                    <span className="truncate max-w-xs">{fileName || "Haz clic para subir imagen"}</span>
-                </label>
+              <input type="file" id="product-image-upload" accept="image/*" {...register('fotoFile')} className="hidden" />
+              <label htmlFor="product-image-upload" className="flex items-center justify-center w-full px-6 py-8 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 flex-col">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                </svg>
+                <span className="truncate max-w-xs">{fileName || "Haz clic para subir imagen"}</span>
+              </label>
             </div>
           </div>
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700">Descripción</label>
-          <textarea {...register('descripcion')} rows={4} className="w-full mt-1 p-2 border rounded-md" placeholder="Detalles técnicos del producto..."></textarea>
+          <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700">Descripción</label>
+          <textarea id="descripcion" data-testid="input-description" {...register('descripcion')} rows={4} className="w-full mt-1 p-2 border rounded-md" placeholder="Detalles técnicos del producto..."></textarea>
         </div>
         <div className="md:col-span-2 flex justify-end">
           <button type="submit" disabled={isLoading} className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md">
