@@ -330,7 +330,9 @@ export class SalesService {
 
     async updateStatus(saleId: number, status: VentaEstado) {
         const updated = await prisma.venta.update({ where: { id: saleId }, data: { estado: status }, include: { cliente: { include: { user: true } } } });
-        if (updated.cliente?.user?.email) this.emailService.sendStatusUpdate(updated.cliente.user.email, saleId, status).catch(console.error);
+        if (updated.cliente?.user?.email) {
+            this.emailService.sendStatusUpdate(updated.cliente.user.email, saleId, status, updated.tipoEntrega).catch(console.error);
+        }
         return updated;
     }
 }

@@ -97,9 +97,19 @@ model Producto {
   favoritedBy    Favorite[]
   lineasVenta    LineaVenta[]
   cartItems      CartItem[]
+  stockAlerts    StockAlert[]
   
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model StockAlert {
+  id         Int      @id @default(autoincrement())
+  email      String
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id])
+  createdAt  DateTime @default(now())
+  @@unique([email, productoId])
 }
 
 model Categoria {

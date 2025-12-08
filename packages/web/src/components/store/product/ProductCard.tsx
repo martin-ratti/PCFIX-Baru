@@ -5,6 +5,7 @@ import { useFavoritesStore } from '../../../stores/favoritesStore';
 import { useToastStore } from '../../../stores/toastStore';
 import { navigate } from 'astro:transitions/client';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
+import StockAlertModal from './StockAlertModal';
 import { fetchApi } from '../../../utils/api';
 
 interface ProductCardProps {
@@ -30,6 +31,7 @@ export default function ProductCard({ product, disableTransition = false }: Prod
   const addToast = useToastStore(s => s.addToast);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => { setIsClient(true); }, []);
@@ -45,6 +47,7 @@ export default function ProductCard({ product, disableTransition = false }: Prod
     : 0;
 
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
+  const hasStock = product.stock > 0;
 
   const transitionStyle = disableTransition ? {} : { viewTransitionName: `image-${product.id}` };
   const titleTransitionStyle = disableTransition ? {} : { viewTransitionName: `title-${product.id}` };
@@ -90,6 +93,7 @@ export default function ProductCard({ product, disableTransition = false }: Prod
         className="w-full bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 relative group h-full flex flex-col cursor-pointer"
       >
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+          {!hasStock && !isService && <span className="bg-gray-800 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm border border-gray-600">AGOTADO</span>}
           {discountPercent > 0 && <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">-{discountPercent}%</span>}
         </div>
 
@@ -101,7 +105,7 @@ export default function ProductCard({ product, disableTransition = false }: Prod
         )}
 
         <div className="block overflow-hidden relative pt-[100%] bg-white">
-          <img className="absolute top-0 left-0 w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-500" src={product.imageUrl || "https://placehold.co/400x400?text=IMG"} alt={product.imageAlt} loading="lazy" style={transitionStyle} />
+          <img className={`absolute top-0 left-0 w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-500 ${!hasStock && !isService ? 'grayscale opacity-60' : ''}`} src={product.imageUrl || "https://placehold.co/400x400?text=IMG"} alt={product.imageAlt} loading="lazy" style={transitionStyle} />
         </div>
 
         <div className="p-5 flex flex-col flex-grow border-t border-gray-50 bg-white">
@@ -138,9 +142,19 @@ export default function ProductCard({ product, disableTransition = false }: Prod
                   </div>
                 ) : (
                   !itemInCart ? (
-                    <button onClick={handleAddToCart} disabled={product.stock === 0} className={`w-full font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm ${product.stock > 0 ? 'bg-primary text-white hover:bg-opacity-90' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
-                      {product.stock > 0 ? 'Agregar' : 'Sin Stock'}
-                    </button>
+                    hasStock ? (
+                      <button onClick={handleAddToCart} className="w-full font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm bg-primary text-white hover:bg-opacity-90">
+                        Agregar
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsAlertModalOpen(true); }}
+                        className="w-full font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm border border-primary text-primary hover:bg-primary hover:text-white flex items-center justify-center gap-2 group/btn"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                        Avísame
+                      </button>
+                    )
                   ) : (
                     <div className="flex items-center justify-between border border-primary/20 rounded-lg bg-primary/5 p-1">
                       <button onClick={(e) => { e.preventDefault(); decreaseQuantity(product.id); }} className="w-8 h-8 flex items-center justify-center rounded-md bg-white text-primary font-bold">-</button>
@@ -155,6 +169,13 @@ export default function ProductCard({ product, disableTransition = false }: Prod
         </div>
       </div>
       <ConfirmModal isOpen={isDeleteModalOpen} title="Eliminar" message="¿Borrar?" confirmText="Sí" isDanger={true} onConfirm={confirmDelete} onCancel={() => setIsDeleteModalOpen(false)} />
+
+      <StockAlertModal
+        isOpen={isAlertModalOpen}
+        onClose={() => setIsAlertModalOpen(false)}
+        productId={Number(product.id)}
+        productName={product.name}
+      />
     </>
   );
 }

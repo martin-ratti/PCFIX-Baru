@@ -118,7 +118,57 @@ export class ProductService {
 
         if (data.foto) updateData.foto = data.foto;
 
-        return await prisma.producto.update({ where: { id }, data: updateData });
-    } async delete(id: number) { return await prisma.producto.update({ where: { id }, data: { deletedAt: new Date() } }); }
+        // Check previous stock
+        const currentProduct = await prisma.producto.findUnique({ where: { id } });
+        const oldStock = currentProduct?.stock || 0;
+
+        const updatedProduct = await prisma.producto.update({ where: { id }, data: updateData });
+
+        // Trigger Stock Alert if stock went from 0 to > 0
+        const newStock = updatedProduct.stock;
+        if (oldStock === 0 && newStock > 0) {
+            this.processStockAlerts(updatedProduct);
+        }
+
+        return updatedProduct;
+    }
+
+    // Helper to process alerts
+    private async processStockAlerts(product: any) {
+        try {
+            const alerts = await (prisma as any).stockAlert.findMany({
+                where: { productoId: product.id }
+            });
+
+            if (alerts.length === 0) return;
+
+            // Lazy load EmailService to avoid circular deps if any (though shared is fine)
+            const { EmailService } = require('../../shared/services/EmailService');
+            const emailService = new EmailService();
+
+            const productLink = `https://pcfixbaru.com.ar/tienda/producto/${product.id}`; // Dev: localhost
+
+            for (const alert of alerts) {
+                await emailService.sendStockAlertEmail(
+                    alert.email,
+                    product.nombre,
+                    productLink,
+                    product.foto,
+                    Number(product.precio)
+                );
+            }
+
+            // Delete processed alerts
+            await (prisma as any).stockAlert.deleteMany({
+                where: { productoId: product.id }
+            });
+            console.log(`📢 Enviadas ${alerts.length} alertas de stock para ${product.nombre}`);
+
+        } catch (error) {
+            console.error('Error procesando alertas de stock:', error);
+        }
+    }
+
+    async delete(id: number) { return await prisma.producto.update({ where: { id }, data: { deletedAt: new Date() } }); }
     async restore(id: number) { return await prisma.producto.update({ where: { id }, data: { deletedAt: null } }); }
 }

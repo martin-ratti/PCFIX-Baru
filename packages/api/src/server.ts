@@ -53,15 +53,19 @@ const corsOptions: cors.CorsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // --- ARCHIVOS ESTÁTICOS ---
-app.use('/uploads', (req, res, next) => {
-  res.header("Cross-Origin-Resource-Policy", "cross-origin");
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Middleware para logs
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
   next();
-}, express.static(path.join(process.cwd(), 'uploads')));
+});
 
 // --- RATE LIMITING ---
 import { authLimiter, apiLimiter } from './shared/middlewares/rateLimitMiddleware';
