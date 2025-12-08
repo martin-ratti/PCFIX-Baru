@@ -26,7 +26,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, disableTransition = false }: ProductCardProps) {
   const { items, addItem, increaseQuantity, decreaseQuantity } = useCartStore();
   const { user, isAuthenticated } = useAuthStore();
-  const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore();
+  const { isFavorite, toggleFavoriteOptimistic } = useFavoritesStore();
   const addToast = useToastStore(s => s.addToast);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -56,11 +56,14 @@ export default function ProductCard({ product, disableTransition = false }: Prod
     else { navigator.clipboard.writeText(url); addToast("Copiado", 'info'); }
   };
 
-  const handleToggleFavorite = async (e: React.MouseEvent) => {
+  const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
     if (!isAuthenticated) { addToast("Inicia sesión", 'info'); return; }
-    if (isFavorited) removeFavorite(Number(product.id)); else addFavorite(Number(product.id));
-    try { await fetchApi('/favorites/toggle', { method: 'POST', body: JSON.stringify({ userId: user?.id, productId: Number(product.id) }), headers: { 'Content-Type': 'application/json' } }); } catch (e) { }
+
+    // Optimistic toggle via store
+    if (user?.id) {
+      toggleFavoriteOptimistic(user.id, Number(product.id));
+    }
   };
 
   const handleAddToCart = async (e: React.MouseEvent) => {

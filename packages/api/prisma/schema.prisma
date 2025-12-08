@@ -22,6 +22,27 @@ model User {
   consultas ConsultaTecnica[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  cart      Cart?
+}
+
+model Cart {
+  id                 Int        @id @default(autoincrement())
+  userId             Int        @unique
+  user               User       @relation(fields: [userId], references: [id])
+  items              CartItem[]
+  abandonedEmailSent Boolean    @default(false)
+  updatedAt          DateTime   @updatedAt
+  createdAt          DateTime   @default(now())
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id])
+  quantity  Int
 }
 
 model Cliente {
@@ -75,6 +96,7 @@ model Producto {
   
   favoritedBy    Favorite[]
   lineasVenta    LineaVenta[]
+  cartItems      CartItem[]
   
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

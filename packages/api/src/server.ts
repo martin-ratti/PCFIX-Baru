@@ -17,6 +17,7 @@ import salesRoutes from './modules/sales/sales.routes';
 import configRoutes from './modules/config/config.routes';
 import favoritesRoutes from './modules/favorites/favorites.routes';
 import technicalRoutes from './modules/technical/technical.routes';
+import cartRoutes from './modules/cart/cart.routes';
 
 // Imports de Manejo de Errores y Servicios
 import { AppError } from './shared/utils/AppError';
@@ -79,6 +80,7 @@ app.use('/api/sales', salesRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/favorites', favoritesRoutes);
 app.use('/api/technical', technicalRoutes);
+app.use('/api/cart', cartRoutes);
 
 // --- HEALTH CHECK ---
 app.get('/health', async (req: Request, res: Response) => {

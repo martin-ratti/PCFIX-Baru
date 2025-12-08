@@ -19,13 +19,13 @@ export const getByUserId = async (req: Request, res: Response) => {
 
 export const toggleFavorite = async (req: Request, res: Response) => {
     try {
-        const { userId, productId } = req.body;
+        const { userId, productId, state } = req.body;
 
         if (!userId || !productId) {
             return res.status(400).json({ success: false, error: 'Faltan IDs de usuario/producto' });
         }
 
-        const result = await favoriteService.toggleFavorite(Number(userId), Number(productId));
+        const result = await favoriteService.toggleFavorite(Number(userId), Number(productId), state);
         res.json({ success: true, data: result });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Error al alternar favorito' });

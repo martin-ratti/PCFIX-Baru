@@ -117,25 +117,57 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  // Notificar Despacho
-  async sendDispatchNotification(userEmail: string, saleId: number, trackingCode: string) {
-    const subject = `🚀 ¡Tu pedido #${saleId} está en camino!`;
-    const trackingLink = `https://www.correoargentino.com.ar/formularios/e-commerce?id=${trackingCode}`;
+  // Notificar Carrito Abandonado
+  async sendAbandonedCartEmail(userEmail: string, userName: string, products: any[]) {
+    const subject = `👀 ¿Olvidaste algo, ${userName}?`;
+
+    // Find most expensive item for hero image
+    const mainProduct = products.sort((a, b) => Number(b.precio) - Number(a.precio))[0];
+    const otherCount = products.length - 1;
+    const cartLink = `https://pcfixbaru.com.ar/carrito`; // Or localhost if dev
 
     const html = `
-      <div style="font-family: sans-serif; color: #333;">
-        <h2 style="color: #1d4ed8;">¡Buenas noticias!</h2>
-        <p>Tu pedido <strong>#${saleId}</strong> ha sido despachado por Correo Argentino.</p>
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
         
-        <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #bae6fd; text-align: center;">
-            <p style="margin:0; font-size: 12px; text-transform: uppercase; color: #0369a1;">Código de Seguimiento</p>
-            <h3 style="margin: 5px 0; letter-spacing: 2px; font-size: 24px; color: #0c4a6e;">${trackingCode}</h3>
+        <!-- Header -->
+        <div style="background-color: #111827; padding: 20px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">PC FIX</h1>
         </div>
 
-        <div style="text-align: center;">
-            <a href="${trackingLink}" style="background: #2563eb; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                Seguir Envío
-            </a>
+        <div style="padding: 30px 20px;">
+            <h2 style="color: #111827; font-size: 22px; font-weight: 700; margin-top: 0; text-align: center;">Tu PC te está esperando 🖥️</h2>
+            <p style="text-align: center; color: #4b5563; font-size: 16px; margin-bottom: 30px;">
+                Hola <strong>${userName}</strong>, notamos que dejaste hardware de alto rendimiento en tu carrito.
+            </p>
+
+            <!-- Hero Product -->
+            <div style="background-color: #f9fafb; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 30px; border: 1px solid #f3f4f6;">
+                <img src="${mainProduct.foto || 'https://placehold.co/400x400?text=Hardware'}" alt="${mainProduct.nombre}" style="max-width: 100%; height: auto; max-height: 200px; object-fit: contain; margin-bottom: 15px;">
+                <h3 style="margin: 0 0 5px 0; color: #1f2937; font-size: 18px;">${mainProduct.nombre}</h3>
+                <p style="margin: 0; color: #ea580c; font-weight: bold; font-size: 20px;">$${Number(mainProduct.precio).toLocaleString('es-AR')}</p>
+                ${otherCount > 0 ? `<p style="margin-top: 10px; font-size: 14px; color: #6b7280;">+ ${otherCount} productos más</p>` : ''}
+            </div>
+
+            <!-- Scarcity & CTA -->
+            <div style="text-align: center;">
+                <p style="color: #ef4444; font-size: 14px; font-weight: 600; margin-bottom: 25px; background-color: #fef2f2; display: inline-block; padding: 6px 12px; border-radius: 9999px;">
+                   ⚠️ Reservamos tus productos por tiempo limitado. El stock de hardware cambia rápido.
+                </p>
+                
+                <a href="${cartLink}" style="display: block; width: 100%; background-color: #2563eb; color: #ffffff; padding: 16px 0; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px; text-align: center; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);">
+                    Finalizar mi compra ahora
+                </a>
+                
+                <p style="margin-top: 20px; font-size: 14px; color: #9ca3af;">
+                    <a href="${cartLink}" style="color: #6b7280; text-decoration: underline;">Volver al carrito</a>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af;">
+            <p style="margin: 0;">PC FIX - Tu tienda de hardware</p>
+            <p style="margin: 5px 0;">Si no fuiste tú, puedes ignorar este correo.</p>
         </div>
       </div>
     `;
