@@ -102,7 +102,12 @@ export class SalesService {
                 throw new Error(`Stock insuficiente: ${dbProduct.nombre}`);
             }
 
-            const precio = Number(dbProduct.precio);
+            // Apply 8% discount if not paying with Mercado Pago
+            let precio = Number(dbProduct.precio);
+            if (medioPago !== 'MERCADOPAGO') {
+                precio = precio * 0.92;
+            }
+
             subtotalReal += precio * item.quantity;
 
             lineasParaCrear.push({

@@ -63,9 +63,15 @@ function CartContent() {
     }, [deliveryType, paymentMethod]);
 
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+
+    // Apply 8% Discount if NOT Mercado Pago
+    const discountFactor = paymentMethod !== 'MERCADOPAGO' ? 0.92 : 1;
+    const finalSubtotal = subtotal * discountFactor;
+
     // Apply 21% VAT to shipping cost if delivery type is ENVIO
     const finalShippingCost = deliveryType === 'ENVIO' && shippingCost !== null ? (shippingCost * 1.21) : 0;
-    const totalFinal = subtotal + finalShippingCost;
+
+    const totalFinal = finalSubtotal + finalShippingCost;
 
     const handleCalculateShipping = async () => {
         if (!zipCode || zipCode.length < 4) {
@@ -340,17 +346,32 @@ function CartContent() {
                     )}
 
                     <div>
-                        <p className="text-xs font-bold text-gray-500 uppercase mb-2">Pago</p>
+                        <div className="flex justify-between items-center mb-2">
+                            <p className="text-xs font-bold text-gray-500 uppercase">Pago</p>
+                            {paymentMethod !== 'MERCADOPAGO' && (
+                                <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full border border-green-200 animate-pulse">
+                                    8% OFF APLICADO
+                                </span>
+                            )}
+                        </div>
                         <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as any)} className="w-full p-2 border rounded-lg text-sm bg-white">
-                            <option value="TRANSFERENCIA">🏦 Transferencia Bancaria</option>
+                            <option value="TRANSFERENCIA">🏦 Transferencia Bancaria (8% OFF)</option>
                             <option value="MERCADOPAGO">💳 Mercado Pago</option>
-                            <option value="BINANCE">🪙 Crypto (Binance Pay)</option>
-                            {deliveryType === 'RETIRO' && <option value="EFECTIVO">💵 Efectivo en Local</option>}
+                            <option value="BINANCE">🪙 Crypto (Binance Pay) (8% OFF)</option>
+                            {deliveryType === 'RETIRO' && <option value="EFECTIVO">💵 Efectivo en Local (8% OFF)</option>}
                         </select>
                     </div>
 
                     <div className="border-t pt-4 space-y-2 text-sm">
                         <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toLocaleString('es-AR')}</span></div>
+
+                        {paymentMethod !== 'MERCADOPAGO' && (
+                            <div className="flex justify-between text-green-600 font-bold">
+                                <span>Descuento Pago (8% OFF)</span>
+                                <span>-${(subtotal * 0.08).toLocaleString('es-AR')}</span>
+                            </div>
+                        )}
+
                         {deliveryType === 'ENVIO' && (
                             <div className="flex justify-between text-blue-600">
                                 <span>Envío (con IVA)</span>

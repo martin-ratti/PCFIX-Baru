@@ -144,7 +144,7 @@ export default function MobileMenu() {
 
                         <a href="/tienda/servicios" className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">Servicios</a>
                         <a href="/info/contacto" className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">Contacto</a>
-                        <a href="/info/faq" className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">Ayuda</a>
+
                     </nav>
 
                 </div>

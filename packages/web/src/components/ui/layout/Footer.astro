@@ -6,11 +6,12 @@ const currentYear = new Date().getFullYear();
 ---
 
 <footer
-  class="bg-[#9FB6D9] pt-16 pb-8 mt-auto border-t border-white/20 text-gray-800"
+  class="bg-[#9FB6D9] pt-12 pb-8 mt-auto border-t border-white/20 text-gray-800"
 >
-  <div class="container mx-auto px-6">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-      <div class="space-y-6">
+  <div class="w-full px-8 lg:px-24">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+      {/* Col 1: Brand & Desc */}
+      <div class="space-y-4">
         <a href="/" class="block w-40 hover:opacity-90 transition-opacity">
           <Image
             src={logo}
@@ -18,181 +19,73 @@ const currentYear = new Date().getFullYear();
             class="w-full h-auto drop-shadow-sm"
           />
         </a>
-        <p class="text-sm leading-relaxed text-gray-700 font-medium">
+        <p class="text-sm leading-relaxed text-gray-700 font-medium max-w-xs">
           Expertos en hardware de alto rendimiento. Armamos tu PC ideal con
           garantía oficial y envíos a todo el país.
         </p>
+      </div>
 
-        <div class="flex space-x-4 pt-2">
-          <a
-            href="https://www.instagram.com/pcfix_baru/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-gray-700 hover:text-pink-700 transition-colors"
-            aria-label="Instagram"
-          >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              ><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01M7.5 3h9a4.5 4.5 0 014.5 4.5v9a4.5 4.5 0 01-4.5 4.5h-9A4.5 4.5 0 013 16.5v-9A4.5 4.5 0 017.5 3z"
-              ></path></svg
+      {/* Col 2: Navegación & Data Fiscal */}
+      <div class="flex flex-col gap-6">
+        <div class="flex gap-8 lg:gap-12">
+          <div>
+            <h3
+              class="text-black font-extrabold tracking-wide uppercase text-sm mb-4"
             >
-          </a>
+              Tienda
+            </h3>
+            <ul class="space-y-2 text-sm font-medium">
+              <li>
+                <a
+                  href="/tienda/productos"
+                  class="hover:text-white transition-colors duration-200"
+                  >Catálogo</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/tienda/servicios"
+                  class="hover:text-white transition-colors duration-200"
+                  >Servicio Técnico</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3
+              class="text-black font-extrabold tracking-wide uppercase text-sm mb-4"
+            >
+              Ayuda
+            </h3>
+            <ul class="space-y-2 text-sm font-medium">
+              <li>
+                <a
+                  href="/info/nosotros"
+                  class="hover:text-white transition-colors duration-200"
+                  >Sobre Nosotros</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/info/envios"
+                  class="hover:text-white transition-colors duration-200"
+                  >Envíos</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/info/contacto"
+                  class="hover:text-white transition-colors duration-200"
+                  >Contacto</a
+                >
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
 
-      <div>
-        <h3
-          class="text-black font-extrabold tracking-wide uppercase text-sm mb-6"
-        >
-          Tienda
-        </h3>
-        <ul class="space-y-3 text-sm font-medium">
-          <li>
-            <a
-              href="/tienda/productos"
-              class="hover:text-white transition-colors duration-200"
-              >Catálogo Completo</a
-            >
-          </li>
-          <li>
-            <a
-              href="/tienda/productos?category=componentes"
-              class="hover:text-white transition-colors duration-200"
-              >Componentes de PC</a
-            >
-          </li>
-          <li>
-            <a
-              href="/tienda/productos?category=notebooks"
-              class="hover:text-white transition-colors duration-200"
-              >Notebooks</a
-            >
-          </li>
-          <li>
-            <a
-              href="/tienda/servicios"
-              class="hover:text-white transition-colors duration-200"
-              >Servicio Técnico</a
-            >
-          </li>
-        </ul>
-      </div>
-
-      <div>
-        <h3
-          class="text-black font-extrabold tracking-wide uppercase text-sm mb-6"
-        >
-          Ayuda
-        </h3>
-        <ul class="space-y-3 text-sm font-medium">
-          <li>
-            <a
-              href="/info/envios"
-              class="hover:text-white transition-colors duration-200"
-              >Envíos y Seguimiento</a
-            >
-          </li>
-          <li>
-            <a
-              href="/garantia"
-              class="hover:text-white transition-colors duration-200"
-              >Política de Garantía</a
-            >
-          </li>
-          <li>
-            <a
-              href="/info/faq"
-              class="hover:text-white transition-colors duration-200"
-              >Preguntas Frecuentes</a
-            >
-          </li>
-          <li>
-            <a
-              href="/info/contacto"
-              class="hover:text-white transition-colors duration-200"
-              >Contacto Directo</a
-            >
-          </li>
-        </ul>
-      </div>
-
-      <div class="flex flex-col h-full">
-        <h3
-          class="text-black font-extrabold tracking-wide uppercase text-sm mb-6"
-        >
-          Contacto
-        </h3>
-
-        <ul class="space-y-4 text-sm mb-8 font-medium">
-          <li class="flex items-start gap-3">
-            <svg
-              class="w-5 h-5 text-blue-700 mt-0.5 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              ><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              ></path><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg
-            >
-            <span class="text-gray-800"
-              >Corrientes 1481,<br />Arequito, Santa Fe</span
-            >
-          </li>
-
-          <li class="flex items-center gap-3">
-            <svg
-              class="w-5 h-5 text-blue-700 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              ><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              ></path></svg
-            >
-            <a
-              href="mailto:pcfixbaru@gmail.com"
-              class="hover:text-white transition-colors">pcfixbaru@gmail.com</a
-            >
-          </li>
-
-          <li class="flex items-center gap-3">
-            <svg
-              class="w-5 h-5 text-blue-700 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              ><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-              ></path></svg
-            >
-            <a
-              href="tel:+543464513588"
-              class="hover:text-white transition-colors">+54 346 451 3588</a
-            >
-          </li>
-        </ul>
-
-        <div class="mt-auto pt-4 border-t border-black/10">
+        {/* Data Fiscal en el medio (bajo navegación) */}
+        <div>
           <a
             href="http://qr.afip.gob.ar/?qr=a0o9zL9UDqwnbG-y05_wrg,,"
             target="_blank"
@@ -202,21 +95,77 @@ const currentYear = new Date().getFullYear();
             <img
               src="http://www.afip.gob.ar/images/f960/DATAWEB.jpg"
               alt="Data Fiscal"
-              class="w-16 h-auto rounded-sm shadow-sm mix-blend-multiply"
+              class="w-12 h-auto rounded-sm shadow-sm mix-blend-multiply"
             />
           </a>
         </div>
       </div>
-    </div>
 
-    <div
-      class="border-t border-black/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-700 font-medium"
-    >
-      <p>&copy; {currentYear} PCFIX. Todos los derechos reservados.</p>
-      <div class="flex gap-4">
-        <a href="/privacidad" class="hover:text-black">Privacidad</a>
-        <a href="/info/terminos" class="hover:text-black">Términos de Uso</a>
+      {/* Col 3: Redes (Nueva Columna) */}
+      <div>
+        <h3
+          class="text-black font-extrabold tracking-wide uppercase text-sm mb-4"
+        >
+          Redes
+        </h3>
+        <a
+          href="https://www.instagram.com/pcfix_baru/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-2 text-gray-800 hover:text-pink-600 transition-colors group"
+        >
+          <svg
+            class="w-6 h-6 group-hover:scale-110 transition-transform"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5A4.25 4.25 0 0 0 20.5 16.25v-8.5A4.25 4.25 0 0 0 16.25 3.5Zm0 0M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM18.25 6a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"
+            ></path>
+          </svg>
+          <span class="font-bold text-sm">@pcfix_baru</span>
+        </a>
       </div>
+
+      {/* Col 4: Contacto */}
+      <div class="flex flex-col h-full lg:items-start">
+        <h3
+          class="text-black font-extrabold tracking-wide uppercase text-sm mb-4 w-full"
+        >
+          Contacto
+        </h3>
+        <ul class="space-y-3 text-sm mb-6 font-medium w-full">
+          <li class="flex items-start gap-2">
+            <span class="text-blue-700 text-sm">📍</span>
+            <span class="text-gray-800"
+              >Corrientes 1481,<br />Arequito, Santa Fe</span
+            >
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-blue-700 text-sm">✉️</span>
+            <a
+              href="mailto:pcfixbaru@gmail.com"
+              class="hover:text-white transition-colors">pcfixbaru@gmail.com</a
+            >
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-blue-700 text-sm">📞</span>
+            <a
+              href="tel:+543464513588"
+              class="hover:text-white transition-colors">+54 346 451 3588</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="border-t border-black/10 pt-6 px-4 md:px-12 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-700 font-medium"
+  >
+    <p>&copy; {currentYear} PCFIX. Todos los derechos reservados.</p>
+    <div class="flex gap-4">
+      <a href="/info/privacidad" class="hover:text-black">Privacidad</a>
     </div>
   </div>
 </footer>

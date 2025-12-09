@@ -83,3 +83,30 @@ export const syncUsdt = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, error: e.message || "Error conectando con Binance" });
     }
 };
+
+// Enviar Email de Contacto
+import { EmailService } from '../../shared/services/EmailService';
+
+export const sendContactEmail = async (req: Request, res: Response) => {
+    try {
+        const { nombre, apellido, email, telefono, mensaje } = req.body;
+
+        if (!nombre || !email || !mensaje) {
+            return res.status(400).json({ success: false, error: "Faltan datos obligatorios" });
+        }
+
+        const emailService = new EmailService();
+        const userName = `${nombre} ${apellido || ''}`.trim();
+
+        // 1. Notificar al Admin
+        await emailService.sendNewInquiryNotification(email, userName, "Consulta Web", mensaje);
+
+        // 2. Confirmar al Usuario
+        await emailService.sendContactConfirmationEmail(email, userName);
+
+        res.json({ success: true, message: "Consulta enviada correctamente" });
+    } catch (e: any) {
+        console.error("Error enviando contacto:", e);
+        res.status(500).json({ success: false, error: "Error al enviar el mensaje" });
+    }
+};

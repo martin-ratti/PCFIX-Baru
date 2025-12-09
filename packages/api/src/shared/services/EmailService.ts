@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { prisma } from '../database/prismaClient';
 
 export class EmailService {
   private transporter;
@@ -30,30 +31,58 @@ export class EmailService {
     }
   }
 
+  private async getBusinessHours() {
+    try {
+      const config = await prisma.configuracion.findFirst({ select: { horariosLocal: true } });
+      return config?.horariosLocal || 'Lunes a Viernes de 9:00 a 18:00 hs.';
+    } catch (e) {
+      return 'Lunes a Viernes de 9:00 a 18:00 hs.';
+    }
+  }
+
+
   // Notificar Consulta (Admin)
   async sendNewInquiryNotification(userEmail: string, userName: string, subject: string, message: string) {
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
-    const emailSubject = `🔧 Nueva Consulta Técnica: ${subject}`;
+    const emailSubject = `📩 Nueva Consulta Web: ${subject}`;
 
     const html = `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
         <!-- Header -->
-        <div style="background-color: #111827; padding: 25px; text-align: center;">
+        <div style="background-color: #1e293b; padding: 25px; text-align: center;">
             <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">PC FIX Panel</h1>
         </div>
         
         <div style="padding: 30px;">
-          <h2 style="color: #ea580c; margin-top: 0; text-align: center;">Nueva Consulta Recibida</h2>
-          <p style="text-align: center; color: #4b5563;">El usuario <strong>${userName}</strong> (<a href="mailto:${userEmail}" style="color: #2563eb;">${userEmail}</a>)</p>
-          
-          <div style="background: #fff7ed; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #ffedd5;">
-            <p style="margin: 0 0 10px 0; color: #9a3412;"><strong>Asunto:</strong> ${subject}</p>
-            <p style="margin: 0; font-style: italic; color: #431407;">"${message}"</p>
+          <div style="text-align: center; margin-bottom: 25px;">
+             <div style="background-color: #eff6ff; width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; line-height: 60px;">
+                <span style="font-size: 30px;">💬</span>
+             </div>
           </div>
 
-          <div style="text-align: center;">
-            <a href="${frontendUrl}/admin/soporte" style="background: #1f2937; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Responder en Panel</a>
+          <h2 style="color: #1e40af; margin-top: 0; text-align: center; font-size: 22px;">Nueva Consulta</h2>
+          
+          <div style="text-align: center; margin-bottom: 30px; color: #4b5563;">
+            <p style="margin: 0; font-size: 16px;"><strong>${userName}</strong> te ha escrito.</p>
+            <p style="margin: 5px 0 0 0; font-size: 14px; color: #6b7280;">${userEmail}</p>
+          </div>
+          
+          <div style="background: #f8fafc; padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #e2e8f0; text-align: left;">
+            <p style="margin: 0 0 10px 0; color: #64748b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Asunto</p>
+            <p style="margin: 0 0 20px 0; font-weight: 600; color: #334155;">${subject}</p>
+            
+            <p style="margin: 0 0 10px 0; color: #64748b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Mensaje</p>
+            <p style="margin: 0; line-height: 1.6; color: #334155; white-space: pre-wrap;">${message}</p>
+          </div>
+
+          <div style="text-align: center; margin-top: 35px;">
+            <a href="${frontendUrl}/admin/clientes?search=${userEmail}" style="background: #2563eb; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);">
+                Ver en Panel Administrativo
+            </a>
+            <p style="font-size: 13px; color: #94a3b8; margin-top: 20px;">
+                También puedes responder directamente a este correo para escribirle a ${userEmail}.
+            </p>
           </div>
         </div>
       </div>
@@ -449,5 +478,47 @@ export class EmailService {
     `;
 
     return await this.sendEmail(email, subject, html);
+  }
+
+  // Notificar Confirmación de Contacto (Usuario)
+  async sendContactConfirmationEmail(userEmail: string, userName: string) {
+    const subject = '📩 Recibimos tu consulta - PC FIX';
+    const businessHours = await this.getBusinessHours();
+
+    const html = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+        
+        <!-- Header -->
+        <div style="background-color: #111827; padding: 25px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 800;">PC FIX</h1>
+        </div>
+
+        <div style="padding: 40px 30px; text-align: center;">
+            <div style="background: #e0e7ff; width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px auto; line-height: 80px;">
+                <span style="font-size: 40px; vertical-align: middle;">👋</span>
+            </div>
+            
+            <h2 style="color: #111827; font-size: 24px; font-weight: 700; margin-top: 0;">¡Hola, ${userName}!</h2>
+            
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Gracias por escribirnos. Hemos recibido tu mensaje correctamente.
+            </p>
+
+            <div style="background: #f9fafb; padding: 20px; border-radius: 8px; font-size: 15px; color: #4b5563; margin-bottom: 25px;">
+                Nuestro equipo de soporte te responderá a la brevedad posible a este mismo correo.
+            </div>
+
+            <p style="font-size: 14px; color: #6b7280;">
+                Horarios de atención: ${businessHours}
+            </p>
+        </div>
+        
+        <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af;">
+            <p style="margin: 0;">&copy; ${new Date().getFullYear()} PC FIX. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    `;
+
+    return await this.sendEmail(userEmail, subject, html);
   }
 }
