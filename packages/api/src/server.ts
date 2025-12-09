@@ -61,13 +61,16 @@ app.use(express.urlencoded({ extended: true }));
 // --- ARCHIVOS ESTÁTICOS ---
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-// Middleware para logs y debug
-app.use((req, res, next) => {
-  console.log(`[DEBUG] ${req.method} ${req.url}`);
-  console.log(`[DEBUG] Headers:`, req.headers['content-type']);
-  console.log(`[DEBUG] Body:`, req.body);
-  next();
-});
+// Middleware para logs y debug (SOLO en desarrollo)
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(`[DEBUG] ${req.method} ${req.url}`);
+    console.log(`[DEBUG] Headers:`, req.headers['content-type']);
+    // Nota: No loguear req.body en producción para evitar exponer datos sensibles
+    console.log(`[DEBUG] Body:`, req.body);
+    next();
+  });
+}
 
 // --- RATE LIMITING ---
 import { authLimiter, apiLimiter } from './shared/middlewares/rateLimitMiddleware';

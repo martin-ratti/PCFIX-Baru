@@ -67,23 +67,36 @@ export const createViumiPreference = async (req: Request, res: Response) => {
     }
 };
 
+const createManualSaleSchema = z.object({
+    customerEmail: z.string().email(),
+    items: z.array(z.object({
+        id: z.number(),
+        quantity: z.number().min(1)
+    })).min(1),
+    medioPago: z.enum(['MERCADOPAGO', 'EFECTIVO', 'VIUMI', 'TRANSFERENCIA', 'BINANCE']),
+    estado: z.enum(['PENDIENTE_PAGO', 'PENDIENTE_APROBACION', 'APROBADO', 'ENVIADO', 'ENTREGADO', 'RECHAZADO', 'CANCELADO']).optional()
+});
+
 // Argumentos unificados
 export const createManualSale = async (req: Request, res: Response) => {
     try {
         const adminId = (req as AuthRequest).user?.id;
-        const { customerEmail, items, medioPago, estado } = req.body;
-
         if (!adminId) return res.status(401).json({ error: 'Unauthorized' });
 
+        const data = createManualSaleSchema.parse(req.body);
+
         const sale = await service.createManualSale({
-            customerEmail,
-            items,
-            medioPago,
-            estado
+            customerEmail: data.customerEmail,
+            items: data.items,
+            medioPago: data.medioPago,
+            estado: data.estado || 'APROBADO'
         });
 
         res.status(201).json({ success: true, data: sale });
     } catch (e: any) {
+        if (e instanceof z.ZodError) {
+            return res.status(400).json({ success: false, error: 'Datos de venta inválidos', details: e.errors });
+        }
         res.status(500).json({ success: false, error: e.message });
     }
 };
