@@ -37,9 +37,9 @@ describe('DashboardIntelligence', () => {
     const mockData = {
         kpis: {
             grossRevenue: 100000,
-            averageTicket: 5000,
+            lowStockProducts: 12,
             inventoryValue: 2000000,
-            retentionRate: 45
+            pendingSupport: 5
         },
         charts: {
             salesTrend: [{ date: '2024-01-01', total: 10000, count: 2 }],
@@ -75,7 +75,9 @@ describe('DashboardIntelligence', () => {
 
         // KPIs
         expect(screen.getByText('$ 100.000')).toBeInTheDocument(); // Gross Revenue
-        expect(screen.getByText('45%')).toBeInTheDocument(); // Retention
+        expect(screen.getByText('12')).toBeInTheDocument(); // Low Stock
+        expect(screen.getByText('$ 2.000.000')).toBeInTheDocument(); // Inventory Value
+        expect(screen.getByText('5')).toBeInTheDocument(); // Pending Support
 
         // Charts
         expect(screen.getByTestId('area-chart')).toBeInTheDocument();

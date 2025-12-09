@@ -5,7 +5,9 @@ test.describe('Checkout Flow', () => {
         // Usuario del seed: martin@gmail.com / 123456
 
         // 1. Login
+        // 1. Login
         await page.goto('/auth/login');
+        await page.waitForLoadState('networkidle');
         await page.fill('input[type="email"]', 'martin@gmail.com');
         await page.fill('input[type="password"]', '123456');
         await page.click('button:has-text("Entrar")');

@@ -14,90 +14,42 @@ vi.mock('../../../utils/api', () => ({
 }));
 
 // Mock child components
-vi.mock('./SalesChart', () => ({
-    default: () => <div data-testid="sales-chart">Sales Chart</div>
-}));
-
-vi.mock('../../ui/feedback/ErrorBoundary', () => ({
-    default: ({ children }: any) => <div data-testid="error-boundary">{children}</div>
+vi.mock('../dashboard/DashboardIntelligence', () => ({
+    default: () => <div data-testid="dashboard-intelligence">Mock Dashboard Intelligence</div>
 }));
 
 describe('AdminDashboard', () => {
     const mockUseAuthStore = vi.mocked(useAuthStore);
-    const mockFetchApi = vi.mocked(fetchApi);
-
-    const mockStats = {
-        totalProducts: 150,
-        lowStockProducts: 5,
-        totalUsers: 1200,
-        recentSales: 25,
-        pendingInquiries: 3
-    };
 
     beforeEach(() => {
         vi.clearAllMocks();
         mockUseAuthStore.mockReturnValue({
             user: { nombre: 'AdminTest', role: 'ADMIN' }
         } as any);
-
-        // Robust mock implementation for /stats
-        mockFetchApi.mockImplementation((url: string) => {
-            if (url.includes('/stats')) {
-                return Promise.resolve({
-                    ok: true,
-                    json: async () => ({ success: true, data: mockStats })
-                } as any);
-            }
-            return Promise.resolve({ ok: true, json: async () => ({ success: true, data: {} }) } as any);
-        });
     });
 
-    it('renders loading state initially', () => {
-        // Return a pending promise to simulate loading
-        mockFetchApi.mockImplementation(() => new Promise(() => { }));
+    it('renders welcome message and layout', () => {
         render(<AdminDashboard />);
-        expect(screen.getByText(/cargando panel/i)).toBeInTheDocument();
+        expect(screen.getByText(/Bienvenido de nuevo/i)).toBeInTheDocument();
+        expect(screen.getByText('AdminTest')).toBeInTheDocument();
+        expect(screen.getByTestId('dashboard-intelligence')).toBeInTheDocument();
     });
 
-    it('renders stats when data loaded', async () => {
+    it('renders quick action buttons', () => {
         render(<AdminDashboard />);
 
-        await waitFor(() => {
-            expect(screen.getByText('150')).toBeInTheDocument(); // Products
-        });
+        // Use regex for case-insensitive matching and robustness
+        const newProductBtn = screen.getByRole('link', { name: /nuevo producto/i });
+        const posBtn = screen.getByRole('link', { name: /punto de venta/i });
+        const marketingBtn = screen.getByRole('link', { name: /marketing/i });
 
-        expect(screen.getByText('5')).toBeInTheDocument(); // Low Stock
-        expect(screen.getByText('25')).toBeInTheDocument(); // Sales
-        expect(screen.getByText('3')).toBeInTheDocument(); // Pending Inquiries
-        expect(screen.getByText(/bienvenido de nuevo, admintest/i)).toBeInTheDocument();
-    });
+        expect(newProductBtn).toBeInTheDocument();
+        expect(newProductBtn).toHaveAttribute('href', '/admin/nuevo');
 
-    it('handles error state gracefully', async () => {
-        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
-        mockFetchApi.mockRejectedValue(new Error('API Error'));
+        expect(posBtn).toBeInTheDocument();
+        expect(posBtn).toHaveAttribute('href', '/admin/nueva-venta');
 
-        render(<AdminDashboard />);
-
-        await waitFor(() => {
-            // Should show zeros on error (initialized in catch block)
-            // But wait, the catch block sets stats to all 0s. 
-            // So "0" should be present.
-            // There are multiple "0"s (Total Users 0, Low Stock 0, etc).
-            // We can check if ANY "0" is present.
-            const zeros = screen.getAllByText('0');
-            expect(zeros.length).toBeGreaterThan(0);
-        });
-    });
-
-    it('renders quick action buttons', async () => {
-        // Uses default mockStats
-        render(<AdminDashboard />);
-
-        await waitFor(() => {
-            // Use regex and getByRole for better resilience
-            expect(screen.getByRole('heading', { name: /nuevo producto/i })).toBeInTheDocument();
-            expect(screen.getByRole('heading', { name: /punto de venta/i })).toBeInTheDocument();
-            expect(screen.getByRole('heading', { name: /marketing/i })).toBeInTheDocument();
-        });
+        expect(marketingBtn).toBeInTheDocument();
+        expect(marketingBtn).toHaveAttribute('href', '/admin/marcas');
     });
 });

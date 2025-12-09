@@ -79,7 +79,7 @@ export default function LoginForm() {
     <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md border border-gray-100">
       <h2 className="text-2xl font-bold text-center mb-6 text-secondary">Iniciar Sesión</h2>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" method="POST">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
           <div className="relative">

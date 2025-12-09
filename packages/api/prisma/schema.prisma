@@ -46,6 +46,9 @@ model CartItem {
   productoId Int
   producto   Producto @relation(fields: [productoId], references: [id])
   quantity  Int
+  
+  @@index([cartId])
+  @@index([productoId])
 }
 
 model Cliente {
@@ -57,6 +60,9 @@ model Cliente {
   localidadId Int?
   localidad   Localidad? @relation(fields: [localidadId], references: [id])
   ventas      Venta[]
+
+  @@index([userId])
+  @@index([localidadId])
 }
 
 model Localidad {
@@ -66,6 +72,8 @@ model Localidad {
   provinciaId  Int
   provincia    Provincia @relation(fields: [provinciaId], references: [id])
   clientes     Cliente[]
+
+  @@index([provinciaId])
 }
 
 model Provincia {
@@ -104,6 +112,11 @@ model Producto {
   
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@index([categoriaId])
+  @@index([marcaId])
+  @@index([isFeatured])
+  @@index([deletedAt]) // Useful for soft delete exclusion
 }
 
 model StockAlert {
@@ -138,6 +151,8 @@ model Banner {
   marcaId   Int
   marca     Marca    @relation(fields: [marcaId], references: [id])
   createdAt DateTime @default(now())
+
+  @@index([marcaId])
 }
 
 model Favorite {
@@ -172,6 +187,10 @@ model Venta {
   cliente           Cliente     @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   lineasVenta       LineaVenta[]
   pagos             Pago[]
+
+  @@index([clienteId])
+  @@index([estado])
+  @@index([fecha]) 
 }
 
 enum VentaEstado {
@@ -193,6 +212,8 @@ model LineaVenta {
   cantidad   Int
   subTotal   Decimal  @db.Decimal(10, 2)
   @@unique([ventaId, productoId])
+  @@index([ventaId])
+  @@index([productoId])
 }
 
 model Pago {
@@ -203,6 +224,9 @@ model Pago {
   venta        Venta      @relation(fields: [ventaId], references: [id], onDelete: Cascade)
   metodoPagoId Int
   metodoPago   MetodoPago @relation(fields: [metodoPagoId], references: [id])
+
+  @@index([ventaId])
+  @@index([metodoPagoId])
 }
 
 model MetodoPago {
@@ -241,6 +265,9 @@ model ConsultaTecnica {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   respondedAt DateTime?
+
+  @@index([userId])
+  @@index([estado])
 }
 
 enum EstadoConsulta {
