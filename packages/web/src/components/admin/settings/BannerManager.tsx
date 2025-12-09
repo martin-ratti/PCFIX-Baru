@@ -97,8 +97,8 @@ export default function BannerManager() {
             {errors.imagenFile && <p className="text-red-500 text-xs mt-1">Requerido</p>}
           </div>
 
-          <button disabled={isLoading} className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-all active:scale-95 disabled:opacity-50 shadow-sm">
-            {isLoading ? 'Subiendo...' : 'Publicar Banner'}
+          <button disabled={isLoading} className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+            {isLoading ? 'Subiendo Banner...' : 'Publicar Banner'}
           </button>
         </form>
       </div>

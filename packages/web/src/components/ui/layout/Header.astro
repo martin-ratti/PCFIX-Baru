@@ -104,11 +104,29 @@ try {
         scrollCleanup();
       }
 
+      let ticking = false;
+
       const handleScroll = () => {
-        if (window.scrollY > 30) {
-          header?.classList.add("is-scrolled");
-        } else {
-          header?.classList.remove("is-scrolled");
+        if (!header) return;
+
+        const scrollY = window.scrollY;
+
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            // Buffer/Histéresis para evitar "popping" justo en el límite
+            // Si baja: activa a los 20px
+            // Si sube: desactiva a los 10px
+            // Esto evita que parpadée si te quedas en el medio (e.g. 15px)
+            if (scrollY > 20) {
+              if (!header.classList.contains("is-scrolled"))
+                header.classList.add("is-scrolled");
+            } else if (scrollY < 10) {
+              if (header.classList.contains("is-scrolled"))
+                header.classList.remove("is-scrolled");
+            }
+            ticking = false;
+          });
+          ticking = true;
         }
       };
 

@@ -14,6 +14,7 @@ export default function CategoryManager() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [flatCategories, setFlatCategories] = useState<Category[]>([]);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { register, handleSubmit, reset } = useForm();
   const addToast = useToastStore(s => s.addToast);
@@ -35,6 +36,7 @@ export default function CategoryManager() {
   useEffect(() => { fetchData(); }, []);
 
   const onSubmit = async (data: any) => {
+    setIsSubmitting(true);
     try {
       const payload = {
         nombre: data.nombre,
@@ -57,6 +59,7 @@ export default function CategoryManager() {
         addToast(json.error, 'error');
       }
     } catch (e) { addToast('Error al crear', 'error'); }
+    finally { setIsSubmitting(false); }
   };
 
   const requestDelete = (cat: Category) => setCategoryToDelete(cat);
@@ -95,7 +98,9 @@ export default function CategoryManager() {
             </select>
             <p className="text-xs text-gray-500 mt-1">Si seleccionas una, será una subcategoría.</p>
           </div>
-          <button className="w-full bg-primary text-white py-2 rounded font-bold hover:bg-opacity-90 shadow-sm transition-all active:scale-95">Crear</button>
+          <button disabled={isSubmitting} className="w-full bg-primary text-white py-2 rounded font-bold hover:bg-opacity-90 shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+            {isSubmitting ? 'Creando...' : 'Crear'}
+          </button>
         </form>
       </div>
 

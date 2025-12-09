@@ -80,10 +80,17 @@ export default function CreateProductForm() {
       addToast('Producto creado exitosamente', 'success');
       reset();
       setFileName(null);
+
+      // Esperar un momento para que el usuario vea el toast
+      setTimeout(() => {
+        // Usar window.location para forzar recarga y ver el producto nuevo en la lista asegurada
+        // o navigate de astro si confiamos en el refetch
+        window.location.href = '/admin/productos';
+      }, 1000);
+
     } catch (error: any) {
       addToast(error.message || 'Error al crear', 'error');
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Solo resetear loading si falló, si tuvo éxito dejamos loading para la redirección
     }
   };
 

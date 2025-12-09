@@ -13,6 +13,7 @@ export default function BrandManager() {
   const [logoName, setLogoName] = useState<string | null>(null);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchBrands = () => {
     fetchApi('/brands')
@@ -30,6 +31,7 @@ export default function BrandManager() {
 
 
   const onSubmit = async (data: any) => {
+    setIsSubmitting(true);
     try {
       const formData = new FormData();
       formData.append('nombre', data.nombre);
@@ -44,6 +46,7 @@ export default function BrandManager() {
         fetchBrands();
       } else { addToast(json.error, 'error'); }
     } catch (e) { addToast('Error al crear marca', 'error'); }
+    finally { setIsSubmitting(false); }
   };
 
   const confirmDelete = async () => {
@@ -76,7 +79,9 @@ export default function BrandManager() {
             </label>
           </div>
 
-          <button className="w-full bg-secondary text-white py-2 rounded-xl font-bold hover:bg-primary transition-all active:scale-95 shadow-sm">Crear Marca</button>
+          <button disabled={isSubmitting} className="w-full bg-secondary text-white py-2 rounded-xl font-bold hover:bg-primary transition-all active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            {isSubmitting ? 'Creando Marca...' : 'Crear Marca'}
+          </button>
         </form>
       </div>
 
