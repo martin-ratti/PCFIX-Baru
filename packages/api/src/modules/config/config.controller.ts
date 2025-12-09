@@ -52,7 +52,8 @@ export const updateConfig = async (req: Request, res: Response) => {
                 cotizacionUsdt: data.cotizacionUsdt ? Number(data.cotizacionUsdt) : undefined,
                 // Local
                 direccionLocal: data.direccionLocal,
-                horariosLocal: data.horariosLocal
+                horariosLocal: data.horariosLocal,
+                maintenanceMode: data.maintenanceMode
             }
         });
 

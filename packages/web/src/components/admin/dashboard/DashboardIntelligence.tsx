@@ -34,26 +34,54 @@ export default function DashboardIntelligence() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [offerProduct, setOfferProduct] = useState<any>(null);
+    const [maintenanceMode, setMaintenanceMode] = useState(false);
+    const [toggling, setToggling] = useState(false);
 
     const fetchData = async () => {
         if (!token) return;
         setLoading(true);
         setError('');
         try {
-            const res = await fetchApi('/stats/intelligence', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const result = await res.json();
-            if (result.success) {
-                setData(result.data);
-            } else {
-                setError('Error al cargar datos');
-            }
+            const [resStats, resConfig] = await Promise.all([
+                fetchApi('/stats/intelligence', { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetchApi('/config', { headers: { 'Authorization': `Bearer ${token}` } })
+            ]);
+
+            const stats = await resStats.json();
+            const config = await resConfig.json();
+
+            if (stats.success) setData(stats.data);
+            else setError('Error al cargar stats');
+
+            if (config.success) setMaintenanceMode(config.data.maintenanceMode);
+
         } catch (err) {
             console.error(err);
             setError('Error de conexión');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const toggleMaintenance = async () => {
+        const newValue = !maintenanceMode;
+        setMaintenanceMode(newValue); // Optimistic Update
+        setToggling(true);
+        try {
+            await fetchApi('/config', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ maintenanceMode: newValue })
+            });
+            addToast(newValue ? '🛑 Sitio puesto en Mantenimiento' : '✅ Sitio Operativo nuevamente', newValue ? 'info' : 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } catch (e) {
+            setMaintenanceMode(!newValue); // Revert
+            addToast('Error al cambiar modo', 'error');
+        } finally {
+            setToggling(false);
         }
     };
 
@@ -122,16 +150,19 @@ export default function DashboardIntelligence() {
                     </h2>
                     <p className="text-gray-500 text-sm mt-1">Centro de Comando Visual</p>
                 </div>
-                <button
-                    onClick={fetchData}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-all active:scale-95 disabled:opacity-50"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                    </svg>
-                    {loading ? 'Actualizando...' : 'Actualizar'}
-                </button>
+                <label className="relative inline-flex items-center cursor-pointer group" title="Activar/Desactivar Modo Mantenimiento">
+                    <input
+                        type="checkbox"
+                        checked={maintenanceMode}
+                        onChange={toggleMaintenance}
+                        disabled={toggling}
+                        className="sr-only peer"
+                    />
+                    <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-500 shadow-inner"></div>
+                    <span className={`ml-3 text-sm font-bold select-none transition-colors ${maintenanceMode ? 'text-red-600 animate-pulse' : 'text-gray-500 group-hover:text-gray-700'}`}>
+                        {maintenanceMode ? '🛑 MANTENIMIENTO ON' : 'Sitio Online'}
+                    </span>
+                </label>
             </div>
 
             {/* 1. KPIs */}

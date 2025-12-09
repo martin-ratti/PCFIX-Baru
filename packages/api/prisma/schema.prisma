@@ -263,6 +263,7 @@ model Configuracion {
   binanceCbu      String? @default("PAY-ID-123456")
   direccionLocal  String? @default("Av. Corrientes 1234, CABA")
   horariosLocal   String? @default("Lun a Vie: 10 a 18hs")
+  maintenanceMode Boolean @default(false)
 }
 
 // --- AREA TÉCNICA ---

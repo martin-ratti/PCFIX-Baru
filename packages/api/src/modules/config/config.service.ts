@@ -13,7 +13,8 @@ export class ConfigService {
           cbu: "0000000000000000000000",
           alias: "PCFIX.VENTAS",
           costoEnvioFijo: 6500,
-          cotizacionUsdt: 1200
+          cotizacionUsdt: 1200,
+          maintenanceMode: false
         }
       });
     }

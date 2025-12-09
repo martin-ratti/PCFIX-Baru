@@ -92,11 +92,50 @@ try {
     }
   </style>
 
+  <div
+    id="maintenance-alert"
+    class="hidden w-full h-12 flex items-center justify-center shadow-md relative overflow-hidden"
+    style="background-image: repeating-linear-gradient(-45deg, #000, #000 20px, #fbbf24 20px, #fbbf24 40px);"
+  >
+    <div
+      class="bg-black/90 text-yellow-400 px-6 py-1 rounded-full font-black text-sm uppercase tracking-widest shadow-lg border-2 border-yellow-400 z-10 animate-pulse"
+    >
+      ⚠️ Sitio en Mantenimiento ⚠️
+    </div>
+  </div>
+
   <script>
     // Store reference to cleanup function
     let scrollCleanup: (() => void) | null = null;
 
+    async function checkMaintenanceStatus() {
+      try {
+        const res = await fetch("http://localhost:3002/api/config");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data?.maintenanceMode) {
+            // Check Admin
+            let isAdmin = false;
+            try {
+              const storage = localStorage.getItem("auth-storage");
+              if (storage) {
+                const parsed = JSON.parse(storage);
+                if (parsed.state?.user?.role === "ADMIN") isAdmin = true;
+              }
+            } catch (e) {}
+
+            const banner = document.getElementById("maintenance-alert");
+            if (isAdmin && banner) {
+              banner.classList.remove("hidden");
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
     document.addEventListener("astro:page-load", () => {
+      checkMaintenanceStatus();
+
       const header = document.getElementById("main-header");
 
       // Clean up previous scroll listener if exists
