@@ -2,6 +2,7 @@
 import { getViteConfig } from 'astro/config';
 
 export default getViteConfig({
+    // @ts-expect-error - Astro's getViteConfig type check doesn't know about Vitest yet
     test: {
         environment: 'jsdom',
         globals: true,
@@ -11,7 +12,7 @@ export default getViteConfig({
         // Reporter por defecto (igual que API)
 
         // Mostrar console.logs durante tests
-        onConsole: (log) => {
+        onConsole: (log: any) => {
             console.log(log.content);
         },
     },
