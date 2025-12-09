@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import SearchBar from './SearchBar';
-import { useAuthStore } from '../../../stores/authStore';
+import SearchBar from '../SearchBar';
+import { useAuthStore } from '../../../../stores/authStore';
 
 // Mocks
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
@@ -16,7 +16,7 @@ vi.mock('astro:transitions/client', () => ({
     navigate: vi.fn()
 }));
 
-import { fetchApi } from '../../../utils/api';
+import { fetchApi } from '../../../../utils/api';
 import { navigate } from 'astro:transitions/client';
 
 describe('SearchBar', () => {

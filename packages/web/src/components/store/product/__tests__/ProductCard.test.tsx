@@ -1,22 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ProductCard from './ProductCard';
-import { useCartStore } from '../../../stores/cartStore';
+import ProductCard from '../ProductCard';
+import { useCartStore } from '../../../../stores/cartStore';
 
 // Mock dependencies
-vi.mock('../../../stores/cartStore', () => ({
+vi.mock('../../../../stores/cartStore', () => ({
     useCartStore: vi.fn(),
 }));
 
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn().mockReturnValue({ user: null, isAuthenticated: false }),
 }));
 
-vi.mock('../../../stores/favoritesStore', () => ({
+vi.mock('../../../../stores/favoritesStore', () => ({
     useFavoritesStore: vi.fn().mockReturnValue({ isFavorite: () => false, addFavorite: vi.fn(), removeFavorite: vi.fn() }),
 }));
 
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn().mockReturnValue(() => { }), // addToast
 }));
 

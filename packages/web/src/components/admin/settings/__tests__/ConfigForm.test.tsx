@@ -1,20 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import ConfigForm from './ConfigForm';
-import { useToastStore } from '../../../stores/toastStore';
-import { useAuthStore } from '../../../stores/authStore';
-import { fetchApi } from '../../../utils/api';
+import ConfigForm from '../ConfigForm';
+import { useToastStore } from '../../../../stores/toastStore';
+import { useAuthStore } from '../../../../stores/authStore';
+import { fetchApi } from '../../../../utils/api';
 
 // Mocks
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 

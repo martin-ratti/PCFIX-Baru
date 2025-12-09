@@ -1,19 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import SalesListTable from './SalesListTable';
-import { useAuthStore } from '../../../stores/authStore';
-import { fetchApi } from '../../../utils/api';
+import SalesListTable from '../SalesListTable';
+import { useAuthStore } from '../../../../stores/authStore';
+import { fetchApi } from '../../../../utils/api';
 
 // Mocks
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
-vi.mock('./SaleDetailModal', () => ({
+vi.mock('../SaleDetailModal', () => ({
     default: ({ isOpen, onConfirm }: any) => isOpen ? (
         <div data-testid="detail-modal">
             <button onClick={onConfirm}>Close Detail</button>

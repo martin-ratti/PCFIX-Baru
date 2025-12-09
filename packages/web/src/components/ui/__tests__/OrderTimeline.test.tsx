@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import OrderTimeline from './OrderTimeline';
+import OrderTimeline from '../OrderTimeline';
 
 describe('OrderTimeline', () => {
     it('renders standard shipping steps correctly', () => {

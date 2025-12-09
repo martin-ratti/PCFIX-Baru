@@ -1,17 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import PaymentForm from './PaymentForm';
-import * as api from '../../../utils/api'; // Import namespace
+import PaymentForm from '../PaymentForm';
+import * as api from '../../../../utils/api'; // Import namespace
 
 // Mocks
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn(() => ({ token: 'test-token' }))
 }));
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn(() => (msg: string) => console.log('Toast:', msg))
 }));
 
-vi.mock('../../ui/feedback/ConfirmModal', () => ({
+vi.mock('../../../ui/feedback/ConfirmModal', () => ({
     default: ({ isOpen, onConfirm }: any) => isOpen ? (
         <div data-testid="confirm-cancel-modal">
             <button onClick={onConfirm}>Confirm Cancel</button>
@@ -21,7 +21,7 @@ vi.mock('../../ui/feedback/ConfirmModal', () => ({
 
 // Mock fetchApi using spyOn to avoid hoisting issues or module resolution complexity
 // But we need to mock the module first
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 

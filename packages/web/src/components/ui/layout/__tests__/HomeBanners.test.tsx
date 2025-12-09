@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import HomeBanners from './HomeBanners';
+import HomeBanners from '../HomeBanners';
 
 // Mock Swiper
 vi.mock('swiper/react', () => ({

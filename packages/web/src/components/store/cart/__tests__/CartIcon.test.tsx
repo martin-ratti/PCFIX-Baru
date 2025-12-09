@@ -3,22 +3,22 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 // Mock stores
-vi.mock('../../../stores/cartStore', () => ({
+vi.mock('../../../../stores/cartStore', () => ({
     useCartStore: vi.fn()
 }));
 
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
 // Mock image import
-vi.mock('../../../assets/cart.png', () => ({
+vi.mock('../../../../assets/cart.png', () => ({
     default: { src: '/cart.png' }
 }));
 
-import CartIcon from './CartIcon';
-import { useCartStore } from '../../../stores/cartStore';
-import { useAuthStore } from '../../../stores/authStore';
+import CartIcon from '../CartIcon';
+import { useCartStore } from '../../../../stores/cartStore';
+import { useAuthStore } from '../../../../stores/authStore';
 
 describe('CartIcon', () => {
     beforeEach(() => {

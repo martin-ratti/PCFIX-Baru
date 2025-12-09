@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import BrandCarousel from './BrandCarousel';
+import BrandCarousel from '../BrandCarousel';
 
 // Mock Swiper
 vi.mock('swiper/react', () => ({

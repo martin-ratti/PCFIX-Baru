@@ -1,25 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import CartView from './CartView';
-import { useCartStore } from '../../../stores/cartStore';
-import { useAuthStore } from '../../../stores/authStore';
-import { useToastStore } from '../../../stores/toastStore';
+import CartView from '../CartView';
+import { useCartStore } from '../../../../stores/cartStore';
+import { useAuthStore } from '../../../../stores/authStore';
+import { useToastStore } from '../../../../stores/toastStore';
 
 // Mocks
-vi.mock('../../../stores/cartStore', () => ({
+vi.mock('../../../../stores/cartStore', () => ({
     useCartStore: vi.fn()
 }));
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
-vi.mock('../../../stores/favoritesStore', () => ({
+vi.mock('../../../../stores/favoritesStore', () => ({
     useFavoritesStore: vi.fn(() => ({ favorites: [], toggleFavorite: vi.fn(), isFavorite: vi.fn() }))
 }));
 
-vi.mock('../../ui/feedback/ConfirmModal', () => ({
+vi.mock('../../../ui/feedback/ConfirmModal', () => ({
     default: ({ isOpen, onConfirm }: any) => isOpen ? (
         <div data-testid="confirm-clear-modal">
             <button onClick={onConfirm}>Confirm Clear</button>

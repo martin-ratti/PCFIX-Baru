@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import CategoryDropdown from './CategoryDropdown';
-import { useAuthStore } from '../../../stores/authStore';
+import CategoryDropdown from '../CategoryDropdown';
+import { useAuthStore } from '../../../../stores/authStore';
 
 // Mocks
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 

@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, waitFor } from '@testing-library/react';
-import FavoritesInitializer from './FavoritesInitializer';
-import { useAuthStore } from '../../../stores/authStore';
-import { useFavoritesStore } from '../../../stores/favoritesStore';
+import FavoritesInitializer from '../FavoritesInitializer';
+import { useAuthStore } from '../../../../stores/authStore';
+import { useFavoritesStore } from '../../../../stores/favoritesStore';
 
 // Mocks
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
-vi.mock('../../../stores/favoritesStore', () => ({
+vi.mock('../../../../stores/favoritesStore', () => ({
     useFavoritesStore: vi.fn()
 }));
 

@@ -8,14 +8,14 @@ const mockToasts = [
     { id: '2', message: 'Error message', type: 'error' as const }
 ];
 
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn(() => ({
         toasts: mockToasts,
         removeToast: vi.fn()
     }))
 }));
 
-import ToastContainer from './ToastContainer';
+import ToastContainer from '../ToastContainer';
 
 describe('ToastContainer', () => {
     beforeEach(() => {

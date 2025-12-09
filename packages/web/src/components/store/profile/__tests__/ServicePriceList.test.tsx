@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import ServicePriceList from './ServicePriceList';
-import { useServiceStore } from '../../../stores/serviceStore';
+import ServicePriceList from '../ServicePriceList';
+import { useServiceStore } from '../../../../stores/serviceStore';
 
 // Mocks
-vi.mock('../../../stores/serviceStore', () => ({
+vi.mock('../../../../stores/serviceStore', () => ({
     useServiceStore: vi.fn()
 }));
 

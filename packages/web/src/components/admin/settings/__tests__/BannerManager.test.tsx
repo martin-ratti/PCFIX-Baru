@@ -1,19 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import BannerManager from './BannerManager';
-import { useToastStore } from '../../../stores/toastStore';
-import { fetchApi } from '../../../utils/api';
+import BannerManager from '../BannerManager';
+import { useToastStore } from '../../../../stores/toastStore';
+import { fetchApi } from '../../../../utils/api';
 
 // Mocks
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
-vi.mock('../../ui/feedback/ConfirmModal', () => ({
+vi.mock('../../../ui/feedback/ConfirmModal', () => ({
     default: ({ isOpen, onConfirm, onCancel }: any) => isOpen ? (
         <div data-testid="confirm-modal">
             <button onClick={onConfirm}>Confirm Delete</button>

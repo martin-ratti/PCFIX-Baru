@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import Carousel from './Carousel';
+import Carousel from '../Carousel';
 
 // Mock Swiper
 vi.mock('swiper/react', () => ({
@@ -19,7 +19,7 @@ vi.mock('swiper/css/navigation', () => ({}));
 vi.mock('swiper/css/pagination', () => ({}));
 
 // Mock ProductCard
-vi.mock('../../store/product/ProductCard', () => ({
+vi.mock('../../../store/product/ProductCard', () => ({
     default: ({ product }: any) => <div data-testid="product-card">{product.name}</div>
 }));
 

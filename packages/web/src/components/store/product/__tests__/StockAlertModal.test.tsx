@@ -1,15 +1,15 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
-import StockAlertModal from './StockAlertModal';
+import StockAlertModal from '../StockAlertModal';
 
 // Mock Auth Store
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn().mockReturnValue({ user: null, isAuthenticated: false }),
 }));
 
 // Mock API
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn(),
 }));
 

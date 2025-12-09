@@ -1,24 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import ProductListTable from './ProductListTable';
-import { useAuthStore } from '../../../stores/authStore';
-import { useToastStore } from '../../../stores/toastStore';
-import { fetchApi } from '../../../utils/api';
+import ProductListTable from '../ProductListTable';
+import { useAuthStore } from '../../../../stores/authStore';
+import { useToastStore } from '../../../../stores/toastStore';
+import { fetchApi } from '../../../../utils/api';
 
 // Mocks
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
-vi.mock('./UpdateStockModal', () => ({
+vi.mock('../UpdateStockModal', () => ({
     default: ({ isOpen, onConfirm, onCancel }: any) => isOpen ? (
         <div data-testid="stock-modal">
             <button onClick={() => onConfirm(50)}>Confirm Stock</button>
@@ -27,7 +27,7 @@ vi.mock('./UpdateStockModal', () => ({
     ) : null
 }));
 
-vi.mock('./DiscountModal', () => ({
+vi.mock('../DiscountModal', () => ({
     default: ({ isOpen, onConfirm, onCancel }: any) => isOpen ? (
         <div data-testid="discount-modal">
             <button onClick={() => onConfirm(100, 200)}>Confirm Discount</button>
@@ -36,7 +36,7 @@ vi.mock('./DiscountModal', () => ({
     ) : null
 }));
 
-vi.mock('../../ui/feedback/ConfirmModal', () => ({
+vi.mock('../../../ui/feedback/ConfirmModal', () => ({
     default: ({ isOpen, onConfirm, onCancel }: any) => isOpen ? (
         <div data-testid="confirm-modal">
             <button onClick={onConfirm}>Confirm Delete</button>

@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ForgotPasswordModal from './ForgotPasswordModal';
-import { useToastStore } from '../../../stores/toastStore';
+import ForgotPasswordModal from '../ForgotPasswordModal';
+import { useToastStore } from '../../../../stores/toastStore';
 
 // Mocks
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 

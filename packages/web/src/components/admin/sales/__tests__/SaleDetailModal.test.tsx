@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import SaleDetailModal from './SaleDetailModal';
-import { useAuthStore } from '../../../stores/authStore';
-import { useToastStore } from '../../../stores/toastStore';
+import SaleDetailModal from '../SaleDetailModal';
+import { useAuthStore } from '../../../../stores/authStore';
+import { useToastStore } from '../../../../stores/toastStore';
 
 // Mocks
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 

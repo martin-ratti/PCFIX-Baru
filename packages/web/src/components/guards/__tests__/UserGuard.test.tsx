@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import UserGuard from './UserGuard';
-import { useAuthStore } from '../../stores/authStore';
+import UserGuard from '../UserGuard';
+import { useAuthStore } from '../../../stores/authStore';
 
 // Mocks
-vi.mock('../../stores/authStore', () => ({
+vi.mock('../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 

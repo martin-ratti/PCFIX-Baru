@@ -1,22 +1,22 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import EditProfileForm from './EditProfileForm';
-import { fetchApi } from '../../../utils/api';
+import EditProfileForm from '../EditProfileForm';
+import { fetchApi } from '../../../../utils/api';
 // Mock hooks
-import { useAuthStore } from '../../../stores/authStore';
-import { useToastStore } from '../../../stores/toastStore';
+import { useAuthStore } from '../../../../stores/authStore';
+import { useToastStore } from '../../../../stores/toastStore';
 
 // Mocks
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn(),
 }));
 
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn(),
 }));
 
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn(),
 }));
 

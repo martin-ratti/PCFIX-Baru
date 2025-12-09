@@ -1,28 +1,28 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ServicePriceModal from './ServicePriceModal';
-import { useAuthStore } from '../../../stores/authStore';
-import { useServiceStore } from '../../../stores/serviceStore';
-import { useToastStore } from '../../../stores/toastStore';
+import ServicePriceModal from '../ServicePriceModal';
+import { useAuthStore } from '../../../../stores/authStore';
+import { useServiceStore } from '../../../../stores/serviceStore';
+import { useToastStore } from '../../../../stores/toastStore';
 
 // Mocks
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
-vi.mock('../../../stores/serviceStore', () => ({
+vi.mock('../../../../stores/serviceStore', () => ({
     useServiceStore: vi.fn()
 }));
 
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
-import { fetchApi } from '../../../utils/api';
+import { fetchApi } from '../../../../utils/api';
 
 describe('ServicePriceModal', () => {
     const mockAddToast = vi.fn();

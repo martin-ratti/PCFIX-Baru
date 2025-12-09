@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import WhatsAppButton from './WhatsAppButton';
+import WhatsAppButton from '../WhatsAppButton';
 
 describe('WhatsAppButton', () => {
     it('renders WhatsApp link', () => {

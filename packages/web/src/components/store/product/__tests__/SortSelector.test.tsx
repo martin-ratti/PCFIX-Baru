@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import SortSelector from './SortSelector';
+import SortSelector from '../SortSelector';
 
 // Mock Astro navigate
 const mockNavigate = vi.fn();

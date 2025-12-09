@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import SalesChart from './SalesChart';
-import { useAuthStore } from '../../../stores/authStore';
-import { fetchApi } from '../../../utils/api';
+import SalesChart from '../SalesChart';
+import { useAuthStore } from '../../../../stores/authStore';
+import { fetchApi } from '../../../../utils/api';
 
 // Mock dependencies
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
@@ -13,7 +13,7 @@ vi.mock('astro:transitions/client', () => ({
     navigate: vi.fn()
 }));
 
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 

@@ -1,24 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import ManualSaleForm from './ManualSaleForm';
-import { useAuthStore } from '../../../stores/authStore';
-import { useToastStore } from '../../../stores/toastStore';
-import { fetchApi } from '../../../utils/api';
+import ManualSaleForm from '../ManualSaleForm';
+import { useAuthStore } from '../../../../stores/authStore';
+import { useToastStore } from '../../../../stores/toastStore';
+import { fetchApi } from '../../../../utils/api';
 
 // Mocks
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
-vi.mock('../../ui/feedback/ConfirmModal', () => ({
+vi.mock('../../../ui/feedback/ConfirmModal', () => ({
     default: ({ isOpen, onConfirm }: any) => isOpen ? (
         <div data-testid="confirm-modal">
             <button onClick={onConfirm}>Confirm Sale</button>

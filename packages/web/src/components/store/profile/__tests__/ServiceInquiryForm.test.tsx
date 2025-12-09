@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ServiceInquiryForm from './ServiceInquiryForm';
-import { useAuthStore } from '../../../stores/authStore';
+import ServiceInquiryForm from '../ServiceInquiryForm';
+import { useAuthStore } from '../../../../stores/authStore';
 import { toast } from 'sonner';
 
 // Mocks
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
@@ -22,11 +22,11 @@ vi.mock('astro:transitions/client', () => ({
     navigate: vi.fn()
 }));
 
-vi.mock('../../../utils/api', () => ({
+vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
-import { fetchApi } from '../../../utils/api';
+import { fetchApi } from '../../../../utils/api';
 
 describe('ServiceInquiryForm', () => {
     beforeEach(() => {

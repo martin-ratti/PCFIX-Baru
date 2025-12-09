@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import AdminLinks from './AdminLinks';
-import { useAuthStore } from '../../../stores/authStore';
+import AdminLinks from '../AdminLinks';
+import { useAuthStore } from '../../../../stores/authStore';
 
 // Mock the authStore
-vi.mock('../../../stores/authStore', () => ({
+vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
 // Mock ServicePriceModal
-vi.mock('../../store/profile/ServicePriceModal', () => ({
+vi.mock('../../../store/profile/ServicePriceModal', () => ({
     default: ({ children }: { children: React.ReactNode }) => <div data-testid="service-price-modal">{children}</div>
 }));
 

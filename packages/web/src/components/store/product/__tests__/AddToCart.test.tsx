@@ -1,21 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import AddToCart from './AddToCart';
-import { useCartStore } from '../../../stores/cartStore';
-import { useToastStore } from '../../../stores/toastStore';
+import AddToCart from '../AddToCart';
+import { useCartStore } from '../../../../stores/cartStore';
+import { useToastStore } from '../../../../stores/toastStore';
 
 // Mocks
-vi.mock('../../../stores/cartStore', () => ({
+vi.mock('../../../../stores/cartStore', () => ({
     useCartStore: vi.fn()
 }));
-vi.mock('../../../stores/toastStore', () => ({
+vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 vi.mock('astro:transitions/client', () => ({
     navigate: vi.fn()
 }));
 // Mock StockAlertModal to verify it's rendered and receives props
-vi.mock('./StockAlertModal', () => ({
+vi.mock('../StockAlertModal', () => ({
     default: ({ isOpen, onClose, productName }: any) => (
         isOpen ? (
             <div data-testid="stock-alert-modal">
