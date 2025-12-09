@@ -10,7 +10,7 @@ interface IntelligenceData {
     kpis: {
         grossRevenue: number;
         lowStockProducts: number;
-        inventoryValue: number;
+        pendingReview: number;
         pendingSupport: number;
     };
     charts: {
@@ -76,10 +76,20 @@ export default function DashboardIntelligence() {
         navigate('/admin/soporte');
     };
 
+    const handlePendingReviewClick = () => {
+        navigate('/admin/ventas?status=PENDIENTE_APROBACION');
+    };
+
     const handleChartClick = (data: any) => {
         if (data && data.activePayload && data.activePayload.length > 0) {
-            const date = data.activePayload[0].payload.date;
-            if (date) navigate(`/admin/ventas?date=${date}`);
+            const dateStr = data.activePayload[0].payload.date;
+            if (dateStr) {
+                // Como quitamos el filtro por día exacto, navegamos al mes correspondiente
+                const [year, month] = dateStr.split('-');
+                if (year && month) {
+                    navigate(`/admin/ventas?month=${parseInt(month)}&year=${year}`);
+                }
+            }
         }
     };
 
@@ -153,14 +163,17 @@ export default function DashboardIntelligence() {
                     <p className="text-xs text-gray-400">Productos con stock ≤ 5 (Clic para ver)</p>
                 </div>
 
-                {/* Valor Inventario */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
-                    <div className="absolute -right-4 -top-4 text-8xl opacity-5 group-hover:opacity-10 transition-opacity select-none">📦</div>
-                    <h3 className="text-gray-500 font-bold text-xs uppercase mb-1">Valor Inventario</h3>
-                    <p className={`font-black text-emerald-600 mb-2 line-clamp-1 ${data.kpis.inventoryValue > 10000000 ? 'text-2xl lg:text-3xl' : 'text-4xl'}`} title={formatCurrency(data.kpis.inventoryValue)}>
-                        {formatCurrency(data.kpis.inventoryValue)}
+                {/* Pendientes de Revisión */}
+                <div
+                    onClick={handlePendingReviewClick}
+                    className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
+                >
+                    <div className="absolute -right-4 -top-4 text-8xl opacity-5 group-hover:opacity-10 transition-opacity select-none">📝</div>
+                    <h3 className="text-gray-500 font-bold text-xs uppercase mb-1">Pendientes Revisión</h3>
+                    <p className={`text-4xl font-black mb-2 ${data.kpis.pendingReview > 0 ? 'text-amber-500' : 'text-emerald-600'}`}>
+                        {data.kpis.pendingReview}
                     </p>
-                    <p className="text-xs text-gray-400">Capital en mercadería (PVP)</p>
+                    <p className="text-xs text-gray-400">Ventas con comprobante (Clic para ver)</p>
                 </div>
 
                 {/* Soporte Técnico */}

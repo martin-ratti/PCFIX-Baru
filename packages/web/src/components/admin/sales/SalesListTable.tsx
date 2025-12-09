@@ -15,7 +15,6 @@ function SalesListContent() {
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedPayment, setSelectedPayment] = useState<string>('');
-  const [selectedDate, setSelectedDate] = useState<string>(''); // NEW
 
   const addToast = useToastStore(s => s.addToast);
   const { token } = useAuthStore();
@@ -28,27 +27,19 @@ function SalesListContent() {
     const params = new URLSearchParams(window.location.search);
     const m = params.get('month');
     const y = params.get('year');
-    const d = params.get('date'); // NEW
 
-    if (d) {
-      setSelectedDate(d);
-      setFilter('ALL');
-    } else {
-      if (m) setSelectedMonth(m);
-      if (y) setSelectedYear(Number(y));
-      if (m || y) setFilter('ALL');
-    }
+    if (m) setSelectedMonth(m);
+    if (y) setSelectedYear(Number(y));
+    if (m || y) setFilter('ALL');
   }, []);
 
   const fetchSales = () => {
     if (!token) return;
 
     let url = '/sales?page=1';
-    if (selectedDate) url += `&date=${selectedDate}`; // NEW
-    else {
-      if (selectedMonth) url += `&month=${selectedMonth}`;
-      if (selectedYear) url += `&year=${selectedYear}`;
-    }
+    if (selectedMonth) url += `&month=${selectedMonth}`;
+    if (selectedYear) url += `&year=${selectedYear}`;
+
     if (selectedPayment) url += `&paymentMethod=${selectedPayment}`;
 
     fetchApi(url, { headers: { 'Authorization': `Bearer ${token}` } })
@@ -57,12 +48,12 @@ function SalesListContent() {
       .catch(console.error);
   };
 
-  useEffect(() => { if (token) fetchSales(); }, [token, selectedMonth, selectedYear, selectedPayment, selectedDate]);
+  useEffect(() => { if (token) fetchSales(); }, [token, selectedMonth, selectedYear, selectedPayment]);
 
   useEffect(() => {
     const filterData = () => {
       let data = sales;
-      if (selectedMonth || selectedPayment || selectedDate) return data; // Update filter bypass
+      if (selectedMonth || selectedPayment) return data; // Update filter bypass
 
       switch (filter) {
         case 'VERIFICATION': return data.filter(s => s.estado === 'PENDIENTE_APROBACION' || s.estado === 'PENDIENTE_PAGO');
@@ -72,7 +63,7 @@ function SalesListContent() {
       }
     };
     setFilteredSales(filterData());
-  }, [filter, sales, selectedMonth, selectedPayment, selectedDate]);
+  }, [filter, sales, selectedMonth, selectedPayment]);
 
   const handleOpenDetail = (sale: any, dispatchMode = false) => { setSelectedSale(sale); setIsDispatchMode(dispatchMode); };
   const requestAction = (id: number, approve: boolean) => { setSelectedSale(null); setActionSale({ id, approve }); };
@@ -101,7 +92,7 @@ function SalesListContent() {
       <div className="p-4 bg-gray-50 border-b border-gray-200 flex flex-col gap-4">
         <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
           {['VERIFICATION', 'TO_SHIP', 'SHIPPED', 'ALL'].map(f => (
-            <button key={f} onClick={() => { setFilter(f as any); setSelectedMonth(''); setSelectedPayment(''); setSelectedDate(''); }} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all active:scale-95 whitespace-nowrap ${filter === f && !selectedMonth && !selectedPayment && !selectedDate ? 'bg-white text-primary shadow-sm ring-1 ring-black/5' : 'text-gray-600 hover:bg-gray-200'}`}>
+            <button key={f} onClick={() => { setFilter(f as any); setSelectedMonth(''); setSelectedPayment(''); }} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all active:scale-95 whitespace-nowrap ${filter === f && !selectedMonth && !selectedPayment ? 'bg-white text-primary shadow-sm ring-1 ring-black/5' : 'text-gray-600 hover:bg-gray-200'}`}>
               {f === 'VERIFICATION' ? 'Por Revisar' : f === 'TO_SHIP' ? 'A Despachar' : f === 'SHIPPED' ? 'Enviados' : 'Todos'}
             </button>
           ))}
@@ -110,14 +101,7 @@ function SalesListContent() {
         <div className="flex flex-wrap gap-2 items-center border-t border-gray-200 pt-4">
           <span className="text-xs font-bold text-gray-400 uppercase mr-2">Filtrar:</span>
 
-          <div className="relative">
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => { setSelectedDate(e.target.value); setFilter('ALL'); setSelectedMonth(''); setSelectedYear(new Date().getFullYear()); }}
-              className={`bg-white border text-gray-700 text-sm rounded-lg p-2 outline-none focus:border-primary ${selectedDate ? 'border-blue-300 bg-blue-50 font-bold' : 'border-gray-300'}`}
-            />
-          </div>
+
 
           <select aria-label="Filtro Compra" value={selectedPayment} onChange={(e) => { setSelectedPayment(e.target.value); setFilter('ALL'); }} className="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg p-2 outline-none focus:border-primary">
             <option value="">Método de Pago</option>
@@ -126,21 +110,21 @@ function SalesListContent() {
             <option value="BINANCE">Binance</option>
           </select>
 
-          <select aria-label="Filtro Mes" value={selectedMonth} onChange={(e) => { setSelectedMonth(e.target.value); setFilter('ALL'); setSelectedDate(''); }} disabled={!!selectedDate} className="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg p-2 outline-none focus:border-primary disabled:opacity-50">
+          <select aria-label="Filtro Mes" value={selectedMonth} onChange={(e) => { setSelectedMonth(e.target.value); setFilter('ALL'); }} className="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg p-2 outline-none focus:border-primary disabled:opacity-50">
             <option value="">Mes: Todos</option>
             {Array.from({ length: 12 }, (_, i) => (
               <option key={i} value={i + 1}>{new Date(0, i).toLocaleString('es-ES', { month: 'long' })}</option>
             ))}
           </select>
 
-          <select aria-label="Filtro Año" value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))} disabled={!!selectedDate} className="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg p-2 outline-none font-bold disabled:opacity-50">
+          <select aria-label="Filtro Año" value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))} className="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg p-2 outline-none font-bold disabled:opacity-50">
             <option value="2024">2024</option>
             <option value="2025">2025</option>
             <option value="2026">2026</option>
           </select>
 
-          {(selectedMonth || selectedPayment || selectedDate) && (
-            <button onClick={() => { setSelectedMonth(''); setSelectedPayment(''); setSelectedDate(''); }} className="text-red-500 text-xs font-bold hover:underline px-2">
+          {(selectedMonth || selectedPayment) && (
+            <button onClick={() => { setSelectedMonth(''); setSelectedPayment(''); }} className="text-red-500 text-xs font-bold hover:underline px-2">
               Borrar Filtros
             </button>
           )}

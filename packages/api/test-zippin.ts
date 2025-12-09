@@ -1,85 +1,55 @@
 import axios from 'axios';
-// 👇 CORRECCIÓN: Usamos require para evitar problemas de tipos en este script suelto
-const { Buffer } = require('buffer');
 
-// TUS CREDENCIALES REALES
-const CLIENT_ID = '1738518b-ae7b-423f-90a4-80c5ee8c160f';
-const CLIENT_SECRET = '7ef5ff5e-31e8-4895-838a-6c34e97f33e7';
+// Credenciales correctas
+const API_TOKEN = '1738518b-ae7b-423f-90a4-80c5ee8c160f';
+const API_SECRET = '7ef5ff5e-31e8-4895-838a-6c34e97f33e7';
+const ACCOUNT_ID = '20222';
+const ORIGIN_ID = 373370;
 
-async function testConnection() {
-    console.log("🕵️ INICIANDO DIAGNÓSTICO DE CONEXIÓN ZIPPIN/ZIPNOVA...\n");
+async function testShippingQuote() {
+    console.log("🚚 PROBANDO COTIZACIÓN ZIPNOVA...\n");
 
-    // PRUEBA 1: JSON Body a la raíz (Estándar Moderno)
+    const credentials = Buffer.from(`${API_TOKEN}:${API_SECRET}`).toString('base64');
+    const headers = {
+        'Authorization': `Basic ${credentials}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    };
+
+    const payload = {
+        account_id: ACCOUNT_ID,
+        origin_id: ORIGIN_ID,
+        declared_value: 50000, // $500 ARS en centavos
+        items: [{
+            weight: 1000, // 1kg en gramos
+            height: 15,
+            width: 20,
+            length: 30,
+            description: 'Producto PCFIX Test',
+            classification_id: 1
+        }],
+        destination: {
+            zipcode: '1425',
+            city: 'Buenos Aires',
+            state: 'Buenos Aires'
+        }
+    };
+
+    console.log("📦 Payload:", JSON.stringify(payload, null, 2));
+    console.log("\n");
+
     try {
-        console.log("👉 PRUEBA 1: JSON Body a https://api.zippin.com.ar/oauth/token");
-        const res1 = await axios.post('https://api.zippin.com.ar/oauth/token', {
-            grant_type: 'client_credentials',
-            client_id: CLIENT_ID,
-            client_secret: CLIENT_SECRET
-        }, { headers: { 'Content-Type': 'application/json' } });
-        console.log("✅ ÉXITO PRUEBA 1! Token:", res1.data.access_token.substring(0, 10) + "...");
-        return; 
-    } catch (e: any) {
-        console.log("❌ Falló Prueba 1:", e.response?.status, e.response?.data);
-    }
-
-    console.log("---------------------------------------------------");
-
-    // PRUEBA 2: Form-UrlEncoded a la raíz (Estándar Legacy)
-    try {
-        console.log("👉 PRUEBA 2: Form-UrlEncoded a https://api.zippin.com.ar/oauth/token");
-        const params = new URLSearchParams();
-        params.append('grant_type', 'client_credentials');
-        params.append('client_id', CLIENT_ID);
-        params.append('client_secret', CLIENT_SECRET);
-        
-        const res2 = await axios.post('https://api.zippin.com.ar/oauth/token', params, { 
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' } 
-        });
-        console.log("✅ ÉXITO PRUEBA 2! Token:", res2.data.access_token.substring(0, 10) + "...");
-        return;
-    } catch (e: any) {
-        console.log("❌ Falló Prueba 2:", e.response?.status, e.response?.data);
-    }
-
-    console.log("---------------------------------------------------");
-
-    // PRUEBA 3: Basic Auth Header (Estándar Strict)
-    try {
-        console.log("👉 PRUEBA 3: Basic Auth Header a https://api.zippin.com.ar/oauth/token");
-        const auth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
-        const res3 = await axios.post('https://api.zippin.com.ar/oauth/token', 
-            'grant_type=client_credentials', 
-            { 
-                headers: { 
-                    'Authorization': `Basic ${auth}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                } 
-            }
+        const response = await axios.post(
+            'https://api.zipnova.com.ar/v2/shipments/quote',
+            payload,
+            { headers }
         );
-        console.log("✅ ÉXITO PRUEBA 3! Token:", res3.data.access_token.substring(0, 10) + "...");
-        return;
+        console.log("✅ ÉXITO! Cotización recibida:");
+        console.log(JSON.stringify(response.data, null, 2));
     } catch (e: any) {
-        console.log("❌ Falló Prueba 3:", e.response?.status, e.response?.data);
+        console.log("❌ Error:", e.response?.status);
+        console.log(JSON.stringify(e.response?.data, null, 2));
     }
-    
-    console.log("---------------------------------------------------");
-
-    // PRUEBA 4: URL v1 (Backup)
-    try {
-        console.log("👉 PRUEBA 4: JSON a https://api.zippin.com.ar/v1/oauth/token");
-        const res4 = await axios.post('https://api.zippin.com.ar/v1/oauth/token', {
-            grant_type: 'client_credentials',
-            client_id: CLIENT_ID,
-            client_secret: CLIENT_SECRET
-        }, { headers: { 'Content-Type': 'application/json' } });
-        console.log("✅ ÉXITO PRUEBA 4! Token:", res4.data.access_token.substring(0, 10) + "...");
-        return;
-    } catch (e: any) {
-        console.log("❌ Falló Prueba 4:", e.response?.status, e.response?.data);
-    }
-
-    console.log("\n⚠️ RESULTADO FINAL: Ninguna combinación funcionó.");
 }
 
-testConnection();
+testShippingQuote();

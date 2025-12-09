@@ -75,7 +75,15 @@ export class SalesService {
     }
 
     // 2. CREAR VENTA WEB
-    async createSale(userId: number, items: any[], _frontendSubtotal: number, cpDestino?: string, tipoEntrega: string = 'ENVIO', medioPago: string = 'TRANSFERENCIA') {
+    async createSale(
+        userId: number,
+        items: any[],
+        _frontendSubtotal: number,
+        cpDestino?: string,
+        tipoEntrega: string = 'ENVIO',
+        medioPago: string = 'TRANSFERENCIA',
+        direccionEnvio?: { direccion?: string; ciudad?: string; provincia?: string; telefono?: string; documento?: string }
+    ) {
         let cliente = await prisma.cliente.findUnique({ where: { userId } });
         if (!cliente) cliente = await prisma.cliente.create({ data: { userId } });
 
@@ -130,7 +138,14 @@ export class SalesService {
                     costoEnvio, tipoEntrega, medioPago,
                     metodoEnvio: tipoEntrega === 'RETIRO' ? "RETIRO_LOCAL" : "ZIPPIN_LOGISTICA",
                     estado: VentaEstado.PENDIENTE_PAGO,
-                    lineasVenta: { create: lineasParaCrear }
+                    lineasVenta: { create: lineasParaCrear },
+                    // Guardar dirección de envío para Zipnova
+                    direccionEnvio: direccionEnvio?.direccion || null,
+                    ciudadEnvio: direccionEnvio?.ciudad || null,
+                    provinciaEnvio: direccionEnvio?.provincia || null,
+                    cpEnvio: cpDestino || null,
+                    telefonoEnvio: direccionEnvio?.telefono || null,
+                    documentoEnvio: direccionEnvio?.documento || null
                 },
                 include: { lineasVenta: true }
             });
@@ -340,5 +355,120 @@ export class SalesService {
             this.emailService.sendStatusUpdate(updated.cliente.user.email, saleId, status, updated.tipoEntrega).catch(console.error);
         }
         return updated;
+    }
+
+    // ========== ZIPNOVA INTEGRATION ==========
+
+    async createShipmentForSale(saleId: number) {
+        const sale = await prisma.venta.findUnique({
+            where: { id: saleId },
+            include: {
+                lineasVenta: { include: { producto: true } },
+                cliente: { include: { user: true } }
+            }
+        });
+
+        if (!sale) throw new Error('Venta no encontrada');
+        if (sale.tipoEntrega !== 'ENVIO') throw new Error('Esta venta es retiro en local, no requiere envío');
+        if (sale.zipnovaShipmentId) throw new Error('Esta venta ya tiene un envío creado en Zipnova');
+        if (!sale.direccionEnvio || !sale.ciudadEnvio || !sale.provinciaEnvio || !sale.cpEnvio) {
+            throw new Error('Faltan datos de dirección de envío');
+        }
+
+        // Preparar items para Zipnova
+        const items: ShippingItem[] = sale.lineasVenta.map((linea: any) => ({
+            weight: Number(linea.producto.peso) || 0.5,
+            height: linea.producto.alto || 10,
+            width: linea.producto.ancho || 10,
+            depth: linea.producto.profundidad || 10,
+            quantity: linea.cantidad,
+            description: linea.producto.nombre,
+            sku: `P${linea.producto.id}`
+        }));
+
+        // Crear envío en Zipnova
+        const result = await this.shippingService.createShipment(
+            items,
+            {
+                direccion: sale.direccionEnvio,
+                ciudad: sale.ciudadEnvio,
+                provincia: sale.provinciaEnvio,
+                codigoPostal: sale.cpEnvio,
+                telefono: sale.telefonoEnvio || '',
+                nombre: `${sale.cliente?.user?.nombre || ''} ${sale.cliente?.user?.apellido || ''}`.trim(),
+                email: sale.cliente?.user?.email || '',
+                documento: sale.documentoEnvio || ''
+            },
+            Number(sale.montoTotal),
+            `PCFIX-${saleId}`
+        );
+
+        // Actualizar venta con datos de Zipnova
+        await prisma.venta.update({
+            where: { id: saleId },
+            data: {
+                zipnovaShipmentId: result.shipmentId,
+                codigoSeguimiento: result.trackingCode,
+                etiquetaUrl: result.labelUrl,
+                metodoEnvio: result.carrier
+            }
+        });
+
+        // Notificar al cliente
+        if (sale.cliente?.user?.email && result.trackingCode) {
+            this.emailService.sendStatusUpdate(
+                sale.cliente.user.email,
+                saleId,
+                VentaEstado.ENVIADO,
+                'ENVIO'
+            ).catch(console.error);
+        }
+
+        // Notificar al admin con link a Zipnova
+        this.emailService.sendNewShipmentNotification(
+            saleId,
+            sale.cliente?.user?.email || 'N/A',
+            result.shipmentId,
+            result.trackingCode
+        ).catch(console.error);
+
+        return {
+            shipmentId: result.shipmentId,
+            trackingCode: result.trackingCode,
+            labelUrl: result.labelUrl,
+            carrier: result.carrier,
+            estimatedDelivery: result.estimatedDelivery
+        };
+    }
+
+    async getShipmentLabel(saleId: number): Promise<string | null> {
+        const sale = await prisma.venta.findUnique({ where: { id: saleId } });
+
+        if (!sale) throw new Error('Venta no encontrada');
+
+        // Si ya tiene URL guardada, devolverla
+        if (sale.etiquetaUrl) return sale.etiquetaUrl;
+
+        // Si tiene ID de envío en Zipnova, intentar obtener etiqueta
+        if (sale.zipnovaShipmentId) {
+            try {
+                const labelUrl = await this.shippingService.getLabel(sale.zipnovaShipmentId);
+
+                // Guardar para cache
+                if (labelUrl) {
+                    await prisma.venta.update({
+                        where: { id: saleId },
+                        data: { etiquetaUrl: labelUrl }
+                    });
+                }
+
+                return labelUrl;
+            } catch (error) {
+                console.error('Error obteniendo etiqueta:', error);
+                return null;
+            }
+        }
+
+        return null;
     }
 }

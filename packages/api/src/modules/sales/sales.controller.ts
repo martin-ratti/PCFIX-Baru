@@ -28,7 +28,13 @@ const createSaleSchema = z.object({
     subtotal: z.number().min(0),
     cpDestino: z.string().min(4).optional(),
     tipoEntrega: z.enum(['ENVIO', 'RETIRO']),
-    medioPago: z.enum(['MERCADOPAGO', 'EFECTIVO', 'VIUMI', 'TRANSFERENCIA', 'BINANCE'])
+    medioPago: z.enum(['MERCADOPAGO', 'EFECTIVO', 'VIUMI', 'TRANSFERENCIA', 'BINANCE']),
+    // Dirección de envío para Zipnova
+    direccionEnvio: z.string().optional(),
+    ciudadEnvio: z.string().optional(),
+    provinciaEnvio: z.string().optional(),
+    telefonoEnvio: z.string().optional(),
+    documentoEnvio: z.string().optional() // DNI del destinatario
 });
 
 export const createSale = async (req: Request, res: Response) => {
@@ -38,7 +44,21 @@ export const createSale = async (req: Request, res: Response) => {
 
         const data = createSaleSchema.parse(req.body);
 
-        const sale = await service.createSale(userId, data.items, data.subtotal, data.cpDestino, data.tipoEntrega, data.medioPago);
+        const sale = await service.createSale(
+            userId,
+            data.items,
+            data.subtotal,
+            data.cpDestino,
+            data.tipoEntrega,
+            data.medioPago,
+            {
+                direccion: data.direccionEnvio,
+                ciudad: data.ciudadEnvio,
+                provincia: data.provinciaEnvio,
+                telefono: data.telefonoEnvio,
+                documento: data.documentoEnvio
+            }
+        );
         res.status(201).json({ success: true, data: sale });
     } catch (e: any) {
         if (e instanceof z.ZodError) {
@@ -212,6 +232,44 @@ export const getBalance = async (req: Request, res: Response) => {
         const year = req.query.year ? Number(req.query.year) : new Date().getFullYear();
         const data = await service.getMonthlyBalance(year);
         res.json({ success: true, data });
+    } catch (e: any) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+};
+
+// ========== ZIPNOVA INTEGRATION ==========
+export const createZipnovaShipment = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const saleId = Number(id);
+
+        const result = await service.createShipmentForSale(saleId);
+
+        res.json({
+            success: true,
+            data: result,
+            message: 'Envío creado exitosamente en Zipnova'
+        });
+    } catch (e: any) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+};
+
+export const getShipmentLabel = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const saleId = Number(id);
+
+        const labelUrl = await service.getShipmentLabel(saleId);
+
+        if (!labelUrl) {
+            return res.status(404).json({
+                success: false,
+                error: 'Esta venta no tiene etiqueta de envío generada'
+            });
+        }
+
+        res.json({ success: true, data: { labelUrl } });
     } catch (e: any) {
         res.status(500).json({ success: false, error: e.message });
     }

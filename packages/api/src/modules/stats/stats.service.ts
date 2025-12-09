@@ -53,12 +53,10 @@ export class StatsService {
       where: { deletedAt: null, stock: { lte: 5 } }
     });
 
-    // 3. Inventory Value (Stock * Price)
-    const products = await prisma.producto.findMany({
-      where: { deletedAt: null, stock: { gt: 0 } },
-      select: { stock: true, precio: true }
+    // 3. Ventas Pendientes de Revisión (comprobante subido, sin aprobar)
+    const pendingReview = await prisma.venta.count({
+      where: { estado: 'PENDIENTE_APROBACION' }
     });
-    const inventoryValue = products.reduce((acc, p) => acc + (p.stock * Number(p.precio)), 0);
 
     // 4. Pending Technical Support Tickets
     // Replaced Retention Rate as per user request
@@ -155,7 +153,7 @@ export class StatsService {
       kpis: {
         grossRevenue,
         lowStockProducts,
-        inventoryValue,
+        pendingReview,
         pendingSupport
       },
       charts: {

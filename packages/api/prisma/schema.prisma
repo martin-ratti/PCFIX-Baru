@@ -14,6 +14,7 @@ model User {
   email     String   @unique
   nombre    String
   apellido  String
+  telefono  String?  // Teléfono del usuario
   password  String?
   googleId  String?  @unique
   role      Role     @default(USER)
@@ -178,7 +179,18 @@ model Venta {
   codigoSeguimiento String?
   etiquetaUrl       String?   
   
-  // 👇 NUEVOS CAMPOS DE ELECCIÓN
+  // Dirección de envío (para Zipnova)
+  direccionEnvio    String?
+  ciudadEnvio       String?
+  provinciaEnvio    String?
+  cpEnvio           String?
+  telefonoEnvio     String?
+  documentoEnvio    String?  // DNI del destinatario para Zipnova
+  
+  // Zipnova tracking
+  zipnovaShipmentId String?
+  
+  // Elección del cliente
   tipoEntrega       String      @default("ENVIO") // 'ENVIO' | 'RETIRO'
   medioPago         String      @default("TRANSFERENCIA") // 'TRANSFERENCIA' | 'BINANCE' | 'EFECTIVO'
   tipoEnvio         String?   

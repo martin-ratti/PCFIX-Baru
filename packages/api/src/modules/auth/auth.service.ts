@@ -23,6 +23,7 @@ export class AuthService {
       data: {
         nombre: data.nombre,
         apellido: data.apellido,
+        telefono: data.telefono || null,
         email: data.email,
         password: hashedPassword,
         role: 'USER',

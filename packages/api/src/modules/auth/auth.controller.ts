@@ -8,6 +8,7 @@ const registerSchema = z.object({
   email: z.string().email(),
   nombre: z.string().min(2),
   apellido: z.string().min(2),
+  telefono: z.string().optional(),
   password: z.string().min(6),
 });
 

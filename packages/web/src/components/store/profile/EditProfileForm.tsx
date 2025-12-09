@@ -10,6 +10,7 @@ import ConfirmModal from '../../ui/feedback/ConfirmModal';
 const profileUpdateSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   apellido: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
+  telefono: z.string().optional(),
   email: z.string().email().optional(),
 });
 
@@ -67,6 +68,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
           const user = data.data;
           setValue('nombre', user.nombre);
           setValue('apellido', user.apellido);
+          setValue('telefono', user.telefono || '');
           setValue('email', user.email);
           setRole(user.role || 'USER');
           setCreatedAt(user.createdAt || '');
@@ -96,6 +98,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
         body: JSON.stringify({
           nombre: data.nombre,
           apellido: data.apellido,
+          telefono: data.telefono || undefined,
         }),
       });
 
@@ -171,6 +174,17 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
               />
               {errors.apellido && <p className="text-red-500 text-xs ml-1 font-medium flex items-center gap-1">⚠️ {errors.apellido.message}</p>}
             </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-gray-700 ml-1">Teléfono</label>
+              <input
+                {...register('telefono')}
+                type="tel"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-primary focus:ring-primary/20 rounded-xl focus:ring-4 focus:bg-white outline-none transition-all duration-200 font-medium text-gray-800"
+                placeholder="+54 11 1234-5678"
+              />
+              <p className="text-xs text-gray-400 ml-1">Lo usaremos para agilizar tus envíos.</p>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -199,8 +213,8 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
               <div className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm">
                 <p className="text-xs text-gray-400 mb-1">Rol</p>
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${role === 'ADMIN'
-                    ? 'bg-purple-100 text-purple-700'
-                    : 'bg-blue-100 text-blue-700'
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'bg-blue-100 text-blue-700'
                   }`}>
                   {role === 'ADMIN' ? '👑' : '👤'}
                   {role === 'ADMIN' ? 'Administrador' : 'Usuario'}
@@ -223,8 +237,8 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
               <div className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm">
                 <p className="text-xs text-gray-400 mb-1">Tipo de cuenta</p>
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold ${isGoogleAccount
-                    ? 'bg-red-50 text-red-600'
-                    : 'bg-green-50 text-green-700'
+                  ? 'bg-red-50 text-red-600'
+                  : 'bg-green-50 text-green-700'
                   }`}>
                   {isGoogleAccount ? (
                     <>

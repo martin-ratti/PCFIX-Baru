@@ -74,11 +74,8 @@ describe('StatsService', () => {
             // 2. Low Stock (should return logic based on count)
             mockPrisma.producto.count.mockResolvedValueOnce(15);
 
-            // 3. Inventory Value (2 products: 10 qty * 100 price, 5 qty * 200 price)
-            mockPrisma.producto.findMany.mockResolvedValueOnce([
-                { stock: 10, precio: 100 },
-                { stock: 5, precio: 200 }
-            ]);
+            // 3. Pending Review (ventas con comprobante)
+            mockPrisma.venta.count.mockResolvedValueOnce(2);
 
             // 4. Pending Support
             mockPrisma.consultaTecnica.count.mockResolvedValueOnce(3);
@@ -97,10 +94,9 @@ describe('StatsService', () => {
 
             const result = await service.getSalesIntelligence();
 
-            // KPIs Check
             expect(result.kpis.grossRevenue).toBe(3000); // 1000 + 2000
             expect(result.kpis.lowStockProducts).toBe(15);
-            expect(result.kpis.inventoryValue).toBe(2000); // (10*100) + (5*200) = 1000 + 1000
+            expect(result.kpis.pendingReview).toBe(2); // ventas pendientes de revisión
             expect(result.kpis.pendingSupport).toBe(3);
 
             // Top Products Check

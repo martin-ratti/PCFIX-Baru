@@ -15,6 +15,7 @@ interface SaleDetailModalProps {
 export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClose, onApprove, onReject, onDispatch }: SaleDetailModalProps) {
     const [trackingCode, setTrackingCode] = useState('');
     const [isDispatching, setIsDispatching] = useState(false);
+    const [isCreatingShipment, setIsCreatingShipment] = useState(false);
     const addToast = useToastStore(s => s.addToast);
     const { token } = useAuthStore();
 
@@ -63,6 +64,39 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
             addToast(e.message || 'Error de conexión', 'error');
         } finally {
             setIsDispatching(false);
+        }
+    };
+
+    // Crear envío en Zipnova
+    const handleCreateZipnovaShipment = async () => {
+        if (!sale.direccionEnvio || !sale.ciudadEnvio || !sale.provinciaEnvio) {
+            addToast('Faltan datos de dirección para crear el envío', 'error');
+            return;
+        }
+
+        setIsCreatingShipment(true);
+        try {
+            const res = await fetch(`http://localhost:3002/api/sales/${sale.id}/create-shipment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const json = await res.json();
+
+            if (json.success) {
+                addToast(`Envío creado! Tracking: ${json.data.trackingCode}`, 'success');
+                if (onDispatch) onDispatch();
+                onClose(); // Cerrar modal para evitar doble click y refrescar datos
+            } else {
+                throw new Error(json.error);
+            }
+        } catch (e: any) {
+            addToast(e.message || 'Error creando envío', 'error');
+        } finally {
+            setIsCreatingShipment(false);
         }
     };
 
@@ -139,8 +173,20 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
 
                                     {sale.tipoEntrega === 'ENVIO' && (
                                         <div className="mt-2 pt-2 border-t border-gray-50">
-                                            <p className="text-blue-600 font-medium">📦 Datos de Envío:</p>
-                                            <p>CP: {sale.cpDestino || 'No especificado'}</p>
+                                            <p className="text-blue-600 font-medium mb-1">📦 Dirección de Envío:</p>
+                                            {sale.direccionEnvio ? (
+                                                <div className="text-sm space-y-0.5">
+                                                    <p>{sale.direccionEnvio}</p>
+                                                    <p>{sale.ciudadEnvio}, {sale.provinciaEnvio}</p>
+                                                    <p>CP: {sale.cpEnvio}</p>
+                                                    {sale.telefonoEnvio && <p>Tel: {sale.telefonoEnvio}</p>}
+                                                </div>
+                                            ) : (
+                                                <p className="text-orange-600 text-sm">⚠️ Sin dirección completa</p>
+                                            )}
+                                            {sale.zipnovaShipmentId && (
+                                                <p className="mt-2 text-green-600 font-medium">✅ Envío Zipnova: {sale.codigoSeguimiento}</p>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -226,22 +272,43 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                 </div>
                             ) : (
                                 // UI ENVÍO
-                                <div className="flex gap-3">
-                                    <input
-                                        ref={trackingInputRef}
-                                        type="text"
-                                        placeholder="Cód. Seguimiento (Ej: AA123...)"
-                                        value={trackingCode}
-                                        onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
-                                        className="flex-1 border border-blue-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none font-mono uppercase bg-white"
-                                    />
-                                    <button
-                                        onClick={handleDispatch}
-                                        disabled={isDispatching || !trackingCode}
-                                        className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-sm whitespace-nowrap"
-                                    >
-                                        {isDispatching ? 'Procesando...' : 'Confirmar Despacho'}
-                                    </button>
+                                <div className="space-y-3">
+                                    {/* Botón Zipnova - Solo si tiene dirección y no tiene envío creado */}
+                                    {!sale.zipnovaShipmentId && sale.direccionEnvio && (
+                                        <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-200">
+                                            <span className="text-2xl">📦</span>
+                                            <div className="flex-1">
+                                                <p className="font-bold text-blue-800">Crear envío con Zipnova</p>
+                                                <p className="text-xs text-blue-600">Genera etiqueta y tracking automáticamente</p>
+                                            </div>
+                                            <button
+                                                onClick={handleCreateZipnovaShipment}
+                                                disabled={isCreatingShipment}
+                                                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 shadow-sm"
+                                            >
+                                                {isCreatingShipment ? 'Creando...' : 'Crear Envío'}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Input manual de tracking */}
+                                    <div className="flex gap-3">
+                                        <input
+                                            ref={trackingInputRef}
+                                            type="text"
+                                            placeholder="Cód. Seguimiento (Ej: AA123...)"
+                                            value={trackingCode}
+                                            onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
+                                            className="flex-1 border border-blue-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none font-mono uppercase bg-white"
+                                        />
+                                        <button
+                                            onClick={handleDispatch}
+                                            disabled={isDispatching || !trackingCode}
+                                            className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-sm whitespace-nowrap"
+                                        >
+                                            {isDispatching ? 'Procesando...' : 'Confirmar Despacho'}
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>

@@ -33,6 +33,7 @@ export class EmailService {
   // Notificar Consulta (Admin)
   async sendNewInquiryNotification(userEmail: string, userName: string, subject: string, message: string) {
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
     const emailSubject = `🔧 Nueva Consulta Técnica: ${subject}`;
 
     const html = `
@@ -52,7 +53,7 @@ export class EmailService {
           </div>
 
           <div style="text-align: center;">
-            <a href="http://localhost:4321/admin/soporte" style="background: #1f2937; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Responder en Panel</a>
+            <a href="${frontendUrl}/admin/soporte" style="background: #1f2937; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Responder en Panel</a>
           </div>
         </div>
       </div>
@@ -63,6 +64,7 @@ export class EmailService {
 
   // Notificar Respuesta (Usuario)
   async sendReplyNotification(userEmail: string, asuntoOriginal: string, respuestaTecnico: string) {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
     const subject = `Respuesta a tu consulta: ${asuntoOriginal}`;
 
     const html = `
@@ -86,7 +88,7 @@ export class EmailService {
           </div>
           
           <div style="text-align: center; margin-top: 30px;">
-            <a href="http://localhost:4321/mis-consultas" style="background: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Ver Mis Consultas</a>
+            <a href="${frontendUrl}/mis-consultas" style="background: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Ver Mis Consultas</a>
             <p style="font-size: 13px; color: #9ca3af; margin-top: 15px;">Puedes responder nuevamente desde tu perfil.</p>
           </div>
         </div>
@@ -103,6 +105,7 @@ export class EmailService {
   // Notificar Comprobante (Admin)
   async sendNewReceiptNotification(saleId: number, userEmail: string) {
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
     const subject = `💸 Nuevo Comprobante - Orden #${saleId}`;
 
     const html = `
@@ -120,7 +123,7 @@ export class EmailService {
           <p style="font-size: 16px; line-height: 1.5; color: #4b5563;">El usuario <strong>${userEmail}</strong> ha subido un comprobante para la orden <strong style="color: #111;">#${saleId}</strong>.</p>
           
           <div style="margin-top: 30px;">
-            <a href="http://localhost:4321/admin/ventas" style="background: #1f2937; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Administrar Venta</a>
+            <a href="${frontendUrl}/admin/ventas" style="background: #1f2937; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Administrar Venta</a>
           </div>
         </div>
       </div>
@@ -128,8 +131,52 @@ export class EmailService {
     return await this.sendEmail(adminEmail, subject, html);
   }
 
+  // Notificar Envío Creado (Admin)
+  async sendNewShipmentNotification(saleId: number, customerEmail: string, shipmentId: string, trackingCode: string) {
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
+    const subject = `🚚 Envío Creado - Orden #${saleId}`;
+
+    // Link directo al envío en el panel de Zipnova
+    const zipnovaLink = `https://app.zipnova.com.ar/shipments/${shipmentId}`;
+
+    const html = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+        <div style="background-color: #111827; padding: 25px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">PC FIX Logística</h1>
+        </div>
+        
+        <div style="padding: 30px; text-align: center;">
+          <div style="background: #dbeafe; width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px auto; line-height: 80px; text-align: center;">
+             <span style="font-size: 40px; vertical-align: middle;">🚚</span>
+          </div>
+          
+          <h2 style="color: #2563eb; margin-top: 0;">Envío Creado en Zipnova</h2>
+          <p style="font-size: 16px; line-height: 1.5; color: #4b5563;">
+            Se ha creado el envío para la orden <strong style="color: #111;">#${saleId}</strong>
+          </p>
+          
+          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left;">
+            <p style="margin: 0 0 10px 0;"><strong>Cliente:</strong> ${customerEmail}</p>
+            <p style="margin: 0 0 10px 0;"><strong>ID Envío:</strong> ${shipmentId}</p>
+            <p style="margin: 0;"><strong>Tracking:</strong> ${trackingCode || 'Pendiente'}</p>
+          </div>
+          
+          <div style="margin-top: 30px;">
+            <a href="${zipnovaLink}" style="background: #2563eb; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);">Ver en Panel Zipnova</a>
+          </div>
+          
+          <p style="margin-top: 20px; font-size: 13px; color: #9ca3af;">
+            Recordá descargar e imprimir la etiqueta desde el panel.
+          </p>
+        </div>
+      </div>
+    `;
+    return await this.sendEmail(adminEmail, subject, html);
+  }
+
   // Notificar Cambio de Estado (Usuario)
-  async sendStatusUpdate(userEmail: string, saleId: number, newStatus: string, tipoEntrega?: string) {
+  async sendStatusUpdate(userEmail: string, saleId: number, newStatus: string, tipoEntrega?: string, trackingCode?: string) {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
     let mensaje = 'El estado de tu pedido ha cambiado.';
     let icon = '📦';
     let color = '#2563eb';
@@ -155,7 +202,11 @@ export class EmailService {
         mensaje = '¡Tu pedido está listo para retirar! 🛍️<br>Te esperamos en nuestro local con tu número de orden.';
         icon = '🏪';
       } else {
-        mensaje = '¡Tu pedido está en camino! 🚚<br>Pronto recibirás el código de seguimiento para rastrear tu paquete.';
+        if (trackingCode) {
+          mensaje = `¡Tu pedido está en camino! 🚚<br><br><strong>Código de Seguimiento:</strong> ${trackingCode}<br><br>Podés seguir tu envío desde la web del correo.`;
+        } else {
+          mensaje = '¡Tu pedido está en camino! 🚚<br>Pronto recibirás el código de seguimiento para rastrear tu paquete.';
+        }
         icon = '🚚';
       }
       color = '#2563eb';
@@ -186,7 +237,7 @@ export class EmailService {
             <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin-top: 20px;">${mensaje}</p>
 
             <div style="margin-top: 35px;">
-              <a href="http://localhost:4321/mis-compras" style="background: ${color}; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px -1px ${color}50;">
+              <a href="${frontendUrl}/mis-compras" style="background: ${color}; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px -1px ${color}50;">
                 Ver Detalles del Pedido
               </a>
             </div>

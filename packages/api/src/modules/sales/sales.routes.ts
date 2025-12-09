@@ -30,4 +30,8 @@ router.put('/:id/cancel', authenticate, Controller.cancelOrder);
 router.put('/:id/status', authenticate, requireAdmin, Controller.updateStatus);
 router.put('/:id/dispatch', authenticate, requireAdmin, Controller.dispatchSale);
 
+// Zipnova Integration
+router.post('/:id/create-shipment', authenticate, requireAdmin, Controller.createZipnovaShipment);
+router.get('/:id/label', authenticate, Controller.getShipmentLabel);
+
 export default router;

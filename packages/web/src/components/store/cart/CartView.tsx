@@ -24,6 +24,13 @@ function CartContent() {
     const [shippingCost, setShippingCost] = useState<number | null>(null);
     const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
 
+    // Dirección de envío para Zipnova
+    const [direccion, setDireccion] = useState('');
+    const [ciudad, setCiudad] = useState('');
+    const [provincia, setProvincia] = useState('');
+    const [telefono, setTelefono] = useState('');
+    const [documento, setDocumento] = useState(''); // DNI del destinatario
+
     const [baseShippingCost, setBaseShippingCost] = useState(0);
     const [localAddress, setLocalAddress] = useState('');
 
@@ -64,6 +71,15 @@ function CartContent() {
             addToast("Ingresa un Código Postal válido", 'error');
             return;
         }
+
+        // Si es CP local (2183), cambiar a retiro automáticamente
+        if (zipCode === '2183') {
+            setDeliveryType('RETIRO');
+            setShippingCost(null);
+            addToast("¡Estás cerca! Retirá en el local sin costo de envío 🏪", 'success');
+            return;
+        }
+
         setIsCalculatingShipping(true);
 
         try {
@@ -108,6 +124,30 @@ function CartContent() {
             return;
         }
 
+        // Validar dirección completa para envío
+        if (deliveryType === 'ENVIO') {
+            if (!direccion.trim()) {
+                addToast("Ingresa tu dirección (calle y número)", 'error');
+                document.getElementById('direccionInput')?.focus();
+                return;
+            }
+            if (!ciudad.trim()) {
+                addToast("Ingresa tu ciudad/localidad", 'error');
+                document.getElementById('ciudadInput')?.focus();
+                return;
+            }
+            if (!provincia) {
+                addToast("Selecciona tu provincia", 'error');
+                return;
+            }
+            // DNI requerido para etiqueta de envío
+            if (!documento.trim() || documento.length < 7) {
+                addToast("Ingresa un DNI válido (requerido para envíos)", 'error');
+                document.getElementById('documentoInput')?.focus();
+                return;
+            }
+        }
+
 
         if (deliveryType === 'ENVIO' && paymentMethod === 'EFECTIVO') {
             addToast("Pago en efectivo solo disponible para retiro en local", 'error');
@@ -122,7 +162,13 @@ function CartContent() {
                 subtotal: Number(subtotal),
                 cpDestino: deliveryType === 'ENVIO' ? zipCode : undefined,
                 tipoEntrega: deliveryType,
-                medioPago: paymentMethod
+                medioPago: paymentMethod,
+                // Dirección para Zipnova
+                direccionEnvio: deliveryType === 'ENVIO' ? direccion : undefined,
+                ciudadEnvio: deliveryType === 'ENVIO' ? ciudad : undefined,
+                provinciaEnvio: deliveryType === 'ENVIO' ? provincia : undefined,
+                telefonoEnvio: deliveryType === 'ENVIO' ? telefono : undefined,
+                documentoEnvio: deliveryType === 'ENVIO' ? documento : undefined
             };
 
             const res = await fetch(`${API_URL}/sales`, {
@@ -190,21 +236,89 @@ function CartContent() {
                     </div>
 
                     {deliveryType === 'ENVIO' ? (
-                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                            <p className="text-xs font-bold text-gray-500 uppercase mb-2">Calculadora de Envío</p>
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
+                            <p className="text-xs font-bold text-gray-500 uppercase mb-2">Envío a Domicilio</p>
                             {shippingCost === null ? (
                                 <div className="flex gap-2">
                                     <input type="text" id="zipCodeInput" placeholder="Cód. Postal" value={zipCode} onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 4))} className="w-full border rounded px-2 py-1.5 text-sm" />
-                                    <button onClick={handleCalculateShipping} disabled={isCalculatingShipping} className="bg-secondary text-white text-xs font-bold px-3 py-1.5 rounded">{isCalculatingShipping ? '...' : 'Calcular'}</button>
+                                    <button onClick={handleCalculateShipping} disabled={isCalculatingShipping} className="bg-secondary text-white text-xs font-bold px-3 py-1.5 rounded whitespace-nowrap">{isCalculatingShipping ? '...' : 'Cotizar'}</button>
                                 </div>
                             ) : (
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm">A domicilio (CP {zipCode})</span>
-                                    <div className="text-right">
-                                        <span className="block font-bold">${shippingCost.toLocaleString('es-AR')}</span>
-                                        <button onClick={() => setShippingCost(null)} className="text-[10px] text-blue-500 hover:underline">Cambiar CP</button>
+                                <>
+                                    <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                                        <span className="text-sm">CP {zipCode}</span>
+                                        <div className="text-right">
+                                            <span className="block font-bold text-green-600">${shippingCost.toLocaleString('es-AR')}</span>
+                                            <button onClick={() => setShippingCost(null)} className="text-[10px] text-blue-500 hover:underline">Cambiar</button>
+                                        </div>
                                     </div>
-                                </div>
+                                    {/* Formulario dirección */}
+                                    <div className="space-y-2">
+                                        <input
+                                            type="text" id="direccionInput"
+                                            placeholder="Calle y número *"
+                                            value={direccion}
+                                            onChange={(e) => setDireccion(e.target.value)}
+                                            className="w-full border rounded px-2 py-1.5 text-sm"
+                                        />
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <input
+                                                type="text" id="ciudadInput"
+                                                placeholder="Ciudad *"
+                                                value={ciudad}
+                                                onChange={(e) => setCiudad(e.target.value)}
+                                                className="border rounded px-2 py-1.5 text-sm"
+                                            />
+                                            <select
+                                                value={provincia}
+                                                onChange={(e) => setProvincia(e.target.value)}
+                                                className="border rounded px-2 py-1.5 text-sm bg-white"
+                                            >
+                                                <option value="">Provincia *</option>
+                                                <option value="Buenos Aires">Buenos Aires</option>
+                                                <option value="CABA">CABA</option>
+                                                <option value="Catamarca">Catamarca</option>
+                                                <option value="Chaco">Chaco</option>
+                                                <option value="Chubut">Chubut</option>
+                                                <option value="Córdoba">Córdoba</option>
+                                                <option value="Corrientes">Corrientes</option>
+                                                <option value="Entre Ríos">Entre Ríos</option>
+                                                <option value="Formosa">Formosa</option>
+                                                <option value="Jujuy">Jujuy</option>
+                                                <option value="La Pampa">La Pampa</option>
+                                                <option value="La Rioja">La Rioja</option>
+                                                <option value="Mendoza">Mendoza</option>
+                                                <option value="Misiones">Misiones</option>
+                                                <option value="Neuquén">Neuquén</option>
+                                                <option value="Río Negro">Río Negro</option>
+                                                <option value="Salta">Salta</option>
+                                                <option value="San Juan">San Juan</option>
+                                                <option value="San Luis">San Luis</option>
+                                                <option value="Santa Cruz">Santa Cruz</option>
+                                                <option value="Santa Fe">Santa Fe</option>
+                                                <option value="Santiago del Estero">Santiago del Estero</option>
+                                                <option value="Tierra del Fuego">Tierra del Fuego</option>
+                                                <option value="Tucumán">Tucumán</option>
+                                            </select>
+                                        </div>
+                                        {/* DNI y Teléfono */}
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <input
+                                                type="text" id="documentoInput"
+                                                placeholder="DNI *"
+                                                value={documento}
+                                                onChange={(e) => setDocumento(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                                                className="border rounded px-2 py-1.5 text-sm"
+                                            />
+                                            <input
+                                                type="tel"
+                                                placeholder="Teléfono"
+                                                value={telefono}
+                                                onChange={(e) => setTelefono(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </>
                             )}
                         </div>
                     ) : (

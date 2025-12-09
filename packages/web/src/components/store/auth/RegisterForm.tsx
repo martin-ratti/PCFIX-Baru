@@ -9,6 +9,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
 const registerSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   apellido: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
+  telefono: z.string().optional(),
   email: z.string().email('Correo inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
   confirmPassword: z.string()
@@ -65,6 +66,7 @@ export default function RegisterForm() {
         body: JSON.stringify({
           nombre: data.nombre,
           apellido: data.apellido,
+          telefono: data.telefono || undefined,
           email: data.email,
           password: data.password
         }),
@@ -142,6 +144,25 @@ export default function RegisterForm() {
               )}
             </div>
             {errors.apellido && <p className="text-red-500 text-xs mt-1 font-medium">{errors.apellido.message}</p>}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Teléfono (opcional)</label>
+          <div className="relative">
+            <input
+              {...register('telefono')}
+              type="tel"
+              className={getInputClasses('telefono')}
+              placeholder="+54 11 1234-5678"
+            />
+            {getFieldStatus('telefono').isValid && (
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            )}
           </div>
         </div>
 
