@@ -94,7 +94,7 @@ try {
 
   <div
     id="maintenance-alert"
-    class="hidden w-full h-12 flex items-center justify-center shadow-md relative overflow-hidden"
+    class="hidden w-full h-12 items-center justify-center shadow-md relative overflow-hidden"
     style="background-image: repeating-linear-gradient(-45deg, #000, #000 20px, #fbbf24 20px, #fbbf24 40px);"
   >
     <div
@@ -127,6 +127,7 @@ try {
             const banner = document.getElementById("maintenance-alert");
             if (isAdmin && banner) {
               banner.classList.remove("hidden");
+              banner.classList.add("flex");
             }
           }
         }

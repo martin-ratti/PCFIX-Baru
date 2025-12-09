@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { prisma } from '../../shared/database/prismaClient';
 import { z } from 'zod';
 import { SalesService } from './sales.service';
 import { AuthRequest } from '../../shared/middlewares/authMiddleware';
@@ -68,7 +69,7 @@ export const createSale = async (req: Request, res: Response) => {
     }
 };
 
-export const handleViumiWebhook = async (req: Request, res: Response) => {
+/* export const handleViumiWebhook = async (req: Request, res: Response) => {
     try {
         res.sendStatus(200);
     } catch (e) {
@@ -77,10 +78,42 @@ export const handleViumiWebhook = async (req: Request, res: Response) => {
     }
 };
 
-export const createViumiPreference = async (req: Request, res: Response) => {
+/* export const createViumiPreference = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const link = await service.createViumiPreference(Number(id));
+        res.json({ success: true, data: { url: link } });
+    } catch (e: any) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+}; */
+
+import { MercadoPagoService } from '../../shared/services/MercadoPagoService';
+const mpService = new MercadoPagoService();
+
+export const createMPPreference = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const sale = await service.findById(Number(id));
+        if (!sale) return res.status(404).json({ success: false, error: 'Venta no encontrada' });
+
+        const items = sale.lineasVenta.map((line: any) => {
+            const unitPrice = Number(line.subTotal) / Number(line.cantidad);
+            return {
+                id: String(line.productoId),
+                title: line.producto.nombre || 'Producto',
+                quantity: Number(line.cantidad),
+                unit_price: Number(unitPrice.toFixed(2)), // Ensure 2 decimal places max
+                currency_id: 'ARS'
+            };
+        });
+
+        console.log('Generando Preferencia MP con items:', JSON.stringify(items, null, 2));
+
+        // Use user email if available, otherwise a placeholder (MP requires email)
+        const payerEmail = sale.cliente?.user?.email || 'test_user_123456@testuser.com';
+
+        const link = await mpService.createPreference(Number(id), items, payerEmail);
         res.json({ success: true, data: { url: link } });
     } catch (e: any) {
         res.status(500).json({ success: false, error: e.message });
@@ -171,6 +204,36 @@ export const getMySales = async (req: Request, res: Response) => {
         res.json({ success: true, data: sales });
     } catch (e: any) {
         res.status(500).json({ success: false, error: e.message });
+    }
+};
+
+export const handleMPCallback = async (req: Request, res: Response) => {
+    try {
+        const { status, external_reference } = req.query;
+        const saleId = Number(external_reference);
+
+        console.log(`[MP Callback] SaleId: ${saleId}, Status: ${status}`);
+
+        if (saleId && status === 'approved') {
+            await prisma.venta.update({
+                where: { id: saleId },
+                data: {
+                    estado: VentaEstado.APROBADO, // Correct enum value from 'PAGADO'
+                    medioPago: 'MERCADOPAGO'
+                }
+            });
+            console.log(`[MP Callback] Venta ${saleId} actualizada a PAGADO`);
+        }
+
+        // Redirect to Frontend Success Page
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+        res.redirect(`${frontendUrl}/cuenta/miscompras?status=${status}`);
+
+    } catch (error) {
+        console.error('[MP Callback] Error:', error);
+        // Redirect to Frontend Failure Page or generic error
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+        res.redirect(`${frontendUrl}/cuenta/miscompras?status=error`);
     }
 };
 

@@ -105,6 +105,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
         switch (method) {
             case 'BINANCE': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
             case 'EFECTIVO': return 'bg-green-100 text-green-800 border-green-200';
+            case 'MERCADOPAGO': return 'bg-sky-100 text-sky-800 border-sky-200'; // New MP Style
             default: return 'bg-blue-50 text-blue-800 border-blue-100';
         }
     };
@@ -113,6 +114,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
         switch (method) {
             case 'BINANCE': return '🪙';
             case 'EFECTIVO': return '💵';
+            case 'MERCADOPAGO': return '🤝'; // Handshake for MP
             default: return '🏦';
         }
     };
@@ -231,6 +233,16 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                                 <span className="text-5xl mb-4">💵</span>
                                                 <span className="font-bold text-gray-400">Pago Presencial</span>
                                                 <span className="text-xs mt-2 text-gray-600">Se abona al retirar</span>
+                                            </>
+                                        ) : sale.medioPago === 'MERCADOPAGO' ? (
+                                            <>
+                                                <img
+                                                    src="https://cdn.worldvectorlogo.com/logos/mercado-pago.svg"
+                                                    alt="Mercado Pago"
+                                                    className="w-32 mb-4 opacity-90"
+                                                />
+                                                <span className="font-bold text-sky-500 text-lg">Pago Acreditado</span>
+                                                <span className="text-xs mt-1 text-gray-500 font-medium">Procesado por Mercado Pago</span>
                                             </>
                                         ) : (
                                             <>

@@ -76,7 +76,6 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         finally { setIsUpdating(false); }
     };
 
-    // 👇 FUNCIÓN QUE FALTABA
     const handleCancelClick = () => {
         setShowCancelModal(true);
     };
@@ -97,10 +96,10 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         finally { setIsUpdating(false); setShowCancelModal(false); }
     };
 
-    const handlePayWithViumi = async () => {
-        setIsLoading(true); // Bloquear UI
+    const handlePayWithMP = async () => {
+        setIsLoading(true);
         try {
-            const res = await fetchApi(`/sales/${saleId}/viumi-preference`, {
+            const res = await fetchApi(`/sales/${saleId}/mp-preference`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -108,14 +107,18 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             if (data.success && data.data.url) {
                 window.location.href = data.data.url;
             } else {
-                addToast('Error al generar link de pago', 'error');
+                addToast('Error al generar pago con MP', 'error');
                 setIsLoading(false);
             }
         } catch (e) {
-            addToast('Error de conexión', 'error');
+            addToast('Error de conexión con MP', 'error');
             setIsLoading(false);
         }
     };
+
+    /* const handlePayWithViumi = async () => {
+        // ... (Viumi logic commented out)
+    }; */
 
     const onSubmit = async (data: any) => {
         const isCash = sale?.medioPago === 'EFECTIVO';
@@ -156,6 +159,10 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                             <input type="radio" name="pm" value="BINANCE" checked={tempPaymentMethod === 'BINANCE'} onChange={(e) => setTempPaymentMethod(e.target.value)} className="text-blue-600" />
                             <span>🪙 Binance Pay (USDT)</span>
                         </label>
+                        <label className="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-pointer hover:border-[#009EE3] transition-colors">
+                            <input type="radio" name="pm" value="MERCADOPAGO" checked={tempPaymentMethod === 'MERCADOPAGO'} onChange={(e) => setTempPaymentMethod(e.target.value)} className="accent-[#009EE3]" />
+                            <span>💳 Mercado Pago</span>
+                        </label>
 
                         {sale.tipoEntrega === 'RETIRO' ? (
                             <label className="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
@@ -165,10 +172,11 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         ) : (
                             <p className="text-xs text-gray-400 px-1 mt-1">* Efectivo no disponible para envío a domicilio.</p>
                         )}
+                        {/* Viumi commented out
                         <label className="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-pointer hover:border-[#4429A6] transition-colors">
                             <input type="radio" name="pm" value="VIUMI" checked={tempPaymentMethod === 'VIUMI'} onChange={(e) => setTempPaymentMethod(e.target.value)} className="accent-[#4429A6]" />
                             <span>💳 Tarjeta de Débito/Crédito (ViüMi)</span>
-                        </label>
+                        </label> */}
                     </div>
                     <div className="flex gap-2 mt-4">
                         <button onClick={handleChangePaymentMethod} disabled={isUpdating} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all active:scale-95">{isUpdating ? '...' : 'Guardar'}</button>
@@ -178,19 +186,23 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             );
         }
 
-        if (sale.medioPago === 'VIUMI') {
+        /* if (sale.medioPago === 'VIUMI') { 
+            // Viumi info commented out 
+            return null;
+        } */
+
+        if (sale.medioPago === 'MERCADOPAGO') {
             return (
                 <div className="space-y-6 animate-fade-in text-center">
-                    {/* Card con gradiente Viumi */}
-                    <div className="bg-gradient-to-br from-[#4429A6] to-[#3A238C] p-6 rounded-2xl text-white shadow-lg relative overflow-hidden">
+                    <div className="bg-[#009EE3] p-6 rounded-2xl text-white shadow-lg relative overflow-hidden">
                         <p className="text-xs font-bold uppercase tracking-widest mb-1 opacity-80">Total a Pagar</p>
                         <p className="text-4xl font-black tracking-tight">${Number(sale.montoTotal).toLocaleString('es-AR')}</p>
                     </div>
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center">
-                        <button onClick={handlePayWithViumi} className="w-full bg-gradient-to-r from-[#4429A6] to-[#3A238C] text-white py-3 rounded-xl font-bold text-lg hover:opacity-90 transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2">
-                            <span>💳 Pagar con Tarjeta (ViüMi)</span>
+                        <button onClick={handlePayWithMP} className="w-full bg-[#009EE3] text-white py-3 rounded-xl font-bold text-lg hover:bg-[#008CC9] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2">
+                            <span>Pagar con Mercado Pago</span>
                         </button>
-                        <p className="text-xs text-gray-400 mt-2">Serás redirigido a un sitio seguro.</p>
+                        <p className="text-xs text-gray-400 mt-2">Serás redirigido a Mercado Pago.</p>
                     </div>
                 </div>
             );
@@ -259,6 +271,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
     }
 
     const isCash = sale.medioPago === 'EFECTIVO';
+    const isMP = sale.medioPago === 'MERCADOPAGO';
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto animate-fade-in pb-12">
@@ -269,7 +282,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                             <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-black text-sm">1</div>
                             <h2 className="text-xl font-bold text-gray-800">Pago</h2>
                         </div>
-                        <p className="text-sm text-gray-400 ml-11 mt-1">Método: <strong>{sale.medioPago}</strong></p>
+                        <p className="text-sm text-gray-400 ml-11 mt-1">Método: <strong>{sale.medioPago === 'VIUMI' ? 'MERCADOPAGO (Actualizado)' : sale.medioPago}</strong></p>
                     </div>
                     {!isEditingPayment && (
                         <button onClick={() => setIsEditingPayment(true)} className="text-xs font-bold text-blue-600 hover:underline bg-blue-50 px-3 py-1 rounded-full transition-all active:scale-95">
@@ -292,18 +305,17 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                 <div className="flex items-center gap-3 mb-8">
                     <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-black text-sm">2</div>
                     <h2 className="text-xl font-bold text-gray-800">
-                        {isCash ? 'Confirmar' : (sale.medioPago === 'VIUMI' ? 'Instrucciones' : 'Comprobante')}
+                        {isCash ? 'Confirmar' : (isMP ? 'Pago Online' : 'Comprobante')}
                     </h2>
                 </div>
 
-                {sale.medioPago === 'VIUMI' ? (
-                    <div className="bg-[#4429A6]/5 p-6 rounded-xl border border-[#4429A6]/20 text-center animate-fade-in">
+                {isMP ? (
+                    <div className="bg-[#009EE3]/5 p-6 rounded-xl border border-[#009EE3]/20 text-center animate-fade-in">
                         <span className="text-4xl mb-4 block">💳</span>
-                        <p className="text-[#3A238C] font-bold">Pago con Tarjeta</p>
-                        <p className="text-[#4429A6] text-sm mt-2">
-                            Haz clic en el botón <strong>"Pagar con Tarjeta"</strong> a la izquierda para procesar tu pago de forma segura a través de ViüMi.
+                        <p className="text-[#009EE3] font-bold">Mercado Pago</p>
+                        <p className="text-gray-600 text-sm mt-2">
+                            Haz clic en el botón <strong>"Pagar con Mercado Pago"</strong> para continuar.
                         </p>
-                        <p className="text-xs text-gray-400 mt-4">No es necesario subir comprobante.</p>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

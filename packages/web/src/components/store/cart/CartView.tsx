@@ -18,7 +18,7 @@ function CartContent() {
     const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
     const [deliveryType, setDeliveryType] = useState<'ENVIO' | 'RETIRO'>('ENVIO');
-    const [paymentMethod, setPaymentMethod] = useState<'TRANSFERENCIA' | 'BINANCE' | 'EFECTIVO' | 'VIUMI'>('TRANSFERENCIA');
+    const [paymentMethod, setPaymentMethod] = useState<'TRANSFERENCIA' | 'BINANCE' | 'EFECTIVO' | 'MERCADOPAGO'>('TRANSFERENCIA');
 
     const [zipCode, setZipCode] = useState('');
     const [shippingCost, setShippingCost] = useState<number | null>(null);
@@ -63,7 +63,8 @@ function CartContent() {
     }, [deliveryType, paymentMethod]);
 
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
-    const finalShippingCost = deliveryType === 'ENVIO' ? (shippingCost || 0) : 0;
+    // Apply 21% VAT to shipping cost if delivery type is ENVIO
+    const finalShippingCost = deliveryType === 'ENVIO' && shippingCost !== null ? (shippingCost * 1.21) : 0;
     const totalFinal = subtotal + finalShippingCost;
 
     const handleCalculateShipping = async () => {
@@ -342,15 +343,20 @@ function CartContent() {
                         <p className="text-xs font-bold text-gray-500 uppercase mb-2">Pago</p>
                         <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as any)} className="w-full p-2 border rounded-lg text-sm bg-white">
                             <option value="TRANSFERENCIA">🏦 Transferencia Bancaria</option>
+                            <option value="MERCADOPAGO">💳 Mercado Pago</option>
                             <option value="BINANCE">🪙 Crypto (Binance Pay)</option>
-                            <option value="VIUMI">💳 Tarjeta de Débito/Crédito (ViüMi)</option>
                             {deliveryType === 'RETIRO' && <option value="EFECTIVO">💵 Efectivo en Local</option>}
                         </select>
                     </div>
 
                     <div className="border-t pt-4 space-y-2 text-sm">
                         <div className="flex justify-between"><span>Subtotal</span><span>${subtotal.toLocaleString('es-AR')}</span></div>
-                        {deliveryType === 'ENVIO' && <div className="flex justify-between"><span>Envío</span><span>{shippingCost !== null ? `$${shippingCost.toLocaleString('es-AR')}` : 'Calculando...'}</span></div>}
+                        {deliveryType === 'ENVIO' && (
+                            <div className="flex justify-between text-blue-600">
+                                <span>Envío (con IVA)</span>
+                                <span>{shippingCost !== null ? `$${finalShippingCost.toLocaleString('es-AR')}` : 'Calculando...'}</span>
+                            </div>
+                        )}
                         <div className="flex justify-between items-end pt-2 border-t font-bold text-lg"><span>Total Final</span><span>${totalFinal.toLocaleString('es-AR')}</span></div>
                     </div>
 

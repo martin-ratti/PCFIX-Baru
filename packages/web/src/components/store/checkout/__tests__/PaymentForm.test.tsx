@@ -93,4 +93,34 @@ describe('PaymentForm', () => {
             expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/cancel'), expect.anything());
         });
     });
+
+    it('renders Mercado Pago button when selected', async () => {
+        const mpSale = { ...mockSale, medioPago: 'MERCADOPAGO' };
+        const fetchMock = vi.mocked(api.fetchApi);
+        fetchMock.mockImplementation((url) => {
+            const endpoint = url.toString();
+            if (endpoint.endsWith('/sales/1')) return Promise.resolve({ ok: true, json: async () => ({ success: true, data: mpSale }) } as Response);
+            if (endpoint.endsWith('/config')) return Promise.resolve({ ok: true, json: async () => ({ success: true, data: mockConfig }) } as Response);
+            if (endpoint.includes('/mp-preference')) return Promise.resolve({ ok: true, json: async () => ({ success: true, data: { url: 'http://mp.link' } }) } as Response);
+            return Promise.resolve({ ok: false } as Response);
+        });
+
+        // Mock window.location
+        Object.defineProperty(window, 'location', {
+            writable: true,
+            value: { href: '' }
+        });
+
+        render(<PaymentForm saleId={1} />);
+
+        await waitFor(() => screen.findByText('Pagar con Mercado Pago'));
+
+        const payButton = screen.getByText('Pagar con Mercado Pago');
+        fireEvent.click(payButton);
+
+        await waitFor(() => {
+            expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/mp-preference'), expect.anything());
+            expect(window.location.href).toBe('http://mp.link');
+        });
+    });
 });

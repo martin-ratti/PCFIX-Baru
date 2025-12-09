@@ -122,12 +122,15 @@ export class SalesService {
 
         let costoEnvio = 0;
         if (tipoEntrega === 'ENVIO') {
+            let baseCosto = 0;
             if (cpDestino) {
-                costoEnvio = await this.shippingService.calculateCost(cpDestino, itemsParaEnvio);
+                baseCosto = await this.shippingService.calculateCost(cpDestino, itemsParaEnvio);
             } else {
                 const config = await prisma.configuracion.findFirst();
-                costoEnvio = config ? Number(config.costoEnvioFijo) : 6500;
+                baseCosto = config ? Number(config.costoEnvioFijo) : 6500;
             }
+            // Apply 21% VAT to shipping
+            costoEnvio = baseCosto * 1.21;
         }
 
         return await prisma.$transaction(async (tx: any) => {

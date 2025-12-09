@@ -1,4 +1,5 @@
 // Sentry must be initialized FIRST before any other imports
+import 'dotenv/config';
 import * as Sentry from '@sentry/node';
 
 if (process.env.SENTRY_DSN) {
