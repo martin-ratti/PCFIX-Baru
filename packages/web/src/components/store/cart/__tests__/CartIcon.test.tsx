@@ -32,10 +32,10 @@ describe('CartIcon', () => {
         );
     });
 
-    it('renders cart icon image', () => {
+    it('renders cart icon with accessible label', () => {
         render(<CartIcon />);
-        const img = screen.getByAltText('Carrito de compras');
-        expect(img).toBeInTheDocument();
+        const link = screen.getByRole('link', { name: /carrito de compras/i });
+        expect(link).toBeInTheDocument();
     });
 
     it('shows quantity badge when items in cart', async () => {

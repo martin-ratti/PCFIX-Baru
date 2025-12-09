@@ -58,12 +58,12 @@ export default function StockAlertModal({ isOpen, onClose, productId, productNam
     };
 
     const modalContent = (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" style={{ margin: 0 }}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" style={{ margin: 0 }}>
             {/* Click outside to close */}
             <div className="absolute inset-0" onClick={onClose}></div>
 
             {/* Forced Light Theme Container */}
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100 relative z-10">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-modal-enter border border-gray-100 relative z-10">
 
                 <div className="p-6 text-center">
                     {/* Icon */}
@@ -107,7 +107,7 @@ export default function StockAlertModal({ isOpen, onClose, productId, productNam
                                             placeholder="tu@email.com"
                                         />
                                         {isAuthenticated && (
-                                            <button onClick={() => { setEmail(user?.email || ''); setIsEditing(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
+                                            <button onClick={() => { setEmail(user?.email || ''); setIsEditing(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 transition-all active:scale-90">
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>
                                             </button>
                                         )}
@@ -115,7 +115,7 @@ export default function StockAlertModal({ isOpen, onClose, productId, productNam
                                 ) : (
                                     <div className="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-100 group cursor-pointer hover:border-primary/30 transition-colors" onClick={() => setIsEditing(true)}>
                                         <span className="text-gray-900 font-medium truncate flex-1">{email}</span>
-                                        <button className="p-2 text-gray-400 group-hover:text-primary transition-colors rounded-full hover:bg-gray-100">
+                                        <button className="p-2 text-gray-400 group-hover:text-primary transition-all active:scale-90 rounded-full hover:bg-gray-100">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                         </button>
                                     </div>
@@ -127,14 +127,14 @@ export default function StockAlertModal({ isOpen, onClose, productId, productNam
                             <div className="grid grid-cols-2 gap-3">
                                 <button
                                     onClick={onClose}
-                                    className="px-4 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                                    className="px-4 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-all active:scale-95"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={() => handleSubmit()}
                                     disabled={loading || !email.includes('@')}
-                                    className="px-4 py-3 rounded-xl font-bold text-white bg-primary hover:bg-opacity-90 transition-all shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-4 py-3 rounded-xl font-bold text-white bg-primary hover:bg-opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {loading ? '...' : (isEditing ? 'Guardar' : 'Confirmar')}
                                 </button>

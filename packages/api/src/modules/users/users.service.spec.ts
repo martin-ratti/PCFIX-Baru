@@ -29,6 +29,7 @@ describe('UserService', () => {
                 apellido: 'Pérez',
                 email: 'juan@test.com',
                 role: 'USER',
+                googleId: null,
                 createdAt: new Date()
             };
             mockPrisma.user.findUnique.mockResolvedValue(mockUser);
@@ -43,6 +44,7 @@ describe('UserService', () => {
                     apellido: true,
                     email: true,
                     role: true,
+                    googleId: true,
                     createdAt: true
                 }
             });

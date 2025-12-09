@@ -43,8 +43,8 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
   if (!isOpen || !product) return null;
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
+      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden animate-modal-enter">
         <div className="px-6 py-4 border-b border-gray-100 bg-purple-50 flex justify-between items-center">
           <div>
             <h3 className="text-lg font-bold text-purple-900">Aplicar Descuento</h3>
@@ -54,8 +54,8 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
         </div>
         <div className="px-6 py-6 space-y-6">
           <div className="flex bg-gray-100 p-1 rounded-lg">
-            <button onClick={() => { setMode('percent'); setValue(''); }} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${mode === 'percent' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'}`}>Porcentaje (%)</button>
-            <button onClick={() => { setMode('fixed'); setValue(''); }} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${mode === 'fixed' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'}`}>Precio Fijo ($)</button>
+            <button onClick={() => { setMode('percent'); setValue(''); }} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all active:scale-95 ${mode === 'percent' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'}`}>Porcentaje (%)</button>
+            <button onClick={() => { setMode('fixed'); setValue(''); }} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all active:scale-95 ${mode === 'fixed' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'}`}>Precio Fijo ($)</button>
           </div>
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{mode === 'percent' ? 'Porcentaje' : 'Nuevo Precio'}</label>
@@ -69,8 +69,8 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
           </div>
         </div>
         <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3">
-          <button onClick={onCancel} className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 rounded-md">Cancelar</button>
-          <button onClick={handleSubmit} className="px-6 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md">Aplicar</button>
+          <button onClick={onCancel} className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 rounded-md transition-all active:scale-95">Cancelar</button>
+          <button onClick={handleSubmit} className="px-6 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-all active:scale-95">Aplicar</button>
         </div>
       </div>
     </div>

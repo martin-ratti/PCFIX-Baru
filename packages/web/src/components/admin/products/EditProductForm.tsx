@@ -178,8 +178,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700">Descripción</label><textarea {...register('descripcion')} rows={4} className="w-full mt-1 p-2 border rounded-md"></textarea></div>
 
         <div className="md:col-span-2 flex justify-end gap-3">
-          <button type="button" onClick={() => navigate(`/producto/${productId}`)} className="px-6 py-2 border rounded-md hover:bg-gray-50">Cancelar</button>
-          <button type="submit" disabled={isLoading} className="bg-blue-600 text-white px-6 py-2 rounded-md font-bold hover:bg-blue-700 shadow-md">Guardar Cambios</button>
+          <button type="button" onClick={() => navigate(`/producto/${productId}`)} className="px-6 py-2 border rounded-md hover:bg-gray-50 transition-all active:scale-95">Cancelar</button>
+          <button type="submit" disabled={isLoading} className="bg-blue-600 text-white px-6 py-2 rounded-md font-bold hover:bg-blue-700 shadow-md transition-all active:scale-95">Guardar Cambios</button>
         </div>
       </form>
     </div>

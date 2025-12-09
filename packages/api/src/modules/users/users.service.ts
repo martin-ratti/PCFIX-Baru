@@ -11,6 +11,7 @@ export class UserService {
         apellido: true,
         email: true,
         role: true,
+        googleId: true,
         createdAt: true
       }
     });

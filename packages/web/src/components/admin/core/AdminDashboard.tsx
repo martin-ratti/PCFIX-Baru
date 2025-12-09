@@ -32,7 +32,7 @@ function DashboardContent() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gray-100">
 
         {/* Nuevo Producto */}
-        <a href="/admin/nuevo" className="bg-gradient-to-br from-primary to-blue-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden flex flex-col justify-center min-h-[160px] cursor-pointer hover:shadow-xl transition-all group">
+        <a href="/admin/nuevo" className="bg-gradient-to-br from-primary to-blue-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden flex flex-col justify-center min-h-[160px] cursor-pointer hover:shadow-xl transition-all active:scale-95 group">
           <div className="relative z-10">
             <h3 className="text-xl font-bold mb-1">Nuevo Producto</h3>
             <p className="text-blue-200 text-sm mb-4 opacity-80">Agrega hardware al catálogo.</p>
@@ -44,7 +44,7 @@ function DashboardContent() {
         </a>
 
         {/* Punto de Venta */}
-        <a href="/admin/nueva-venta" className="bg-gradient-to-br from-emerald-600 to-teal-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden flex flex-col justify-center min-h-[160px] cursor-pointer hover:shadow-xl transition-all group">
+        <a href="/admin/nueva-venta" className="bg-gradient-to-br from-emerald-600 to-teal-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden flex flex-col justify-center min-h-[160px] cursor-pointer hover:shadow-xl transition-all active:scale-95 group">
           <div className="relative z-10">
             <h3 className="text-xl font-bold mb-1">Punto de Venta</h3>
             <p className="text-emerald-200 text-sm mb-4 opacity-80">Registrar venta manual.</p>
@@ -56,7 +56,7 @@ function DashboardContent() {
         </a>
 
         {/* Marketing */}
-        <a href="/admin/marcas" className="bg-gradient-to-br from-purple-900 to-purple-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden flex flex-col justify-center min-h-[160px] cursor-pointer hover:shadow-xl transition-all group">
+        <a href="/admin/marcas" className="bg-gradient-to-br from-purple-900 to-purple-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden flex flex-col justify-center min-h-[160px] cursor-pointer hover:shadow-xl transition-all active:scale-95 group">
           <div className="relative z-10">
             <h3 className="text-xl font-bold mb-1">Marketing</h3>
             <p className="text-purple-200 text-sm mb-4 opacity-80">Gestiona marcas y banners.</p>

@@ -24,8 +24,8 @@ export default function ConfirmModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
+      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden animate-modal-enter">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
           <h3 className={`text-lg font-bold ${isDanger ? 'text-red-600' : 'text-primary'}`}>
@@ -44,15 +44,15 @@ export default function ConfirmModal({
         <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus-ring active:scale-95 transition-all"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
             className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors shadow-sm
-              ${isDanger 
-                ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500' 
+              ${isDanger
+                ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
                 : 'bg-primary hover:bg-opacity-90 focus:ring-primary'
               }`}
           >

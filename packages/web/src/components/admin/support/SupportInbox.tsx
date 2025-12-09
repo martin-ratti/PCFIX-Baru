@@ -91,12 +91,12 @@ export default function SupportInbox() {
                                         autoFocus
                                     />
                                     <div className="flex gap-3 justify-end">
-                                        <button onClick={() => setReplyingTo(null)} className="text-sm text-gray-500 hover:text-gray-700 px-3 py-1">Cancelar</button>
-                                        <button onClick={() => handleReply(inq.id)} className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-blue-700">Enviar Respuesta</button>
+                                        <button onClick={() => setReplyingTo(null)} className="text-sm text-gray-500 hover:text-gray-700 px-3 py-1 transition-all active:scale-95">Cancelar</button>
+                                        <button onClick={() => handleReply(inq.id)} className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition-all active:scale-95">Enviar Respuesta</button>
                                     </div>
                                 </div>
                             ) : (
-                                <button onClick={() => setReplyingTo(inq.id)} className="text-blue-600 text-sm font-bold hover:underline flex items-center gap-1">
+                                <button onClick={() => setReplyingTo(inq.id)} className="text-blue-600 text-sm font-bold hover:underline flex items-center gap-1 transition-all active:scale-95">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                                     </svg>

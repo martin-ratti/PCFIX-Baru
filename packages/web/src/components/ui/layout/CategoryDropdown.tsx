@@ -36,7 +36,7 @@ export default function CategoryDropdown({ initialCategories = [] }: Props) {
       onMouseLeave={() => setIsOpen(false)}
     >
       <button
-        className="flex items-center gap-2 text-secondary hover:text-primary transition-colors py-2 font-medium group-hover:text-primary cursor-pointer"
+        className="flex items-center gap-2 text-secondary hover:text-primary transition-all active:scale-95 py-2 font-medium group-hover:text-primary cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
         Categorías

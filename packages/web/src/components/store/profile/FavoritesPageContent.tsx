@@ -73,7 +73,7 @@ export default function FavoritesPageContent() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Inicia sesión para ver tus favoritos</h3>
                 <p className="text-gray-500 mb-8 max-w-xs mx-auto">Guarda los productos que más te gustan y consúltalos desde cualquier dispositivo.</p>
-                <a href="/auth/login" className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                <a href="/auth/login" className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:scale-95">
                     Iniciar Sesión
                 </a>
             </div>

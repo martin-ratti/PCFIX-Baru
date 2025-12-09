@@ -105,7 +105,7 @@ export default function MobileMenu() {
                         ) : (
                             <div className="grid grid-cols-2 gap-3">
                                 <a href="/auth/login" className="text-center py-2.5 border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-50 transition-colors">Ingresar</a>
-                                <a href="/auth/registro" className="text-center py-2.5 bg-primary text-white rounded-lg font-bold shadow-md hover:opacity-90 transition-opacity">Registrarse</a>
+                                <a href="/auth/registro" className="text-center py-2.5 bg-primary text-white rounded-lg font-bold shadow-md hover:opacity-90 transition-all active:scale-95">Registrarse</a>
                             </div>
                         )}
                     </div>

@@ -11,7 +11,7 @@ export default function BrandManager() {
   const { register, handleSubmit, reset, watch } = useForm();
   const addToast = useToastStore(s => s.addToast);
   const [logoName, setLogoName] = useState<string | null>(null);
-  
+
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const fetchBrands = () => {
@@ -24,8 +24,8 @@ export default function BrandManager() {
 
   const logoWatch = watch('logo');
   useEffect(() => {
-      if (logoWatch && logoWatch.length > 0) setLogoName(logoWatch[0].name);
-      else setLogoName(null);
+    if (logoWatch && logoWatch.length > 0) setLogoName(logoWatch[0].name);
+    else setLogoName(null);
   }, [logoWatch]);
 
 
@@ -47,7 +47,7 @@ export default function BrandManager() {
   };
 
   const confirmDelete = async () => {
-    if(!deleteId) return;
+    if (!deleteId) return;
     try {
       await fetchApi(`/brands/${deleteId}`, { method: 'DELETE' });
       fetchBrands();
@@ -71,12 +71,12 @@ export default function BrandManager() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Logo (Opcional)</label>
             <input type="file" id="brand-logo-upload" {...register('logo')} className="hidden" accept="image/*" />
             <label htmlFor="brand-logo-upload" className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 text-sm">
-                <span className="text-2xl">🖼️</span>
-                <span className="truncate">{logoName || "Seleccionar logo..."}</span>
+              <span className="text-2xl">🖼️</span>
+              <span className="truncate">{logoName || "Seleccionar logo..."}</span>
             </label>
           </div>
 
-          <button className="w-full bg-secondary text-white py-2 rounded-xl font-bold hover:bg-primary transition-colors shadow-sm">Crear Marca</button>
+          <button className="w-full bg-secondary text-white py-2 rounded-xl font-bold hover:bg-primary transition-all active:scale-95 shadow-sm">Crear Marca</button>
         </form>
       </div>
 
@@ -86,9 +86,9 @@ export default function BrandManager() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {brands.map(b => (
             <div key={b.id} className="border rounded-lg p-4 flex flex-col items-center justify-center relative group hover:shadow-md transition-shadow bg-gray-50">
-              <button onClick={() => setDeleteId(b.id)} className="absolute top-1 right-1 text-gray-400 hover:text-red-500 p-1 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+              <button onClick={() => setDeleteId(b.id)} className="absolute top-1 right-1 text-gray-400 hover:text-red-500 p-1 rounded-full transition-all active:scale-90"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
               <div className="h-12 flex items-center justify-center mb-2 w-full">
-                 {b.logo ? <img src={b.logo} alt={b.nombre} className="max-h-full max-w-full object-contain"/> : <span className="text-2xl">🏢</span>}
+                {b.logo ? <img src={b.logo} alt={b.nombre} className="max-h-full max-w-full object-contain" /> : <span className="text-2xl">🏢</span>}
               </div>
               <span className="font-medium text-sm text-center truncate w-full">{b.nombre}</span>
             </div>
@@ -96,14 +96,14 @@ export default function BrandManager() {
         </div>
       </div>
 
-      <ConfirmModal 
-        isOpen={!!deleteId} 
-        title="Eliminar Marca" 
-        message="¿Borrar marca y quitarla de los productos?" 
-        confirmText="Sí, eliminar" 
-        isDanger={true} 
-        onConfirm={confirmDelete} 
-        onCancel={() => setDeleteId(null)} 
+      <ConfirmModal
+        isOpen={!!deleteId}
+        title="Eliminar Marca"
+        message="¿Borrar marca y quitarla de los productos?"
+        confirmText="Sí, eliminar"
+        isDanger={true}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
       />
     </div>
   );

@@ -69,7 +69,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }: Props) {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full py-2.5 bg-primary text-white rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50"
+                        className="w-full py-2.5 bg-primary text-white rounded-lg font-bold hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
                     >
                         {isLoading ? 'Enviando...' : 'Enviar Instrucciones'}
                     </button>

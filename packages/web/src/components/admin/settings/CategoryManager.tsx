@@ -4,17 +4,17 @@ import { useToastStore } from '../../../stores/toastStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
-interface Category { 
-  id: number; 
-  nombre: string; 
+interface Category {
+  id: number;
+  nombre: string;
   subcategorias?: Category[];
 }
 
 export default function CategoryManager() {
-  const [categories, setCategories] = useState<Category[]>([]); 
-  const [flatCategories, setFlatCategories] = useState<Category[]>([]); 
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null); 
-  
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [flatCategories, setFlatCategories] = useState<Category[]>([]);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+
   const { register, handleSubmit, reset } = useForm();
   const addToast = useToastStore(s => s.addToast);
 
@@ -36,9 +36,9 @@ export default function CategoryManager() {
 
   const onSubmit = async (data: any) => {
     try {
-      const payload = { 
+      const payload = {
         nombre: data.nombre,
-        padreId: data.padreId ? Number(data.padreId) : null 
+        padreId: data.padreId ? Number(data.padreId) : null
       };
 
       // 👇 fetchApi (POST)
@@ -47,7 +47,7 @@ export default function CategoryManager() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      
+
       const json = await res.json();
       if (json.success) {
         addToast('Categoría creada', 'success');
@@ -68,8 +68,8 @@ export default function CategoryManager() {
       await fetchApi(`/categories/${categoryToDelete.id}`, { method: 'DELETE' });
       fetchData();
       addToast('Categoría eliminada', 'success');
-    } catch (e) { 
-      addToast('Error al eliminar (¿Tiene productos?)', 'error'); 
+    } catch (e) {
+      addToast('Error al eliminar (¿Tiene productos?)', 'error');
     } finally {
       setCategoryToDelete(null);
     }
@@ -95,7 +95,7 @@ export default function CategoryManager() {
             </select>
             <p className="text-xs text-gray-500 mt-1">Si seleccionas una, será una subcategoría.</p>
           </div>
-          <button className="w-full bg-primary text-white py-2 rounded font-bold hover:bg-opacity-90 shadow-sm transition-all">Crear</button>
+          <button className="w-full bg-primary text-white py-2 rounded font-bold hover:bg-opacity-90 shadow-sm transition-all active:scale-95">Crear</button>
         </form>
       </div>
 
@@ -109,7 +109,7 @@ export default function CategoryManager() {
                 <span className="flex items-center gap-2">📁 {cat.nombre}</span>
                 <button onClick={() => requestDelete(cat)} className="text-red-500 hover:text-red-700 text-sm hover:bg-red-50 px-2 py-1 rounded transition-colors">Eliminar</button>
               </div>
-              
+
               {cat.subcategorias && cat.subcategorias.length > 0 ? (
                 <div className="bg-white p-2 pl-8 border-t border-gray-100 space-y-1">
                   {cat.subcategorias.map(sub => (

@@ -177,7 +177,7 @@ export default function CreateProductForm() {
           <textarea id="descripcion" data-testid="input-description" {...register('descripcion')} rows={4} className="w-full mt-1 p-2 border rounded-md" placeholder="Detalles técnicos del producto..."></textarea>
         </div>
         <div className="md:col-span-2 flex justify-end">
-          <button type="submit" disabled={isLoading} className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md">
+          <button type="submit" disabled={isLoading} className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md active:scale-95">
             {isLoading ? 'Subiendo...' : 'Crear Producto'}
           </button>
         </div>

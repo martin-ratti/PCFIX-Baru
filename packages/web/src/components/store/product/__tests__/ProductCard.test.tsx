@@ -54,13 +54,13 @@ describe('ProductCard', () => {
 
         expect(screen.getByText('Test Product')).toBeInTheDocument();
         expect(screen.getByText('$1.000')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Agregar/i })).toBeInTheDocument();
+        expect(screen.getByText('Agregar')).toBeInTheDocument();
     });
 
     it('calls addItem when "Agregar" is clicked', () => {
         render(<ProductCard product={mockProduct} />);
 
-        const addButton = screen.getByRole('button', { name: /Agregar/i });
+        const addButton = screen.getByText('Agregar');
         fireEvent.click(addButton);
 
         expect(addItemMock).toHaveBeenCalledWith(expect.objectContaining({
@@ -76,7 +76,7 @@ describe('ProductCard', () => {
 
         // Expect "Avísame" button to be present
         expect(screen.getByRole('button', { name: /Avísame/i })).toBeInTheDocument();
-        // And "Agregar" should not be present (or we just check Avísame)
-        expect(screen.queryByRole('button', { name: /Agregar/i })).not.toBeInTheDocument();
+        // And "Agregar" should not be present (use queryByText to avoid aria-label conflicts)
+        expect(screen.queryByText('Agregar')).not.toBeInTheDocument();
     });
 });

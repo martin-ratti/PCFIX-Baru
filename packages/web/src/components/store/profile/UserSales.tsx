@@ -40,7 +40,7 @@ export default function UserSales() {
 
       <a
         href="/tienda/productos"
-        className="bg-secondary text-white px-8 py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center gap-2"
+        className="bg-secondary text-white px-8 py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all active:scale-95 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center gap-2"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
         Explorar Catálogo
@@ -91,7 +91,7 @@ export default function UserSales() {
             {sale.estado === 'PENDIENTE_PAGO' && (
               <button
                 onClick={() => navigate(`/checkout/${sale.id}`)}
-                className="bg-blue-600 text-white text-sm px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors font-bold shadow-sm flex items-center gap-2"
+                className="bg-blue-600 text-white text-sm px-5 py-2 rounded-lg hover:bg-blue-700 transition-all active:scale-95 font-bold shadow-sm flex items-center gap-2"
               >
                 Pagar Ahora &rarr;
               </button>

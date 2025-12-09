@@ -101,7 +101,7 @@ function SalesListContent() {
       <div className="p-4 bg-gray-50 border-b border-gray-200 flex flex-col gap-4">
         <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
           {['VERIFICATION', 'TO_SHIP', 'SHIPPED', 'ALL'].map(f => (
-            <button key={f} onClick={() => { setFilter(f as any); setSelectedMonth(''); setSelectedPayment(''); setSelectedDate(''); }} className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors whitespace-nowrap ${filter === f && !selectedMonth && !selectedPayment && !selectedDate ? 'bg-white text-primary shadow-sm ring-1 ring-black/5' : 'text-gray-600 hover:bg-gray-200'}`}>
+            <button key={f} onClick={() => { setFilter(f as any); setSelectedMonth(''); setSelectedPayment(''); setSelectedDate(''); }} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all active:scale-95 whitespace-nowrap ${filter === f && !selectedMonth && !selectedPayment && !selectedDate ? 'bg-white text-primary shadow-sm ring-1 ring-black/5' : 'text-gray-600 hover:bg-gray-200'}`}>
               {f === 'VERIFICATION' ? 'Por Revisar' : f === 'TO_SHIP' ? 'A Despachar' : f === 'SHIPPED' ? 'Enviados' : 'Todos'}
             </button>
           ))}
@@ -182,7 +182,7 @@ function SalesListContent() {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right text-sm font-medium">
-                  <button onClick={() => handleOpenDetail(sale, sale.estado === 'APROBADO')} className={`font-bold border px-3 py-1.5 rounded-lg shadow-sm transition-all ${sale.estado === 'APROBADO' ? 'bg-green-600 text-white border-green-600 hover:bg-green-700' : 'bg-white text-primary border-gray-200 hover:bg-blue-50'}`}>
+                  <button onClick={() => handleOpenDetail(sale, sale.estado === 'APROBADO')} className={`font-bold border px-3 py-1.5 rounded-lg shadow-sm transition-all active:scale-95 ${sale.estado === 'APROBADO' ? 'bg-green-600 text-white border-green-600 hover:bg-green-700' : 'bg-white text-primary border-gray-200 hover:bg-blue-50'}`}>
                     {sale.estado === 'APROBADO' ? 'Despachar' : 'Ver'}
                   </button>
                 </td>

@@ -171,8 +171,8 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         </label>
                     </div>
                     <div className="flex gap-2 mt-4">
-                        <button onClick={handleChangePaymentMethod} disabled={isUpdating} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700">{isUpdating ? '...' : 'Guardar'}</button>
-                        <button onClick={() => setIsEditingPayment(false)} className="px-4 py-2 text-gray-500 text-sm font-medium hover:bg-gray-200 rounded-lg">Cancelar</button>
+                        <button onClick={handleChangePaymentMethod} disabled={isUpdating} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all active:scale-95">{isUpdating ? '...' : 'Guardar'}</button>
+                        <button onClick={() => setIsEditingPayment(false)} className="px-4 py-2 text-gray-500 text-sm font-medium hover:bg-gray-200 rounded-lg transition-all active:scale-95">Cancelar</button>
                     </div>
                 </div>
             );
@@ -187,7 +187,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         <p className="text-4xl font-black tracking-tight">${Number(sale.montoTotal).toLocaleString('es-AR')}</p>
                     </div>
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center">
-                        <button onClick={handlePayWithViumi} className="w-full bg-gradient-to-r from-[#4429A6] to-[#3A238C] text-white py-3 rounded-xl font-bold text-lg hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2">
+                        <button onClick={handlePayWithViumi} className="w-full bg-gradient-to-r from-[#4429A6] to-[#3A238C] text-white py-3 rounded-xl font-bold text-lg hover:opacity-90 transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2">
                             <span>💳 Pagar con Tarjeta (ViüMi)</span>
                         </button>
                         <p className="text-xs text-gray-400 mt-2">Serás redirigido a un sitio seguro.</p>
@@ -272,7 +272,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         <p className="text-sm text-gray-400 ml-11 mt-1">Método: <strong>{sale.medioPago}</strong></p>
                     </div>
                     {!isEditingPayment && (
-                        <button onClick={() => setIsEditingPayment(true)} className="text-xs font-bold text-blue-600 hover:underline bg-blue-50 px-3 py-1 rounded-full transition-colors">
+                        <button onClick={() => setIsEditingPayment(true)} className="text-xs font-bold text-blue-600 hover:underline bg-blue-50 px-3 py-1 rounded-full transition-all active:scale-95">
                             Cambiar Método de Pago
                         </button>
                     )}
@@ -281,7 +281,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                 {renderPaymentInfo()}
 
                 <div className="mt-8 pt-6 border-t border-gray-100 flex justify-center">
-                    <button onClick={handleCancelClick} className="text-red-400 hover:text-red-600 text-sm font-medium flex items-center gap-1 transition-colors">
+                    <button onClick={handleCancelClick} className="text-red-400 hover:text-red-600 text-sm font-medium flex items-center gap-1 transition-all active:scale-95">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                         Cancelar Pedido
                     </button>
@@ -325,7 +325,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                             </div>
                         )}
 
-                        <button disabled={!previewUrl && !isCash} className="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-all shadow-lg disabled:opacity-50">
+                        <button disabled={!previewUrl && !isCash} className="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-all active:scale-95 shadow-lg disabled:opacity-50">
                             {previewUrl || isCash ? (isCash ? 'Confirmar Retiro' : 'Enviar Comprobante') : 'Selecciona archivo'}
                         </button>
                     </form>

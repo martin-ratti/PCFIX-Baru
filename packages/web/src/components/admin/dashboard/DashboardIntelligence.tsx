@@ -35,23 +35,30 @@ export default function DashboardIntelligence() {
     const [error, setError] = useState('');
     const [offerProduct, setOfferProduct] = useState<any>(null);
 
-    useEffect(() => {
+    const fetchData = async () => {
         if (!token) return;
-
         setLoading(true);
-        fetchApi('/stats/intelligence', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) setData(res.data);
-                else setError('Error al cargar datos');
-            })
-            .catch(err => {
-                console.error(err);
-                setError('Error de conexión');
-            })
-            .finally(() => setLoading(false));
+        setError('');
+        try {
+            const res = await fetchApi('/stats/intelligence', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const result = await res.json();
+            if (result.success) {
+                setData(result.data);
+            } else {
+                setError('Error al cargar datos');
+            }
+        } catch (err) {
+            console.error(err);
+            setError('Error de conexión');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
     }, [token]);
 
     const formatCurrency = (val: number) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(val);
@@ -105,6 +112,16 @@ export default function DashboardIntelligence() {
                     </h2>
                     <p className="text-gray-500 text-sm mt-1">Centro de Comando Visual</p>
                 </div>
+                <button
+                    onClick={fetchData}
+                    disabled={loading}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-all active:scale-95 disabled:opacity-50"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    {loading ? 'Actualizando...' : 'Actualizar'}
+                </button>
             </div>
 
             {/* 1. KPIs */}

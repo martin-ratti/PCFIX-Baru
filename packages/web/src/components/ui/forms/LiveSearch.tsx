@@ -192,7 +192,7 @@ export default function LiveSearch() {
                             </div>
                             <div className="flex flex-wrap gap-2 px-2">
                                 {history.map((h, i) => (
-                                    <button key={i} onClick={() => handleHistoryClick(h)} className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-xs text-gray-700 transition-colors">
+                                    <button key={i} onClick={() => handleHistoryClick(h)} className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-xs text-gray-700 transition-all active:scale-95">
                                         {h}
                                     </button>
                                 ))}
@@ -240,7 +240,7 @@ export default function LiveSearch() {
 
                     {/* Footer */}
                     {results.length > 0 && (
-                        <div onClick={handleSearch} className="bg-gray-50 p-3 text-center text-xs font-bold text-blue-600 cursor-pointer hover:bg-blue-600 hover:text-white transition-colors border-t border-gray-100">
+                        <div onClick={handleSearch} className="bg-gray-50 p-3 text-center text-xs font-bold text-blue-600 cursor-pointer hover:bg-blue-600 hover:text-white transition-all active:scale-95 border-t border-gray-100">
                             Ver todos los resultados &rarr;
                         </div>
                     )}
