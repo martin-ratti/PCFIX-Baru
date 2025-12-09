@@ -10,6 +10,19 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
     delete (defaultHeaders as any)['Content-Type'];
   }
 
+  // Auto-inject token if available
+  const authStorage = localStorage.getItem('auth-storage');
+  if (authStorage) {
+    try {
+      const { state } = JSON.parse(authStorage);
+      if (state?.token) {
+        (defaultHeaders as any)['Authorization'] = `Bearer ${state.token}`;
+      }
+    } catch (e) {
+      console.error("Error parsing auth token", e);
+    }
+  }
+
   const mergedOptions: RequestInit = {
     ...options,
     headers: {

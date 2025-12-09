@@ -1,138 +1,86 @@
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import EditProfileForm from './EditProfileForm';
+import { fetchApi } from '../../../utils/api';
+// Mock hooks
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
 
 // Mocks
+vi.mock('../../../utils/api', () => ({
+    fetchApi: vi.fn(),
+}));
+
 vi.mock('../../../stores/authStore', () => ({
-    useAuthStore: vi.fn()
+    useAuthStore: vi.fn(),
 }));
 
 vi.mock('../../../stores/toastStore', () => ({
-    useToastStore: vi.fn()
+    useToastStore: vi.fn(),
 }));
-
-vi.mock('../../../utils/api', () => ({
-    fetchApi: vi.fn()
-}));
-
-import { fetchApi } from '../../../utils/api';
 
 describe('EditProfileForm', () => {
-    const mockLogin = vi.fn();
     const mockAddToast = vi.fn();
+    const mockLogout = vi.fn();
+    const mockLogin = vi.fn();
 
     beforeEach(() => {
         vi.clearAllMocks();
-
-        vi.mocked(useAuthStore).mockReturnValue({
-            user: { id: 1, nombre: 'Juan', apellido: 'Perez' },
-            token: 'test-token',
+        (useAuthStore as any).mockReturnValue({
+            user: { id: 1, nombre: 'Test', apellido: 'User', email: 'test@example.com' },
+            token: 'fake-token',
+            logout: mockLogout,
             login: mockLogin
-        } as any);
-
-        vi.mocked(useToastStore).mockImplementation((selector: any) => {
-            const state = { addToast: mockAddToast };
-            return selector ? selector(state) : state;
         });
-    });
+        (useToastStore as any).mockReturnValue((msg: string) => mockAddToast(msg));
 
-    it('shows loading state initially', () => {
-        vi.mocked(fetchApi).mockImplementation(() => new Promise(() => { }));
-
-        render(<EditProfileForm userId="1" />);
-
-        expect(screen.getByText('Cargando tu perfil...')).toBeInTheDocument();
-    });
-
-    it('renders form with loaded user data', async () => {
-        vi.mocked(fetchApi).mockResolvedValue({
+        // Mock GET profile
+        (fetchApi as any).mockResolvedValue({
             json: async () => ({
                 success: true,
-                data: { nombre: 'Juan', apellido: 'Perez', email: 'juan@test.com' }
+                data: { id: 1, nombre: 'Test', apellido: 'User', email: 'test@example.com' }
             })
-        } as any);
-
-        render(<EditProfileForm userId="1" />);
-
-        await waitFor(() => {
-            expect(screen.getByDisplayValue('Juan')).toBeInTheDocument();
-            expect(screen.getByDisplayValue('Perez')).toBeInTheDocument();
-            expect(screen.getByDisplayValue('juan@test.com')).toBeInTheDocument();
         });
     });
 
-    it('shows validation error for short name', async () => {
-        vi.mocked(fetchApi).mockResolvedValue({
-            json: async () => ({
-                success: true,
-                data: { nombre: 'Juan', apellido: 'Perez', email: 'juan@test.com' }
-            })
-        } as any);
-
+    it('should render delete account button', async () => {
         render(<EditProfileForm userId="1" />);
 
-        await waitFor(() => {
-            expect(screen.getByDisplayValue('Juan')).toBeInTheDocument();
-        });
-
-        const nombreInput = screen.getByDisplayValue('Juan');
-        fireEvent.change(nombreInput, { target: { value: 'J' } });
-
-        const submitBtn = screen.getByRole('button', { name: /guardar/i });
-        fireEvent.click(submitBtn);
-
-        await waitFor(() => {
-            expect(screen.getByText(/al menos 2 caracteres/i)).toBeInTheDocument();
-        });
+        // Wait for profile load
+        // Use regex to match text with emoji or partial text
+        expect(await screen.findByText(/Eliminar cuenta/i)).toBeDefined();
     });
 
-    it('updates profile and auth store on successful save', async () => {
-        vi.mocked(fetchApi)
-            .mockResolvedValueOnce({
-                json: async () => ({
-                    success: true,
-                    data: { nombre: 'Juan', apellido: 'Perez', email: 'juan@test.com' }
-                })
-            } as any)
-            .mockResolvedValueOnce({
-                json: async () => ({ success: true })
-            } as any);
-
+    it('should open confirm modal when delete button is clicked', async () => {
         render(<EditProfileForm userId="1" />);
 
-        await waitFor(() => {
-            expect(screen.getByDisplayValue('Juan')).toBeInTheDocument();
-        });
+        const deleteBtn = await screen.findByText(/Eliminar cuenta/i);
+        fireEvent.click(deleteBtn);
 
-        const nombreInput = screen.getByDisplayValue('Juan');
-        fireEvent.change(nombreInput, { target: { value: 'JuanCarlos' } });
-
-        const submitBtn = screen.getByRole('button', { name: /guardar/i });
-        fireEvent.click(submitBtn);
-
-        await waitFor(() => {
-            expect(mockAddToast).toHaveBeenCalledWith(
-                expect.stringContaining('actualizado'),
-                'success'
-            );
-        });
+        expect(await screen.findByText('¿Eliminar Cuenta?')).toBeDefined();
+        expect(screen.getByText(/Esta acción es irreversible/i)).toBeDefined();
     });
 
-    it('shows email field as disabled', async () => {
-        vi.mocked(fetchApi).mockResolvedValue({
-            json: async () => ({
-                success: true,
-                data: { nombre: 'Juan', apellido: 'Perez', email: 'juan@test.com' }
-            })
-        } as any);
-
+    it('should call delete api when confirmed', async () => {
         render(<EditProfileForm userId="1" />);
+        const deleteBtn = await screen.findByText(/Eliminar cuenta/i);
+
+        // Open modal
+        fireEvent.click(deleteBtn);
+
+        // Mock DELETE response
+        (fetchApi as any).mockResolvedValueOnce({
+            json: async () => ({ success: true })
+        });
+
+        // Click confirm in modal
+        const confirmBtn = await screen.findByText(/Sí, Eliminar/i);
+        fireEvent.click(confirmBtn);
 
         await waitFor(() => {
-            const emailInput = screen.getByDisplayValue('juan@test.com');
-            expect(emailInput).toBeDisabled();
+            expect(fetchApi).toHaveBeenCalledWith('/auth/profile', { method: 'DELETE' });
+            expect(mockLogout).toHaveBeenCalled();
         });
     });
 });

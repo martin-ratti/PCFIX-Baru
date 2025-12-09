@@ -23,13 +23,16 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
+  resetToken        String?
+  resetTokenExpires DateTime?
+
   cart      Cart?
 }
 
 model Cart {
   id                 Int        @id @default(autoincrement())
   userId             Int        @unique
-  user               User       @relation(fields: [userId], references: [id])
+  user               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   items              CartItem[]
   abandonedEmailSent Boolean    @default(false)
   updatedAt          DateTime   @updatedAt
@@ -48,7 +51,7 @@ model CartItem {
 model Cliente {
   id          Int       @id @default(autoincrement())
   userId      Int       @unique
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   direccion   String?
   telefono    String?
   localidadId Int?
@@ -139,7 +142,7 @@ model Banner {
 
 model Favorite {
   userId     Int
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   productoId Int
   producto   Producto @relation(fields: [productoId], references: [id])
   @@id([userId, productoId])
@@ -166,7 +169,7 @@ model Venta {
   tipoEnvio         String?   
 
   clienteId         Int
-  cliente           Cliente     @relation(fields: [clienteId], references: [id])
+  cliente           Cliente     @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   lineasVenta       LineaVenta[]
   pagos             Pago[]
 }
@@ -184,7 +187,7 @@ enum VentaEstado {
 model LineaVenta {
   id         Int      @id @default(autoincrement())
   ventaId    Int
-  venta      Venta    @relation(fields: [ventaId], references: [id])
+  venta      Venta    @relation(fields: [ventaId], references: [id], onDelete: Cascade)
   productoId Int
   producto   Producto @relation(fields: [productoId], references: [id])
   cantidad   Int
@@ -197,7 +200,7 @@ model Pago {
   fecha        DateTime   @default(now())
   monto        Decimal    @db.Decimal(10, 2)
   ventaId      Int
-  venta        Venta      @relation(fields: [ventaId], references: [id])
+  venta        Venta      @relation(fields: [ventaId], references: [id], onDelete: Cascade)
   metodoPagoId Int
   metodoPago   MetodoPago @relation(fields: [metodoPagoId], references: [id])
 }
@@ -235,7 +238,7 @@ model ConsultaTecnica {
   respuesta   String?  @db.Text 
   estado      EstadoConsulta @default(PENDIENTE)
   userId      Int
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   respondedAt DateTime?
 }

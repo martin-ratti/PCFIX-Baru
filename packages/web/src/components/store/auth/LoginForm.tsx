@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
 import GoogleLoginButton from './GoogleLoginButton';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
 
@@ -18,6 +19,8 @@ type LoginSchema = z.infer<typeof loginSchema>;
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotResult, setShowForgotResult] = useState(false);
+
   const login = useAuthStore((state) => state.login);
   const addToast = useToastStore((state) => state.addToast);
 
@@ -98,9 +101,19 @@ export default function LoginForm() {
           </div>
           {errors.email && <p className="text-red-500 text-xs mt-1 font-medium">{errors.email.message}</p>}
         </div>
+
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
-          <div className="relative">
+          <div className="flex justify-between items-center">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
+            <button
+              type="button"
+              onClick={() => setShowForgotResult(true)}
+              className="text-xs text-primary font-bold hover:underline"
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
+          <div className="relative mt-1">
             <input
               id="password"
               data-testid="input-password"
@@ -151,6 +164,8 @@ export default function LoginForm() {
       <GoogleLoginButton />
 
       <p className="mt-6 text-center text-sm text-gray-600">¿No tienes cuenta? <a href="/auth/registro" className="text-primary font-bold hover:underline">Regístrate</a></p>
+
+      <ForgotPasswordModal isOpen={showForgotResult} onClose={() => setShowForgotResult(false)} />
     </div>
   );
 }
