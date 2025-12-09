@@ -4,6 +4,7 @@ export const prerender = false;
 import Layout from "../../layouts/Layout.astro";
 
 import AddToCart from "../../components/store/product/AddToCart.tsx";
+import { Image } from "astro:assets";
 
 interface Product {
   id: number;
@@ -90,13 +91,24 @@ if (!product) {
               </div>
             )
         }
-        <img
-          src={product.foto ||
-            "https://placehold.co/600x600/png?text=Sin+Imagen"}
-          alt={product.nombre}
-          class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
-          transition:name={`image-${product.id}`}
-        />
+        {
+          product.foto ? (
+            <Image
+              src={product.foto}
+              alt={product.nombre}
+              class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
+              transition:name={`image-${product.id}`}
+              inferSize={true}
+            />
+          ) : (
+            <img
+              src="https://placehold.co/600x600/png?text=Sin+Imagen"
+              alt={product.nombre}
+              class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
+              transition:name={`image-${product.id}`}
+            />
+          )
+        }
       </div>
 
       <div class="lg:col-span-6 space-y-8">
