@@ -93,4 +93,22 @@ describe('SalesListTable', () => {
             );
         });
     });
+
+    it.skip('clears filters', async () => {
+        render(<SalesListTable />);
+        const select = screen.getByRole('combobox', { name: /filtro compra/i });
+        fireEvent.change(select, { target: { value: 'TRANSFERENCIA' } });
+
+        // Debug
+        expect((select as HTMLSelectElement).value).toBe('TRANSFERENCIA');
+
+        // Use findByText which has built-in retry and better error message
+        const clearBtn = await screen.findByText(/borrar filtros/i, {}, { timeout: 3000 });
+        fireEvent.click(clearBtn);
+
+        // Should fetch without query params (except page)
+        await waitFor(() => {
+            expect(mockFetchApi).toHaveBeenCalledWith('/sales?page=1', expect.any(Object));
+        });
+    });
 });

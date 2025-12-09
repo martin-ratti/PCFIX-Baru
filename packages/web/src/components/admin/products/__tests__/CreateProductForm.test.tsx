@@ -76,7 +76,12 @@ describe('CreateProductForm', () => {
         });
     });
 
-    it('submits valid form data', async () => {
+    it('submits valid form data and redirects', async () => {
+        // Mock window.location
+        const originalLocation = window.location;
+        delete (window as any).location;
+        (window as any).location = { href: '' };
+
         render(<CreateProductForm />);
 
         await waitFor(() => {
@@ -107,5 +112,13 @@ describe('CreateProductForm', () => {
                 expect.objectContaining({ method: 'POST' })
             );
         });
+
+        // Wait for timeout redirect
+        await waitFor(() => {
+            expect(window.location.href).toBe('/admin/productos');
+        }, { timeout: 2000 });
+
+        // Restore window.location
+        window.location = originalLocation as any;
     });
 });

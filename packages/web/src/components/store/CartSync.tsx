@@ -26,7 +26,7 @@ export default function CartSync() {
                         items: items.map(item => ({ id: item.id, quantity: item.quantity }))
                     })
                 });
-                console.log('🛒 Cart synced with server');
+
             } catch (error) {
                 console.error('Failed to sync cart:', error);
             }

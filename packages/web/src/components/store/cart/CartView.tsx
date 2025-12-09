@@ -195,10 +195,20 @@ function CartContent() {
 
     if (items.length === 0) {
         return (
-            <div className="text-center py-20 bg-white rounded-lg border border-gray-100 shadow-sm">
-                <div className="text-6xl mb-4">🛒</div>
-                <h1 className="text-3xl font-bold text-secondary mb-4">Tu carrito está vacío</h1>
-                <a href="/tienda/productos" className="bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-opacity-90 transition-all active:scale-95">Ir a la Tienda</a>
+            <div className="flex flex-col items-center justify-center py-24 px-4 bg-white rounded-2xl border border-gray-100 shadow-sm text-center">
+                <div className="bg-gray-50 p-6 rounded-full mb-6 relative">
+                    <span className="text-6xl filter grayscale opacity-50">🛒</span>
+                    <div className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm animate-bounce">0</div>
+                </div>
+                <h1 className="text-2xl md:text-3xl font-black text-secondary mb-2">Tu carrito está vacío</h1>
+                <p className="text-gray-500 mb-8 max-w-md mx-auto">Parece que aún no has agregado productos. ¡Explorá nuestro catálogo y encontrá lo que buscas!</p>
+                <a
+                    href="/tienda/productos"
+                    className="group bg-primary text-white font-bold py-3 px-8 rounded-xl hover:bg-opacity-90 transition-all active:scale-95 shadow-lg hover:shadow-primary/30 flex items-center gap-2"
+                >
+                    <span>Ver Productos</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 group-hover:translate-x-1 transition-transform"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" /></svg>
+                </a>
             </div>
         );
     }

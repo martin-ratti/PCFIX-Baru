@@ -32,13 +32,14 @@ describe('BrandManager', () => {
 
         mockFetchApi.mockImplementation((url) => {
             if (url.includes('/brands')) {
-                if (url.includes('DELETE')) return Promise.resolve({ json: async () => ({ success: true }) });
-                if (url.includes('POST')) return Promise.resolve({ json: async () => ({ success: true }) });
+                if (url.includes('DELETE')) return Promise.resolve({ ok: true, json: async () => ({ success: true }) } as Response);
+                if (url.includes('POST')) return Promise.resolve({ ok: true, json: async () => ({ success: true }) } as Response);
                 return Promise.resolve({
+                    ok: true,
                     json: async () => ({ success: true, data: [{ id: 1, nombre: 'Brand 1', logo: 'logo.png' }] })
-                });
+                } as Response);
             }
-            return Promise.resolve({ json: async () => ({ success: true }) });
+            return Promise.resolve({ ok: true, json: async () => ({ success: true }) } as Response);
         });
     });
 
@@ -58,6 +59,12 @@ describe('BrandManager', () => {
 
         const submitBtn = screen.getByText(/crear marca/i);
         fireEvent.click(submitBtn);
+
+        // Verify loading state
+        await waitFor(() => {
+            expect(screen.getByText(/creando marca/i)).toBeInTheDocument();
+            expect(submitBtn).toBeDisabled();
+        });
 
         await waitFor(() => {
             expect(mockFetchApi).toHaveBeenCalledWith('/brands', expect.objectContaining({ method: 'POST' }));

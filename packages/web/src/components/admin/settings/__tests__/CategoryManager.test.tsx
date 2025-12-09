@@ -40,12 +40,12 @@ describe('CategoryManager', () => {
 
         mockFetchApi.mockImplementation((url) => {
             if (url.includes('/categories')) {
-                if (url.includes('DELETE')) return Promise.resolve({ json: async () => ({ success: true }) });
-                if (url.includes('POST')) return Promise.resolve({ json: async () => ({ success: true }) });
-                if (url.includes('flat=true')) return Promise.resolve({ json: async () => ({ success: true, data: [{ id: 1, nombre: 'Parent Cat' }] }) });
-                return Promise.resolve({ json: async () => ({ success: true, data: mockCategories }) });
+                if (url.includes('DELETE')) return Promise.resolve({ ok: true, json: async () => ({ success: true }) } as Response);
+                if (url.includes('POST')) return Promise.resolve({ ok: true, json: async () => ({ success: true }) } as Response);
+                if (url.includes('flat=true')) return Promise.resolve({ ok: true, json: async () => ({ success: true, data: [{ id: 1, nombre: 'Parent Cat' }] }) } as Response);
+                return Promise.resolve({ ok: true, json: async () => ({ success: true, data: mockCategories }) } as Response);
             }
-            return Promise.resolve({ json: async () => ({ success: true }) });
+            return Promise.resolve({ ok: true, json: async () => ({ success: true }) } as Response);
         });
     });
 
@@ -66,8 +66,14 @@ describe('CategoryManager', () => {
 
         fireEvent.change(screen.getByPlaceholderText(/ej: periféricos/i), { target: { value: 'New Category' } });
 
-        const submitBtn = screen.getByText('Crear'); // Button text is just "Crear"
+        const submitBtn = screen.getByText('Crear');
         fireEvent.click(submitBtn);
+
+        // Verify loading state
+        await waitFor(() => {
+            expect(screen.getByText(/creando/i)).toBeInTheDocument();
+            expect(submitBtn).toBeDisabled();
+        });
 
         await waitFor(() => {
             expect(mockFetchApi).toHaveBeenCalledWith('/categories', expect.objectContaining({ method: 'POST' }));

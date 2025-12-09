@@ -59,7 +59,7 @@ describe('CartView', () => {
         await waitFor(() => {
             expect(screen.getByText('Tu carrito está vacío')).toBeInTheDocument();
         });
-        expect(screen.getByText(/ir a la tienda/i)).toBeInTheDocument();
+        expect(screen.getByText(/ver productos/i)).toBeInTheDocument();
     });
 
     it('renders items in cart', async () => {

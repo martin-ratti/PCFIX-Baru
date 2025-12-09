@@ -83,11 +83,24 @@ try {
   if (bannerRes.ok) {
     const r = await bannerRes.json();
     if (r.success) banners = r.data;
+    if (r.success) banners = r.data;
+  }
+
+  // Fetch Config for Hours
+  const configRes = await fetch("http://localhost:3002/api/config");
+  if (configRes.ok) {
+    const json = await configRes.json();
+    if (json.success) {
+      // Expose to template
+      // We'll manually store it in a variable or just use it inline if simpler, but let's declare a variable
+      var configHours = json.data?.horarios || "Lunes a Viernes: 9:00 - 18:00";
+    }
   }
 } catch (error) {
   console.error("Error:", error);
   errorApi = true;
 }
+if (!configHours) configHours = "Lunes a Viernes: 9:00 - 18:00"; // Fallback
 
 function mapProductToCard(p: ProductDB): ProductCardProps {
   return {
@@ -133,9 +146,60 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
 
       <PromoBanner />
 
+      <!-- Sección Atención Compacta -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center divide-y md:divide-y-0 md:divide-x divide-gray-100"
+        >
+          <!-- Teléfono -->
+          <div
+            class="flex items-center gap-4 px-4 justify-center md:justify-center"
+          >
+            <div
+              class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-2xl shrink-0"
+            >
+              📞
+            </div>
+            <div>
+              <p
+                class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-0.5"
+              >
+                Atención Telefónica
+              </p>
+              <a
+                href="tel:+543464513588"
+                class="text-lg font-black text-gray-800 hover:text-primary transition-colors block leading-tight"
+                >+54 346 451 3588</a
+              >
+            </div>
+          </div>
+
+          <!-- Horarios -->
+          <div
+            class="flex items-center gap-4 px-4 justify-center md:justify-center pt-4 md:pt-0"
+          >
+            <div
+              class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center text-2xl shrink-0"
+            >
+              🕒
+            </div>
+            <div>
+              <p
+                class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-0.5"
+              >
+                Horarios de Local
+              </p>
+              <p class="text-lg font-bold text-gray-800 leading-tight">
+                {configHours}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {
         saleProducts.length > 0 && (
-          <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 relative overflow-hidden">
+          <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-pink-500" />
             <Carousel
               title="⚡ Ofertas Relámpago"

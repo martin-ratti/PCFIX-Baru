@@ -25,7 +25,7 @@ export default function UserMenu() {
   if (!store.isAuthenticated) {
     return (
       <div className="flex items-center gap-3">
-        <a href="/auth/login" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors px-3 py-2 rounded-md hover:bg-gray-100">Ingresar</a>
+        <a href="/auth/login" className="text-sm font-semibold text-gray-500 hover:text-primary transition-colors px-3 py-2 rounded-md hover:bg-gray-100">Ingresar</a>
         <a href="/auth/registro" className="text-sm font-bold bg-primary text-white px-5 py-2.5 rounded-full shadow-md hover:shadow-lg hover:bg-opacity-90 transition-all transform hover:-translate-y-0.5 active:scale-95">Registrarse</a>
       </div>
     );

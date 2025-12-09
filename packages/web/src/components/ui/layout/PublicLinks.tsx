@@ -8,7 +8,7 @@ export default function PublicLinks() {
 
   if (!isClient || user?.role === 'ADMIN') return null;
 
-  const linkClass = "flex items-center gap-2 text-white hover:text-primary transition-colors py-2 font-medium group text-sm md:text-base";
+  const linkClass = "flex items-center gap-2 text-gray-500 hover:text-black transition-colors py-2 font-medium group text-sm md:text-base";
 
   return (
     <div className="flex items-center gap-6">
