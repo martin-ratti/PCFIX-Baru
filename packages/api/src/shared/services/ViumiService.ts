@@ -1,4 +1,4 @@
-import axios from 'axios';
+/*import axios from 'axios';
 
 export class ViumiService {
     private clientId: string;
@@ -17,7 +17,7 @@ export class ViumiService {
     private async authenticate() {
         // --- MOCK MODE ---
         if (this.clientId === 'MOCK') {
-            console.log('⚠️ VIUMI MOCK MODE: Authenticated');
+
             return 'mock-access-token';
         }
 
@@ -50,7 +50,7 @@ export class ViumiService {
         // --- MOCK MODE ---
         // Si estamos en modo MOCK, retornamos directamente la URL de éxito para simular un pago aprobado.
         if (this.clientId === 'MOCK') {
-            console.log('⚠️ VIUMI MOCK MODE: Returning success URL');
+
             return callbackUrl;
         }
 
@@ -83,3 +83,4 @@ export class ViumiService {
         }
     }
 }
+*/

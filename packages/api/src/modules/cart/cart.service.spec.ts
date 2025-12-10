@@ -39,7 +39,7 @@ describe('CartService', () => {
                         findUnique: vi.fn().mockResolvedValue(cart),
                     }
                 };
-                return await callback(tx);
+                return await callback(tx as any);
             });
 
             const result = await service.syncCart(userId, items);

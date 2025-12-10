@@ -162,7 +162,7 @@ export class ShippingService {
 
       const finalPrice = cheapest.amounts?.price_incl_tax || cheapest.amounts?.price;
 
-      console.log(`📦 Cotización: ${cheapest.carrier?.name} - ${cheapest.service_type?.name} - $${finalPrice}`);
+
 
       return Math.round(Number(finalPrice));
 
@@ -232,7 +232,7 @@ export class ShippingService {
     };
 
     try {
-      console.log('📦 Creando envío en Zipnova...', this.isSandbox ? '[SANDBOX]' : '[PRODUCCIÓN]');
+
 
       const response = await axios.post(
         `${this.baseUrl}/shipments`,

@@ -15,8 +15,8 @@ vi.mock('../../shared/database/prismaClient', () => ({
 describe('StockAlertController', () => {
     let req: Partial<Request>;
     let res: Partial<Response>;
-    let json: ReturnType<typeof vi.fn>;
-    let status: ReturnType<typeof vi.fn>;
+    let json: any;
+    let status: any;
 
     beforeEach(() => {
         json = vi.fn();

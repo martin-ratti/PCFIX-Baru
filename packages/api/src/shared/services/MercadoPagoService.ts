@@ -33,7 +33,7 @@ export class MercadoPagoService {
                 // binary_mode: true,
                 // auto_return: 'approved',
             };
-            // console.log('MP Preference Body:', JSON.stringify(body, null, 2));
+
 
             const result = await this.preference.create({ body });
 

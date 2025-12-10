@@ -9,8 +9,8 @@ vi.mock('./banners.service');
 describe('BannersController', () => {
     let req: Partial<Request>;
     let res: Partial<Response>;
-    let json: ReturnType<typeof vi.fn>;
-    let status: ReturnType<typeof vi.fn>;
+    let json: any;
+    let status: any;
 
     beforeEach(() => {
         json = vi.fn();
@@ -47,7 +47,7 @@ describe('BannersController', () => {
         it('should create a banner successfully', async () => {
             req.body = { marcaId: '1' };
             req.file = { filename: 'test.jpg' } as any;
-            req.protocol = 'http';
+            (req as any).protocol = 'http';
             req.get = vi.fn().mockReturnValue('localhost');
 
             const newBanner = { id: 1, marcaId: 1, imagenUrl: 'http://localhost/uploads/test.jpg' };

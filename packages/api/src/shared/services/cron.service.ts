@@ -25,7 +25,7 @@ export class CronService {
 
     // Cron: Carritos Abandonados (Cada 30 minutos)
     cron.schedule('*/30 * * * *', async () => {
-      console.log('🔍 Cron: Verificando carritos abandonados...');
+
       await this.checkAbandonedCarts();
     });
 
@@ -65,7 +65,7 @@ export class CronService {
       });
 
       if (carts.length > 0) {
-        console.log(`🛒 Cron: Encontrados ${carts.length} carritos abandonados.`);
+
       }
 
       for (const cart of carts) {
@@ -79,7 +79,7 @@ export class CronService {
             where: { id: cart.id },
             data: { abandonedEmailSent: true }
           });
-          console.log(`📧 Email enviado a ${cart.user.email} (Carrito #${cart.id})`);
+
         }
       }
     } catch (error) {

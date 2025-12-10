@@ -8,8 +8,8 @@ vi.mock('./technical.service');
 describe('TechnicalController', () => {
     let req: Partial<Request>;
     let res: Partial<Response>;
-    let json: ReturnType<typeof vi.fn>;
-    let status: ReturnType<typeof vi.fn>;
+    let json: any;
+    let status: any;
 
     beforeEach(() => {
         json = vi.fn();
@@ -35,7 +35,7 @@ describe('TechnicalController', () => {
         });
 
         it('should return 401 if unauth', async () => {
-            req.user = undefined;
+            (req as any).user = undefined;
 
             await TechnicalController.createInquiry(req as Request, res as Response);
 

@@ -162,7 +162,7 @@ export class ProductService {
             await (prisma as any).stockAlert.deleteMany({
                 where: { productoId: product.id }
             });
-            console.log(`📢 Enviadas ${alerts.length} alertas de stock para ${product.nombre}`);
+
 
         } catch (error) {
             console.error('Error procesando alertas de stock:', error);

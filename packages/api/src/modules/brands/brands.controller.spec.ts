@@ -8,8 +8,8 @@ vi.mock('./brands.service');
 describe('BrandsController', () => {
     let req: Partial<Request>;
     let res: Partial<Response>;
-    let json: ReturnType<typeof vi.fn>;
-    let status: ReturnType<typeof vi.fn>;
+    let json: any;
+    let status: any;
 
     beforeEach(() => {
         json = vi.fn();
@@ -78,7 +78,7 @@ describe('BrandsController', () => {
         it('should create a brand successfully', async () => {
             req.body = { nombre: 'New Brand' };
             req.file = { filename: 'logo.jpg' } as any;
-            req.protocol = 'http';
+            (req as any).protocol = 'http';
             req.get = vi.fn().mockReturnValue('localhost');
 
             const newBrand = { id: 1, nombre: 'New Brand', logoUrl: 'http://localhost/uploads/logo.jpg' };

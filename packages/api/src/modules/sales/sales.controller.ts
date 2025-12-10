@@ -69,24 +69,9 @@ export const createSale = async (req: Request, res: Response) => {
     }
 };
 
-/* export const handleViumiWebhook = async (req: Request, res: Response) => {
-    try {
-        res.sendStatus(200);
-    } catch (e) {
-        console.error(e);
-        res.sendStatus(500);
-    }
-};
 
-/* export const createViumiPreference = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const link = await service.createViumiPreference(Number(id));
-        res.json({ success: true, data: { url: link } });
-    } catch (e: any) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-}; */
+
+
 
 import { MercadoPagoService } from '../../shared/services/MercadoPagoService';
 const mpService = new MercadoPagoService();
@@ -108,7 +93,7 @@ export const createMPPreference = async (req: Request, res: Response) => {
             };
         });
 
-        console.log('Generando Preferencia MP con items:', JSON.stringify(items, null, 2));
+
 
         // Use user email if available, otherwise a placeholder (MP requires email)
         const payerEmail = sale.cliente?.user?.email || 'test_user_123456@testuser.com';
@@ -212,7 +197,7 @@ export const handleMPCallback = async (req: Request, res: Response) => {
         const { status, external_reference } = req.query;
         const saleId = Number(external_reference);
 
-        console.log(`[MP Callback] SaleId: ${saleId}, Status: ${status}`);
+
 
         if (saleId && status === 'approved') {
             await prisma.venta.update({
@@ -222,7 +207,7 @@ export const handleMPCallback = async (req: Request, res: Response) => {
                     medioPago: 'MERCADOPAGO'
                 }
             });
-            console.log(`[MP Callback] Venta ${saleId} actualizada a PAGADO`);
+
         }
 
         // Redirect to Frontend Success Page
