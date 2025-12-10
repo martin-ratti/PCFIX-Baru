@@ -27,6 +27,10 @@ const absoluteImageUrl = image.startsWith("http")
     ? image
     : `${siteUrl}${image}`;
 const canonicalURL = new URL(Astro.url.pathname, siteUrl);
+
+// Obtenemos la URL de la API en el servidor (Build time)
+const SERVER_API_URL =
+    import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
 ---
 
 <!doctype html>
@@ -83,25 +87,12 @@ const canonicalURL = new URL(Astro.url.pathname, siteUrl);
 
         <Footer />
 
-        {
-            /* SOLUCIÓN DE DESPLIEGUE:
-            Pasamos la variable de entorno del servidor al cliente usando define:vars.
-            Esto evita el error "import.meta outside module" y asegura que Vercel use la URL de producción.
-        */
-        }
-        <script
-            is:inline
-            define:vars={{
-                API_URL:
-                    import.meta.env.PUBLIC_API_URL ||
-                    "http://localhost:3002/api",
-            }}
-        >
+        <script is:inline define:vars={{ API_BASE: SERVER_API_URL }}>
             // Maintenance Mode Logic
             async function checkMaintenance() {
                 try {
-                    // Usamos la variable inyectada 'API_URL' en lugar de hardcodear localhost
-                    const res = await fetch(`${API_URL}/config`);
+                    // Usamos la variable inyectada
+                    const res = await fetch(`${API_BASE}/config`);
 
                     if (!res.ok) return;
                     const json = await res.json();
