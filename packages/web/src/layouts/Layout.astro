@@ -82,20 +82,26 @@ const canonicalURL = new URL(Astro.url.pathname, siteUrl);
         </div>
 
         <Footer />
-        <script is:inline>
+
+        {
+            /* SOLUCIÓN DE DESPLIEGUE:
+            Pasamos la variable de entorno del servidor al cliente usando define:vars.
+            Esto evita el error "import.meta outside module" y asegura que Vercel use la URL de producción.
+        */
+        }
+        <script
+            is:inline
+            define:vars={{
+                API_URL:
+                    import.meta.env.PUBLIC_API_URL ||
+                    "http://localhost:3002/api",
+            }}
+        >
             // Maintenance Mode Logic
-            // Usamos is:inline para asegurar que se ejecute en el cliente correctamente
-            // y definimos la API_URL basada en la variable de entorno expuesta por Astro/Vite
-
-            // IMPORTANTE: Vite reemplaza import.meta.env.PUBLIC_API_URL estáticamente al construir.
-            // Si es undefined en dev, usamos el fallback.
-            const API_BASE =
-                import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
-
             async function checkMaintenance() {
                 try {
-                    // Ahora la petición va a la URL correcta (Railway en prod, Local en dev)
-                    const res = await fetch(`${API_BASE}/config`);
+                    // Usamos la variable inyectada 'API_URL' en lugar de hardcodear localhost
+                    const res = await fetch(`${API_URL}/config`);
 
                     if (!res.ok) return;
                     const json = await res.json();
