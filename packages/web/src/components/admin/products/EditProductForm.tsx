@@ -25,7 +25,7 @@ interface EditProductFormProps { productId: string; }
 
 export default function EditProductForm({ productId }: EditProductFormProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const [categories, setCategories] = useState<{ id: number, nombre: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: number, nombre: string, subcategorias?: any[] }[]>([]);
   const [brands, setBrands] = useState<{ id: number, nombre: string }[]>([]);
   const [currentImage, setCurrentImage] = useState<string>('');
   const addToast = useToastStore(s => s.addToast);
@@ -156,7 +156,21 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
         {/* Columna Derecha */}
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div><label htmlFor="categoriaId" className="block text-sm font-medium text-gray-700">Categoría</label><select id="categoriaId" data-testid="select-category" {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">{categories.map(cat => <option key={cat.id} value={cat.id}>{cat.nombre}</option>)}</select></div>
+            <div>
+              <label htmlFor="categoriaId" className="block text-sm font-medium text-gray-700">Categoría</label>
+              <select id="categoriaId" data-testid="select-category" {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
+                {categories.map(cat => (
+                  <React.Fragment key={cat.id}>
+                    <option value={cat.id} className="font-bold">{cat.nombre}</option>
+                    {cat.subcategorias?.map(sub => (
+                      <option key={sub.id} value={sub.id}>
+                        &nbsp;&nbsp;&nbsp;↳ {sub.nombre}
+                      </option>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </select>
+            </div>
             <div><label htmlFor="marcaId" className="block text-sm font-medium text-gray-700">Marca</label><select id="marcaId" data-testid="select-brand" {...register('marcaId')} className="w-full mt-1 p-2 border rounded-md bg-white"><option value="">Sin Marca</option>{brands.map(b => <option key={b.id} value={b.id}>{b.nombre}</option>)}</select></div>
           </div>
 

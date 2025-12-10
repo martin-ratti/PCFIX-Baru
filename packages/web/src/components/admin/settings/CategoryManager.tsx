@@ -8,6 +8,7 @@ interface Category {
   id: number;
   nombre: string;
   subcategorias?: Category[];
+  padreId?: number;
 }
 
 export default function CategoryManager() {
@@ -92,7 +93,7 @@ export default function CategoryManager() {
             <label className="block text-sm font-medium text-gray-700">Categoría Padre (Opcional)</label>
             <select {...register('padreId')} className="w-full mt-1 p-2 border rounded bg-white">
               <option value="">-- Es categoría principal --</option>
-              {flatCategories.map(c => (
+              {flatCategories.filter(c => !c.padreId).map(c => (
                 <option key={c.id} value={c.id}>{c.nombre}</option>
               ))}
             </select>

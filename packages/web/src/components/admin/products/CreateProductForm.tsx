@@ -21,7 +21,7 @@ const productSchema = z.object({
 });
 
 type ProductSchema = z.infer<typeof productSchema>;
-interface Category { id: number; nombre: string; }
+interface Category { id: number; nombre: string; subcategorias?: Category[]; }
 interface Brand { id: number; nombre: string; }
 
 export default function CreateProductForm() {
@@ -153,7 +153,16 @@ export default function CreateProductForm() {
               <label htmlFor="categoriaId" className="block text-sm font-medium text-gray-700">Categoría</label>
               <select id="categoriaId" data-testid="select-category" {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
                 <option value="">Seleccionar...</option>
-                {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.nombre}</option>)}
+                {categories.map(cat => (
+                  <React.Fragment key={cat.id}>
+                    <option value={cat.id} className="font-bold">{cat.nombre}</option>
+                    {cat.subcategorias?.map(sub => (
+                      <option key={sub.id} value={sub.id}>
+                        &nbsp;&nbsp;&nbsp;↳ {sub.nombre}
+                      </option>
+                    ))}
+                  </React.Fragment>
+                ))}
               </select>
             </div>
             <div>
