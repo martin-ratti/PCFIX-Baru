@@ -28,7 +28,7 @@ export const getById = async (req: Request, res: Response) => { try { const id =
 export const create = async (req: Request, res: Response) => {
   try {
     let foto = undefined;
-    if (req.file) foto = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    if (req.file) foto = req.file.path;
     const data = createProductSchema.parse({
       ...req.body,
       precio: parseNumber(req.body.precio),
@@ -55,7 +55,7 @@ export const update = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     let foto = undefined;
-    if (req.file) foto = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    if (req.file) foto = req.file.path;
     const data = createProductSchema.partial().parse({
       ...req.body,
       precio: parseNumber(req.body.precio),
