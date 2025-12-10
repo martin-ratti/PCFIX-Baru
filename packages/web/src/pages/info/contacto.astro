@@ -327,24 +327,17 @@ try {
   <script>
     import { useToastStore } from "../../stores/toastStore";
 
-    console.log("Contact script loaded");
-
     const form = document.getElementById("contactForm") as HTMLFormElement;
 
     if (form) {
-      console.log("Contact form found");
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        console.log("Form submitted");
 
         const submitBtn = form.querySelector(
           'button[type="submit"]',
         ) as HTMLButtonElement;
 
-        if (!submitBtn) {
-          console.error("Submit button not found");
-          return;
-        }
+        if (!submitBtn) return;
 
         const originalText = submitBtn.innerHTML;
 
@@ -362,13 +355,8 @@ try {
           const formData = new FormData(form);
           const data = Object.fromEntries(formData.entries());
 
-          // Debug payload
-          console.log("Sending data:", data);
-
           const API_URL =
             import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
-
-          console.log("Target API:", API_URL);
 
           const res = await fetch(`${API_URL}/config/contact`, {
             method: "POST",
@@ -376,10 +364,7 @@ try {
             body: JSON.stringify(data),
           });
 
-          console.log("Response status:", res.status);
-
           const result = await res.json();
-          console.log("Response data:", result);
 
           if (result.success) {
             useToastStore
@@ -393,7 +378,6 @@ try {
             throw new Error(result.error || "Error al enviar el mensaje");
           }
         } catch (error: any) {
-          console.error("Form error:", error);
           useToastStore
             .getState()
             .addToast(error.message || "Error al enviar el mensaje", "error");
@@ -402,8 +386,6 @@ try {
           submitBtn.innerHTML = originalText;
         }
       });
-    } else {
-      console.error("Contact form element not found in DOM");
     }
   </script>
 </Layout>
