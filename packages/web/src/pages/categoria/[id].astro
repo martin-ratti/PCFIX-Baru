@@ -28,7 +28,7 @@ let categoryName = "Categoría";
 
 try {
   const response = await fetch(
-    `http://localhost:3002/api/products?categoryId=${id}`,
+    `${import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api"}/products?categoryId=${id}`,
   );
 
   if (response.ok) {

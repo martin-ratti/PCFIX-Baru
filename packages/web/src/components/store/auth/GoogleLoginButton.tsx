@@ -31,11 +31,11 @@ export default function GoogleLoginButton() {
         // Login exitoso: Guardamos sesión
         login(json.data.token, json.data.user);
         addToast(`¡Hola de nuevo, ${json.data.user.nombre}!`, 'success');
-        
+
         // Redirección forzada (Hard Reload para limpiar estado)
         setTimeout(() => {
-             if (json.data.user.role === 'ADMIN') window.location.href = '/admin';
-             else window.location.href = '/';
+          if (json.data.user.role === 'ADMIN') window.location.href = '/admin';
+          else window.location.href = '/';
         }, 100);
 
       } else {

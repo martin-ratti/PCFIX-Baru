@@ -14,7 +14,7 @@ export default function SupportInbox() {
         if (!token) return;
 
         setIsLoading(true);
-        fetch('http://localhost:3002/api/technical', {
+        fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/technical`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -33,7 +33,7 @@ export default function SupportInbox() {
     const handleReply = async (id: number) => {
         if (!replyText.trim()) return;
         try {
-            const res = await fetch(`http://localhost:3002/api/technical/${id}/reply`, {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/technical/${id}/reply`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ respuesta: replyText })

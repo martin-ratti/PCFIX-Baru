@@ -32,8 +32,8 @@ export default function CreateProductForm() {
   const [fileName, setFileName] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:3002/api/categories').then(res => res.json()).then(data => data.success && setCategories(data.data));
-    fetch('http://localhost:3002/api/brands').then(res => res.json()).then(data => data.success && setBrands(data.data));
+    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/categories`).then(res => res.json()).then(data => data.success && setCategories(data.data));
+    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/brands`).then(res => res.json()).then(data => data.success && setBrands(data.data));
   }, []);
 
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<ProductSchema>({
@@ -73,7 +73,7 @@ export default function CreateProductForm() {
       if (data.marcaId) formData.append('marcaId', data.marcaId.toString());
       if (data.fotoFile && data.fotoFile[0]) formData.append('foto', data.fotoFile[0]);
 
-      const response = await fetch('http://localhost:3002/api/products', { method: 'POST', body: formData });
+      const response = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/products`, { method: 'POST', body: formData });
       const result = await response.json();
 
       if (!result.success) throw new Error(result.error);

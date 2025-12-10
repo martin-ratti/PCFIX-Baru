@@ -8,7 +8,7 @@ export default function UserInquiries() {
 
     useEffect(() => {
         if (token) {
-            fetch('http://localhost:3002/api/technical/me', {
+            fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/technical/me`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
                 .then(res => res.json())
@@ -58,8 +58,8 @@ export default function UserInquiries() {
                             <span className="text-xs text-gray-400">{new Date(inq.createdAt).toLocaleDateString()}</span>
                         </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${inq.estado === 'RESPONDIDO'
-                                ? 'bg-green-100 text-green-700 border border-green-200'
-                                : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                            ? 'bg-green-100 text-green-700 border border-green-200'
+                            : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
                             }`}>
                             {inq.estado === 'RESPONDIDO' ? 'Respuesta Disponible' : 'Pendiente'}
                         </span>

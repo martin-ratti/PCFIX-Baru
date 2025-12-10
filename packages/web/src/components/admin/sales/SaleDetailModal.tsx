@@ -42,7 +42,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
 
         setIsDispatching(true);
         try {
-            const res = await fetch(`http://localhost:3002/api/sales/${sale.id}/dispatch`, {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/sales/${sale.id}/dispatch`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
 
         setIsCreatingShipment(true);
         try {
-            const res = await fetch(`http://localhost:3002/api/sales/${sale.id}/create-shipment`, {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/sales/${sale.id}/create-shipment`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

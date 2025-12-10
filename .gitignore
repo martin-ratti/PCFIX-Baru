@@ -18,10 +18,13 @@ pnpm-debug.log*
 .env.production.local
 .env.*.local
 
+
 # ## Directorios de Build y Caché de Astro
 # Ignora la carpeta de salida de la compilación y la caché de desarrollo
 dist
 .astro
+.vercel
+.output
 
 # ## Archivos de Sistema Operativo
 # Ignora archivos generados por macOS, Windows y Linux

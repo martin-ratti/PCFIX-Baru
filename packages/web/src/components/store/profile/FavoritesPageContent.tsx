@@ -26,7 +26,7 @@ export default function FavoritesPageContent() {
 
     const fetchFavorites = async (userId: number) => {
         try {
-            const res = await fetch(`http://localhost:3002/api/favorites/${userId}`);
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/favorites/${userId}`);
             const result = await res.json();
 
             if (result.success) {

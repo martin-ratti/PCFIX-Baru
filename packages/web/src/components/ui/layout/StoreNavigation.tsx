@@ -14,7 +14,7 @@ export default function StoreNavigation() {
 
   useEffect(() => {
     setIsClient(true);
-    fetch('http://localhost:3002/api/categories')
+    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/categories`)
       .then(res => res.json())
       .then(data => {
         if (data.success) setCategories(data.data);
