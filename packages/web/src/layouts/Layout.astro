@@ -82,11 +82,21 @@ const canonicalURL = new URL(Astro.url.pathname, siteUrl);
         </div>
 
         <Footer />
-        <script>
+        <script is:inline>
             // Maintenance Mode Logic
+            // Usamos is:inline para asegurar que se ejecute en el cliente correctamente
+            // y definimos la API_URL basada en la variable de entorno expuesta por Astro/Vite
+
+            // IMPORTANTE: Vite reemplaza import.meta.env.PUBLIC_API_URL estáticamente al construir.
+            // Si es undefined en dev, usamos el fallback.
+            const API_BASE =
+                import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
+
             async function checkMaintenance() {
                 try {
-                    const res = await fetch("http://localhost:3002/api/config");
+                    // Ahora la petición va a la URL correcta (Railway en prod, Local en dev)
+                    const res = await fetch(`${API_BASE}/config`);
+
                     if (!res.ok) return;
                     const json = await res.json();
                     const maintenanceMode =
