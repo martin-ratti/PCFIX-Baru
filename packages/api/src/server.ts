@@ -39,7 +39,10 @@ import { CronService } from './shared/services/cron.service';
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// --- SEGURIDAD Y CONFIGURACIÓN ---
+// --- SEGURIDAD Y CONFIGURACIÓN (CORS CORREGIDO) ---
+
+// 1. Obtenemos la variable de entorno
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const whitelist = [
   'http://localhost:4321',
@@ -50,12 +53,27 @@ const whitelist = [
   'https://www.pcfixbaru.com.ar',
 ];
 
+// Si hay una URL específica en Railway (y no es *), la agregamos dinámicamente
+if (FRONTEND_URL && FRONTEND_URL !== '*') {
+  // Soporte para múltiples URLs separadas por coma (opcional)
+  const urls = FRONTEND_URL.split(',');
+  urls.forEach(url => {
+    if (!whitelist.includes(url.trim())) whitelist.push(url.trim());
+  });
+}
+
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
+    // CASO 1: Si Railway dice "Permitir todo (*)", dejamos pasar a todos.
+    if (FRONTEND_URL === '*') {
+      return callback(null, true);
+    }
+
+    // CASO 2: Si no hay origen (postman/server-to-server) o está en la lista blanca
     if (!origin || whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.error(`Bloqueado por CORS: ${origin}`);
+      console.error(`🚫 Bloqueado por CORS: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -72,9 +90,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // --- ARCHIVOS ESTÁTICOS ---
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-
-// Middleware para logs y debug (SOLO en desarrollo)
-
 
 // --- RATE LIMITING ---
 import { authLimiter, apiLimiter } from './shared/middlewares/rateLimitMiddleware';
@@ -125,6 +140,7 @@ app.use(globalErrorHandler);
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔒 CORS Whitelist: ${JSON.stringify(whitelist)} (o FRONTEND_URL='${FRONTEND_URL}')`);
 
   try {
     new CronService().start();
