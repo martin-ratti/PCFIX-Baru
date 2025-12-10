@@ -8,7 +8,7 @@ export default function UserInquiries() {
 
     useEffect(() => {
         if (token) {
-            fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/technical/me`, {
+            fetch('https://pcfix-baru-production.up.railway.app/api/technical/me', {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
                 .then(res => res.json())

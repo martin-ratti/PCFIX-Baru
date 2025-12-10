@@ -20,7 +20,7 @@ export default function CategoryDropdown({ initialCategories = [] }: Props) {
   useEffect(() => {
     setIsClient(true);
     if (initialCategories.length === 0) {
-      fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/categories`)
+      fetch('https://pcfix-baru-production.up.railway.app/api/categories')
         .then(res => res.json())
         .then(data => data.success && setCategories(data.data))
         .catch(console.error);

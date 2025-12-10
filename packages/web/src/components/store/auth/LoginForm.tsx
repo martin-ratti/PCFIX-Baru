@@ -7,7 +7,7 @@ import { useToastStore } from '../../../stores/toastStore';
 import GoogleLoginButton from './GoogleLoginButton';
 import ForgotPasswordModal from './ForgotPasswordModal';
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
 
 const loginSchema = z.object({
   email: z.string().email('Correo inválido'),

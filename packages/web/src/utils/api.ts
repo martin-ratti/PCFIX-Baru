@@ -1,5 +1,6 @@
 export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
-  const BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+  // const BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+  const BASE_URL = 'https://pcfix-baru-production.up.railway.app/api';
 
   const defaultHeaders: HeadersInit = {
     'Content-Type': 'application/json',

@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { navigate } from 'astro:transitions/client';
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
 
 const registerSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),

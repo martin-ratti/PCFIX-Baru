@@ -15,7 +15,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
 
 export default function ForgotPasswordModal({ isOpen, onClose }: Props) {
     const [isLoading, setIsLoading] = useState(false);

@@ -97,7 +97,7 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
 
     setIsTogglingFav(true);
     try {
-      const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/favorites/toggle`, {
+      const res = await fetch(`https://pcfix-baru-production.up.railway.app/api/favorites/toggle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id, productId: Number(product.id) })

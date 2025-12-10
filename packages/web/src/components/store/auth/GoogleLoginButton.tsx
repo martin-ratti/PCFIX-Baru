@@ -9,7 +9,7 @@ export default function GoogleLoginButton() {
 
   // Leer variables de entorno (Astro)
   const CLIENT_ID = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID;
-  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+  const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
 
   if (!CLIENT_ID) {
     console.error("Falta PUBLIC_GOOGLE_CLIENT_ID en el archivo .env");

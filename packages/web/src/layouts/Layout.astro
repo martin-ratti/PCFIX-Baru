@@ -30,7 +30,8 @@ const canonicalURL = new URL(Astro.url.pathname, siteUrl);
 
 // Obtenemos la URL de la API en el servidor (Build time)
 const SERVER_API_URL =
-    import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
+    // import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
+    "https://pcfix-baru-production.up.railway.app/api";
 ---
 
 <!doctype html>

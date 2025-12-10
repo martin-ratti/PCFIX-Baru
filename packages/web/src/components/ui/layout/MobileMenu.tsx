@@ -19,7 +19,7 @@ export default function MobileMenu() {
 
     useEffect(() => {
         setIsClient(true);
-        const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+        const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
         fetch(`${API_URL}/categories`)
             .then(res => res.json())
             .then(data => {

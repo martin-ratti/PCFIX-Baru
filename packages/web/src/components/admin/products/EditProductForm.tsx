@@ -44,9 +44,9 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
     const loadData = async () => {
       try {
         const [catRes, brandRes, prodRes] = await Promise.all([
-          fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/categories`),
-          fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/brands`),
-          fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/products/${productId}`)
+          fetch('https://pcfix-baru-production.up.railway.app/api/categories'),
+          fetch('https://pcfix-baru-production.up.railway.app/api/brands'),
+          fetch(`https://pcfix-baru-production.up.railway.app/api/products/${productId}`)
         ]);
         const catData = await catRes.json();
         const brandData = await brandRes.json();
@@ -98,7 +98,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       if (data.marcaId) formData.append('marcaId', data.marcaId.toString());
       if (data.fotoFile && data.fotoFile.length > 0) formData.append('foto', data.fotoFile[0]);
 
-      const response = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/products/${productId}`, { method: 'PUT', body: formData });
+      const response = await fetch(`https://pcfix-baru-production.up.railway.app/api/products/${productId}`, { method: 'PUT', body: formData });
       const result = await response.json();
       if (!result.success) throw new Error(result.error);
 

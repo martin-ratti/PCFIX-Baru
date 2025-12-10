@@ -6,7 +6,7 @@ import { navigate } from 'astro:transitions/client';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 import ErrorBoundary from '../../ui/feedback/ErrorBoundary';
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
 
 function CartContent() {
     const { items, removeItem, increaseQuantity, decreaseQuantity, clearCart } = useCartStore();
@@ -40,7 +40,7 @@ function CartContent() {
         const loadConfig = async () => {
             try {
                 const res = await fetch(
-                    (import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api') + '/config'
+                    'https://pcfix-baru-production.up.railway.app/api' + '/config'
                 );
                 const data = await res.json();
                 if (data.success && data.data) {

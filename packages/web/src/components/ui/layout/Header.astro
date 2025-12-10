@@ -15,7 +15,7 @@ let categories = [];
 try {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 1000);
-  const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
+  const API_URL = "https://pcfix-baru-production.up.railway.app/api";
   const response = await fetch(`${API_URL}/categories`, {
     signal: controller.signal,
   });

@@ -14,7 +14,7 @@ export default function StoreNavigation() {
 
   useEffect(() => {
     setIsClient(true);
-    fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/categories`)
+    fetch('https://pcfix-baru-production.up.railway.app/api/categories')
       .then(res => res.json())
       .then(data => {
         if (data.success) setCategories(data.data);

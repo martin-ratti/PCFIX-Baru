@@ -18,7 +18,7 @@ export default function SupportInbox() {
         setIsLoading(true);
         setError(null);
 
-        fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/technical`, {
+        fetch('https://pcfix-baru-production.up.railway.app/api/technical', {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -57,7 +57,7 @@ export default function SupportInbox() {
     const handleReply = async (id: number) => {
         if (!replyText.trim()) return;
         try {
-            const res = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api'}/technical/${id}/reply`, {
+            const res = await fetch(`https://pcfix-baru-production.up.railway.app/api/technical/${id}/reply`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ respuesta: replyText })
