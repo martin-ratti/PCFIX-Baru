@@ -30,9 +30,7 @@ export const create = async (req: Request, res: Response) => {
 
     let logoUrl = undefined;
     if (req.file) {
-      const protocol = req.protocol;
-      const host = req.get('host');
-      logoUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+      logoUrl = req.file.path;
     }
 
     const newBrand = await brandService.create(nombre, logoUrl);

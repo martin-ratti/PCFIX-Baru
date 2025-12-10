@@ -18,9 +18,7 @@ export const create = async (req: Request, res: Response) => {
     const marcaId = Number(req.body.marcaId);
     if (isNaN(marcaId) || marcaId === 0) return res.status(400).json({ success: false, error: 'Selecciona una marca válida' });
 
-    const protocol = req.protocol;
-    const host = req.get('host');
-    const imagenUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+    const imagenUrl = req.file.path;
 
     const newBanner = await bannerService.create(marcaId, imagenUrl);
     res.status(201).json({ success: true, data: newBanner });
