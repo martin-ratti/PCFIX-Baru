@@ -134,11 +134,26 @@ app.get('/health', async (req: Request, res: Response) => {
 });
 
 // --- DEBUG SMTP (TEMPORARY) ---
+// --- DEBUG SMTP (TEMPORARY) ---
 import nodemailer from 'nodemailer';
+import dns from 'dns';
+import { promisify } from 'util';
+
+const lookup = promisify(dns.lookup);
+
 app.get('/api/debug/test-email', async (req: Request, res: Response) => {
+  let ip = 'unresolved';
   try {
+    try {
+      const result = await lookup(process.env.SMTP_HOST || 'smtp.gmail.com');
+      ip = result.address;
+    } catch (e: any) {
+      ip = `Error DNS: ${e.message}`;
+    }
+
     const config = {
       host: process.env.SMTP_HOST,
+      resolvedIp: ip,
       port: Number(process.env.SMTP_PORT),
       user: process.env.SMTP_USER,
       passLength: process.env.SMTP_PASS?.length || 0,
@@ -152,9 +167,11 @@ app.get('/api/debug/test-email', async (req: Request, res: Response) => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      connectionTimeout: 5000, // 5s timeout
-      greetingTimeout: 5000,
-      socketTimeout: 5000,
+      connectionTimeout: 20000, // 20s timeout
+      greetingTimeout: 20000,
+      socketTimeout: 20000,
+      logger: true,
+      debug: true
     });
 
     await transporter.verify();
@@ -179,6 +196,7 @@ app.get('/api/debug/test-email', async (req: Request, res: Response) => {
       stack: error.stack,
       config: {
         host: process.env.SMTP_HOST,
+        resolvedIp: ip,
         port: process.env.SMTP_PORT, // Raw value
         user: process.env.SMTP_USER,
         passLength: process.env.SMTP_PASS?.length || 0
