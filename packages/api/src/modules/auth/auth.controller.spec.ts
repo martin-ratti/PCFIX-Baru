@@ -81,8 +81,6 @@ describe('Auth Controller', () => {
         });
 
         it('should reject unauthorized if no user', async () => {
-            req.user = undefined; // Assuming express.d.ts or similar
-            // But controller casts (req as any).user
             (req as any).user = undefined;
 
             await changePassword(req as Request, res as Response);
