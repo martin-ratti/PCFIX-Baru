@@ -14,6 +14,7 @@ export default function BannerManager() {
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
   const addToast = useToastStore(s => s.addToast);
   const [bannerName, setBannerName] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Estado para eliminar
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -34,8 +35,18 @@ export default function BannerManager() {
 
   const bannerWatch = watch('imagenFile');
   useEffect(() => {
-    if (bannerWatch && bannerWatch.length > 0) setBannerName(bannerWatch[0].name);
-    else setBannerName(null);
+    if (bannerWatch && bannerWatch.length > 0) {
+      const file = bannerWatch[0];
+      setBannerName(file.name);
+      if (file.type?.startsWith('image/')) {
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+        return () => URL.revokeObjectURL(url);
+      }
+    } else {
+      setBannerName(null);
+      setPreviewUrl(null);
+    }
   }, [bannerWatch]);
 
   const onSubmit = async (data: any) => {
@@ -52,6 +63,7 @@ export default function BannerManager() {
         addToast('Banner creado', 'success');
         reset();
         setBannerName(null);
+        setPreviewUrl(null);
         fetchData();
       } else { throw new Error(json.error); }
     } catch (e: any) { addToast(e.message, 'error'); } finally { setIsLoading(false); }
@@ -85,14 +97,23 @@ export default function BannerManager() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Imagen (Horizontal)</label>
             <input type="file" id="banner-upload" accept="image/*" {...register('imagenFile', { required: "Imagen requerida" })} className="hidden" />
-            <label htmlFor="banner-upload" className="flex items-center justify-center w-full px-6 py-5 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-              </svg>
-              <div className="text-left">
-                <p className="font-bold truncate">{bannerName || "Subir imagen de banner"}</p>
-                <p className="text-xs font-normal opacity-70">Recomendado: 1200x400px</p>
-              </div>
+            <label htmlFor="banner-upload" className="flex items-center justify-center w-full h-32 px-6 py-5 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-3 overflow-hidden relative group">
+              {previewUrl ? (
+                <>
+                  <img src={previewUrl} alt="Preview" className="w-full h-full object-cover absolute inset-0 z-0 p-1" />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 text-white">Cambiar</div>
+                </>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                  </svg>
+                  <div className="text-left">
+                    <p className="font-bold truncate">{bannerName || "Subir imagen de banner"}</p>
+                    <p className="text-xs font-normal opacity-70">Recomendado: 1200x400px</p>
+                  </div>
+                </>
+              )}
             </label>
             {errors.imagenFile && <p className="text-red-500 text-xs mt-1">Requerido</p>}
           </div>

@@ -11,6 +11,7 @@ export default function BrandManager() {
   const { register, handleSubmit, reset, watch } = useForm();
   const addToast = useToastStore(s => s.addToast);
   const [logoName, setLogoName] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,8 +26,18 @@ export default function BrandManager() {
 
   const logoWatch = watch('logo');
   useEffect(() => {
-    if (logoWatch && logoWatch.length > 0) setLogoName(logoWatch[0].name);
-    else setLogoName(null);
+    if (logoWatch && logoWatch.length > 0) {
+      const file = logoWatch[0];
+      setLogoName(file.name);
+      if (file.type?.startsWith('image/')) {
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+        return () => URL.revokeObjectURL(url);
+      }
+    } else {
+      setLogoName(null);
+      setPreviewUrl(null);
+    }
   }, [logoWatch]);
 
 
@@ -43,6 +54,7 @@ export default function BrandManager() {
         addToast('Marca creada', 'success');
         reset();
         setLogoName(null);
+        setPreviewUrl(null);
         fetchBrands();
       } else { addToast(json.error, 'error'); }
     } catch (e) { addToast('Error al crear marca', 'error'); }
@@ -73,9 +85,18 @@ export default function BrandManager() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Logo (Opcional)</label>
             <input type="file" id="brand-logo-upload" {...register('logo')} className="hidden" accept="image/*" />
-            <label htmlFor="brand-logo-upload" className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 text-sm">
-              <span className="text-2xl">🖼️</span>
-              <span className="truncate">{logoName || "Seleccionar logo..."}</span>
+            <label htmlFor="brand-logo-upload" className="flex items-center justify-center w-full h-32 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 text-sm relative overflow-hidden group">
+              {previewUrl ? (
+                <>
+                  <img src={previewUrl} alt="Preview" className="h-full w-full object-contain absolute z-0 p-2" />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 text-white">Cambiar</div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <span className="text-2xl">🖼️</span>
+                  <span className="truncate max-w-[150px]">{logoName || "Seleccionar logo..."}</span>
+                </div>
+              )}
             </label>
           </div>
 

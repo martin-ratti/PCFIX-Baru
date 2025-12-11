@@ -31,6 +31,7 @@ export default function CreateProductForm() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const addToast = useToastStore(s => s.addToast);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('https://pcfix-baru-production.up.railway.app/api/categories').then(res => res.json()).then(data => data.success && setCategories(data.data));
@@ -51,8 +52,18 @@ export default function CreateProductForm() {
 
   const fileWatch = watch('fotoFile');
   useEffect(() => {
-    if (fileWatch && fileWatch.length > 0) setFileName(fileWatch[0].name);
-    else setFileName(null);
+    if (fileWatch && fileWatch.length > 0) {
+      const file = fileWatch[0];
+      setFileName(file.name);
+      if (file.type.startsWith('image/')) {
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+        return () => URL.revokeObjectURL(url);
+      }
+    } else {
+      setFileName(null);
+      setPreviewUrl(null);
+    }
   }, [fileWatch]);
 
   const onSubmit = async (data: ProductSchema) => {
@@ -81,6 +92,7 @@ export default function CreateProductForm() {
       addToast('Producto creado exitosamente', 'success');
       reset();
       setFileName(null);
+      setPreviewUrl(null);
 
       // Esperar un momento para que el usuario vea el toast
       setTimeout(() => {
@@ -174,11 +186,20 @@ export default function CreateProductForm() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Imagen del Producto</label>
             <div className="mt-1">
               <input type="file" id="product-image-upload" accept="image/*" {...register('fotoFile')} className="hidden" />
-              <label htmlFor="product-image-upload" className="flex items-center justify-center w-full px-6 py-8 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 flex-col">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                </svg>
-                <span className="truncate max-w-xs">{fileName || "Haz clic para subir imagen"}</span>
+              <label htmlFor="product-image-upload" className="flex items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 flex-col overflow-hidden relative group">
+                {previewUrl ? (
+                  <>
+                    <img src={previewUrl} alt="Preview" className="w-full h-full object-contain absolute inset-0 z-0 p-2" />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 text-white text-sm">Cambiar Imagen</div>
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                    </svg>
+                    <span className="truncate max-w-xs">{fileName || "Haz clic para subir imagen"}</span>
+                  </>
+                )}
               </label>
             </div>
           </div>
