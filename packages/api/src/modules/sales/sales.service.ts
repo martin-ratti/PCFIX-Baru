@@ -340,7 +340,46 @@ export class SalesService {
     }
 
     async updatePaymentMethod(saleId: number, medioPago: string) {
-        return await prisma.venta.update({ where: { id: saleId }, data: { medioPago } });
+        const sale = await prisma.venta.findUnique({
+            where: { id: saleId },
+            include: { lineasVenta: { include: { producto: true } } }
+        });
+
+        if (!sale) throw new Error('Venta no encontrada');
+
+        // Recalculate prices based on new payment method
+        let newSubtotal = 0;
+        const updateLinesPromises = sale.lineasVenta.map(line => {
+            let unitPrice = Number(line.producto.precio);
+
+            // Apply 8% discount if NOT MercadoPago
+            if (medioPago !== 'MERCADOPAGO') {
+                unitPrice = unitPrice * 0.92;
+            }
+
+            const newLineSubtotal = unitPrice * line.cantidad;
+            newSubtotal += newLineSubtotal;
+
+            return prisma.ventaDetalle.update({
+                where: { id: line.id },
+                data: { subTotal: newLineSubtotal }
+            });
+        });
+
+        // Update Sale Total (Subtotal + Shipping)
+        const newTotal = newSubtotal + Number(sale.costoEnvio || 0);
+
+        return await prisma.$transaction([
+            ...updateLinesPromises,
+            prisma.venta.update({
+                where: { id: saleId },
+                data: {
+                    medioPago,
+                    montoTotal: newTotal
+                },
+                include: { lineasVenta: { include: { producto: true } } }
+            })
+        ]).then(results => results[results.length - 1]); // Return the updated sale
     }
 
     async cancelOrder(saleId: number) {
