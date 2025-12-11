@@ -17,7 +17,8 @@ export class MercadoPagoService {
         // Items are already formatted by the controller
         const mpItems = items;
 
-        const backendUrl = process.env.API_URL || 'http://localhost:3002'; // Use generic API_URL
+        const backendUrl = process.env.API_URL ||
+            (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : 'http://localhost:3002');
         const successUrl = `${backendUrl}/api/sales/mp-callback?external_reference=${saleId}`;
 
         // MP requires HTTPS for notification_url. If localhost, we skip it (webhook won't work locally without tunnel)
@@ -34,8 +35,7 @@ export class MercadoPagoService {
                     failure: successUrl,
                     pending: successUrl
                 },
-                // Use auto_return only in production to ensure callback reliability
-                // auto_return: 'approved', 
+                // auto_return: 'approved',
             };
 
             if (notificationUrl) {

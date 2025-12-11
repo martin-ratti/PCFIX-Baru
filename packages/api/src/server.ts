@@ -149,6 +149,8 @@ app.use(globalErrorHandler);
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`📡 API_URL: ${process.env.API_URL || 'NOT SET'}`);
+  console.log(`🚂 RAILWAY_DOMAIN: ${process.env.RAILWAY_PUBLIC_DOMAIN || 'NOT SET'}`);
   console.log(`🔒 CORS Whitelist: ${JSON.stringify(whitelist)} (o FRONTEND_URL='${FRONTEND_URL}')`);
 
   try {
