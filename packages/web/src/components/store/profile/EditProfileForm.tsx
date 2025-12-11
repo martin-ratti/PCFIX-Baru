@@ -253,6 +253,86 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
             </div>
           </div>
 
+
+          {/* Change Password Section */}
+          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-2">
+              <span className="w-6 h-6 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xs">🔑</span>
+              Cambiar Contraseña
+            </h3>
+
+            {isGoogleAccount ? (
+              <p className="text-sm text-gray-500 py-2">
+                Tu cuenta está vinculada con Google. Debes gestionar tu contraseña desde tu cuenta de Google.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-600 ml-1">Contraseña Actual</label>
+                    <input
+                      type="password"
+                      id="currentPassword"
+                      className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-400/20 focus:border-yellow-400 outline-none transition-all text-sm"
+                      placeholder="********"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-600 ml-1">Nueva Contraseña</label>
+                    <input
+                      type="password"
+                      id="newPassword"
+                      className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-400/20 focus:border-yellow-400 outline-none transition-all text-sm"
+                      placeholder="Mínimo 6 caracteres"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-2">
+                  <a href="/auth/forgot-password" className="text-xs text-blue-500 hover:text-blue-700 font-medium hover:underline">
+                    ¿Olvidaste tu contraseña?
+                  </a>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const current = (document.getElementById('currentPassword') as HTMLInputElement).value;
+                      const newPass = (document.getElementById('newPassword') as HTMLInputElement).value;
+
+                      if (!current || !newPass) {
+                        addToast('Completa ambos campos', 'error');
+                        return;
+                      }
+                      if (newPass.length < 6) {
+                        addToast('La nueva contraseña debe tener 6 caracteres', 'error');
+                        return;
+                      }
+
+                      try {
+                        const res = await fetchApi('/auth/change-password', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ currentPassword: current, newPassword: newPass })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          addToast('Contraseña cambiada exitosamente', 'success');
+                          (document.getElementById('currentPassword') as HTMLInputElement).value = '';
+                          (document.getElementById('newPassword') as HTMLInputElement).value = '';
+                        } else {
+                          throw new Error(data.error);
+                        }
+                      } catch (e: any) {
+                        addToast(e.message, 'error');
+                      }
+                    }}
+                    className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold rounded-lg transition-all active:scale-95 shadow-lg shadow-yellow-500/20"
+                  >
+                    Actualizar Contraseña
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="pt-4 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
             <button
               type="button"
@@ -277,8 +357,8 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
               )}
             </button>
           </div>
-        </form>
-      </div>
+        </form >
+      </div >
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}
@@ -290,6 +370,6 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
         cancelText="Cancelar"
         isDanger={true}
       />
-    </div>
+    </div >
   );
 }

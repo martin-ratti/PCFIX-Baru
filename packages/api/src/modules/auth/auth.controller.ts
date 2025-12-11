@@ -81,6 +81,25 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Debes ingresar tu contraseña actual"),
+  newPassword: z.string().min(6, "La nueva contraseña debe tener al menos 6 caracteres"),
+});
+
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+    const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+    const result = await authService.changePassword(userId, currentPassword, newPassword);
+
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message || error });
+  }
+};
+
 export const deleteProfile = async (req: Request, res: Response) => {
   try {
     // Assuming authentication middleware attaches user to req.user or similar

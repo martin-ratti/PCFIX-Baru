@@ -150,6 +150,22 @@ export class AuthService {
     return { message: 'Contraseña actualizada' };
   }
 
+  async changePassword(userId: number, currentPass: string, newPass: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.password) throw new Error('Usuario no encontrado');
+
+    const isValid = await bcrypt.compare(currentPass, user.password);
+    if (!isValid) throw new Error('La contraseña actual es incorrecta');
+
+    const hashedPassword = await bcrypt.hash(newPass, 10);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword }
+    });
+
+    return { message: 'Contraseña cambiada exitosamente' };
+  }
+
   async deleteAccount(userId: number) {
     // 1. Check for active orders
     const activeOrdersCount = await prisma.venta.count({
