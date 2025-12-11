@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuthStore } from '../../../stores/authStore';
 import { useServiceStore, type ServiceItem } from '../../../stores/serviceStore';
 import { useToastStore } from '../../../stores/toastStore';
@@ -9,13 +10,19 @@ interface Props {
 }
 
 export default function ServicePriceModal({ children }: Props) {
-  const { user, token } = useAuthStore(); // Get token here
+  const { user, token } = useAuthStore();
   const { items, fetchItems } = useServiceStore();
   const addToast = useToastStore(s => s.addToast);
 
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editValues, setEditValues] = useState<ServiceItem[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -40,7 +47,6 @@ export default function ServicePriceModal({ children }: Props) {
       const promises = editValues.map(async (item) => {
         const original = items.find((i) => i.id === item.id);
         if (original && original.price !== item.price) {
-          // 👇 FIX: Add Authorization header
           const res = await fetchApi(`/technical/prices/${item.id}`, {
             method: 'PUT',
             headers: {
@@ -81,8 +87,8 @@ export default function ServicePriceModal({ children }: Props) {
         )}
       </div>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in cursor-default">
+      {mounted && isOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in cursor-default">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[85vh] animate-modal-enter" onClick={e => e.stopPropagation()}>
             <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/80 backdrop-blur-sm sticky top-0 z-10">
               <div className="flex items-center gap-3">
@@ -122,7 +128,8 @@ export default function ServicePriceModal({ children }: Props) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
