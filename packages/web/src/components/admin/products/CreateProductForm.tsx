@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToastStore } from '../../../stores/toastStore';
+import CategorySelect from '../../ui/forms/CategorySelect';
 
 // 1. ACTUALIZACIÓN DEL SCHEMA (Validación)
 const productSchema = z.object({
@@ -36,7 +37,7 @@ export default function CreateProductForm() {
     fetch('https://pcfix-baru-production.up.railway.app/api/brands').then(res => res.json()).then(data => data.success && setBrands(data.data));
   }, []);
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<ProductSchema>({
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<ProductSchema>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       stock: 1,
@@ -151,17 +152,14 @@ export default function CreateProductForm() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="categoriaId" className="block text-sm font-medium text-gray-700">Categoría</label>
-              <select id="categoriaId" data-testid="select-category" {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
-                <option value="">Seleccionar...</option>
-                {categories.map(cat => [
-                  <option key={cat.id} value={cat.id} className="font-bold">{cat.nombre}</option>,
-                  ...(cat.subcategorias || []).map(sub => (
-                    <option key={sub.id} value={sub.id}>
-                      {'\u00A0\u00A0\u00A0↳ ' + sub.nombre}
-                    </option>
-                  ))
-                ])}
-              </select>
+              <CategorySelect
+                categories={categories}
+                value={watch('categoriaId') || 0}
+                onChange={(val) => {
+                  setValue('categoriaId', val, { shouldValidate: true });
+                }}
+                error={errors.categoriaId?.message}
+              />
             </div>
             <div>
               <label htmlFor="marcaId" className="block text-sm font-medium text-gray-700">Marca</label>

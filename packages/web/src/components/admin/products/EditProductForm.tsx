@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { navigate } from 'astro:transitions/client';
 import { useToastStore } from '../../../stores/toastStore';
+import CategorySelect from '../../ui/forms/CategorySelect';
 
 const editProductSchema = z.object({
   nombre: z.string().min(3),
@@ -158,16 +159,14 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="categoriaId" className="block text-sm font-medium text-gray-700">Categoría</label>
-              <select id="categoriaId" data-testid="select-category" {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
-                {categories.map(cat => [
-                  <option key={cat.id} value={cat.id} className="font-bold">{cat.nombre}</option>,
-                  ...(cat.subcategorias || []).map(sub => (
-                    <option key={sub.id} value={sub.id}>
-                      {'\u00A0\u00A0\u00A0↳ ' + sub.nombre}
-                    </option>
-                  ))
-                ])}
-              </select>
+              <CategorySelect
+                categories={categories}
+                value={watch('categoriaId') || 0}
+                onChange={(val) => {
+                  setValue('categoriaId', val, { shouldValidate: true });
+                }}
+                error={errors.categoriaId?.message}
+              />
             </div>
             <div><label htmlFor="marcaId" className="block text-sm font-medium text-gray-700">Marca</label><select id="marcaId" data-testid="select-brand" {...register('marcaId')} className="w-full mt-1 p-2 border rounded-md bg-white"><option value="">Sin Marca</option>{brands.map(b => <option key={b.id} value={b.id}>{b.nombre}</option>)}</select></div>
           </div>
