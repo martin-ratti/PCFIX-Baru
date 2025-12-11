@@ -18,28 +18,36 @@ export class MercadoPagoService {
         const mpItems = items;
 
         const backendUrl = process.env.API_URL || 'http://localhost:3002'; // Use generic API_URL
-        const successUrl = `${backendUrl}/api/sales/mp-callback`;
+        const successUrl = `${backendUrl}/api/sales/mp-callback?external_reference=${saleId}`;
+
+        // MP requires HTTPS for notification_url. If localhost, we skip it (webhook won't work locally without tunnel)
+        const isProduction = backendUrl.includes('https') && !backendUrl.includes('localhost');
+        const notificationUrl = isProduction ? `${backendUrl}/api/sales/webhook` : undefined;
 
         try {
-            const body = {
+            const body: any = {
                 items: mpItems,
                 // payer: { email: payerEmail }, // Commented out to avoid Sandbox mismatch (Real Email vs Test User)
                 external_reference: String(saleId),
                 back_urls: {
                     success: successUrl,
-                    failure: successUrl, // Handle all in callback for simplicity or redirect same
+                    failure: successUrl,
                     pending: successUrl
                 },
-                auto_return: 'approved',
-                notification_url: `${backendUrl}/api/sales/webhook`
+                // Use auto_return only in production to ensure callback reliability
+                // auto_return: 'approved', 
             };
 
+            if (notificationUrl) {
+                body.notification_url = notificationUrl;
+            }
 
             const result = await this.preference.create({ body });
 
             return result.init_point; // URL to redirect user
         } catch (error) {
             console.error('Error creating MP preference:', error);
+            console.error('MP Error Details:', JSON.stringify(error, null, 2));
             throw new Error('Could not create Mercado Pago preference');
         }
     }
