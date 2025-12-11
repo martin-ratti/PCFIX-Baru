@@ -6,8 +6,9 @@ import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
 import GoogleLoginButton from './GoogleLoginButton';
 import ForgotPasswordModal from './ForgotPasswordModal';
+import { API_URL } from '../../../utils/api';
 
-const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
+// const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
 
 const loginSchema = z.object({
   email: z.string().email('Correo inválido'),

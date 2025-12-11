@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import PasswordStrengthMeter from '../../ui/feedback/PasswordStrengthMeter';
+import { API_URL } from '../../../utils/api';
 
-
-const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
+// const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
 
 const registerSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -28,11 +29,14 @@ export default function RegisterForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, touchedFields, dirtyFields },
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     mode: 'onChange', // Real-time validation
   });
+
+  const passwordValue = watch('password');
 
   // Helper to determine field status
   const getFieldStatus = (fieldName: keyof RegisterSchema) => {
@@ -204,6 +208,7 @@ export default function RegisterForm() {
             )}
           </div>
           {errors.password && <p className="text-red-500 text-xs mt-1 font-medium">{errors.password.message}</p>}
+          <PasswordStrengthMeter password={passwordValue || ''} />
         </div>
 
         <div>
