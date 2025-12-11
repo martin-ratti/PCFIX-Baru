@@ -1,86 +1,123 @@
-// @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import EditProfileForm from '../EditProfileForm';
-import { fetchApi } from '../../../../utils/api';
-// Mock hooks
 import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
+import * as apiUtils from '../../../../utils/api';
 
 // Mocks
-vi.mock('../../../../utils/api', () => ({
-    fetchApi: vi.fn(),
-}));
-
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn(),
 }));
 
 vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn(),
+    // Keep internal implementations if needed, but simple mock is safer
+}));
+
+vi.mock('../../../../utils/api', () => ({
+    fetchApi: vi.fn(),
+    API_URL: 'http://localhost:3000/api',
+}));
+
+// Mock ConfirmModal
+vi.mock('../../../ui/feedback/ConfirmModal', () => ({
+    default: ({ isOpen, title, message, onConfirm }: any) => isOpen ? (
+        <div data-testid="confirm-modal">
+            <h1>{title}</h1>
+            <p>{message}</p>
+            <button onClick={onConfirm}>Sí, Eliminar</button>
+        </div>
+    ) : null
+}));
+
+// Mock ChangePasswordModal
+vi.mock('../ChangePasswordModal', () => ({
+    default: ({ isOpen }: any) => isOpen ? <div data-testid="change-password-modal">Mock Change Password Modal</div> : null
 }));
 
 describe('EditProfileForm', () => {
+    const mockAuthStore = {
+        user: { id: 1, nombre: 'Test', apellido: 'User', email: 'test@example.com' },
+        token: 'token123',
+        login: vi.fn(),
+        logout: vi.fn(),
+    };
     const mockAddToast = vi.fn();
-    const mockLogout = vi.fn();
-    const mockLogin = vi.fn();
 
     beforeEach(() => {
         vi.clearAllMocks();
-        (useAuthStore as any).mockReturnValue({
-            user: { id: 1, nombre: 'Test', apellido: 'User', email: 'test@example.com' },
-            token: 'fake-token',
-            logout: mockLogout,
-            login: mockLogin
+        (useAuthStore as any).mockReturnValue(mockAuthStore);
+        // Correctly mock the store selector pattern
+        (useToastStore as any).mockImplementation((selector: any) => {
+            if (selector) return selector({ addToast: mockAddToast });
+            return { addToast: mockAddToast };
         });
-        (useToastStore as any).mockReturnValue((msg: string) => mockAddToast(msg));
 
-        // Mock GET profile
-        (fetchApi as any).mockResolvedValue({
+        // Default GET profile success
+        (apiUtils.fetchApi as any).mockResolvedValue({
             json: async () => ({
                 success: true,
-                data: { id: 1, nombre: 'Test', apellido: 'User', email: 'test@example.com' }
+                data: {
+                    id: 1,
+                    nombre: 'Test',
+                    apellido: 'User',
+                    email: 'test@example.com',
+                    role: 'USER',
+                    createdAt: new Date().toISOString(),
+                    googleId: null
+                }
             })
         });
     });
 
-    it('should render delete account button', async () => {
+    it('renders profile data correctly', async () => {
         render(<EditProfileForm userId="1" />);
+        await waitFor(() => expect(screen.queryByText('Cargando tu perfil...')).not.toBeInTheDocument());
+        expect(screen.getByDisplayValue('Test')).toBeInTheDocument();
+        expect(screen.getByDisplayValue('User')).toBeInTheDocument();
+    });
 
-        // Wait for profile load
-        // Use regex to match text with emoji or partial text
-        expect(await screen.findByText(/Eliminar cuenta/i)).toBeDefined();
+    it('opens change password modal when button clicked', async () => {
+        render(<EditProfileForm userId="1" />);
+        await waitFor(() => expect(screen.queryByText('Cargando tu perfil...')).not.toBeInTheDocument());
+
+        const changePassBtn = screen.getByText('Cambiar Contraseña');
+        fireEvent.click(changePassBtn);
+
+        expect(screen.getByTestId('change-password-modal')).toBeInTheDocument();
     });
 
     it('should open confirm modal when delete button is clicked', async () => {
         render(<EditProfileForm userId="1" />);
+        await waitFor(() => expect(screen.queryByText('Cargando tu perfil...')).not.toBeInTheDocument());
 
-        const deleteBtn = await screen.findByText(/Eliminar cuenta/i);
+        const deleteBtn = screen.getByText(/Eliminar cuenta/i);
         fireEvent.click(deleteBtn);
 
-        expect(await screen.findByText('¿Eliminar Cuenta?')).toBeDefined();
-        expect(screen.getByText(/Esta acción es irreversible/i)).toBeDefined();
+        expect(screen.getByTestId('confirm-modal')).toBeInTheDocument();
+        expect(screen.getByText(/Esta acción es irreversible/i)).toBeInTheDocument();
     });
 
     it('should call delete api when confirmed', async () => {
         render(<EditProfileForm userId="1" />);
-        const deleteBtn = await screen.findByText(/Eliminar cuenta/i);
+        await waitFor(() => expect(screen.queryByText('Cargando tu perfil...')).not.toBeInTheDocument());
 
-        // Open modal
+        const deleteBtn = screen.getByText(/Eliminar cuenta/i);
         fireEvent.click(deleteBtn);
 
         // Mock DELETE response
-        (fetchApi as any).mockResolvedValueOnce({
+        (apiUtils.fetchApi as any).mockResolvedValueOnce({
             json: async () => ({ success: true })
         });
 
-        // Click confirm in modal
-        const confirmBtn = await screen.findByText(/Sí, Eliminar/i);
+        const confirmBtn = screen.getByText(/Sí, Eliminar/i);
         fireEvent.click(confirmBtn);
 
         await waitFor(() => {
-            expect(fetchApi).toHaveBeenCalledWith('/auth/profile', { method: 'DELETE' });
-            expect(mockLogout).toHaveBeenCalled();
+            expect(apiUtils.fetchApi).toHaveBeenCalledWith('/auth/profile', expect.objectContaining({ method: 'DELETE' }));
+            expect(mockAuthStore.logout).toHaveBeenCalled();
         });
     });
 });
