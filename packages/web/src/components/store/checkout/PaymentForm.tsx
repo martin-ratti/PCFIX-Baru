@@ -106,6 +106,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             const data = await res.json();
             if (data.success && data.data.url) {
                 window.open(data.data.url, '_blank');
+                setIsLoading(false); // Stop loading so user can see instructions/status
             } else {
                 addToast('Error al generar pago con MP', 'error');
                 setIsLoading(false);

@@ -37,6 +37,8 @@ import { globalErrorHandler } from './shared/middlewares/errorMiddleware';
 import { CronService } from './shared/services/cron.service';
 
 const app = express();
+// Trust proxy is required for Vercel/Railway/Heroku
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3002;
 
 // --- SEGURIDAD Y CONFIGURACIÓN (CORS CORREGIDO) ---
