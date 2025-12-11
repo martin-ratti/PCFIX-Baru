@@ -9,6 +9,8 @@ export default function GoogleLoginButton() {
 
   // Leer variables de entorno (Astro)
   const CLIENT_ID = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID;
+
+  // FIX: Usamos la URL directa de producción para asegurar la conexión
   const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
 
   if (!CLIENT_ID) {
@@ -56,7 +58,8 @@ export default function GoogleLoginButton() {
           onError={() => addToast('Falló la conexión con Google', 'error')}
           theme="outline"
           size="large"
-          width="100%" // Se adapta al contenedor
+          // FIX: Google requiere píxeles en string, NO porcentajes. "350" es un buen ancho.
+          width="350"
           text="continue_with"
           shape="pill"
           useOneTap={false} // Opcional: desactiva el popup automático si molesta
