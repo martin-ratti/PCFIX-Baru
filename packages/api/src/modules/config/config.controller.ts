@@ -98,11 +98,13 @@ export const sendContactEmail = async (req: Request, res: Response) => {
         const emailService = new EmailService();
         const userName = `${nombre} ${apellido || ''}`.trim();
 
-        // 1. Notificar al Admin
-        await emailService.sendNewInquiryNotification(email, userName, "Consulta Web", mensaje);
+        // 1. Notificar al Admin (Non-blocking)
+        emailService.sendNewInquiryNotification(email, userName, "Consulta Web", mensaje)
+            .catch(e => console.error("Fallo notifiación admin:", e));
 
-        // 2. Confirmar al Usuario
-        await emailService.sendContactConfirmationEmail(email, userName);
+        // 2. Confirmar al Usuario (Non-blocking)
+        emailService.sendContactConfirmationEmail(email, userName)
+            .catch(e => console.error("Fallo confirmación contacto:", e));
 
         res.json({ success: true, message: "Consulta enviada correctamente" });
     } catch (e: any) {
