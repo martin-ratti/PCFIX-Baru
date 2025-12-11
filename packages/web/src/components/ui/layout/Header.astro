@@ -110,7 +110,9 @@ try {
 
     async function checkMaintenanceStatus() {
       try {
-        const res = await fetch("http://localhost:3002/api/config");
+        const res = await fetch(
+          "https://pcfix-baru-production.up.railway.app/api/config",
+        );
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.data?.maintenanceMode) {
