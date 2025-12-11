@@ -133,6 +133,57 @@ app.get('/health', async (req: Request, res: Response) => {
   }
 });
 
+// --- DEBUG SMTP (TEMPORARY) ---
+import nodemailer from 'nodemailer';
+app.get('/api/debug/test-email', async (req: Request, res: Response) => {
+  try {
+    const config = {
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      user: process.env.SMTP_USER,
+      passLength: process.env.SMTP_PASS?.length || 0,
+    };
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: Number(process.env.SMTP_PORT) === 465,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    await transporter.verify();
+
+    await transporter.sendMail({
+      from: process.env.SMTP_USER,
+      to: process.env.SMTP_USER,
+      subject: "Diagnóstico SMTP Producción",
+      text: "Si ves esto, el email funciona desde producción.",
+    });
+
+    res.json({
+      success: true,
+      message: 'Email enviado correctamente',
+      config
+    });
+
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack,
+      config: {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT, // Raw value
+        user: process.env.SMTP_USER,
+        passLength: process.env.SMTP_PASS?.length || 0
+      }
+    });
+  }
+});
+
 // --- MANEJO DE ERRORES GLOBAL (Siempre al final) ---
 
 // 1. Manejo de rutas inexistentes (404)

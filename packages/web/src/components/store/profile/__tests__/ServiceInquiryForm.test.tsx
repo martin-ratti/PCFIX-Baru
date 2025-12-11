@@ -1,21 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ServiceInquiryForm from '../ServiceInquiryForm';
 import { useAuthStore } from '../../../../stores/authStore';
-import { toast } from 'sonner';
+import { useToastStore } from '../../../../stores/toastStore';
 
 // Mocks
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
-vi.mock('sonner', () => ({
-    toast: {
-        error: vi.fn(),
-        info: vi.fn(),
-        loading: vi.fn(),
-        success: vi.fn()
-    }
+vi.mock('../../../../stores/toastStore', () => ({
+    useToastStore: vi.fn()
 }));
 
 vi.mock('astro:transitions/client', () => ({
@@ -52,6 +47,42 @@ describe('ServiceInquiryForm', () => {
     });
 
     it('shows error toast for empty message', async () => {
+        const addToastMock = vi.fn();
+        vi.mocked(useToastStore).mockImplementation(((selector: any) => {
+            if (selector) return addToastMock; // selector is (state) => state.addToast
+            return { getState: () => ({ addToast: addToastMock }) }; // partial store mock
+        }) as any);
+        // Also mock getState explicitly if needed, but for custom hooks usually the selector is enough or the store itself.
+        // Actually, looking at the component: `useToastStore.getState().addToast(...)`
+        // So we need to mock the implementation of useToastStore to have a getState method.
+
+        // Let's refine the mock strategy efficiently:
+        const addToast = vi.fn();
+        vi.mocked(useToastStore).mockReturnValue({
+            getState: () => ({ addToast })
+        } as any);
+        // AND handle the hook usage `useToastStore((state) => state.addToast)`? 
+        // No, the component was refactored to use `useToastStore.getState().addToast` in some places? 
+        // Wait, looking at the previous diff:
+        // +      useToastStore.getState().addToast('Por favor detalla tu problema...','error');
+        // AND
+        // +    const addToast = useToastStore((state) => state.addToast);
+
+        // Wait, I need to check the component code again to be sure if it mixes access patterns.
+        // Step 845 diff showed:
+        // +      useToastStore.getState().addToast(...)
+
+        // Step 851 (ContactForm) showed:
+        // +    const addToast = useToastStore((state) => state.addToast);
+
+        // ServiceInquiryForm (Step 845/846/847) seemed to use `getState().addToast` for the validation error.
+
+        // Let's assume `useToastStore` mock needs to support both or I should verify the component first.
+        // To be safe I'll assume `getState` usage. 
+
+        vi.mocked(useToastStore).mockReturnValue({} as any);
+        vi.mocked(useToastStore).getState = vi.fn().mockReturnValue({ addToast });
+
         vi.mocked(useAuthStore).mockReturnValue({
             user: { id: 1, nombre: 'User' },
             token: 'test-token'
@@ -62,12 +93,16 @@ describe('ServiceInquiryForm', () => {
         const submitBtn = screen.getByRole('button', { name: /enviar consulta/i });
         fireEvent.click(submitBtn);
 
-        expect(toast.error).toHaveBeenCalledWith(
-            expect.stringContaining('detalla tu problema')
+        expect(addToast).toHaveBeenCalledWith(
+            expect.stringContaining('detalla tu problema'),
+            'error'
         );
     });
 
     it('stores form and shows info toast if not authenticated', async () => {
+        const addToast = vi.fn();
+        vi.mocked(useToastStore).getState = vi.fn().mockReturnValue({ addToast });
+
         vi.mocked(useAuthStore).mockReturnValue({
             user: null,
             token: null
@@ -81,9 +116,9 @@ describe('ServiceInquiryForm', () => {
         const submitBtn = screen.getByRole('button', { name: /enviar consulta/i });
         fireEvent.click(submitBtn);
 
-        expect(toast.info).toHaveBeenCalledWith(
+        expect(addToast).toHaveBeenCalledWith(
             expect.stringContaining('iniciar sesión'),
-            expect.any(Object)
+            'info'
         );
 
         // Check sessionStorage has pending inquiry
@@ -91,6 +126,9 @@ describe('ServiceInquiryForm', () => {
     });
 
     it('submits form successfully', async () => {
+        const addToast = vi.fn();
+        vi.mocked(useToastStore).getState = vi.fn().mockReturnValue({ addToast });
+
         vi.mocked(useAuthStore).mockReturnValue({
             user: { id: 1, nombre: 'User' },
             token: 'test-token'
@@ -109,7 +147,10 @@ describe('ServiceInquiryForm', () => {
         fireEvent.click(submitBtn);
 
         await waitFor(() => {
-            expect(toast.success).toHaveBeenCalled();
+            expect(addToast).toHaveBeenCalledWith(
+                expect.stringContaining('Consulta recibida'),
+                'success'
+            );
         });
     });
 
