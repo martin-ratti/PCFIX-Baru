@@ -10,13 +10,13 @@ interface GuestGuardProps {
 export default function GuestGuard({ children }: GuestGuardProps) {
   const { isAuthenticated, user } = useAuthStore();
   const addToast = useToastStore(s => s.addToast);
-  
+
   // Optimización: Inicializamos estado basándonos en si existe el token en storage
   // Esto reduce el parpadeo de carga si el usuario no está logueado.
   const [isLoading, setIsLoading] = useState(() => {
     if (typeof window !== 'undefined') {
-        // Si NO hay datos en storage, no estamos logueados, mostrar form directo (false)
-        return !!localStorage.getItem('auth-storage');
+      // Si NO hay datos en storage, no estamos logueados, mostrar form directo (false)
+      return !!localStorage.getItem('auth-storage');
     }
     return true;
   });
@@ -24,17 +24,17 @@ export default function GuestGuard({ children }: GuestGuardProps) {
   useEffect(() => {
     // Si Zustand ya confirmó que estamos autenticados
     if (isAuthenticated && user) {
-      
-      // 1. Mensaje Informativo
-      addToast(`Ya has iniciado sesión como ${user.nombre}`, 'info');
+
+      // 1. Mensaje Informativo REMOVIDO para evitar doble toast al loguearse
+      // addToast(`Ya has iniciado sesión como ${user.nombre}`, 'info');
 
       // 2. Redirección (usamos replace para no ensuciar historial)
       const target = user.role === 'ADMIN' ? '/admin' : '/';
-      
+
       // Pequeño delay para que se vea el toast antes de cambiar
       setTimeout(() => {
-         // Usamos replace en lugar de navigate para que "Atrás" no vuelva al login
-         window.location.replace(target); 
+        // Usamos replace en lugar de navigate para que "Atrás" no vuelva al login
+        window.location.replace(target);
       }, 500);
 
     } else {
