@@ -72,7 +72,12 @@ const corsOptions: cors.CorsOptions = {
     }
 
     // CASO 2: Si no hay origen (postman/server-to-server) o está en la lista blanca
-    if (!origin || whitelist.indexOf(origin) !== -1) {
+    // O si es un dominio de Vercel (para Previews / Deployments)
+    if (
+      !origin ||
+      whitelist.indexOf(origin) !== -1 ||
+      origin.endsWith('.vercel.app')
+    ) {
       callback(null, true);
     } else {
       console.error(`🚫 Bloqueado por CORS: ${origin}`);
