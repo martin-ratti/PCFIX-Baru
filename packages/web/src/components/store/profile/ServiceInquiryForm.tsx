@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
-import { toast } from 'sonner';
+import { useToastStore } from '../../../stores/toastStore';
 
 import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
@@ -17,19 +17,19 @@ export default function ServiceInquiryForm() {
     e.preventDefault();
 
     if (!formData.mensaje.trim()) {
-      toast.error('Por favor detalla tu problema para poder ayudarte.');
+      useToastStore.getState().addToast('Por favor detalla tu problema para poder ayudarte.', 'error');
       return;
     }
 
     if (!user || !token) {
       sessionStorage.setItem('pendingInquiry', JSON.stringify(formData));
-      toast.info('Necesitas iniciar sesión para enviar consultas. Redirigiendo...', { duration: 2000 });
+      useToastStore.getState().addToast('Necesitas iniciar sesión para enviar consultas. Redirigiendo...', 'info');
       setTimeout(() => { window.location.href = '/auth/login'; }, 1500);
       return;
     }
 
     setLoading(true);
-    const toastId = toast.loading('Enviando consulta al taller...');
+    // Removed toast.loading as store doesn't support it, relied on button loading state
 
     try {
       // 👇 fetchApi
@@ -45,14 +45,14 @@ export default function ServiceInquiryForm() {
       const data = await res.json();
 
       if (data.success) {
-        toast.success('¡Consulta recibida! Te responderemos pronto.', { id: toastId });
+        useToastStore.getState().addToast('¡Consulta recibida! Te responderemos pronto.', 'success');
         setFormData({ ...formData, mensaje: '' });
       } else {
         throw new Error(data.error || 'Error al enviar');
       }
 
     } catch (error: any) {
-      toast.error(error.message || 'Error de conexión', { id: toastId });
+      useToastStore.getState().addToast(error.message || 'Error de conexión', 'error');
     } finally {
       setLoading(false);
     }
