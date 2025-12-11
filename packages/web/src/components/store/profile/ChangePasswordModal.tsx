@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToastStore } from '../../../stores/toastStore';
@@ -23,6 +23,16 @@ const changePasswordSchema = z.object({
 
 type FormData = z.infer<typeof changePasswordSchema>;
 
+function StrengthMeterController({ control }: { control: Control<FormData> }) {
+    const password = useWatch({
+        control,
+        name: 'newPassword',
+        defaultValue: ''
+    });
+
+    return <PasswordStrengthMeter password={password} />;
+}
+
 export default function ChangePasswordModal({ isOpen, onClose }: Props) {
     const [isLoading, setIsLoading] = useState(false);
     const [showForgotModal, setShowForgotModal] = useState(false);
@@ -30,11 +40,9 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
 
     const addToast = useToastStore(s => s.addToast);
 
-    const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<FormData>({
+    const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(changePasswordSchema)
     });
-
-    const newPasswordValue = watch('newPassword');
 
     if (!isOpen) return null;
 
@@ -67,10 +75,6 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
     };
 
     const handleForgotClick = () => {
-        // Technically we might want to keep this one open or close it? 
-        // User flow: Forgot password -> open forgot modal -> maybe keep this one open or close it.
-        // Let's close this one potentially or overlay.
-        // For simplicity: Open forgot modal on top.
         setShowForgotModal(true);
     };
 
@@ -117,7 +121,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
                                 placeholder="Mínimo 6 caracteres"
                             />
                             {errors.newPassword && <p className="text-red-500 text-xs mt-1 ml-1">{errors.newPassword.message}</p>}
-                            <PasswordStrengthMeter password={newPasswordValue || ''} />
+                            <StrengthMeterController control={control} />
                         </div>
 
                         {/* Confirm New Password */}
@@ -174,3 +178,4 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
         </>
     );
 }
+
