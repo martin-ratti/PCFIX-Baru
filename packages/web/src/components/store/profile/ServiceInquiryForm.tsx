@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { toast } from 'sonner';
-import { navigate } from 'astro:transitions/client';
+
 import { fetchApi } from '../../../utils/api'; // 👇 API Utility
 
 export default function ServiceInquiryForm() {
@@ -24,7 +24,7 @@ export default function ServiceInquiryForm() {
     if (!user || !token) {
       sessionStorage.setItem('pendingInquiry', JSON.stringify(formData));
       toast.info('Necesitas iniciar sesión para enviar consultas. Redirigiendo...', { duration: 2000 });
-      setTimeout(() => { navigate('/auth/login'); }, 1500);
+      setTimeout(() => { window.location.href = '/auth/login'; }, 1500);
       return;
     }
 
