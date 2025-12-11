@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { navigate } from 'astro:transitions/client';
+
 
 const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
 
@@ -80,8 +80,8 @@ export default function RegisterForm() {
 
       setSuccess('¡Cuenta creada con éxito! Redirigiendo al login...');
 
-      setTimeout(async () => {
-        await navigate('/auth/login');
+      setTimeout(() => {
+        window.location.href = '/auth/login';
       }, 2000);
 
     } catch (err: any) {
