@@ -159,16 +159,14 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
             <div>
               <label htmlFor="categoriaId" className="block text-sm font-medium text-gray-700">Categoría</label>
               <select id="categoriaId" data-testid="select-category" {...register('categoriaId')} className="w-full mt-1 p-2 border rounded-md bg-white">
-                {categories.map(cat => (
-                  <React.Fragment key={cat.id}>
-                    <option value={cat.id} className="font-bold">{cat.nombre}</option>
-                    {cat.subcategorias?.map(sub => (
-                      <option key={sub.id} value={sub.id}>
-                        &nbsp;&nbsp;&nbsp;↳ {sub.nombre}
-                      </option>
-                    ))}
-                  </React.Fragment>
-                ))}
+                {categories.map(cat => [
+                  <option key={cat.id} value={cat.id} className="font-bold">{cat.nombre}</option>,
+                  ...(cat.subcategorias || []).map(sub => (
+                    <option key={sub.id} value={sub.id}>
+                      {'\u00A0\u00A0\u00A0↳ ' + sub.nombre}
+                    </option>
+                  ))
+                ])}
               </select>
             </div>
             <div><label htmlFor="marcaId" className="block text-sm font-medium text-gray-700">Marca</label><select id="marcaId" data-testid="select-brand" {...register('marcaId')} className="w-full mt-1 p-2 border rounded-md bg-white"><option value="">Sin Marca</option>{brands.map(b => <option key={b.id} value={b.id}>{b.nombre}</option>)}</select></div>
