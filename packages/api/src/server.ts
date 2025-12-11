@@ -51,6 +51,8 @@ const whitelist = [
   'http://localhost:3002',
   'https://pcfixbaru.com.ar',
   'https://www.pcfixbaru.com.ar',
+  'http://pcfixbaru.com.ar',
+  'http://www.pcfixbaru.com.ar',
 ];
 
 // Si hay una URL específica en Railway (y no es *), la agregamos dinámicamente
