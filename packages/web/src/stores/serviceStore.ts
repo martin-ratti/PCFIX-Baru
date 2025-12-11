@@ -21,7 +21,7 @@ export const useServiceStore = create<ServiceState>((set) => ({
   fetchItems: async () => {
     set({ isLoading: true });
     try {
-      const res = await fetch('http://127.0.0.1:3002/api/technical/prices');
+      const res = await fetch('https://pcfix-baru-production.up.railway.app/api/technical/prices');
 
       if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
 
