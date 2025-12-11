@@ -152,6 +152,9 @@ app.get('/api/debug/test-email', async (req: Request, res: Response) => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      connectionTimeout: 5000, // 5s timeout
+      greetingTimeout: 5000,
+      socketTimeout: 5000,
     });
 
     await transporter.verify();
