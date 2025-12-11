@@ -39,7 +39,7 @@ export class StatsService {
     const currentMonthSales = await prisma.venta.findMany({
       where: {
         fecha: { gte: startOfMonth },
-        estado: { notIn: ['CANCELADO', 'RECHAZADO', 'PENDIENTE_PAGO'] }
+        estado: { in: ['APROBADO', 'ENVIADO', 'ENTREGADO'] }
       },
       select: { montoTotal: true }
     });
@@ -68,7 +68,7 @@ export class StatsService {
     const salesLast30Days = await prisma.venta.findMany({
       where: {
         fecha: { gte: thirtyDaysAgo },
-        estado: { notIn: ['CANCELADO', 'RECHAZADO', 'PENDIENTE_PAGO'] }
+        estado: { in: ['APROBADO', 'ENVIADO', 'ENTREGADO'] }
       },
       select: { fecha: true, montoTotal: true }
     });
@@ -100,7 +100,7 @@ export class StatsService {
       where: {
         venta: {
           fecha: { gte: thirtyDaysAgo },
-          estado: { notIn: ['CANCELADO', 'RECHAZADO', 'PENDIENTE_PAGO'] }
+          estado: { in: ['APROBADO', 'ENVIADO', 'ENTREGADO'] }
         }
       },
       _sum: { cantidad: true },

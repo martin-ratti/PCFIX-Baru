@@ -37,21 +37,22 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
     resolver: zodResolver(editProductSchema),
   });
 
-  const fileWatch = watch('fotoFile');
-  useEffect(() => {
-    if (fileWatch && fileWatch.length > 0) {
-      const file = fileWatch[0];
+  const { onChange: onFileChange, ...fileRegisterProps } = register('fotoFile');
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onFileChange(e);
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
       setNewFileName(file.name);
-      if (file.type?.startsWith('image/')) {
+      if (file.type.startsWith('image/')) {
         const url = URL.createObjectURL(file);
         setPreviewUrl(url);
-        return () => URL.revokeObjectURL(url);
       }
     } else {
       setNewFileName(null);
       setPreviewUrl(null);
     }
-  }, [fileWatch]);
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -191,7 +192,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
                 <img src={previewUrl || currentImage} alt="Preview" className="w-20 h-20 object-cover rounded-xl border-2 border-white shadow-sm" />
               )}
               <div className="flex-grow">
-                <input type="file" id="edit-product-image" accept="image/*" {...register('fotoFile')} className="hidden" />
+                <input type="file" id="edit-product-image" accept="image/*" onChange={handleFileSelect} {...fileRegisterProps} className="hidden" />
                 <label htmlFor="edit-product-image" className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 text-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
                   <span className="truncate">{newFileName || (previewUrl ? "Cambiar otra vez..." : "Cambiar imagen...")}</span>

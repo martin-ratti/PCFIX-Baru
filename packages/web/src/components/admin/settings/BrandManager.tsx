@@ -24,21 +24,22 @@ export default function BrandManager() {
 
   useEffect(() => { fetchBrands(); }, []);
 
-  const logoWatch = watch('logo');
-  useEffect(() => {
-    if (logoWatch && logoWatch.length > 0) {
-      const file = logoWatch[0];
+  const { onChange: onLogoChange, ...logoRegisterProps } = register('logo');
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onLogoChange(e);
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
       setLogoName(file.name);
       if (file.type?.startsWith('image/')) {
         const url = URL.createObjectURL(file);
         setPreviewUrl(url);
-        return () => URL.revokeObjectURL(url);
       }
     } else {
       setLogoName(null);
       setPreviewUrl(null);
     }
-  }, [logoWatch]);
+  };
 
 
   const onSubmit = async (data: any) => {
@@ -84,7 +85,7 @@ export default function BrandManager() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Logo (Opcional)</label>
-            <input type="file" id="brand-logo-upload" {...register('logo')} className="hidden" accept="image/*" />
+            <input type="file" id="brand-logo-upload" onChange={handleFileSelect} {...logoRegisterProps} className="hidden" accept="image/*" />
             <label htmlFor="brand-logo-upload" className="flex items-center justify-center w-full h-32 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 text-sm relative overflow-hidden group">
               {previewUrl ? (
                 <>

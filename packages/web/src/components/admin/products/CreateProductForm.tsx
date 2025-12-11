@@ -50,21 +50,22 @@ export default function CreateProductForm() {
     }
   });
 
-  const fileWatch = watch('fotoFile');
-  useEffect(() => {
-    if (fileWatch && fileWatch.length > 0) {
-      const file = fileWatch[0];
+  const { onChange: onFileChange, ...fileRegisterProps } = register('fotoFile');
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onFileChange(e);
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
       setFileName(file.name);
       if (file.type.startsWith('image/')) {
         const url = URL.createObjectURL(file);
         setPreviewUrl(url);
-        return () => URL.revokeObjectURL(url);
       }
     } else {
       setFileName(null);
       setPreviewUrl(null);
     }
-  }, [fileWatch]);
+  };
 
   const onSubmit = async (data: ProductSchema) => {
     setIsLoading(true);
@@ -185,7 +186,7 @@ export default function CreateProductForm() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Imagen del Producto</label>
             <div className="mt-1">
-              <input type="file" id="product-image-upload" accept="image/*" {...register('fotoFile')} className="hidden" />
+              <input type="file" id="product-image-upload" accept="image/*" onChange={handleFileSelect} {...fileRegisterProps} className="hidden" />
               <label htmlFor="product-image-upload" className="flex items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 flex-col overflow-hidden relative group">
                 {previewUrl ? (
                   <>

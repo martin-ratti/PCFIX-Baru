@@ -33,21 +33,22 @@ export default function BannerManager() {
   };
   useEffect(() => { fetchData(); }, []);
 
-  const bannerWatch = watch('imagenFile');
-  useEffect(() => {
-    if (bannerWatch && bannerWatch.length > 0) {
-      const file = bannerWatch[0];
+  const { onChange: onBannerChange, ...bannerRegisterProps } = register('imagenFile', { required: "Imagen requerida" });
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onBannerChange(e);
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
       setBannerName(file.name);
       if (file.type?.startsWith('image/')) {
         const url = URL.createObjectURL(file);
         setPreviewUrl(url);
-        return () => URL.revokeObjectURL(url);
       }
     } else {
       setBannerName(null);
       setPreviewUrl(null);
     }
-  }, [bannerWatch]);
+  };
 
   const onSubmit = async (data: any) => {
     if (banners.length >= 5) { addToast("Límite de banners alcanzado (Máx 5)", 'error'); return; }
@@ -96,7 +97,7 @@ export default function BannerManager() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Imagen (Horizontal)</label>
-            <input type="file" id="banner-upload" accept="image/*" {...register('imagenFile', { required: "Imagen requerida" })} className="hidden" />
+            <input type="file" id="banner-upload" accept="image/*" onChange={handleFileSelect} {...bannerRegisterProps} className="hidden" />
             <label htmlFor="banner-upload" className="flex items-center justify-center w-full h-32 px-6 py-5 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-3 overflow-hidden relative group">
               {previewUrl ? (
                 <>
