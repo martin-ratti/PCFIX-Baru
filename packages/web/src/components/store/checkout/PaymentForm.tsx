@@ -57,7 +57,17 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         finally { setIsLoading(false); }
     };
 
-    useEffect(() => { if (saleId) refreshData(); }, [saleId, token]);
+    useEffect(() => {
+        if (!saleId) return;
+        refreshData();
+
+        // Polling para detectar pago aprobado (cada 5 seg)
+        const interval = setInterval(() => {
+            if (saleId) refreshData();
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [saleId, token]);
 
     const handleChangePaymentMethod = async () => {
         setIsUpdating(true);

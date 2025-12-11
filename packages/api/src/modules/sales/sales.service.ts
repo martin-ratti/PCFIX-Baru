@@ -360,7 +360,7 @@ export class SalesService {
             const newLineSubtotal = unitPrice * line.cantidad;
             newSubtotal += newLineSubtotal;
 
-            return prisma.ventaDetalle.update({
+            return prisma.lineaVenta.update({
                 where: { id: line.id },
                 data: { subTotal: newLineSubtotal }
             });
