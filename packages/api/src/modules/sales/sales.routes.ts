@@ -7,6 +7,7 @@ const router = Router();
 
 // --- RUTAS PÚBLICAS O SEMI-PÚBLICAS ---
 router.get('/mp-callback', Controller.handleMPCallback); // Must be before /:id
+router.post('/webhook', Controller.handleMPWebhook);
 router.post('/quote', authenticate, Controller.quoteShipping);
 
 // --- RUTAS AUTENTICADAS ---

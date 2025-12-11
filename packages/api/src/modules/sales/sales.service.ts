@@ -2,6 +2,7 @@ import { prisma } from '../../shared/database/prismaClient';
 import { VentaEstado } from '@prisma/client';
 import { EmailService } from '../../shared/services/EmailService';
 import { ShippingService, ShippingItem } from '../../shared/services/ShippingService';
+import { MercadoPagoService } from '../../shared/services/MercadoPagoService';
 
 interface SaleItemInput { id: number; quantity: number; }
 
@@ -363,6 +364,23 @@ export class SalesService {
             this.emailService.sendStatusUpdate(updated.cliente.user.email, saleId, status, updated.tipoEntrega).catch(console.error);
         }
         return updated;
+    }
+
+    async processMPWebhook(paymentId: string) {
+        const mpService = new MercadoPagoService();
+        const payment = await mpService.getPayment(paymentId);
+
+        if (payment.status === 'approved' && payment.external_reference) {
+            const saleId = Number(payment.external_reference);
+            const sale = await prisma.venta.findUnique({ where: { id: saleId } });
+
+            // Only update if not already approved to avoid duplicate emails/updates
+            if (sale && sale.estado !== VentaEstado.APROBADO) {
+                await this.updateStatus(saleId, VentaEstado.APROBADO);
+                await this.updatePaymentMethod(saleId, 'MERCADOPAGO');
+                console.log(`[Webhook] Sale ${saleId} approved via MP Webhook`);
+            }
+        }
     }
 
     // ========== ZIPNOVA INTEGRATION ==========

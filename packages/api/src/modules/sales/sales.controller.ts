@@ -222,6 +222,54 @@ export const handleMPCallback = async (req: Request, res: Response) => {
     }
 };
 
+export const handleMPWebhook = async (req: Request, res: Response) => {
+    try {
+        const { type, data } = req.body;
+
+        if (type === 'payment') {
+            const paymentId = data.id;
+            // Fetch payment details to verify status
+            // We need to access the client from the service, or instantiate a new one here temporarily,
+            // or better yet, delegate this to the service. For now, let's keep it simple and safe.
+            // Ideally SalesService should handle this logic.
+            // Checking via service would be cleaner but let's do it here:
+
+            // NOTE: Ideally we should use mpService.client to fetch payment
+            // but we don't have direct access here. 
+            // Let's assume the notification is valid for now or quick-implementation:
+
+            // BETTER APPROACH: Let's assume we trust the notification OR (ToDo) fetch it.
+            // But 'data.id' is the Payment ID. The sale ID is in external_reference.
+
+            // To do this properly we need to fetch the payment from MP to get external_reference
+            // because the webhook body might not have it directly in 'data'.
+
+            // However, to avoid circular deps or complex refactor, let's try to infer or just respond 200 OK
+            // and actually implement the fetch.
+
+            /* 
+               Since we need to fetch the payment to know the order ID (external_reference),
+               we really should use the MP Client. 
+            */
+
+            // QUICK FIX: We will just log it for now and respond 200 so MP doesn't retry infinitely 
+            // until we add the proper fetch logic. 
+            // BUT the user needs this working. 
+
+            // Re-instantiating MP Service locally to use its client? 
+            // It's private. Let's make a clear separation.
+
+            // Delegate to Service:
+            await service.processMPWebhook(paymentId);
+        }
+
+        res.status(200).send('OK');
+    } catch (error) {
+        console.error('[MP Webhook] Error:', error);
+        res.status(500).send('Error');
+    }
+};
+
 export const getSaleById = async (req: Request, res: Response) => {
     try {
         const sale = await service.findById(Number(req.params.id));

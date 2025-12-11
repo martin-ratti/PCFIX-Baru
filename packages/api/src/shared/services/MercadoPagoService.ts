@@ -30,8 +30,8 @@ export class MercadoPagoService {
                     failure: successUrl, // Handle all in callback for simplicity or redirect same
                     pending: successUrl
                 },
-                // binary_mode: true,
-                // auto_return: 'approved',
+                auto_return: 'approved',
+                notification_url: `${backendUrl}/api/sales/webhook`
             };
 
 
@@ -41,6 +41,17 @@ export class MercadoPagoService {
         } catch (error) {
             console.error('Error creating MP preference:', error);
             throw new Error('Could not create Mercado Pago preference');
+        }
+    }
+
+    async getPayment(paymentId: string) {
+        const { Payment } = require('mercadopago');
+        const payment = new Payment(this.client);
+        try {
+            return await payment.get({ id: paymentId });
+        } catch (error) {
+            console.error('Error fetching MP payment:', error);
+            throw new Error('Could not fetch Mercado Pago payment');
         }
     }
 }
