@@ -105,11 +105,9 @@ describe('PaymentForm', () => {
             return Promise.resolve({ ok: false } as Response);
         });
 
-        // Mock window.location
-        Object.defineProperty(window, 'location', {
-            writable: true,
-            value: { href: '' }
-        });
+        // Mock window.open
+        const openMock = vi.fn();
+        window.open = openMock;
 
         render(<PaymentForm saleId={1} />);
 
@@ -120,7 +118,7 @@ describe('PaymentForm', () => {
 
         await waitFor(() => {
             expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/mp-preference'), expect.anything());
-            expect(window.location.href).toBe('http://mp.link');
+            expect(openMock).toHaveBeenCalledWith('http://mp.link', '_blank');
         });
     });
 });

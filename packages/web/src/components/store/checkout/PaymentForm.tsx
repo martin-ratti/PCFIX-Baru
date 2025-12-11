@@ -105,7 +105,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             });
             const data = await res.json();
             if (data.success && data.data.url) {
-                window.location.href = data.data.url;
+                window.open(data.data.url, '_blank');
             } else {
                 addToast('Error al generar pago con MP', 'error');
                 setIsLoading(false);
@@ -202,7 +202,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         <button onClick={handlePayWithMP} className="w-full bg-[#009EE3] text-white py-3 rounded-xl font-bold text-lg hover:bg-[#008CC9] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2">
                             <span>Pagar con Mercado Pago</span>
                         </button>
-                        <p className="text-xs text-gray-400 mt-2">Serás redirigido a Mercado Pago.</p>
+                        <p className="text-xs text-gray-400 mt-2">Se abrirá una nueva pestaña para completar el pago.</p>
                     </div>
                 </div>
             );
@@ -314,7 +314,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         <span className="text-4xl mb-4 block">💳</span>
                         <p className="text-[#009EE3] font-bold">Mercado Pago</p>
                         <p className="text-gray-600 text-sm mt-2">
-                            Haz clic en el botón <strong>"Pagar con Mercado Pago"</strong> para continuar.
+                            Haz clic en el botón <strong>"Pagar con Mercado Pago"</strong> para abrir la ventana de pago.
                         </p>
                     </div>
                 ) : (
