@@ -23,7 +23,7 @@ export default function HomeBanners({ banners }: HomeBannersProps) {
           spaceBetween={0}
           slidesPerView={1}
           effect={'fade'}
-          loop={true}
+          loop={banners.length > 1}
           speed={1000}
           autoplay={{
             delay: 5000,

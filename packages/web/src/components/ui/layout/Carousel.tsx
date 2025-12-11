@@ -25,7 +25,7 @@ interface CarouselProps {
 }
 
 export default function Carousel({ title, products }: CarouselProps) {
-  const shouldLoop = products.length >= 4;
+  const shouldLoop = products.length > 4;
 
   if (!products || products.length === 0) return null;
 

@@ -29,7 +29,7 @@ export default function BrandCarousel({ brands }: BrandCarouselProps) {
           spaceBetween={40}
 
           slidesPerView={Math.min(brands.length, 3)}
-          loop={brands.length > 3}
+          loop={brands.length > 6}
           speed={4000}
           autoplay={{
             delay: 0,
