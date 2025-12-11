@@ -17,18 +17,22 @@ describe('Auth Controller', () => {
         mockAuthService = {
             login: vi.fn(),
             register: vi.fn(),
-            loginWithGoogle: vi.fn()
+            loginWithGoogle: vi.fn(),
+            changePassword: vi.fn()
         };
 
         vi.doMock('./auth.service', () => ({
             AuthService: function () {
                 return mockAuthService;
-            }
+            },
+            authService: mockAuthService // Also mock the instance export if that's what is used
         }));
 
         const controller = await import('./auth.controller');
         login = controller.login;
         register = controller.register;
+        // @ts-ignore
+        const changePassword = controller.changePassword; // Retrieve new controller
 
         json = vi.fn();
         status = vi.fn().mockReturnValue({ json });
@@ -66,6 +70,42 @@ describe('Auth Controller', () => {
             };
             await register(req as Request, res as Response);
             expect(status).toHaveBeenCalledWith(400);
+        });
+    });
+
+    describe('changePassword', () => {
+        let changePassword: any;
+        beforeEach(async () => {
+            const controller = await import('./auth.controller');
+            changePassword = controller.changePassword;
+        });
+
+        it('should reject unauthorized if no user', async () => {
+            req.user = undefined; // Assuming express.d.ts or similar
+            // But controller casts (req as any).user
+            (req as any).user = undefined;
+
+            await changePassword(req as Request, res as Response);
+            expect(status).toHaveBeenCalledWith(401);
+        });
+
+        it('should validate inputs', async () => {
+            (req as any).user = { id: 1 };
+            req.body = { currentPassword: '', newPassword: '123' };
+
+            await changePassword(req as Request, res as Response);
+            expect(status).toHaveBeenCalledWith(400); // Validation error
+        });
+
+        it('should call service changePassword', async () => {
+            (req as any).user = { id: 1 };
+            req.body = { currentPassword: 'password', newPassword: 'newpassword123' };
+            mockAuthService.changePassword.mockResolvedValue({ message: 'ok' });
+
+            await changePassword(req as Request, res as Response);
+
+            expect(mockAuthService.changePassword).toHaveBeenCalledWith(1, 'password', 'newpassword123');
+            expect(json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
     });
 });

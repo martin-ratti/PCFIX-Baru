@@ -20,10 +20,15 @@ interface EditProfileFormProps {
   userId: string;
 }
 
+import ForgotPasswordModal from '../auth/ForgotPasswordModal';
+
 export default function EditProfileForm({ userId }: EditProfileFormProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  // Forgot Password Modal State
+  const [showForgotResult, setShowForgotResult] = useState(false);
 
   // Read-only profile info
   const [role, setRole] = useState<string>('USER');
@@ -288,9 +293,14 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-2">
-                  <a href="/auth/forgot-password" className="text-xs text-blue-500 hover:text-blue-700 font-medium hover:underline">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotResult(true)}
+                    className="text-xs text-blue-500 hover:text-blue-700 font-medium hover:underline"
+                  >
                     ¿Olvidaste tu contraseña?
-                  </a>
+                  </button>
+
                   <button
                     type="button"
                     onClick={async () => {
@@ -370,6 +380,8 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
         cancelText="Cancelar"
         isDanger={true}
       />
+
+      <ForgotPasswordModal isOpen={showForgotResult} onClose={() => setShowForgotResult(false)} />
     </div >
   );
 }

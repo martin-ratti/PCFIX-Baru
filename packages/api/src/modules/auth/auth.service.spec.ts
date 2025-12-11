@@ -79,4 +79,34 @@ describe('AuthService', () => {
             expect(result).toEqual({ message: 'Cuenta eliminada correctamente' });
         });
     });
+
+    describe('changePassword', () => {
+        it('should throw error if user not found', async () => {
+            (prisma.user.findUnique as any).mockResolvedValue(null);
+            await expect(authService.changePassword(1, 'old', 'new')).rejects.toThrow('Usuario no encontrado');
+        });
+
+        it('should throw error if current password is wrong', async () => {
+            (prisma.user.findUnique as any).mockResolvedValue({ id: 1, password: 'hashed_real_password' });
+            const bcrypt = await import('bcryptjs');
+            (bcrypt.default.compare as any).mockResolvedValue(false);
+
+            await expect(authService.changePassword(1, 'wrong', 'new')).rejects.toThrow('La contraseña actual es incorrecta');
+        });
+
+        it('should update password if valid', async () => {
+            (prisma.user.findUnique as any).mockResolvedValue({ id: 1, password: 'hashed_real_password' });
+            const bcrypt = await import('bcryptjs');
+            (bcrypt.default.compare as any).mockResolvedValue(true);
+            (bcrypt.default.hash as any).mockResolvedValue('hashed_new_password');
+
+            const result = await authService.changePassword(1, 'old', 'new');
+
+            expect(prisma.user.update).toHaveBeenCalledWith({
+                where: { id: 1 },
+                data: { password: 'hashed_new_password' }
+            });
+            expect(result).toEqual({ message: 'Contraseña cambiada exitosamente' });
+        });
+    });
 });
