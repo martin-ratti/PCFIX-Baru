@@ -3,9 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import RegisterForm from '../RegisterForm';
 
 // Mocks
-vi.mock('astro:transitions/client', () => ({
-    navigate: vi.fn()
-}));
+
 
 describe('RegisterForm', () => {
     beforeEach(() => {
@@ -40,7 +38,10 @@ describe('RegisterForm', () => {
     });
 
     it('handles successful registration', async () => {
-        const { navigate } = await import('astro:transitions/client');
+        // Mock window.location
+        const originalLocation = window.location;
+        delete (window as any).location;
+        (window as any).location = { href: '' };
 
         (global.fetch as any).mockResolvedValue({
             json: async () => ({ success: true })
@@ -64,6 +65,9 @@ describe('RegisterForm', () => {
         });
 
         await new Promise(r => setTimeout(r, 2100)); // wait for redirect
-        expect(navigate).toHaveBeenCalledWith('/auth/login');
+        expect(window.location.href).toBe('/auth/login');
+
+        // Restore
+        (window as any).location = originalLocation;
     }, 5000);
 });

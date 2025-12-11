@@ -19,7 +19,7 @@ describe('fetchApi utility', () => {
         await fetchApi('/products');
 
         expect(global.fetch).toHaveBeenCalledWith(
-            'http://localhost:3002/api/products',
+            'https://pcfix-baru-production.up.railway.app/api/products',
             expect.any(Object)
         );
     });
@@ -39,7 +39,7 @@ describe('fetchApi utility', () => {
         await fetchApi('/test', options);
 
         expect(global.fetch).toHaveBeenCalledWith(
-            'http://localhost:3002/api/test',
+            'https://pcfix-baru-production.up.railway.app/api/test',
             options
         );
     });

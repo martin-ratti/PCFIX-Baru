@@ -84,8 +84,10 @@ describe('CreateProductForm', () => {
 
         render(<CreateProductForm />);
 
+        // Wait for fetch to complete (by checking non-category element or just waiting)
+        // We can't check for 'Categoria 1' yet because it is hidden in the dropdown
         await waitFor(() => {
-            expect(screen.getByText('Categoria 1')).toBeInTheDocument();
+            expect(screen.getByText('Sin Marca')).toBeInTheDocument();
         });
 
         fireEvent.change(screen.getByTestId('input-nombre'), { target: { value: 'Nuevo Producto' } });
@@ -94,7 +96,11 @@ describe('CreateProductForm', () => {
         fireEvent.change(screen.getByTestId('input-stock'), { target: { value: '10' } });
 
         // Selects
-        fireEvent.change(screen.getByTestId('select-category'), { target: { value: '1' } });
+        // Select Category (Custom Component)
+        const catTrigger = screen.getByText('Seleccionar...');
+        fireEvent.click(catTrigger);
+        const catOption = await screen.findByText('Categoria 1');
+        fireEvent.click(catOption);
         fireEvent.change(screen.getByTestId('select-brand'), { target: { value: '1' } });
 
         // Dimensions

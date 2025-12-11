@@ -35,8 +35,9 @@ export class AuthService {
 
     const token = this.generateToken(user);
 
-    // Send Welcome Email
-    await emailService.sendWelcomeEmail(user.email, user.nombre);
+    // Send Welcome Email (Non-blocking)
+    emailService.sendWelcomeEmail(user.email, user.nombre)
+      .catch(e => console.error('Error sending welcome email:', e));
 
     return { user, token };
   }
@@ -83,8 +84,9 @@ export class AuthService {
 
       await prisma.cliente.create({ data: { userId: user.id } });
 
-      // Send Welcome Email for Google Sign Up too
-      await emailService.sendWelcomeEmail(user.email, user.nombre);
+      // Send Welcome Email for Google Sign Up too (Non-blocking)
+      emailService.sendWelcomeEmail(user.email, user.nombre)
+        .catch(e => console.error('Error sending welcome email (Google):', e));
     } else if (!user.googleId) {
       // Link Google ID if expecting it
       await prisma.user.update({
@@ -116,7 +118,8 @@ export class AuthService {
       },
     });
 
-    await emailService.sendPasswordResetEmail(user.email, token);
+    emailService.sendPasswordResetEmail(user.email, token)
+      .catch(e => console.error('Error sending password reset email:', e));
 
     return { message: 'Correo enviado' };
   }

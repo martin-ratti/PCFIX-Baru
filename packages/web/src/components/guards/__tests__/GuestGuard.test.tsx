@@ -62,9 +62,12 @@ describe('GuestGuard', () => {
         render(<GuestGuard><div>Login Form</div></GuestGuard>);
 
         // Should show toast message
-        expect(mockAddToast).toHaveBeenCalledWith(
-            expect.stringContaining('Juan'),
-            'info'
-        );
+        // Should NOT show toast message, just redirect
+        expect(mockAddToast).not.toHaveBeenCalled();
+
+        // Wait for redirect timeout
+        await waitFor(() => {
+            expect(mockReplace).toHaveBeenCalled();
+        }, { timeout: 1000 });
     });
 });
