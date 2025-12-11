@@ -288,7 +288,8 @@ export class EmailService {
     // Find most expensive item for hero image
     const mainProduct = products.sort((a, b) => Number(b.precio) - Number(a.precio))[0];
     const otherCount = products.length - 1;
-    const cartLink = `https://pcfixbaru.com.ar/carrito`; // Or localhost if dev
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+    const cartLink = `${frontendUrl}/carrito`;
 
     const html = `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
