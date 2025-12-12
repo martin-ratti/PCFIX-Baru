@@ -54,6 +54,26 @@ describe('TechnicalController', () => {
         });
     });
 
+    describe('deleteInquiry', () => {
+        it('should delete inquiry', async () => {
+            req.params = { id: '1' };
+            vi.spyOn(TechnicalService.prototype, 'deleteInquiry').mockResolvedValue({ id: 1 } as any);
+
+            await TechnicalController.deleteInquiry(req as Request, res as Response);
+
+            expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Consulta eliminada' });
+        });
+
+        it('should return 500 on error', async () => {
+            req.params = { id: '1' };
+            vi.spyOn(TechnicalService.prototype, 'deleteInquiry').mockRejectedValue(new Error('Error'));
+
+            await TechnicalController.deleteInquiry(req as Request, res as Response);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+        });
+    });
+
     describe('updatePrice', () => {
         it('should update price', async () => {
             req.params = { id: '1' };

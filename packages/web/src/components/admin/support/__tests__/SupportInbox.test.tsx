@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import SupportInbox from '../SupportInbox';
 import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
@@ -90,6 +90,38 @@ describe('SupportInbox (admin/support)', () => {
 
         await waitFor(() => {
             expect(screen.getByText('El precio es $5000')).toBeInTheDocument();
+        });
+    });
+
+    it('deletes an inquiry when confirmed', async () => {
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ success: true, data: mockInquiries })
+        });
+
+        global.confirm = vi.fn(() => true);
+
+        // Mock delete success
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ success: true })
+        });
+
+        render(<SupportInbox />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Problema Técnico')).toBeInTheDocument();
+        });
+
+        const deleteBtns = screen.getAllByTitle('Eliminar consulta');
+        fireEvent.click(deleteBtns[0]);
+
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/api/technical/1'),
+                expect.objectContaining({ method: 'DELETE' })
+            );
+            expect(screen.queryByText('Problema Técnico')).not.toBeInTheDocument();
         });
     });
 });

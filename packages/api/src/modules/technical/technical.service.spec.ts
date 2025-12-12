@@ -8,7 +8,9 @@ const mockPrisma = vi.hoisted(() => ({
         create: vi.fn(),
         count: vi.fn(),
         findMany: vi.fn(),
-        update: vi.fn()
+        update: vi.fn(),
+        delete: vi.fn(),
+        findUnique: vi.fn()
     },
     serviceItem: {
         findMany: vi.fn(),
@@ -108,6 +110,24 @@ describe('TechnicalService', () => {
 
             expect(result).toEqual(mockConsulta);
             expect(mockPrisma.consultaTecnica.update).toHaveBeenCalled();
+        });
+    });
+
+    describe('deleteInquiry', () => {
+        it('should delete inquiry if exists', async () => {
+            mockPrisma.consultaTecnica.findUnique.mockResolvedValue({ id: 1 });
+            mockPrisma.consultaTecnica.delete.mockResolvedValue({ id: 1 });
+
+            const result = await service.deleteInquiry(1);
+
+            expect(result).toEqual({ id: 1 });
+            expect(mockPrisma.consultaTecnica.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+        });
+
+        it('should throw error if not found', async () => {
+            mockPrisma.consultaTecnica.findUnique.mockResolvedValue(null);
+
+            await expect(service.deleteInquiry(1)).rejects.toThrow('Consulta no encontrada');
         });
     });
 

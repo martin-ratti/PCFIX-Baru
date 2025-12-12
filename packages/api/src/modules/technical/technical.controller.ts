@@ -53,6 +53,16 @@ export const replyInquiry = async (req: Request, res: Response) => {
     }
 };
 
+export const deleteInquiry = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        await service.deleteInquiry(Number(id));
+        res.json({ success: true, message: 'Consulta eliminada' });
+    } catch (e: any) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+};
+
 // --- PRECIOS ---
 
 export const getPrices = async (req: Request, res: Response) => {

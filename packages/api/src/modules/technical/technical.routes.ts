@@ -13,5 +13,6 @@ router.post('/', authenticate, Controller.createInquiry); // Usuario crea
 router.get('/me', authenticate, Controller.getMyInquiries); // Usuario ve suyas
 router.get('/', authenticate, requireAdmin, Controller.getAllInquiries); // Admin ve todas
 router.put('/:id/reply', authenticate, requireAdmin, Controller.replyInquiry); // Admin responde
+router.delete('/:id', authenticate, requireAdmin, Controller.deleteInquiry); // Admin elimina
 
 export default router;

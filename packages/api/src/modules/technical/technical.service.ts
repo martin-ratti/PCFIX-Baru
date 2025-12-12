@@ -62,6 +62,17 @@ export class TechnicalService {
     return consulta;
   }
 
+  async deleteInquiry(id: number) {
+    // 1. Verificar si existe
+    const exists = await prisma.consultaTecnica.findUnique({ where: { id } });
+    if (!exists) throw new Error("Consulta no encontrada");
+
+    // 2. Eliminar
+    return await prisma.consultaTecnica.delete({
+      where: { id }
+    });
+  }
+
   // --- PARTE 2: GESTIÓN DE PRECIOS (TARIFAS) ---
 
   async getServicePrices() {
