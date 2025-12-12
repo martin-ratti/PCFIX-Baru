@@ -83,7 +83,7 @@ function CartContent() {
         if (zipCode === '2183') {
             setDeliveryType('RETIRO');
             setShippingCost(null);
-            addToast("¡Estás cerca! Retirá en el local sin costo de envío 🏪", 'success');
+            addToast("¡Estás cerca! Contactanos para coordinar la entrega 📞", 'success');
             return;
         }
 

@@ -76,3 +76,14 @@ export const update = async (req: Request, res: Response) => {
   }
 };
 export const remove = async (req: Request, res: Response) => { try { await productService.delete(Number(req.params.id)); res.json({ success: true }); } catch (error: any) { res.status(500).json({ success: false, error: error.message }); } };
+
+export const getBestSellers = async (req: Request, res: Response) => {
+  try {
+    const limit = req.query.limit ? Number(req.query.limit) : 10;
+    const products = await productService.findBestSellers(limit);
+    res.json({ success: true, data: products });
+  } catch (error: any) {
+    console.error('Error fetching best sellers:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};

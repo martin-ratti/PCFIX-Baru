@@ -7,7 +7,7 @@ import BrandCarousel from "../components/ui/layout/BrandCarousel.tsx";
 import HomeBanners from "../components/ui/layout/HomeBanners.tsx";
 
 import FeaturesSection from "../components/ui/layout/FeaturesSection.astro";
-import CategoryGrid from "../components/ui/layout/CategoryGrid.astro";
+import BestSellersCarousel from "../components/ui/layout/BestSellersCarousel.tsx";
 import PromoBanner from "../components/ui/layout/PromoBanner.astro";
 
 interface ProductDB {
@@ -128,9 +128,9 @@ function mapProductToCard(p: ProductDB): ProductCardProps {
       }
     </div>
 
-    <FeaturesSection />
-
-    <CategoryGrid />
+    <div class="container mx-auto px-6 py-8">
+      <BestSellersCarousel client:visible />
+    </div>
 
     <div class="container mx-auto px-6 space-y-16 py-8">
       {

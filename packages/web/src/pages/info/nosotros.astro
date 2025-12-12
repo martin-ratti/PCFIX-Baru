@@ -2,6 +2,8 @@
 export const prerender = true;
 
 import Layout from "../../layouts/Layout.astro";
+import { Image } from "astro:assets";
+import logoImage from "../../assets/logo.png";
 ---
 
 <Layout title="PCFIX | Sobre Nosotros">
@@ -20,11 +22,14 @@ import Layout from "../../layouts/Layout.astro";
 
     <section class="container mx-auto px-6 py-16">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div>
-          <img
-            src="https://placehold.co/600x400/111626/F2F2F2?text=Team+PCFIX"
-            alt="Equipo PCFIX"
-            class="rounded-lg shadow-xl w-full"
+        <div
+          class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-xl flex items-center justify-center p-12"
+        >
+          <Image
+            src={logoImage}
+            alt="Logo PCFIX"
+            width={400}
+            class="max-w-full h-auto"
           />
         </div>
         <div>

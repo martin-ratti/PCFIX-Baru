@@ -169,6 +169,44 @@ export class ProductService {
         }
     }
 
+    // BEST SELLERS - Products most sold (based on LineaVenta quantities)
+    async findBestSellers(limit: number = 10) {
+        // Query to get products sorted by total quantity sold
+        const bestSellers = await prisma.$queryRaw<{ productoId: number; totalSold: bigint }[]>`
+            SELECT lv."productoId", SUM(lv.cantidad) as "totalSold"
+            FROM "LineaVenta" lv
+            INNER JOIN "Venta" v ON lv."ventaId" = v.id
+            WHERE v.estado NOT IN ('CANCELADO')
+            GROUP BY lv."productoId"
+            ORDER BY "totalSold" DESC
+            LIMIT ${limit}
+        `;
+
+        if (bestSellers.length === 0) {
+            // Fallback: return featured products if no sales yet
+            return await prisma.producto.findMany({
+                where: { deletedAt: null, isFeatured: true },
+                include: { categoria: true, marca: true },
+                take: limit
+            });
+        }
+
+        const productIds = bestSellers.map(bs => bs.productoId);
+
+        // Fetch full product details
+        const products = await prisma.producto.findMany({
+            where: { id: { in: productIds }, deletedAt: null },
+            include: { categoria: true, marca: true }
+        });
+
+        // Maintain the order from best sellers query
+        const orderedProducts = productIds
+            .map(id => products.find(p => p.id === id))
+            .filter(Boolean);
+
+        return orderedProducts;
+    }
+
     async delete(id: number) { return await prisma.producto.update({ where: { id }, data: { deletedAt: new Date() } }); }
     async restore(id: number) { return await prisma.producto.update({ where: { id }, data: { deletedAt: null } }); }
 }
