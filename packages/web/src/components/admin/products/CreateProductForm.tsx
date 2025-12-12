@@ -54,12 +54,16 @@ export default function CreateProductForm() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+    console.log('[DEBUG] handleFileChange called', { files, length: files?.length });
     if (files && files.length > 0) {
       const file = files[0];
+      console.log('[DEBUG] File selected:', { name: file.name, type: file.type, size: file.size });
       setFileName(file.name);
       const url = URL.createObjectURL(file);
+      console.log('[DEBUG] Preview URL created:', url);
       setPreviewUrl(url);
     } else {
+      console.log('[DEBUG] No files selected');
       setFileName(null);
       setPreviewUrl(null);
     }
