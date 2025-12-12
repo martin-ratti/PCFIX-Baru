@@ -18,7 +18,17 @@ vi.mock('../../shared/database/prismaClient', () => ({
             findUnique: vi.fn(),
             create: vi.fn()
         },
-        $transaction: vi.fn((callback) => callback(prisma))
+        lineaVenta: {
+            update: vi.fn()
+        },
+        $transaction: vi.fn((arg) => {
+            // Handle both callback and array patterns
+            if (typeof arg === 'function') {
+                return arg(prisma);
+            }
+            // For array of promises, resolve them all and return last element
+            return Promise.all(arg).then(results => results);
+        })
     }
 }));
 
@@ -65,7 +75,16 @@ describe('SalesService Webhook', () => {
             id: saleId,
             estado: VentaEstado.PENDIENTE_PAGO,
             cliente: { user: { email: 'test@test.com' } },
-            tipoEntrega: 'ENVIO'
+            tipoEntrega: 'ENVIO',
+            costoEnvio: 1000,
+            lineasVenta: [
+                {
+                    id: 1,
+                    cantidad: 2,
+                    subTotal: 10000,
+                    producto: { id: 1, precio: 5000 }
+                }
+            ]
         };
 
         vi.mocked(prisma.venta.findUnique).mockResolvedValue(mockSale as any);
@@ -87,7 +106,7 @@ describe('SalesService Webhook', () => {
 
         expect(prisma.venta.update).toHaveBeenCalledWith(expect.objectContaining({
             where: { id: saleId },
-            data: { medioPago: 'MERCADOPAGO' }
+            data: expect.objectContaining({ medioPago: 'MERCADOPAGO' })
         }));
     });
 
