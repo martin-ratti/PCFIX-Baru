@@ -8,7 +8,7 @@ const router = Router();
 // --- RUTAS PÚBLICAS O SEMI-PÚBLICAS ---
 router.get('/mp-callback', Controller.handleMPCallback); // Must be before /:id
 router.post('/webhook', Controller.handleMPWebhook);
-router.post('/quote', authenticate, Controller.quoteShipping);
+router.post('/quote', Controller.quoteShipping); // Público para permitir cotizar sin login
 
 // --- RUTAS AUTENTICADAS ---
 router.get('/balance', authenticate, requireAdmin, Controller.getBalance);
