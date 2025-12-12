@@ -1,32 +1,33 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { prisma } from '../database/prismaClient';
 
 export class EmailService {
-  private transporter;
+  private resend: Resend;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: Number(process.env.SMTP_PORT) === 465, // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    this.resend = new Resend(process.env.RESEND_API_KEY);
   }
 
   async sendEmail(to: string, subject: string, htmlContent: string) {
     try {
-      await this.transporter.sendMail({
-        from: `"PCFIX Notificaciones" <${process.env.SMTP_USER}>`,
+      const fromEmail = process.env.EMAIL_FROM || 'PCFIX <noreply@pcfixbaru.com.ar>';
+
+      const { data, error } = await this.resend.emails.send({
+        from: fromEmail,
         to,
         subject,
         html: htmlContent,
       });
+
+      if (error) {
+        console.error('🔥 Error enviando email (Resend):', error);
+        return false;
+      }
+
+      console.log('✅ Email enviado:', data?.id);
       return true;
     } catch (error) {
-      console.error('🔥 Error enviando email:', error);
+      console.error('🔥 Error inesperado enviando email:', error);
       return false;
     }
   }
