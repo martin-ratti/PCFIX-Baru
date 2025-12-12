@@ -32,7 +32,7 @@ async function main() {
         },
         {
             title: 'Armado de PC',
-            description: 'Ensamblaje profesional de componentes, gestión de cables y configuración de BIOS.',
+            description: 'Ensamblaje profesional, gestión de cables e instalación del sistema operativo con todos sus drivers y programas. Te la entregamos lista para usar.',
             price: 25000,
         },
     ];

@@ -68,7 +68,7 @@ async function main() {
 
   // --- 4. DATOS MAESTROS DE SERVICIOS ---
   const serviciosMaestros = [
-    { title: "Armado de PC", price: 45000, description: "Ensamblaje profesional de componentes." },
+    { title: "Armado de PC", price: 45000, description: "Ensamblaje profesional, gestión de cables e instalación del sistema operativo con todos sus drivers y programas. Te la entregamos lista para usar." },
     { title: "Formateo Completo", price: 25000, description: "Instalación limpia de SO y drivers." },
     { title: "Mantenimiento Preventivo", price: 20000, description: "Limpieza profunda y cambio de pasta térmica." },
     { title: "Diagnóstico", price: 10000, description: "Detección de fallas de hardware/software." },
