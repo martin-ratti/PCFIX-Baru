@@ -93,13 +93,11 @@ describe('SupportInbox (admin/support)', () => {
         });
     });
 
-    it('deletes an inquiry when confirmed', async () => {
+    it('deletes an inquiry when confirmed via modal', async () => {
         (global.fetch as any).mockResolvedValueOnce({
             ok: true,
             json: async () => ({ success: true, data: mockInquiries })
         });
-
-        global.confirm = vi.fn(() => true);
 
         // Mock delete success
         (global.fetch as any).mockResolvedValueOnce({
@@ -113,9 +111,19 @@ describe('SupportInbox (admin/support)', () => {
             expect(screen.getByText('Problema Técnico')).toBeInTheDocument();
         });
 
+        // 1. Click Trash Icon
         const deleteBtns = screen.getAllByTitle('Eliminar consulta');
         fireEvent.click(deleteBtns[0]);
 
+        // 2. Expect Modal to appear and Click Confirm
+        await waitFor(() => {
+            expect(screen.getByText(/¿Estás seguro de eliminar esta consulta?/i)).toBeInTheDocument();
+        });
+
+        const confirmBtn = screen.getByText('Eliminar');
+        fireEvent.click(confirmBtn);
+
+        // 3. Verify API call and UI update
         await waitFor(() => {
             expect(global.fetch).toHaveBeenCalledWith(
                 expect.stringContaining('/api/technical/1'),

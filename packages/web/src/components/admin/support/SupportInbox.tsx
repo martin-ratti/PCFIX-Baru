@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
+import ConfirmModal from '../../ui/feedback/ConfirmModal';
 
 export default function SupportInbox() {
     const { token } = useAuthStore();
@@ -9,6 +10,10 @@ export default function SupportInbox() {
     const [replyingTo, setReplyingTo] = useState<number | null>(null);
     const [replyText, setReplyText] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+
+    // States for delete action
+    const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+    const [deletingId, setDeletingId] = useState<number | null>(null);
 
     const fetchInquiries = () => {
         if (!token) return;
@@ -51,23 +56,31 @@ export default function SupportInbox() {
         finally { setIsSending(false); }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm('¿Estás seguro de eliminar esta consulta? Esta acción no se puede deshacer.')) return;
+    const handleDeleteClick = (id: number) => {
+        setConfirmDeleteId(id);
+    };
 
+    const confirmDelete = async () => {
+        if (!confirmDeleteId) return;
+
+        setDeletingId(confirmDeleteId);
         try {
-            const res = await fetch(`https://pcfix-baru-production.up.railway.app/api/technical/${id}`, {
+            const res = await fetch(`https://pcfix-baru-production.up.railway.app/api/technical/${confirmDeleteId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (res.ok) {
                 addToast('Consulta eliminada', 'success');
-                setInquiries(prev => prev.filter(i => i.id !== id));
+                setInquiries(prev => prev.filter(i => i.id !== confirmDeleteId));
+                setConfirmDeleteId(null);
             } else {
                 addToast('Error al eliminar', 'error');
             }
         } catch (e) {
             addToast('Error de conexión', 'error');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -81,6 +94,18 @@ export default function SupportInbox() {
 
     return (
         <div className="space-y-4">
+            <ConfirmModal
+                isOpen={!!confirmDeleteId}
+                title="Eliminar Consulta"
+                message="¿Estás seguro de eliminar esta consulta? Esta acción no se puede deshacer."
+                confirmText="Eliminar"
+                cancelText="Cancelar"
+                isDanger
+                isLoading={!!deletingId}
+                onConfirm={confirmDelete}
+                onCancel={() => !deletingId && setConfirmDeleteId(null)}
+            />
+
             {inquiries.map(inq => (
                 <div key={inq.id} className={`bg-white border p-6 rounded-xl shadow-sm transition-all ${inq.estado === 'PENDIENTE' ? 'border-l-4 border-l-orange-400' : 'border-l-4 border-l-green-500 opacity-75'}`}>
                     <div className="flex justify-between mb-3">
@@ -93,13 +118,18 @@ export default function SupportInbox() {
                                 {new Date(inq.createdAt).toLocaleDateString()}
                             </span>
                             <button
-                                onClick={() => handleDelete(inq.id)}
-                                className="text-red-400 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-red-50"
+                                onClick={() => handleDeleteClick(inq.id)}
+                                disabled={!!deletingId && deletingId === inq.id}
+                                className="text-red-400 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-red-50 disabled:opacity-50"
                                 title="Eliminar consulta"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                </svg>
+                                {deletingId === inq.id ? (
+                                    <div className="animate-spin h-5 w-5 border-2 border-red-400 border-t-transparent rounded-full" />
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                    </svg>
+                                )}
                             </button>
                         </div>
                     </div>
