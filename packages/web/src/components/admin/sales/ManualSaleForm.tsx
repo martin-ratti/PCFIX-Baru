@@ -165,7 +165,9 @@ export default function ManualSaleForm() {
                             <select {...register('medioPago')} className="p-2 bg-gray-50 border rounded-lg text-sm"><option value="EFECTIVO">Efectivo</option><option value="TRANSFERENCIA">Transferencia</option><option value="BINANCE">Binance</option></select>
                             <select {...register('estado')} className="p-2 bg-gray-50 border rounded-lg text-sm"><option value="ENTREGADO">Entregado</option><option value="APROBADO">Pendiente</option></select>
                         </div>
-                        <button type="submit" disabled={cart.length === 0 || isLoading} className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90 disabled:opacity-50 transition-all active:scale-95">{isLoading ? '...' : 'Cobrar'}</button>
+                        <button type="submit" disabled={cart.length === 0 || isLoading} className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90 disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            {isLoading ? <><div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> Procesando...</> : 'Cobrar'}
+                        </button>
                     </form>
                 </div>
             </div>

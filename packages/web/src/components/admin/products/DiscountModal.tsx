@@ -11,6 +11,7 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
   const [mode, setMode] = useState<'percent' | 'fixed'>('percent');
   const [value, setValue] = useState<string>('');
   const [calculatedPrice, setCalculatedPrice] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const basePrice = product ? (Number(product.precioOriginal) || Number(product.precio)) : 0;
 
@@ -19,6 +20,7 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
       setValue('');
       setMode('percent');
       setCalculatedPrice(Number(product.precio));
+      setIsSubmitting(false);
     }
   }, [isOpen, product]);
 
@@ -32,11 +34,12 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
     }
   }, [value, mode, basePrice]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
     if (calculatedPrice >= basePrice) {
-      onConfirm(basePrice, null); // Quitar oferta
+      await onConfirm(basePrice, null); // Quitar oferta
     } else {
-      onConfirm(calculatedPrice, basePrice); // Aplicar oferta
+      await onConfirm(calculatedPrice, basePrice); // Aplicar oferta
     }
   };
 
@@ -54,13 +57,13 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
         </div>
         <div className="px-6 py-6 space-y-6">
           <div className="flex bg-gray-100 p-1 rounded-lg">
-            <button onClick={() => { setMode('percent'); setValue(''); }} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all active:scale-95 ${mode === 'percent' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'}`}>Porcentaje (%)</button>
-            <button onClick={() => { setMode('fixed'); setValue(''); }} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all active:scale-95 ${mode === 'fixed' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'}`}>Precio Fijo ($)</button>
+            <button disabled={isSubmitting} onClick={() => { setMode('percent'); setValue(''); }} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all active:scale-95 ${mode === 'percent' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'}`}>Porcentaje (%)</button>
+            <button disabled={isSubmitting} onClick={() => { setMode('fixed'); setValue(''); }} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all active:scale-95 ${mode === 'fixed' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'}`}>Precio Fijo ($)</button>
           </div>
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{mode === 'percent' ? 'Porcentaje' : 'Nuevo Precio'}</label>
             <div className="relative">
-              <input type="number" value={value} onChange={(e) => setValue(e.target.value)} placeholder={mode === 'percent' ? 'Ej: 20' : 'Ej: 15000'} className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none" autoFocus />
+              <input type="number" value={value} disabled={isSubmitting} onChange={(e) => setValue(e.target.value)} placeholder={mode === 'percent' ? 'Ej: 20' : 'Ej: 15000'} className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none disabled:opacity-50" autoFocus />
             </div>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -69,8 +72,10 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
           </div>
         </div>
         <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3">
-          <button onClick={onCancel} className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 rounded-md transition-all active:scale-95">Cancelar</button>
-          <button onClick={handleSubmit} className="px-6 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-all active:scale-95">Aplicar</button>
+          <button onClick={onCancel} disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 rounded-md transition-all active:scale-95 disabled:opacity-50">Cancelar</button>
+          <button onClick={handleSubmit} disabled={isSubmitting} className="px-6 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50">
+            {isSubmitting ? <><div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Aplicando...</> : 'Aplicar'}
+          </button>
         </div>
       </div>
     </div>

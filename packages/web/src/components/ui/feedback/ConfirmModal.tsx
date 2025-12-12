@@ -9,6 +9,7 @@ interface ConfirmModalProps {
   confirmText?: string;
   cancelText?: string;
   isDanger?: boolean; // Para poner el botón rojo
+  isLoading?: boolean; // Optional loading state for confirm button
 }
 
 export default function ConfirmModal({
@@ -20,6 +21,7 @@ export default function ConfirmModal({
   confirmText = 'Confirmar',
   cancelText = 'Cancelar',
   isDanger = false,
+  isLoading = false,
 }: ConfirmModalProps) {
   if (!isOpen) return null;
 
@@ -44,19 +46,21 @@ export default function ConfirmModal({
         <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus-ring active:scale-95 transition-all"
+            disabled={isLoading}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus-ring active:scale-95 transition-all disabled:opacity-50"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors shadow-sm
+            disabled={isLoading}
+            className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50
               ${isDanger
                 ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
                 : 'bg-primary hover:bg-opacity-90 focus:ring-primary'
               }`}
           >
-            {confirmText}
+            {isLoading ? <><div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Procesando...</> : confirmText}
           </button>
         </div>
       </div>

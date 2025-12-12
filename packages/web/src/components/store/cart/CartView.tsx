@@ -258,7 +258,9 @@ function CartContent() {
                             {shippingCost === null ? (
                                 <div className="flex gap-2">
                                     <input type="text" id="zipCodeInput" placeholder="Cód. Postal" value={zipCode} onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 4))} className="w-full border rounded px-2 py-1.5 text-sm" />
-                                    <button onClick={handleCalculateShipping} disabled={isCalculatingShipping} className="bg-secondary text-white text-xs font-bold px-3 py-1.5 rounded whitespace-nowrap">{isCalculatingShipping ? '...' : 'Cotizar'}</button>
+                                    <button onClick={handleCalculateShipping} disabled={isCalculatingShipping} className="bg-secondary text-white text-xs font-bold px-3 py-1.5 rounded whitespace-nowrap flex items-center gap-1 disabled:opacity-70">
+                                        {isCalculatingShipping ? <><div className="animate-spin h-3 w-3 border-2 border-white border-t-transparent rounded-full" /></> : 'Cotizar'}
+                                    </button>
                                 </div>
                             ) : (
                                 <>
@@ -381,8 +383,8 @@ function CartContent() {
                         <div className="flex justify-between items-end pt-2 border-t font-bold text-lg"><span>Total Final</span><span>${totalFinal.toLocaleString('es-AR')}</span></div>
                     </div>
 
-                    <button onClick={handleCheckout} disabled={isProcessing || (deliveryType === 'ENVIO' && shippingCost === null)} className="w-full bg-green-600 text-white font-bold py-3.5 rounded-xl hover:bg-green-700 disabled:opacity-50 transition-colors shadow-md">
-                        {isProcessing ? 'Procesando...' : 'Finalizar Compra'}
+                    <button onClick={handleCheckout} disabled={isProcessing || (deliveryType === 'ENVIO' && shippingCost === null)} className="w-full bg-green-600 text-white font-bold py-3.5 rounded-xl hover:bg-green-700 disabled:opacity-50 transition-colors shadow-md flex items-center justify-center gap-2">
+                        {isProcessing ? <><div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> Procesando...</> : 'Finalizar Compra'}
                     </button>
 
                     <div className="flex justify-between items-center mt-2">

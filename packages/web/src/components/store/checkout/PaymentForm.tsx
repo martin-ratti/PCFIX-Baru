@@ -136,6 +136,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         if (!isCash && (!data.comprobante || data.comprobante.length === 0)) {
             addToast("Debes seleccionar una imagen", 'error'); return;
         }
+        setIsUpdating(true);
         const formData = new FormData();
         if (data.comprobante && data.comprobante.length > 0) formData.append('comprobante', data.comprobante[0]);
 
@@ -150,6 +151,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                 window.location.reload();
             } else throw new Error();
         } catch (e) { addToast('Error al subir', 'error'); }
+        finally { setIsUpdating(false); }
     };
 
     // Renders
@@ -190,7 +192,9 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         </label> */}
                     </div>
                     <div className="flex gap-2 mt-4">
-                        <button onClick={handleChangePaymentMethod} disabled={isUpdating} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all active:scale-95">{isUpdating ? '...' : 'Guardar'}</button>
+                        <button onClick={handleChangePaymentMethod} disabled={isUpdating} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50">
+                            {isUpdating ? <><div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /></> : 'Guardar'}
+                        </button>
                         <button onClick={() => setIsEditingPayment(false)} className="px-4 py-2 text-gray-500 text-sm font-medium hover:bg-gray-200 rounded-lg transition-all active:scale-95">Cancelar</button>
                     </div>
                 </div>
@@ -210,8 +214,8 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         <p className="text-4xl font-black tracking-tight">${Number(sale.montoTotal).toLocaleString('es-AR')}</p>
                     </div>
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center">
-                        <button onClick={handlePayWithMP} className="w-full bg-[#009EE3] text-white py-3 rounded-xl font-bold text-lg hover:bg-[#008CC9] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2">
-                            <span>Pagar con Mercado Pago</span>
+                        <button onClick={handlePayWithMP} disabled={isLoading} className="w-full bg-[#009EE3] text-white py-3 rounded-xl font-bold text-lg hover:bg-[#008CC9] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 disabled:opacity-75">
+                            {isLoading ? <><div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> Iniciando...</> : <span>Pagar con Mercado Pago</span>}
                         </button>
                         <p className="text-xs text-gray-400 mt-2">Se abrirá una nueva pestaña para completar el pago.</p>
                     </div>
@@ -348,8 +352,8 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                             </div>
                         )}
 
-                        <button disabled={!previewUrl && !isCash} className="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-all active:scale-95 shadow-lg disabled:opacity-50">
-                            {previewUrl || isCash ? (isCash ? 'Confirmar Retiro' : 'Enviar Comprobante') : 'Selecciona archivo'}
+                        <button disabled={(!previewUrl && !isCash) || isUpdating} className="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-all active:scale-95 shadow-lg disabled:opacity-50 flex items-center justify-center gap-2">
+                            {isUpdating ? <><div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> Procesando...</> : (previewUrl || isCash ? (isCash ? 'Confirmar Retiro' : 'Enviar Comprobante') : 'Selecciona archivo')}
                         </button>
                     </form>
                 )}

@@ -24,17 +24,13 @@ export default function BrandManager() {
 
   useEffect(() => { fetchBrands(); }, []);
 
-  const { onChange: onLogoChange, ...logoRegisterProps } = register('logo');
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onLogoChange(e);
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
       setLogoName(file.name);
-      if (file.type?.startsWith('image/')) {
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
-      }
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
     } else {
       setLogoName(null);
       setPreviewUrl(null);
@@ -85,7 +81,17 @@ export default function BrandManager() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Logo (Opcional)</label>
-            <input type="file" id="brand-logo-upload" onChange={handleFileSelect} {...logoRegisterProps} className="hidden" accept="image/*" />
+            <input
+              type="file"
+              id="brand-logo-upload"
+              {...register('logo')}
+              onChange={(e) => {
+                register('logo').onChange(e);
+                handleFileChange(e);
+              }}
+              className="hidden"
+              accept="image/*"
+            />
             <label htmlFor="brand-logo-upload" className="flex items-center justify-center w-full h-32 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-2 text-sm relative overflow-hidden group">
               {previewUrl ? (
                 <>
@@ -101,8 +107,8 @@ export default function BrandManager() {
             </label>
           </div>
 
-          <button disabled={isSubmitting} className="w-full bg-secondary text-white py-2 rounded-xl font-bold hover:bg-primary transition-all active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
-            {isSubmitting ? 'Creando Marca...' : 'Crear Marca'}
+          <button disabled={isSubmitting} className="w-full bg-secondary text-white py-2 rounded-xl font-bold hover:bg-primary transition-all active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            {isSubmitting ? <><div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Creando Marca...</> : 'Crear Marca'}
           </button>
         </form>
       </div>

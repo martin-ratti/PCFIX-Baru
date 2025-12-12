@@ -119,8 +119,8 @@ export default function ConfigForm() {
 
                     {/* Botón Específico Banco */}
                     <div className="mt-6 flex justify-end">
-                        <button type="submit" disabled={isLoading} className="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                            {isLoading ? 'Guardando...' : '💾 Guardar Datos Bancarios'}
+                        <button type="submit" disabled={isLoading} className="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            {isLoading ? <><div className="animate-spin h-4 w-4 border-2 border-gray-600 border-t-transparent rounded-full" /> Guardando...</> : '💾 Guardar Datos Bancarios'}
                         </button>
                     </div>
                 </div>
@@ -181,8 +181,8 @@ export default function ConfigForm() {
 
                     {/* Botón Específico Crypto */}
                     <div className="mt-6 flex justify-end">
-                        <button type="submit" disabled={isLoading} className="text-sm bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg font-bold hover:bg-yellow-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                            {isLoading ? 'Guardando...' : '💾 Guardar Configuración Crypto'}
+                        <button type="submit" disabled={isLoading} className="text-sm bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg font-bold hover:bg-yellow-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            {isLoading ? <><div className="animate-spin h-4 w-4 border-2 border-yellow-800 border-t-transparent rounded-full" /> Guardando...</> : '💾 Guardar Configuración Crypto'}
                         </button>
                     </div>
                 </div>
@@ -205,8 +205,8 @@ export default function ConfigForm() {
 
                     {/* Botón Específico Local */}
                     <div className="mt-6 flex justify-end">
-                        <button type="submit" disabled={isLoading} className="text-sm bg-green-100 text-green-800 px-4 py-2 rounded-lg font-bold hover:bg-green-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                            {isLoading ? 'Guardando...' : '💾 Guardar Datos del Local'}
+                        <button type="submit" disabled={isLoading} className="text-sm bg-green-100 text-green-800 px-4 py-2 rounded-lg font-bold hover:bg-green-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            {isLoading ? <><div className="animate-spin h-4 w-4 border-2 border-green-800 border-t-transparent rounded-full" /> Guardando...</> : '💾 Guardar Datos del Local'}
                         </button>
                     </div>
                 </div>
@@ -214,7 +214,7 @@ export default function ConfigForm() {
                 {/* Botón Flotante Global (Opcional, pero útil si cambiaste varias cosas) */}
                 <div className="sticky bottom-4 z-10 flex justify-center">
                     <button disabled={isLoading} className="bg-gray-900 text-white px-8 py-3 rounded-full font-bold hover:bg-black transition-all active:scale-95 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed flex items-center gap-2">
-                        {isLoading ? <span>💾 Guardando cambios...</span> : <span>💾 Guardar TODOS los Cambios</span>}
+                        {isLoading ? <><div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> <span>💾 Guardando cambios...</span></> : <span>💾 Guardar TODOS los Cambios</span>}
                     </button>
                 </div>
 

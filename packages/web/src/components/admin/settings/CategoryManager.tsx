@@ -99,8 +99,8 @@ export default function CategoryManager() {
             </select>
             <p className="text-xs text-gray-500 mt-1">Si seleccionas una, será una subcategoría.</p>
           </div>
-          <button disabled={isSubmitting} className="w-full bg-primary text-white py-2 rounded font-bold hover:bg-opacity-90 shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-            {isSubmitting ? 'Creando...' : 'Crear'}
+          <button disabled={isSubmitting} className="w-full bg-primary text-white py-2 rounded font-bold hover:bg-opacity-90 shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            {isSubmitting ? <><div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Creando...</> : 'Crear'}
           </button>
         </form>
       </div>

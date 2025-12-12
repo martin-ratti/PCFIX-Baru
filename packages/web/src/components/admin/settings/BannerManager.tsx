@@ -33,17 +33,13 @@ export default function BannerManager() {
   };
   useEffect(() => { fetchData(); }, []);
 
-  const { onChange: onBannerChange, ...bannerRegisterProps } = register('imagenFile', { required: "Imagen requerida" });
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onBannerChange(e);
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
       setBannerName(file.name);
-      if (file.type?.startsWith('image/')) {
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
-      }
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
     } else {
       setBannerName(null);
       setPreviewUrl(null);
@@ -97,7 +93,17 @@ export default function BannerManager() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Imagen (Horizontal)</label>
-            <input type="file" id="banner-upload" accept="image/*" onChange={handleFileSelect} {...bannerRegisterProps} className="hidden" />
+            <input
+              type="file"
+              id="banner-upload"
+              accept="image/*"
+              {...register('imagenFile', { required: "Imagen requerida" })}
+              onChange={(e) => {
+                register('imagenFile', { required: "Imagen requerida" }).onChange(e);
+                handleFileChange(e);
+              }}
+              className="hidden"
+            />
             <label htmlFor="banner-upload" className="flex items-center justify-center w-full h-32 px-6 py-5 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 font-bold cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all gap-3 overflow-hidden relative group">
               {previewUrl ? (
                 <>
@@ -119,8 +125,8 @@ export default function BannerManager() {
             {errors.imagenFile && <p className="text-red-500 text-xs mt-1">Requerido</p>}
           </div>
 
-          <button disabled={isLoading} className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
-            {isLoading ? 'Subiendo Banner...' : 'Publicar Banner'}
+          <button disabled={isLoading} className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center justify-center gap-2">
+            {isLoading ? <><div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> Subiendo...</> : 'Publicar Banner'}
           </button>
         </form>
       </div>

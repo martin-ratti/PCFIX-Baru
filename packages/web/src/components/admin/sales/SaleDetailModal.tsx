@@ -277,9 +277,9 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                     <button
                                         onClick={handleDispatch}
                                         disabled={isDispatching}
-                                        className="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition-colors disabled:opacity-50 shadow-sm whitespace-nowrap"
+                                        className="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition-colors disabled:opacity-50 shadow-sm whitespace-nowrap flex items-center gap-2"
                                     >
-                                        {isDispatching ? 'Procesando...' : 'Confirmar Entrega'}
+                                        {isDispatching ? <><div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Procesando...</> : 'Confirmar Entrega'}
                                     </button>
                                 </div>
                             ) : (
@@ -296,9 +296,9 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                             <button
                                                 onClick={handleCreateZipnovaShipment}
                                                 disabled={isCreatingShipment}
-                                                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 shadow-sm"
+                                                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 shadow-sm flex items-center gap-2"
                                             >
-                                                {isCreatingShipment ? 'Creando...' : 'Crear Envío'}
+                                                {isCreatingShipment ? <><div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Creando...</> : 'Crear Envío'}
                                             </button>
                                         </div>
                                     )}
@@ -316,9 +316,9 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                         <button
                                             onClick={handleDispatch}
                                             disabled={isDispatching || !trackingCode}
-                                            className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-sm whitespace-nowrap"
+                                            className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-sm whitespace-nowrap flex items-center gap-2"
                                         >
-                                            {isDispatching ? 'Procesando...' : 'Confirmar Despacho'}
+                                            {isDispatching ? <><div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /> Procesando...</> : 'Confirmar Despacho'}
                                         </button>
                                     </div>
                                 </div>

@@ -134,9 +134,9 @@ export default function StockAlertModal({ isOpen, onClose, productId, productNam
                                 <button
                                     onClick={() => handleSubmit()}
                                     disabled={loading || !email.includes('@')}
-                                    className="px-4 py-3 rounded-xl font-bold text-white bg-primary hover:bg-opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-4 py-3 rounded-xl font-bold text-white bg-primary hover:bg-opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
-                                    {loading ? '...' : (isEditing ? 'Guardar' : 'Confirmar')}
+                                    {loading ? <><div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" /></> : (isEditing ? 'Guardar' : 'Confirmar')}
                                 </button>
                             </div>
                         </>
