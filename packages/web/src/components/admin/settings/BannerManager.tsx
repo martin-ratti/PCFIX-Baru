@@ -3,9 +3,8 @@ import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import { fetchApi } from '../../../utils/api';
 import ConfirmModal from '../../ui/feedback/ConfirmModal'; // 👇 Modal
-
-interface Brand { id: number; nombre: string; }
-interface Banner { id: number; imagen: string; marca: Brand; }
+import type { Brand } from '../../../types/product';
+import type { Banner } from '../../../types/config';
 
 export default function BannerManager() {
   const [brands, setBrands] = useState<Brand[]>([]);

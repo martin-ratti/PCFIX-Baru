@@ -7,24 +7,14 @@ import { navigate } from 'astro:transitions/client';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 import StockAlertModal from './StockAlertModal';
 import { fetchApi } from '../../../utils/api';
+import type { ProductCardProps as ProductData } from '../../../types/product';
 
-interface ProductCardProps {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    originalPrice?: number | null;
-    imageUrl: string;
-    imageAlt: string;
-    stock: number;
-    slug: string;
-    description?: string;
-    categoria?: { nombre: string };
-  };
+interface ProductCardComponentProps {
+  product: ProductData;
   disableTransition?: boolean;
 }
 
-export default function ProductCard({ product, disableTransition = false }: ProductCardProps) {
+export default function ProductCard({ product, disableTransition = false }: ProductCardComponentProps) {
   const { items, addItem, increaseQuantity, decreaseQuantity } = useCartStore();
   const { user, isAuthenticated } = useAuthStore();
   const { isFavorite, toggleFavoriteOptimistic } = useFavoritesStore();

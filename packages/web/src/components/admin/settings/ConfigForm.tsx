@@ -3,18 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { fetchApi } from '../../../utils/api';
-
-interface ConfigData {
-    nombreBanco: string;
-    titular: string;
-    cbu: string;
-    alias: string;
-    binanceAlias?: string;
-    binanceCbu?: string;
-    direccionLocal?: string;
-    horariosLocal?: string;
-    cotizacionUsdt?: number;
-}
+import type { ConfigData } from '../../../types/config';
 
 export default function ConfigForm() {
     const { register, handleSubmit, setValue, watch } = useForm<ConfigData>();

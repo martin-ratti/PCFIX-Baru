@@ -10,38 +10,9 @@ import FeaturesSection from "../components/ui/layout/FeaturesSection.astro";
 import BestSellersCarousel from "../components/ui/layout/BestSellersCarousel.tsx";
 import PromoBanner from "../components/ui/layout/PromoBanner.astro";
 
-interface ProductDB {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  precio: string | number;
-  precioOriginal: string | number | null;
-  stock: number;
-  foto: string | null;
-  categoriaId: number;
-  isFeatured: boolean;
-}
-interface ProductCardProps {
-  id: string;
-  name: string;
-  price: number;
-  imageUrl: string;
-  imageAlt: string;
-  originalPrice?: number | null;
-  stock: number;
-  slug: string;
-  description: string;
-}
-interface Brand {
-  id: number;
-  nombre: string;
-  logo: string | null;
-}
-interface Banner {
-  id: number;
-  imagen: string;
-  marca: Brand;
-}
+import type { ProductDB, ProductCardProps, Brand } from "../types/product";
+import type { Banner } from "../types/config";
+import { mapProductDBToCardProps } from "../types/product";
 
 let allProducts: ProductDB[] = [];
 let featuredProducts: ProductCardProps[] = [];
@@ -70,12 +41,14 @@ try {
       featuredProducts = allProducts
         .filter((p) => p.isFeatured)
         .slice(0, 8)
-        .map(mapProductToCard);
+        .map(mapProductDBToCardProps);
       saleProducts = allProducts
         .filter((p) => p.precioOriginal)
         .slice(0, 8)
-        .map(mapProductToCard);
-      newArrivalsProducts = allProducts.slice(0, 8).map(mapProductToCard);
+        .map(mapProductDBToCardProps);
+      newArrivalsProducts = allProducts
+        .slice(0, 8)
+        .map(mapProductDBToCardProps);
     }
   } else {
     errorApi = true;
@@ -102,20 +75,6 @@ try {
   errorApi = true;
 }
 if (!configHours) configHours = "Lunes a Viernes: 9:00 - 18:00"; // Fallback
-
-function mapProductToCard(p: ProductDB): ProductCardProps {
-  return {
-    id: p.id.toString(),
-    name: p.nombre,
-    price: Number(p.precio),
-    imageUrl: p.foto || "",
-    imageAlt: p.nombre,
-    stock: p.stock,
-    originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null,
-    slug: p.id.toString(),
-    description: p.descripcion,
-  };
-}
 ---
 
 <Layout title="PCFIX | Tu Tienda de Tecnología">

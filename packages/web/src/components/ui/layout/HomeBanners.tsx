@@ -1,14 +1,12 @@
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation, EffectFade } from 'swiper/modules';
+import type { Banner } from '../../../types/config';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
-
-interface Brand { id: number; nombre: string; }
-interface Banner { id: number; imagen: string; marca: Brand; }
 
 interface HomeBannersProps { banners: Banner[]; }
 

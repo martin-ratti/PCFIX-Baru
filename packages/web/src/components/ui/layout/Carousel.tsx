@@ -2,22 +2,14 @@ import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import ProductCard from '../../store/product/ProductCard';
+import type { CarouselProduct } from '../../../types/product';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-export interface CarouselProduct {
-  id: string;
-  name: string;
-  price: number;
-  originalPrice?: number | null;
-  imageUrl: string;
-  imageAlt: string;
-  stock: number;
-  slug: string;
-  description?: string;
-}
+// Re-export for backward compatibility
+export type { CarouselProduct };
 
 interface CarouselProps {
   title: string;

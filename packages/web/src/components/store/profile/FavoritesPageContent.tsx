@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
 import ProductCard from '../../store/product/ProductCard';
-
-interface ProductCardProps {
-    id: string; name: string; price: number; imageUrl: string; imageAlt: string; originalPrice?: number | null; stock: number; slug: string; description: string;
-}
+import type { ProductCardProps, ProductDB } from '../../../types/product';
+import { mapProductDBToCardProps } from '../../../types/product';
 
 export default function FavoritesPageContent() {
     const { user, isAuthenticated } = useAuthStore();
@@ -30,17 +28,7 @@ export default function FavoritesPageContent() {
             const result = await res.json();
 
             if (result.success) {
-                const mappedProducts = result.data.map((p: any) => ({
-                    id: String(p.id),
-                    name: p.nombre,
-                    price: Number(p.precio),
-                    imageUrl: p.foto || '',
-                    imageAlt: p.nombre,
-                    description: p.descripcion,
-                    stock: p.stock,
-                    slug: String(p.id),
-                    originalPrice: p.precioOriginal ? Number(p.precioOriginal) : null,
-                }));
+                const mappedProducts = result.data.map((p: ProductDB) => mapProductDBToCardProps(p));
                 setFavorites(mappedProducts);
             } else {
                 addToast('Error al cargar favoritos', 'error');

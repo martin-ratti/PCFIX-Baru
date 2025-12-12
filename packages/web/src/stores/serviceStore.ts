@@ -1,11 +1,8 @@
 import { create } from 'zustand';
+import type { ServiceItem } from '../types/config';
 
-export interface ServiceItem {
-  id: number;
-  title: string;
-  price: number;
-  description: string;
-}
+// Re-export for backward compatibility
+export type { ServiceItem };
 
 interface ServiceState {
   items: ServiceItem[];
