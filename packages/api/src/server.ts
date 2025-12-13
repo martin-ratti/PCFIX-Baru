@@ -135,6 +135,48 @@ app.get('/health', async (req: Request, res: Response) => {
   }
 });
 
+// --- DEBUG SMTP (TEMPORARY - RESEND) ---
+import { Resend } from 'resend';
+app.get('/api/debug/test-email', async (req: Request, res: Response) => {
+  try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const from = process.env.RESEND_FROM || process.env.EMAIL_FROM || 'onboarding@resend.dev';
+
+    // Test email using Resend
+    const { data, error } = await resend.emails.send({
+      from: from,
+      to: 'pcfixbaru@gmail.com', // Always send to owner to verify connectivity
+      subject: "Diagnóstico PCFIX (Resend API) - Verified Domain",
+      html: `<p>Si ves esto, la API de Resend funciona y el dominio está verificado.</p>
+             <p><strong>Enviado desde:</strong> ${from}</p>`,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    res.json({
+      success: true,
+      message: 'Email enviado correctamente vía Resend API',
+      fromUsed: from,
+      data
+    });
+
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack,
+      config: {
+        provider: 'Resend',
+        key_exists: !!process.env.RESEND_API_KEY,
+        from_var: process.env.EMAIL_FROM || process.env.RESEND_FROM || 'NOT SET'
+      }
+    });
+  }
+});
+
 // --- MANEJO DE ERRORES GLOBAL (Siempre al final) ---
 
 // 1. Manejo de rutas inexistentes (404)
