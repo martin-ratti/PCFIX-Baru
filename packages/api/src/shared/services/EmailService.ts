@@ -523,4 +523,53 @@ export class EmailService {
 
     return await this.sendEmail(userEmail, subject, html);
   }
+
+  // Notificar Bajada de Precio (Smart Wishlist)
+  async sendPriceDropNotification(userEmail: string, productName: string, productLink: string, foto: string, oldPrice: number, newPrice: number) {
+    const subject = `📉 ¡Bajó de precio! ${productName} está más barato`;
+    const discount = Math.round(((oldPrice - newPrice) / oldPrice) * 100);
+
+    const html = `
+      <div style="font-family: 'Segoe UI', serif; color: #1f2937; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+        
+        <div style="background-color: #111827; padding: 20px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">PC FIX</h1>
+        </div>
+
+        <div style="padding: 30px 20px;">
+            <p style="text-align: center; color: #ef4444; font-weight: 700; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; margin-bottom: 5px;">¡Oportunidad!</p>
+            <h2 style="color: #111827; font-size: 22px; font-weight: 700; margin-top: 0; text-align: center; line-height: 1.3;">${productName}</h2>
+            
+            <p style="text-align: center; color: #4b5563; font-size: 16px; margin-bottom: 25px;">
+                Uno de tus productos favoritos bajó de precio. ¡Es el momento perfecto para comprarlo!
+            </p>
+
+            <div style="background-color: #f9fafb; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 30px; border: 1px solid #f3f4f6;">
+                <img src="${foto || 'https://placehold.co/400x400?text=Hardware'}" alt="${productName}" style="max-width: 100%; height: auto; max-height: 200px; object-fit: contain; margin-bottom: 15px;">
+                
+                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <span style="text-decoration: line-through; color: #9ca3af; font-size: 16px;">$${Number(oldPrice).toLocaleString('es-AR')}</span>
+                    <span style="color: #ef4444; font-weight: bold; font-size: 24px;">$${Number(newPrice).toLocaleString('es-AR')}</span>
+                </div>
+                
+                <div style="display: inline-block; background-color: #fee2e2; color: #991b1b; font-weight: bold; font-size: 12px; padding: 4px 10px; border-radius: 9999px; margin-top: 10px;">
+                    🔥 ${discount}% OFF
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="${productLink}" style="display: block; width: 100%; background-color: #ef4444; color: #ffffff; padding: 16px 0; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px; text-align: center; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);">
+                    Ver Producto Ahora
+                </a>
+            </div>
+        </div>
+        
+        <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af;">
+            <p>Recibiste este correo porque tienes este producto en tus favoritos de PC FIX.</p>
+        </div>
+      </div>
+    `;
+
+    return await this.sendEmail(userEmail, subject, html);
+  }
 }

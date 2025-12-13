@@ -1,5 +1,6 @@
 import { prisma } from '../../shared/database/prismaClient';
 import { Prisma } from '@prisma/client';
+import { EmailService } from '../../shared/services/EmailService';
 
 export class ProductService {
 
@@ -118,9 +119,10 @@ export class ProductService {
 
         if (data.foto) updateData.foto = data.foto;
 
-        // Check previous stock
+        // Check previous values
         const currentProduct = await prisma.producto.findUnique({ where: { id } });
         const oldStock = currentProduct?.stock || 0;
+        const oldPrice = Number(currentProduct?.precio || 0);
 
         const updatedProduct = await prisma.producto.update({ where: { id }, data: updateData });
 
@@ -128,6 +130,12 @@ export class ProductService {
         const newStock = updatedProduct.stock;
         if (oldStock === 0 && newStock > 0) {
             this.processStockAlerts(updatedProduct);
+        }
+
+        // Trigger Price Drop Alert (Smart Wishlist)
+        const newPrice = Number(updatedProduct.precio);
+        if (oldPrice > 0 && newPrice < oldPrice) {
+            this.processPriceDropAlerts(updatedProduct, oldPrice, newPrice);
         }
 
         return updatedProduct;
@@ -142,11 +150,11 @@ export class ProductService {
 
             if (alerts.length === 0) return;
 
-            // Lazy load EmailService to avoid circular deps if any (though shared is fine)
-            const { EmailService } = require('../../shared/services/EmailService');
+            if (alerts.length === 0) return;
+
             const emailService = new EmailService();
 
-            const productLink = `https://pcfixbaru.com.ar/tienda/producto/${product.id}`; // Dev: localhost
+            const productLink = `https://pcfixbaru.com.ar/tienda/producto/${product.id}`;
 
             for (const alert of alerts) {
                 await emailService.sendStockAlertEmail(
@@ -163,9 +171,46 @@ export class ProductService {
                 where: { productoId: product.id }
             });
 
-
         } catch (error) {
             console.error('Error procesando alertas de stock:', error);
+        }
+    }
+
+    // Helper to process price drop alerts
+    private async processPriceDropAlerts(product: any, oldPrice: number, newPrice: number) {
+        try {
+            // Find users who have this product in favorites
+            const favorites = await prisma.favorite.findMany({
+                where: { productoId: product.id },
+                include: { user: true }
+            });
+
+            if (favorites.length === 0) return;
+
+            const emailService = new EmailService();
+
+            const productLink = `https://pcfixbaru.com.ar/tienda/producto/${product.id}`;
+
+            console.log(`📉 Detectada bajada de precio para ${product.nombre}. Notificando a ${favorites.length} interesados.`);
+
+            // Send emails (non-blocking for main thread usually, but here we await them sequentially or parallel)
+            // Using Promise.all for speed
+            await Promise.all(favorites.map(fav => {
+                if (fav.user.email) {
+                    return emailService.sendPriceDropNotification(
+                        fav.user.email,
+                        product.nombre,
+                        productLink,
+                        product.foto,
+                        oldPrice,
+                        newPrice
+                    ).catch((e: any) => console.error(`Error enviando alerta precio a ${fav.user.email}:`, e));
+                }
+                return Promise.resolve();
+            }));
+
+        } catch (error) {
+            console.error('Error procesando alertas de bajada de precio:', error);
         }
     }
 
