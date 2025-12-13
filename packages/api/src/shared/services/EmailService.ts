@@ -11,9 +11,11 @@ export class EmailService {
   async sendEmail(to: string, subject: string, htmlContent: string) {
     try {
       const fromEmail = process.env.EMAIL_FROM || 'PCFIX <noreply@pcfixbaru.com.ar>';
+      const replyToAddress = process.env.REPLY_TO || 'pcfixbaru@gmail.com';
 
       const { data, error } = await this.resend.emails.send({
         from: fromEmail,
+        replyTo: replyToAddress,
         to,
         subject,
         html: htmlContent,
