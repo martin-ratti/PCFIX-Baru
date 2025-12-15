@@ -18,7 +18,7 @@ interface Props {
 const {
     title,
     description = "Tu tienda de confianza para hardware y tecnología.",
-    image = "/images/default-og.png",
+    image = "/og-image.png",
     price,
 } = Astro.props;
 
@@ -35,43 +35,42 @@ const SERVER_API_URL =
 
 <!doctype html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width" />
-        <link rel="icon" type="image/png" href="/favicon.svg" />
-        <meta name="generator" content={Astro.generator} />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
 
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <link rel="canonical" href={canonicalURL} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
 
-        <meta property="og:type" content={price ? "product" : "website"} />
-        <meta property="og:url" content={canonicalURL} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:image" content={absoluteImageUrl} />
-        <meta property="og:site_name" content="PC FIX" />
+    <meta property="og:type" content={price ? "product" : "website"} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={absoluteImageUrl} />
+    <meta property="og:site_name" content="PC FIX" />
 
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content={absoluteImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absoluteImageUrl} />
 
-        {
-            price && (
-                <>
-                    <meta
-                        property="product:price:amount"
-                        content={price.toString()}
-                    />
-                    <meta property="product:price:currency" content="ARS" />
-                </>
-            )
-        }
+    {
+        price && (
+            <>
+                <meta
+                    property="product:price:amount"
+                    content={price.toString()}
+                />
+                <meta property="product:price:currency" content="ARS" />
+            </>
+        )
+    }
 
-        <ClientRouter />
-        <slot name="head" />
-    </head>
+    <ClientRouter />
+    <slot name="head" />
+
     <body
         class="bg-gray-50 min-h-screen flex flex-col text-gray-900 selection:bg-primary/20"
     >
