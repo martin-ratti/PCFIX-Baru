@@ -23,6 +23,12 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
     const addToast = useToastStore(s => s.addToast);
     const { register, handleSubmit, watch, reset } = useForm();
     const fileWatch = watch('comprobante');
+    const [showSummary, setShowSummary] = useState(false);
+
+    const copyToClipboard = (text: string, label: string) => {
+        navigator.clipboard.writeText(text);
+        addToast(`${label} copiado al portapapeles`, 'success');
+    };
 
     useEffect(() => {
         if (fileWatch && fileWatch.length > 0) {
@@ -226,14 +232,24 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         if (sale.medioPago === 'BINANCE') {
             return (
                 <div className="space-y-6 animate-fade-in">
-                    <div className="bg-yellow-400 p-6 rounded-2xl text-black shadow-lg text-center relative overflow-hidden">
+                    <div className="bg-yellow-400 p-6 rounded-2xl text-black shadow-lg text-center relative overflow-hidden group">
                         <p className="text-xs font-bold uppercase tracking-widest mb-1 opacity-80">Monto USDT</p>
-                        <p className="text-4xl font-black tracking-tight">{(Number(sale.montoTotal) / usdtRate).toFixed(2)} USDT</p>
+                        <div className="flex items-center justify-center gap-2 cursor-pointer" onClick={() => copyToClipboard((Number(sale.montoTotal) / usdtRate).toFixed(2), 'Monto USDT')}>
+                            <p className="text-4xl font-black tracking-tight">{(Number(sale.montoTotal) / usdtRate).toFixed(2)} USDT</p>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 opacity-0 group-hover:opacity-50 transition-opacity"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5" /></svg>
+                        </div>
                         <p className="text-xs mt-2 opacity-75">1 USDT = ${usdtRate} ARS</p>
                     </div>
-                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center">
+                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center relative group">
                         <p className="text-gray-500 text-xs uppercase font-bold mb-1">Binance Pay ID</p>
                         <p className="text-lg font-mono font-bold text-gray-800 select-all">{config.binanceCbu || 'N/A'}</p>
+                        <button
+                            onClick={() => copyToClipboard(config.binanceCbu || '', 'Binance ID')}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-400 hover:text-gray-600"
+                            title="Copiar"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
+                        </button>
                     </div>
                 </div>
             );
@@ -254,14 +270,38 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         }
         return (
             <div className="space-y-8 animate-fade-in">
-                <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-6 rounded-2xl text-white shadow-lg text-center">
+                <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-6 rounded-2xl text-white shadow-lg text-center group cursor-pointer" onClick={() => copyToClipboard(Number(sale.montoTotal).toString(), 'Monto Total')}>
                     <p className="text-blue-200 text-xs font-bold uppercase tracking-widest mb-1">Monto Exacto</p>
-                    <p className="text-5xl font-black tracking-tight">${Number(sale.montoTotal).toLocaleString('es-AR')}</p>
+                    <div className="flex items-center justify-center gap-2">
+                        <p className="text-5xl font-black tracking-tight">${Number(sale.montoTotal).toLocaleString('es-AR')}</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 opacity-0 group-hover:opacity-50 transition-opacity"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                    </div>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center">
-                    <p className="text-gray-500 text-xs uppercase font-bold mb-1">CBU / CVU</p>
-                    <p className="text-lg font-mono font-bold text-gray-800 select-all break-all">{config.cbu}</p>
-                    <p className="text-sm text-gray-600 mt-1 font-bold">{config.alias}</p>
+
+                <div className="space-y-3">
+                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center relative group">
+                        <p className="text-gray-500 text-xs uppercase font-bold mb-1">CBU / CVU</p>
+                        <p className="text-lg font-mono font-bold text-gray-800 break-all">{config.cbu}</p>
+                        <button
+                            onClick={() => copyToClipboard(config.cbu, 'CBU/CVU')}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-400 hover:text-gray-600"
+                            title="Copiar CBU"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
+                        </button>
+                    </div>
+
+                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-center relative group">
+                        <p className="text-gray-500 text-xs uppercase font-bold mb-1">Alias</p>
+                        <p className="text-lg font-mono font-bold text-gray-800">{config.alias}</p>
+                        <button
+                            onClick={() => copyToClipboard(config.alias, 'Alias')}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-400 hover:text-gray-600"
+                            title="Copiar Alias"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -306,6 +346,31 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                     )}
                 </div>
 
+                {/* Order Summary Toggle */}
+                <div className="mb-6 border rounded-xl overflow-hidden">
+                    <button
+                        onClick={() => setShowSummary(!showSummary)}
+                        className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+                    >
+                        <span className="font-bold text-sm text-gray-600">Resumen del Pedido (#{sale.id})</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-4 h-4 transition-transform ${showSummary ? 'rotate-180' : ''}`}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </button>
+                    {showSummary && (
+                        <div className="p-4 bg-white border-t border-gray-100 space-y-3">
+                            {sale.items?.map((item: any) => (
+                                <div key={item.id} className="flex justify-between text-sm">
+                                    <span className="text-gray-600">{item.quantity}x {item.product.nombre}</span>
+                                    <span className="font-medium">${Number(item.price).toLocaleString('es-AR')}</span>
+                                </div>
+                            ))}
+                            <div className="pt-2 border-t flex justify-between font-bold text-gray-800">
+                                <span>Total</span>
+                                <span>${Number(sale.montoTotal).toLocaleString('es-AR')}</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 {renderPaymentInfo()}
 
                 <div className="mt-8 pt-6 border-t border-gray-100 flex justify-center">
@@ -335,13 +400,45 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                 ) : (
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         {!isCash ? (
-                            <div className="flex-1 border-2 border-dashed border-gray-200 hover:border-primary rounded-2xl p-8 text-center relative min-h-[250px] flex flex-col items-center justify-center">
-                                <input type="file" accept="image/*,.pdf" {...register('comprobante')} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                                {previewUrl ? <img src={previewUrl} className="max-h-56 rounded shadow object-contain" /> : (
-                                    <>
-                                        <span className="text-4xl mb-2">📷</span>
-                                        <p className="text-gray-500 font-medium">Sube tu comprobante aquí</p>
-                                    </>
+                            <div className="space-y-4">
+                                <div className="flex-1 border-2 border-dashed border-gray-200 hover:border-primary rounded-2xl p-8 text-center relative min-h-[250px] flex flex-col items-center justify-center transition-colors group">
+                                    <input type="file" accept="image/*,.pdf" {...register('comprobante')} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                    {previewUrl ? (
+                                        <div className="relative">
+                                            <img src={previewUrl} className="max-h-48 rounded shadow-lg object-contain" />
+                                            <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1 shadow-md">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="bg-blue-50 text-primary p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                                            </div>
+                                            <p className="text-gray-900 font-bold mb-1">Sube tu comprobante</p>
+                                            <p className="text-gray-400 text-xs">Arrastra o haz clic para seleccionar</p>
+                                        </>
+                                    )}
+                                </div>
+                                {!previewUrl && (
+                                    <div className="text-center">
+                                        <div className="relative flex py-2 items-center">
+                                            <div className="flex-grow border-t border-gray-100"></div>
+                                            <span className="flex-shrink-0 mx-4 text-gray-300 text-xs uppercase font-bold">O envía por WhatsApp</span>
+                                            <div className="flex-grow border-t border-gray-100"></div>
+                                        </div>
+                                        <a
+                                            href={`https://wa.me/5491112345678?text=Hola!%20Envio%20comprobante%20del%20pedido%20%23${sale.id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full flex items-center justify-center gap-2 py-3 bg-green-50 text-green-600 font-bold rounded-xl hover:bg-green-100 transition-colors"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z" />
+                                            </svg>
+                                            Enviar por WhatsApp
+                                        </a>
+                                    </div>
                                 )}
                             </div>
                         ) : (
