@@ -20,7 +20,7 @@ export default function ManualSaleForm() {
         defaultValues: { customerEmail: 'mostrador@pcfix.com', medioPago: 'EFECTIVO', estado: 'ENTREGADO' }
     });
 
-    // Búsqueda
+    {/* Búsqueda */ }
     useEffect(() => {
         const timer = setTimeout(() => {
             // Si está vacío, traemos los primeros 20 productos/servicios populares
@@ -33,9 +33,12 @@ export default function ManualSaleForm() {
         return () => clearTimeout(timer);
     }, [searchTerm, token]);
 
+    const isService = (product: any) => product.categoria?.nombre?.toLowerCase().includes('servicio');
+
     const addToCart = (product: any) => {
+        const service = isService(product);
         // 1. Validar Stock Inicial (Físico vs Servicio)
-        if (product.stock < 90000 && product.stock <= 0) {
+        if (!service && product.stock <= 0) {
             addToast('Producto SIN STOCK', 'error');
             return;
         }
@@ -43,8 +46,8 @@ export default function ManualSaleForm() {
         setCart(prev => {
             const existing = prev.find((i: any) => i.id === product.id);
             if (existing) {
-                // Validar tope de stock
-                if (product.stock < 90000 && existing.quantity >= product.stock) {
+                // Validar tope de stock solo si NO es servicio
+                if (!service && existing.quantity >= product.stock) {
                     addToast(`Solo hay ${product.stock} unidades`, 'error');
                     return prev;
                 }
@@ -62,8 +65,12 @@ export default function ManualSaleForm() {
             if (item.id === id) {
                 const newQty = item.quantity + delta;
                 if (newQty < 1) return item;
-                // Validar tope al aumentar
-                if (item.stock < 90000 && newQty > item.stock) {
+                // Validar tope al aumentar (solo si no es servicio - los servicios en cart no tienen flag 'isService' pero en manual sale form no persistimos ese flag, podriamos inferirlo o buscar el original. 
+                // Simplificacion: Si stock > 90000 era "servicio", ahora no tenemos esa marca.
+                // CORRECCION: El item en cart trae todo lo de product? Si.
+                const service = isService(item);
+
+                if (!service && newQty > item.stock) {
                     addToast('Stock insuficiente', 'error');
                     return item;
                 }
@@ -118,21 +125,24 @@ export default function ManualSaleForm() {
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 bg-gray-50/30">
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-                        {searchResults.map(product => (
-                            <div key={product.id} onClick={() => addToCart(product)} className={`bg-white p-3 rounded-xl border shadow-sm cursor-pointer transition-all group flex flex-col h-full active:scale-95 ${product.stock === 0 && product.stock < 90000 ? 'opacity-60 grayscale border-gray-200 cursor-not-allowed' : 'hover:shadow-md hover:border-primary/30 border-gray-100'}`}>
-                                <div className="flex items-start justify-between gap-2 mb-2">
-                                    <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0"><img src={product.foto || "https://placehold.co/100x100?text=IMG"} alt="" className="w-full h-full object-cover" /></div>
-                                    <span className="font-bold text-primary font-mono bg-blue-50 px-2 py-1 rounded text-xs">${Number(product.precio).toLocaleString('es-AR')}</span>
+                        {searchResults.map(product => {
+                            const service = isService(product);
+                            return (
+                                <div key={product.id} onClick={() => addToCart(product)} className={`bg-white p-3 rounded-xl border shadow-sm cursor-pointer transition-all group flex flex-col h-full active:scale-95 ${!service && product.stock === 0 ? 'opacity-60 grayscale border-gray-200 cursor-not-allowed' : 'hover:shadow-md hover:border-primary/30 border-gray-100'}`}>
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                        <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0"><img src={product.foto || "https://placehold.co/100x100?text=IMG"} alt="" className="w-full h-full object-cover" /></div>
+                                        <span className="font-bold text-primary font-mono bg-blue-50 px-2 py-1 rounded text-xs">${Number(product.precio).toLocaleString('es-AR')}</span>
+                                    </div>
+                                    <p className="font-bold text-sm text-gray-800 line-clamp-2 mb-1">{product.nombre}</p>
+                                    <p className="text-xs text-gray-500 mt-auto flex justify-between">
+                                        <span className="truncate max-w-[60%]">{product.categoria?.nombre || 'General'}</span>
+                                        <span className={service ? 'text-blue-600 font-bold' : (product.stock === 0 ? 'text-red-500 font-bold' : 'text-green-600 font-bold')}>
+                                            {service ? 'Servicio' : (product.stock === 0 ? 'Agotado' : `Stock: ${product.stock}`)}
+                                        </span>
+                                    </p>
                                 </div>
-                                <p className="font-bold text-sm text-gray-800 line-clamp-2 mb-1">{product.nombre}</p>
-                                <p className="text-xs text-gray-500 mt-auto flex justify-between">
-                                    <span className="truncate max-w-[60%]">{product.categoria?.nombre || 'General'}</span>
-                                    <span className={product.stock > 90000 ? 'text-blue-600 font-bold' : (product.stock === 0 ? 'text-red-500 font-bold' : 'text-green-600 font-bold')}>
-                                        {product.stock > 90000 ? 'Servicio' : (product.stock === 0 ? 'Agotado' : `Stock: ${product.stock}`)}
-                                    </span>
-                                </p>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                     {searchResults.length === 0 && <div className="h-full flex items-center justify-center text-gray-400 opacity-50"><p>Sin resultados...</p></div>}
                 </div>

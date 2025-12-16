@@ -192,7 +192,7 @@ function ProductListContent() {
                                     <td className="px-6 py-4 text-sm font-mono">
                                         <div className="flex flex-col">{p.precioOriginal ? <><span className="text-red-600 font-bold">${Number(p.precio).toLocaleString('es-AR')}</span><span className="text-xs text-gray-400 line-through font-medium">${Number(p.precioOriginal).toLocaleString('es-AR')}</span></> : <span className="text-gray-700 font-bold">${Number(p.precio).toLocaleString('es-AR')}</span>}</div>
                                     </td>
-                                    <td className="px-6 py-4 text-sm"><span className={`px-2 py-1 rounded-md font-bold text-xs ${p.stock > 90000 ? 'bg-blue-50 text-blue-600' : p.stock <= 5 ? 'bg-red-50 text-red-600 animate-pulse' : 'text-green-700 bg-green-50'}`}>{p.stock > 90000 ? '∞' : p.stock}</span></td>
+                                    <td className="px-6 py-4 text-sm"><span className={`px-2 py-1 rounded-md font-bold text-xs ${p.categoria?.nombre?.toLowerCase().includes('servicio') ? 'bg-blue-50 text-blue-600' : p.stock <= 5 ? 'bg-red-50 text-red-600 animate-pulse' : 'text-green-700 bg-green-50'}`}>{p.categoria?.nombre?.toLowerCase().includes('servicio') ? '∞' : p.stock}</span></td>
                                     <td className="px-6 py-4 text-right text-sm font-medium">
                                         {/* Botones SIEMPRE visibles */}
                                         <div className="flex justify-end gap-1">

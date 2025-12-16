@@ -110,6 +110,33 @@ if (!product) {
             />
           )
         }
+        <button
+          id="share-btn"
+          class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm border border-gray-100 text-gray-500 hover:text-blue-600 hover:bg-white p-2.5 rounded-full transition-all shadow-sm active:scale-95 z-20 opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+          aria-label="Compartir"
+          data-title={product.nombre}
+          data-text={`Mira este ${product.nombre} en PC FIX`}
+          data-url={Astro.url.href}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"
+            ></circle><circle cx="18" cy="19" r="3"></circle><line
+              x1="8.59"
+              x2="15.42"
+              y1="13.51"
+              y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"
+            ></line></svg
+          >
+        </button>
       </div>
 
       <div class="lg:col-span-6 space-y-8">
@@ -184,60 +211,25 @@ if (!product) {
             )
           }
 
-          <div class="mt-8 flex gap-3">
-            <div class="flex-grow">
-              <AddToCart
-                client:load
-                stock={product.stock}
-                product={{
-                  id: product.id.toString(),
-                  name: product.nombre,
-                  slug: product.id.toString(),
-                  price: Number(product.precio),
-                  imageUrl: product.foto || "",
-                  imageAlt: product.nombre,
-                  description: product.descripcion,
-                  stock: product.stock,
-                  originalPrice: product.precioOriginal
-                    ? Number(product.precioOriginal)
-                    : undefined,
-                  category: product.categoria?.nombre,
-                }}
-              />
-            </div>
-
-            <button
-              id="share-btn"
-              class="bg-white border-2 border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 p-3 rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center w-14 group relative"
-              aria-label="Compartir"
-              data-title={product.nombre}
-              data-text={`Mira este ${product.nombre} en PC FIX`}
-              data-url={Astro.url.href}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                ><circle cx="18" cy="5" r="3"></circle><circle
-                  cx="6"
-                  cy="12"
-                  r="3"></circle><circle cx="18" cy="19" r="3"></circle><line
-                  x1="8.59"
-                  x2="15.42"
-                  y1="13.51"
-                  y2="17.49"></line><line
-                  x1="15.41"
-                  x2="8.59"
-                  y1="6.51"
-                  y2="10.49"></line></svg
-              >
-            </button>
+          <div class="mt-8">
+            <AddToCart
+              client:load
+              stock={product.stock}
+              product={{
+                id: product.id.toString(),
+                name: product.nombre,
+                slug: product.id.toString(),
+                price: Number(product.precio),
+                imageUrl: product.foto || "",
+                imageAlt: product.nombre,
+                description: product.descripcion,
+                stock: product.stock,
+                originalPrice: product.precioOriginal
+                  ? Number(product.precioOriginal)
+                  : undefined,
+                category: product.categoria?.nombre,
+              }}
+            />
           </div>
         </div>
 
