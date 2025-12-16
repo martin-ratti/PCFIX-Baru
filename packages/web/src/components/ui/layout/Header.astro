@@ -11,23 +11,7 @@ import LiveSearch from "../../ui/forms/LiveSearch.tsx";
 import ErrorBoundary from "../../ui/feedback/ErrorBoundary.tsx";
 import MobileMenu from "../../ui/layout/MobileMenu.tsx";
 
-let categories = [];
-try {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 1000);
-  const API_URL = "https://pcfix-baru-production.up.railway.app/api";
-  const response = await fetch(`${API_URL}/categories`, {
-    signal: controller.signal,
-  });
-  clearTimeout(timeoutId);
-  if (response.ok) {
-    const json = await response.json();
-    if (json.success) categories = json.data;
-  }
-} catch (e) {
-  if (import.meta.env.DEV) console.warn("⚠️ API Categorías offline.");
-  categories = [];
-}
+const categories = [];
 ---
 
 <header

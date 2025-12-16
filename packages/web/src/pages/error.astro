@@ -1,21 +1,68 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="Error del Sistema">
-  <div class="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
-    <div class="text-6xl mb-4">🔧</div>
-    <h1 class="text-3xl font-bold text-gray-800 mb-4">Estamos teniendo problemas técnicos</h1>
-    <p class="text-gray-600 mb-8 max-w-md">
-      Nuestro equipo de ingenieros ya ha sido notificado. Por favor, intenta recargar la página en unos minutos.
-    </p>
-    <div class="flex gap-4">
-      <a href="/" class="px-6 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-        Ir al Inicio
-      </a>
-      <button onclick="window.location.reload()" class="px-6 py-2 bg-primary text-white rounded-lg font-bold shadow hover:bg-opacity-90 transition-colors">
-        Recargar Página
-      </button>
+<Layout title="Error del Sistema - PC FIX">
+  <div
+    class="min-h-[90vh] flex items-center justify-center p-4 bg-[#0078D7] text-white selection:bg-white/30 relative z-20"
+  >
+    <div
+      class="max-w-3xl w-full grid md:grid-cols-[200px_1fr] gap-8 items-start"
+    >
+      <!-- Sad Face -->
+      <div class="text-[140px] leading-none font-sans opacity-90 md:text-right">
+        :(
+      </div>
+
+      <div class="space-y-6 pt-4">
+        <h1 class="text-3xl md:text-4xl font-light">
+          Oops. Tuvimos un problema.
+        </h1>
+
+        <p class="text-xl font-light opacity-90 leading-relaxed">
+          Tu sesión ha encontrado un error inesperado al procesar tu solicitud.
+          Solo estamos recopilando información sobre el error y luego podrás
+          continuar.
+        </p>
+
+        <div class="flex items-center gap-3 py-2">
+          <div class="h-1 bg-white/20 w-full max-w-[200px] overflow-hidden">
+            <div class="h-full bg-white w-1/2 animate-[shimmer_2s_infinite]">
+            </div>
+          </div>
+          <span class="font-mono text-sm">45% completado</span>
+        </div>
+
+        <div
+          class="bg-black/10 p-6 rounded-lg font-mono text-sm space-y-2 mt-8"
+        >
+          <p>
+            <span class="opacity-60">STOP CODE:</span> INTERNAL_SERVER_ERROR
+          </p>
+          <p><span class="opacity-60">ERROR:</span> 0x00000500</p>
+          <p>
+            <span class="opacity-60">MORE_INFO:</span>
+            <a href="/info/contacto" class="underline hover:text-white/80"
+              >pcfixbaru.com/contacto</a
+            >
+          </p>
+        </div>
+
+        <div class="flex gap-4 mt-8">
+          <button
+            onclick="window.location.reload()"
+            class="inline-flex items-center justify-center h-10 px-4 py-2 font-bold text-[#0078D7] transition-colors bg-white rounded-md hover:bg-white/90"
+          >
+            Reiniciar Página
+          </button>
+          <a
+            href="/"
+            class="inline-flex items-center justify-center h-10 px-4 py-2 text-white transition-colors border rounded-md hover:bg-white/10 border-white/30"
+          >
+            Modo Seguro (Inicio)
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </Layout>
