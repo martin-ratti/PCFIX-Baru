@@ -8,7 +8,7 @@ vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn(() => ({ token: 'test-token' }))
 }));
 vi.mock('../../../../stores/toastStore', () => ({
-    useToastStore: vi.fn(() => (msg: string) => console.log('Toast:', msg))
+    useToastStore: vi.fn(() => (msg: string) => { })
 }));
 
 vi.mock('../../../ui/feedback/ConfirmModal', () => ({

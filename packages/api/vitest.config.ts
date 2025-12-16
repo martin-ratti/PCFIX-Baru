@@ -7,5 +7,6 @@ export default defineConfig({
         globals: true,
         fileParallelism: false,
         include: ['src/**/*.spec.ts', 'test/**/*.test.ts'],
+        setupFiles: ['./vitest.setup.ts'],
     },
 });

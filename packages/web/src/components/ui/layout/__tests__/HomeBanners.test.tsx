@@ -33,8 +33,8 @@ describe('HomeBanners', () => {
 
     it('renders banner images', () => {
         const banners = [
-            { id: 1, imagen: 'https://example.com/banner1.jpg', marca: { id: 1, nombre: 'NVIDIA' } },
-            { id: 2, imagen: 'https://example.com/banner2.jpg', marca: { id: 2, nombre: 'AMD' } }
+            { id: 1, imagen: 'https://example.com/banner1.jpg', marca: { id: 1, nombre: 'NVIDIA', logo: null } },
+            { id: 2, imagen: 'https://example.com/banner2.jpg', marca: { id: 2, nombre: 'AMD', logo: null } }
         ];
 
         render(<HomeBanners banners={banners} />);
@@ -47,7 +47,7 @@ describe('HomeBanners', () => {
 
     it('links to brand products page', () => {
         const banners = [
-            { id: 1, imagen: 'https://example.com/banner.jpg', marca: { id: 42, nombre: 'Corsair' } }
+            { id: 1, imagen: 'https://example.com/banner.jpg', marca: { id: 42, nombre: 'Corsair', logo: null } }
         ];
 
         render(<HomeBanners banners={banners} />);
@@ -58,7 +58,7 @@ describe('HomeBanners', () => {
 
     it('shows brand name in button', () => {
         const banners = [
-            { id: 1, imagen: 'https://example.com/banner.jpg', marca: { id: 1, nombre: 'Kingston' } }
+            { id: 1, imagen: 'https://example.com/banner.jpg', marca: { id: 1, nombre: 'Kingston', logo: null } }
         ];
 
         render(<HomeBanners banners={banners} />);
@@ -68,9 +68,9 @@ describe('HomeBanners', () => {
 
     it('renders swiper slides for each banner', () => {
         const banners = [
-            { id: 1, imagen: 'https://example.com/b1.jpg', marca: { id: 1, nombre: 'A' } },
-            { id: 2, imagen: 'https://example.com/b2.jpg', marca: { id: 2, nombre: 'B' } },
-            { id: 3, imagen: 'https://example.com/b3.jpg', marca: { id: 3, nombre: 'C' } }
+            { id: 1, imagen: 'https://example.com/b1.jpg', marca: { id: 1, nombre: 'A', logo: null } },
+            { id: 2, imagen: 'https://example.com/b2.jpg', marca: { id: 2, nombre: 'B', logo: null } },
+            { id: 3, imagen: 'https://example.com/b3.jpg', marca: { id: 3, nombre: 'C', logo: null } }
         ];
 
         render(<HomeBanners banners={banners} />);

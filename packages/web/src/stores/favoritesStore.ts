@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { API_URL } from '../utils/api';
 
 interface FavoritesState {
   favoriteIds: number[];

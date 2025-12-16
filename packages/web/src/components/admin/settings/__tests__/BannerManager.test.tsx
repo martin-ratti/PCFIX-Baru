@@ -34,15 +34,15 @@ describe('BannerManager', () => {
             if (url.includes('/brands')) {
                 return Promise.resolve({
                     json: async () => ({ success: true, data: [{ id: 1, nombre: 'Brand 1' }] })
-                });
+                } as unknown as Response);
             }
             if (url.includes('/banners')) {
-                if (url.includes('DELETE')) return Promise.resolve({ json: async () => ({ success: true }) });
+                if (url.includes('DELETE')) return Promise.resolve({ json: async () => ({ success: true }) } as unknown as Response);
                 return Promise.resolve({
                     json: async () => ({ success: true, data: [{ id: 1, imagen: 'img.jpg', marca: { id: 1, nombre: 'Brand 1' } }] })
-                });
+                } as unknown as Response);
             }
-            return Promise.resolve({ json: async () => ({ success: true }) });
+            return Promise.resolve({ json: async () => ({ success: true }) } as unknown as Response);
         });
     });
 

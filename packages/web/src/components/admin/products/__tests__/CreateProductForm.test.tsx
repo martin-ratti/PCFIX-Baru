@@ -14,7 +14,8 @@ vi.mock('../../../../stores/toastStore', () => ({
 }));
 
 vi.mock('../../../../utils/api', () => ({
-    fetchApi: vi.fn()
+    fetchApi: vi.fn(),
+    API_URL: 'http://local-test-api'
 }));
 
 describe('CreateProductForm', () => {
@@ -32,7 +33,6 @@ describe('CreateProductForm', () => {
 
         mockFetch.mockImplementation((url: string | URL) => {
             const urlStr = url.toString();
-            console.log('MockFetch called:', urlStr);
 
             if (urlStr.includes('/categories')) {
                 return Promise.resolve({

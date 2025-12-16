@@ -46,14 +46,14 @@ describe('ManualSaleForm', () => {
             if (url.includes('/products')) {
                 return Promise.resolve({
                     json: async () => ({ success: true, data: mockProducts })
-                });
+                } as unknown as Response);
             }
             if (url.includes('/sales/manual')) {
                 return Promise.resolve({
                     json: async () => ({ success: true })
-                });
+                } as unknown as Response);
             }
-            return Promise.resolve({ json: async () => ({ success: false }) });
+            return Promise.resolve({ json: async () => ({ success: false }) } as unknown as Response);
         });
     });
 

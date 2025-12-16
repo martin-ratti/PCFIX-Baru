@@ -13,6 +13,11 @@ vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 
+vi.mock('../../../../utils/api', () => ({
+    fetchApi: vi.fn(),
+    API_URL: 'http://local-test-api'
+}));
+
 // Mock navigate
 vi.mock('astro:transitions/client', () => ({
     navigate: vi.fn()
