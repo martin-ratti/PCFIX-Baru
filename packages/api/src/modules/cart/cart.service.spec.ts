@@ -9,6 +9,9 @@ vi.mock('../../shared/database/prismaClient', () => ({
             findUnique: vi.fn(),
         },
         $transaction: vi.fn(),
+        producto: {
+            findMany: vi.fn(),
+        }
     },
 }));
 
@@ -41,6 +44,9 @@ describe('CartService', () => {
                 };
                 return await callback(tx as any);
             });
+
+            // Mock Product Validation
+            vi.mocked(prisma.producto.findMany).mockResolvedValue([{ id: 1 }] as any);
 
             const result = await service.syncCart(userId, items);
 

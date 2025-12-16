@@ -14,6 +14,9 @@ vi.mock('../../../../stores/toastStore', () => ({
 vi.mock('astro:transitions/client', () => ({
     navigate: vi.fn()
 }));
+vi.mock('../../../../utils/api', () => ({
+    API_URL: 'http://test-api.com'
+}));
 // Mock StockAlertModal to verify it's rendered and receives props
 vi.mock('../StockAlertModal', () => ({
     default: ({ isOpen, onClose, productName }: any) => (
@@ -88,5 +91,15 @@ describe('AddToCart', () => {
 
         expect(screen.getByTestId('stock-alert-modal')).toBeInTheDocument();
         expect(screen.getByText(`MockModal: ${outOfStockProduct.name}`)).toBeInTheDocument();
+    });
+
+    it('renders "Solicitar Servicio" link for Service category', () => {
+        const serviceProduct = { ...mockProduct, category: 'Servicios' };
+        render(<AddToCart product={serviceProduct as any} stock={10} />);
+
+        const link = screen.getByText(/Solicitar Servicio/i);
+        expect(link).toBeInTheDocument();
+        expect(link.closest('a')).toHaveAttribute('href', '/tienda/servicios');
+        expect(screen.queryByText(/Agregar al Carrito/i)).not.toBeInTheDocument();
     });
 });

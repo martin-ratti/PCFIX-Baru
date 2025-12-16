@@ -31,6 +31,22 @@ vi.mock('../../shared/database/prismaClient', () => ({
     }
 }));
 
+vi.mock('../../shared/services/EmailService', () => ({
+    EmailService: class {
+        sendNewReceiptNotification = vi.fn();
+        sendStatusUpdate = vi.fn();
+        sendNewShipmentNotification = vi.fn();
+    }
+}));
+
+vi.mock('../../shared/services/ShippingService', () => ({
+    ShippingService: class {
+        calculateCost = vi.fn();
+        createShipment = vi.fn();
+        getLabel = vi.fn();
+    }
+}));
+
 describe('SalesService', () => {
     let service: SalesService;
 
