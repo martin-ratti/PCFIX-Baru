@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Carousel, { type CarouselProduct } from './Carousel';
+import ProductCardSkeleton from '../feedback/ProductCardSkeleton';
 
 import { API_URL } from '../../../utils/api';
 // API_URL is imported
@@ -42,8 +43,14 @@ export default function BestSellersCarousel() {
         return (
             <section className="mb-16 relative">
                 <h2 className="text-3xl font-bold text-center mb-10 text-secondary">Lo Más Buscado 🔥</h2>
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full"></div>
+                <div className="container mx-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[1, 2, 3, 4].map(idx => (
+                            <div key={idx} className="h-96">
+                                <ProductCardSkeleton />
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
         );

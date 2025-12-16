@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from './ProductCard';
-import ProductCardSkeleton from './ProductCardSkeleton';
+import ProductCardSkeleton from '../../ui/feedback/ProductCardSkeleton';
 import type { ProductCardProps, ProductDB, PaginationMeta } from '../../../types/product';
 import { mapProductDBToCardProps } from '../../../types/product';
 
