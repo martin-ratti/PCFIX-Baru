@@ -90,7 +90,7 @@ export class TechnicalService {
       data: { price }
     });
 
-    const productName = `Servicio: ${serviceItem.title}`;
+    const productName = serviceItem.title;
 
     const product = await prisma.producto.findFirst({
       where: { nombre: productName }

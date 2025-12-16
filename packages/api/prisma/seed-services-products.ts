@@ -5,29 +5,49 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('🔄 Convirtiendo Servicios en Productos vendibles...');
 
+    // 1. Buscamos la categoría "Servicios" (Ya debería existir del paso anterior)
     let categoria = await prisma.categoria.findFirst({
         where: { nombre: 'Servicios' }
     });
 
+    // Si por casualidad no existe, la creamos rápido para que no falle
     if (!categoria) {
+        console.log('⚠️ Categoría Servicios no encontrada, creándola...');
         categoria = await prisma.categoria.create({ data: { nombre: 'Servicios' } });
     }
 
+    // 2. Tus servicios definidos
     const servicios = [
-        { title: 'Diagnóstico de PC/Notebook', description: 'Revisión completa de hardware y software.', price: 5000 },
-        { title: 'Formateo e Instalación de SO', description: 'Instalación de Windows, drivers y programas.', price: 15000 },
-        { title: 'Limpieza Profunda y Mantenimiento', description: 'Limpieza de polvo y cambio de pasta térmica.', price: 20000 },
-        { title: 'Armado de PC', description: 'Ensamblaje profesional y gestión de cables.', price: 25000 },
+        {
+            title: 'Diagnóstico de PC/Notebook',
+            description: 'Revisión completa de hardware y software para detectar fallas.',
+            price: 5000,
+        },
+        {
+            title: 'Formateo e Instalación de SO',
+            description: 'Instalación de Windows, drivers y paquete básico de programas.',
+            price: 25000,
+        },
+        {
+            title: 'Limpieza Profunda y Mantenimiento',
+            description: 'Desarme completo, limpieza de polvo y cambio de pasta térmica de alta calidad.',
+            price: 35000,
+        },
+        {
+            title: 'Armado de PC',
+            description: 'Ensamblaje profesional, gestión de cables e instalación del sistema operativo con todos sus drivers y programas. Te la entregamos lista para usar.',
+            price: 70000,
+        },
     ];
 
+    // 3. Insertar en la tabla PRODUCT
+    // 3. Insertar en la tabla Producto
     for (const s of servicios) {
-        const slug = s.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-
         // Buscamos primero para no depender del unique en nombre si no lo tienes
         const existing = await prisma.producto.findFirst({ where: { nombre: s.title } });
 
         if (existing) {
-            await prisma.producto.update({
+            const producto = await prisma.producto.update({
                 where: { id: existing.id },
                 data: {
                     precio: s.price,
@@ -36,24 +56,23 @@ async function main() {
                     categoriaId: categoria.id
                 }
             });
-            console.log(`Updated: ${s.title}`);
+            console.log(`✅ Actualizado: ${producto.nombre} ($${producto.precio})`);
         } else {
-            await prisma.producto.create({
+            const producto = await prisma.producto.create({
                 data: {
                     nombre: s.title,
-                    slug: slug,
                     descripcion: s.description,
                     precio: s.price,
                     stock: 999,
                     categoriaId: categoria.id,
-                    isFeatured: false, // Nombre correcto según schema
-                    // marcaId opcional
+                    isFeatured: false,
                 }
             });
-            console.log(`Created: ${s.title}`);
+            console.log(`✅ Creado: ${producto.nombre} ($${producto.precio})`);
         }
     }
-    console.log('🏁 Listo.');
+
+    console.log('🏁 Sincronización de productos terminada.');
 }
 
 main()

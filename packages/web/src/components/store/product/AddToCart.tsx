@@ -6,6 +6,7 @@ import { useToastStore } from '../../../stores/toastStore';
 import { useFavoritesStore } from '../../../stores/favoritesStore';
 import { navigate } from 'astro:transitions/client';
 import StockAlertModal from './StockAlertModal';
+import { API_URL } from '../../../utils/api';
 
 interface AddToCartProps {
   product: {
@@ -18,6 +19,7 @@ interface AddToCartProps {
     stock: number;
     slug: string;
     description: string;
+    category?: string;
   };
   stock: number;
 }
@@ -165,22 +167,33 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
         </div>
 
         {/* Botón Agregar */}
-        <button
-          onClick={handleAddToCart}
-          disabled={isAdding}
-          className="flex-1 h-12 bg-primary text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:bg-opacity-90 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2 w-full sm:w-auto"
-        >
-          {isAdding ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          ) : (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                <path fillRule="evenodd" d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z" clipRule="evenodd" />
-              </svg>
-              <span>Agregar al Carrito</span>
-            </>
-          )}
-        </button>
+        {/* Botón Agregar */}
+        {product.category === 'Servicios' ? (
+          <a
+            href="/tienda/servicios"
+            className="flex-1 h-12 bg-black text-white font-bold rounded-xl shadow-lg hover:bg-gray-800 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2 w-full sm:w-auto text-decoration-none"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            <span>Solicitar Servicio</span>
+          </a>
+        ) : (
+          <button
+            onClick={handleAddToCart}
+            disabled={isAdding}
+            className="flex-1 h-12 bg-primary text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:bg-opacity-90 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2 w-full sm:w-auto"
+          >
+            {isAdding ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path fillRule="evenodd" d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z" clipRule="evenodd" />
+                </svg>
+                <span>Agregar al Carrito</span>
+              </>
+            )}
+          </button>
+        )}
 
         {/* Botón Favorito */}
         <button
