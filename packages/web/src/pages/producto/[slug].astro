@@ -2,9 +2,10 @@
 export const prerender = false;
 
 import Layout from "../../layouts/Layout.astro";
-
+import Breadcrumbs from "../../components/ui/navigation/Breadcrumbs.astro";
 import AddToCart from "../../components/store/product/AddToCart.tsx";
 import { Image } from "astro:assets";
+import { API_URL } from "../../utils/api";
 
 interface Product {
   id: number;
@@ -23,7 +24,8 @@ const { slug } = Astro.params;
 let product: Product | null = null;
 
 try {
-  const API_URL = "https://pcfix-baru-production.up.railway.app/api";
+  // API_URL is imported at top level
+
   const response = await fetch(`${API_URL}/products/${slug}`);
 
   if (response.ok) {
@@ -93,12 +95,11 @@ if (!product) {
         }
         {
           product.foto ? (
-            <Image
+            <img
               src={product.foto}
               alt={product.nombre}
               class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
               transition:name={`image-${product.id}`}
-              inferSize={true}
             />
           ) : (
             <img
@@ -113,6 +114,17 @@ if (!product) {
 
       <div class="lg:col-span-6 space-y-8">
         <div>
+          <Breadcrumbs
+            items={[
+              { label: "Inicio", href: "/" },
+              { label: "Tienda", href: "/tienda/productos" },
+              {
+                label: product.categoria?.nombre || "General",
+                href: `/tienda/productos?categoryId=${product.categoriaId}`,
+              },
+              { label: product.nombre },
+            ]}
+          />
           <div
             class="flex items-center gap-2 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider"
           >

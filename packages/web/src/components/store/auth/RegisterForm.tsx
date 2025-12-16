@@ -5,7 +5,7 @@ import { z } from 'zod';
 import PasswordStrengthMeter from '../../ui/feedback/PasswordStrengthMeter';
 import { API_URL } from '../../../utils/api';
 
-// const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
+
 
 const registerSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),

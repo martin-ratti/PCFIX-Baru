@@ -53,7 +53,7 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
 
     favoriteTimeouts[productId] = setTimeout(async () => {
       try {
-        await fetch(`https://pcfix-baru-production.up.railway.app/api/favorites/toggle`, {
+        await fetch(`${API_URL}/favorites/toggle`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId, productId, state: !isCurrentlyFavorite })
@@ -71,7 +71,7 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
 
   fetchFavorites: async (userId: number) => {
     try {
-      const res = await fetch(`https://pcfix-baru-production.up.railway.app/api/favorites/${userId}`);
+      const res = await fetch(`${API_URL}/favorites/${userId}`);
       const json = await res.json();
       if (json.success) {
         const ids = json.data.map((p: any) => p.id);

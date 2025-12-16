@@ -9,6 +9,7 @@ import HomeBanners from "../components/ui/layout/HomeBanners.tsx";
 import FeaturesSection from "../components/ui/layout/FeaturesSection.astro";
 import BestSellersCarousel from "../components/ui/layout/BestSellersCarousel.tsx";
 import PromoBanner from "../components/ui/layout/PromoBanner.astro";
+import { API_URL } from "../utils/api";
 
 import type { ProductDB, ProductCardProps, Brand } from "../types/product";
 import type { Banner } from "../types/config";
@@ -24,7 +25,8 @@ let configHours = "";
 let errorApi = false;
 
 // API URL
-const API_URL = "https://pcfix-baru-production.up.railway.app/api";
+// API URL
+// API URL imported at top
 
 try {
   const [prodRes, brandRes, bannerRes, configRes] = await Promise.all([

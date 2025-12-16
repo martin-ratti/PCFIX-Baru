@@ -89,14 +89,14 @@ const categories = [];
   </div>
 
   <script>
+    import { API_URL } from "../../../utils/api";
+
     // Store reference to cleanup function
     let scrollCleanup: (() => void) | null = null;
 
     async function checkMaintenanceStatus() {
       try {
-        const res = await fetch(
-          "https://pcfix-baru-production.up.railway.app/api/config",
-        );
+        const res = await fetch(`${API_URL}/config`);
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.data?.maintenanceMode) {

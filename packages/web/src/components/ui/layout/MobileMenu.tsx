@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuthStore } from '../../../stores/authStore';
+import { API_URL } from '../../../utils/api';
 
 interface Category {
     id: number;
@@ -19,7 +20,7 @@ export default function MobileMenu() {
 
     useEffect(() => {
         setIsClient(true);
-        const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
+
         fetch(`${API_URL}/categories`)
             .then(res => res.json())
             .then(data => {

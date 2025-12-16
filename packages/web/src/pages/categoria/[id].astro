@@ -4,6 +4,7 @@ export const prerender = false;
 import Layout from "../../layouts/Layout.astro";
 
 import ProductCard from "../../components/store/product/ProductCard.tsx";
+import { API_URL } from "../../utils/api";
 
 interface Category {
   id: number;
@@ -28,7 +29,8 @@ let categoryName = "Categoría";
 
 try {
   const response = await fetch(
-    `https://pcfix-baru-production.up.railway.app/api/products?categoryId=${id}`,
+    // API_URL is imported at top level
+    `${API_URL}/products?categoryId=${id}`,
   );
 
   if (response.ok) {

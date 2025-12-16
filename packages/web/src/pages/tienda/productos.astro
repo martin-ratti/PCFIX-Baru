@@ -4,6 +4,7 @@ export const prerender = false;
 import Layout from "../../layouts/Layout.astro";
 import ProductCatalog from "../../components/store/product/ProductCatalog.tsx";
 import SortSelector from "../../components/store/product/SortSelector.tsx";
+import { API_URL } from "../../utils/api";
 
 import type {
   ProductDB,
@@ -26,7 +27,7 @@ let categoryName = "";
 let brandName = "";
 
 try {
-  const API_URL = "https://pcfix-baru-production.up.railway.app/api";
+  // API_URL is imported at top level
 
   const apiUrl = new URL(`${API_URL}/products`);
   apiUrl.searchParams.append("page", "1");

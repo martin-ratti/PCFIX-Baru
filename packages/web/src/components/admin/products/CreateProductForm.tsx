@@ -34,8 +34,8 @@ export default function CreateProductForm() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('https://pcfix-baru-production.up.railway.app/api/categories').then(res => res.json()).then(data => data.success && setCategories(data.data));
-    fetch('https://pcfix-baru-production.up.railway.app/api/brands').then(res => res.json()).then(data => data.success && setBrands(data.data));
+    fetch(`${API_URL}/categories`).then(res => res.json()).then(data => data.success && setCategories(data.data));
+    fetch(`${API_URL}/brands`).then(res => res.json()).then(data => data.success && setBrands(data.data));
   }, []);
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<ProductSchema>({
@@ -88,7 +88,7 @@ export default function CreateProductForm() {
       if (data.marcaId) formData.append('marcaId', data.marcaId.toString());
       if (data.fotoFile && data.fotoFile[0]) formData.append('foto', data.fotoFile[0]);
 
-      const response = await fetch('https://pcfix-baru-production.up.railway.app/api/products', { method: 'POST', body: formData });
+      const response = await fetch(`${API_URL}/products`, { method: 'POST', body: formData });
       const result = await response.json();
 
       if (!result.success) throw new Error(result.error);

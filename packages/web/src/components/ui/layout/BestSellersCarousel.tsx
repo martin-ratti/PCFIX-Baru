@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Carousel, { type CarouselProduct } from './Carousel';
 
-const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
+import { API_URL } from '../../../utils/api';
+// API_URL is imported
 
 export default function BestSellersCarousel() {
     const [products, setProducts] = useState<CarouselProduct[]>([]);

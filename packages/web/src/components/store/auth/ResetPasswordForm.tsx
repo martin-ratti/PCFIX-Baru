@@ -20,7 +20,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-// const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
+
 
 export default function ResetPasswordForm({ token }: Props) {
     const [isLoading, setIsLoading] = useState(false);

@@ -54,9 +54,9 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
     const loadData = async () => {
       try {
         const [catRes, brandRes, prodRes] = await Promise.all([
-          fetch('https://pcfix-baru-production.up.railway.app/api/categories'),
-          fetch('https://pcfix-baru-production.up.railway.app/api/brands'),
-          fetch(`https://pcfix-baru-production.up.railway.app/api/products/${productId}`)
+          fetch(`${API_URL}/categories`),
+          fetch(`${API_URL}/brands`),
+          fetch(`${API_URL}/products/${productId}`)
         ]);
         const catData = await catRes.json();
         const brandData = await brandRes.json();
@@ -108,7 +108,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       if (data.marcaId) formData.append('marcaId', data.marcaId.toString());
       if (data.fotoFile && data.fotoFile.length > 0) formData.append('foto', data.fotoFile[0]);
 
-      const response = await fetch(`https://pcfix-baru-production.up.railway.app/api/products/${productId}`, { method: 'PUT', body: formData });
+      const response = await fetch(`${API_URL}/products/${productId}`, { method: 'PUT', body: formData });
       const result = await response.json();
       if (!result.success) throw new Error(result.error);
 

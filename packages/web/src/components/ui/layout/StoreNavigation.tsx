@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
+import { fetchApi } from '../../../utils/api';
 
 interface Category {
   id: number;
@@ -14,7 +15,8 @@ export default function StoreNavigation() {
 
   useEffect(() => {
     setIsClient(true);
-    fetch('https://pcfix-baru-production.up.railway.app/api/categories')
+    // Fetch categories
+    fetchApi('/categories')
       .then(res => res.json())
       .then(data => {
         if (data.success) setCategories(data.data);

@@ -11,33 +11,40 @@ export class CartService {
         const cart = await (prisma as any).cart.upsert({
             where: { userId },
             create: { userId },
-            update: { abandonedEmailSent: false }, // Reset abandoned email status on activity
+            update: { abandonedEmailSent: false },
         });
 
-        // 2. Clear existing items and replace with new ones
-        // This is a simple sync strategy. For more complex merging, we'd need more logic.
-        // Given the prompt implies "sync", replacing server state with client state (master) is acceptable for this use case.
+        // 2. Validate Products (Filter out non-existent IDs to prevent FK errors)
+        let validItems: SyncCartItemDto[] = [];
+        if (items.length > 0) {
+            const productIds = items.map(i => Number(i.id)).filter(id => !isNaN(id));
 
-        // Using transaction to ensure atomicity
+            if (productIds.length > 0) {
+                const existingProducts = await prisma.producto.findMany({
+                    where: { id: { in: productIds }, deletedAt: null },
+                    select: { id: true }
+                });
+
+                const existingIds = new Set(existingProducts.map(p => p.id));
+                validItems = items.filter(i => existingIds.has(Number(i.id)));
+            }
+        }
+
+        // 3. Clear existing items and replace with VALID new ones
         return await (prisma as any).$transaction(async (tx: any) => {
-            // Delete old items
             await tx.cartItem.deleteMany({
                 where: { cartId: cart.id }
             });
 
-            // Insert new items
-            if (items.length > 0) {
+            if (validItems.length > 0) {
                 await tx.cartItem.createMany({
-                    data: items.map(item => ({
+                    data: validItems.map(item => ({
                         cartId: cart.id,
                         productoId: Number(item.id),
                         quantity: item.quantity
                     }))
                 });
             }
-
-            // Update timestamp implicitly handled by @updatedAt on Cart update above? 
-            // Upsert update triggers it.
 
             return tx.cart.findUnique({
                 where: { id: cart.id },

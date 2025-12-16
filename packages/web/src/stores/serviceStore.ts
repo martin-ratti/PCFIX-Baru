@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { API_URL } from '../utils/api';
 import type { ServiceItem } from '../types/config';
 
 // Re-export for backward compatibility
@@ -18,7 +19,7 @@ export const useServiceStore = create<ServiceState>((set) => ({
   fetchItems: async () => {
     set({ isLoading: true });
     try {
-      const res = await fetch('https://pcfix-baru-production.up.railway.app/api/technical/prices');
+      const res = await fetch(`${API_URL}/technical/prices`);
 
       if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
 

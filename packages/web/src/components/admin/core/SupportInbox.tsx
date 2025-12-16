@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
+import { API_URL } from '../../../utils/api';
 import { useToastStore } from '../../../stores/toastStore';
 
 export default function SupportInbox() {
@@ -18,7 +19,7 @@ export default function SupportInbox() {
         setIsLoading(true);
         setError(null);
 
-        fetch('https://pcfix-baru-production.up.railway.app/api/technical', {
+        fetch(`${API_URL}/technical`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -57,7 +58,7 @@ export default function SupportInbox() {
     const handleReply = async (id: number) => {
         if (!replyText.trim()) return;
         try {
-            const res = await fetch(`https://pcfix-baru-production.up.railway.app/api/technical/${id}/reply`, {
+            const res = await fetch(`${API_URL}/technical/${id}/reply`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ respuesta: replyText })

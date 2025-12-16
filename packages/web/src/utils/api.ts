@@ -1,5 +1,5 @@
 // Export constant so other components can use it
-export const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3002/api';
+export const API_URL = import.meta.env.PUBLIC_API_URL || (import.meta.env.PROD ? 'https://pcfix-baru-production.up.railway.app/api' : 'http://localhost:3002/api');
 
 export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   const BASE_URL = API_URL;

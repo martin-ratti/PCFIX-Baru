@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
+import { API_URL } from '../../../utils/api';
 
 export default function UserInquiries() {
     const { token } = useAuthStore();
@@ -8,7 +9,7 @@ export default function UserInquiries() {
 
     useEffect(() => {
         if (token) {
-            fetch('https://pcfix-baru-production.up.railway.app/api/technical/me', {
+            fetch(`${API_URL}/technical/me`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
                 .then(res => res.json())

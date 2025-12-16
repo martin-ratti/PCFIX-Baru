@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
+import { API_URL } from '../../../utils/api';
 import { useToastStore } from '../../../stores/toastStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 
@@ -19,7 +20,7 @@ export default function SupportInbox() {
         if (!token) return;
 
         setIsLoading(true);
-        fetch('https://pcfix-baru-production.up.railway.app/api/technical', {
+        fetch(`${API_URL}/technical`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -41,7 +42,7 @@ export default function SupportInbox() {
         if (!replyText.trim()) return;
         setIsSending(true);
         try {
-            const res = await fetch(`https://pcfix-baru-production.up.railway.app/api/technical/${id}/reply`, {
+            const res = await fetch(`${API_URL}/technical/${id}/reply`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ respuesta: replyText })
@@ -65,7 +66,7 @@ export default function SupportInbox() {
 
         setDeletingId(confirmDeleteId);
         try {
-            const res = await fetch(`https://pcfix-baru-production.up.railway.app/api/technical/${confirmDeleteId}`, {
+            const res = await fetch(`${API_URL}/technical/${confirmDeleteId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

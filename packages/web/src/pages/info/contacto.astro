@@ -2,6 +2,7 @@
 export const prerender = false; // Disable prerender to fetch fresh config on request
 
 import Layout from "../../layouts/Layout.astro";
+import { API_URL } from "../../utils/api";
 import ContactForm from "../../components/ui/forms/ContactForm";
 
 let config = {
@@ -12,8 +13,8 @@ let config = {
 };
 
 try {
-  const apiUrl = "https://pcfix-baru-production.up.railway.app/api";
-  const response = await fetch(`${apiUrl}/config`);
+  // API_URL imported at top
+  const response = await fetch(`${API_URL}/config`);
   const result = await response.json();
   if (result.success && result.data) {
     const data = result.data;

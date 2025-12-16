@@ -4,7 +4,7 @@ import ProductCardSkeleton from './ProductCardSkeleton';
 import type { ProductCardProps, ProductDB, PaginationMeta } from '../../../types/product';
 import { mapProductDBToCardProps } from '../../../types/product';
 
-const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
+import { API_URL } from '../../../utils/api';
 
 interface Props {
     initialProducts: ProductCardProps[];

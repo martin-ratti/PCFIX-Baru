@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
+import { API_URL } from '../../../utils/api';
 import { useToastStore } from '../../../stores/toastStore';
 import ProductCard from '../../store/product/ProductCard';
 import type { ProductCardProps, ProductDB } from '../../../types/product';
@@ -24,7 +25,7 @@ export default function FavoritesPageContent() {
 
     const fetchFavorites = async (userId: number) => {
         try {
-            const res = await fetch(`https://pcfix-baru-production.up.railway.app/api/favorites/${userId}`);
+            const res = await fetch(`${API_URL}/favorites/${userId}`);
             const result = await res.json();
 
             if (result.success) {

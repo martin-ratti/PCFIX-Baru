@@ -65,6 +65,10 @@ export const createSale = async (req: Request, res: Response) => {
         if (e instanceof z.ZodError) {
             return res.status(400).json({ success: false, error: 'Datos de venta inválidos', details: e.errors });
         }
+        // Handle known domain errors
+        if (e.message.includes('no encontrado') || e.message.includes('Stock insuficiente')) {
+            return res.status(400).json({ success: false, error: e.message });
+        }
         res.status(500).json({ success: false, error: e.message });
     }
 };
@@ -134,6 +138,9 @@ export const createManualSale = async (req: Request, res: Response) => {
     } catch (e: any) {
         if (e instanceof z.ZodError) {
             return res.status(400).json({ success: false, error: 'Datos de venta inválidos', details: e.errors });
+        }
+        if (e.message.includes('no encontrado') || e.message.includes('Stock insuficiente')) {
+            return res.status(400).json({ success: false, error: e.message });
         }
         res.status(500).json({ success: false, error: e.message });
     }

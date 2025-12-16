@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 
+import { API_URL } from '../../../utils/api';
+
 interface Category {
   id: number;
   nombre: string;
@@ -20,7 +22,7 @@ export default function CategoryDropdown({ initialCategories = [] }: Props) {
   useEffect(() => {
     setIsClient(true);
     if (initialCategories.length === 0) {
-      fetch('https://pcfix-baru-production.up.railway.app/api/categories')
+      fetch(`${API_URL}/categories`)
         .then(res => res.json())
         .then(data => data.success && setCategories(data.data))
         .catch(console.error);

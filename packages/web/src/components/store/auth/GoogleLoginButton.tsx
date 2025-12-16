@@ -11,7 +11,8 @@ export default function GoogleLoginButton() {
   const CLIENT_ID = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID;
 
   // FIX: Usamos la URL directa de producción para asegurar la conexión
-  const API_URL = 'https://pcfix-baru-production.up.railway.app/api';
+  import { API_URL } from '../../../utils/api';
+  // API_URL is imported
 
   if (!CLIENT_ID) {
     console.error("Falta PUBLIC_GOOGLE_CLIENT_ID en el archivo .env");
