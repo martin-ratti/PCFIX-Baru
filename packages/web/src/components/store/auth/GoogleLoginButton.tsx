@@ -2,6 +2,7 @@ import React from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
+import { API_URL } from '../../../utils/api';
 
 export default function GoogleLoginButton() {
   const login = useAuthStore((state) => state.login);
@@ -11,7 +12,7 @@ export default function GoogleLoginButton() {
   const CLIENT_ID = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID;
 
   // FIX: Usamos la URL directa de producción para asegurar la conexión
-  import { API_URL } from '../../../utils/api';
+
   // API_URL is imported
 
   if (!CLIENT_ID) {
