@@ -36,6 +36,10 @@ export class ProductService {
                 { id: !isNaN(Number(search)) ? Number(search) : undefined }
             ];
         }
+
+        // Exclude "Servicio Personalizado" from public list
+        where.nombre = { not: 'Servicio: Servicio Personalizado' };
+
         if (categoryId) {
             const categoryIds = await this.getCategoryIdsRecursively(categoryId);
             where.categoriaId = { in: categoryIds };
@@ -230,7 +234,11 @@ export class ProductService {
         if (bestSellers.length === 0) {
             // Fallback: return featured products if no sales yet
             return await prisma.producto.findMany({
-                where: { deletedAt: null, isFeatured: true },
+                where: {
+                    deletedAt: null,
+                    isFeatured: true,
+                    nombre: { not: 'Servicio: Servicio Personalizado' }
+                },
                 include: { categoria: true, marca: true },
                 take: limit
             });
@@ -240,7 +248,11 @@ export class ProductService {
 
         // Fetch full product details
         const products = await prisma.producto.findMany({
-            where: { id: { in: productIds }, deletedAt: null },
+            where: {
+                id: { in: productIds },
+                deletedAt: null,
+                nombre: { not: 'Servicio: Servicio Personalizado' }
+            },
             include: { categoria: true, marca: true }
         });
 

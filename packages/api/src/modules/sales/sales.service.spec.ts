@@ -107,5 +107,36 @@ describe('SalesService', () => {
                 })
             }));
         });
+        describe('createManualSale', () => {
+            it('should create sale with custom service item', async () => {
+                const data = {
+                    customerEmail: 'test@test.com',
+                    items: [{ id: 1, quantity: 1, customPrice: 5000, customDescription: 'Custom Install' }],
+                    medioPago: 'EFECTIVO',
+                    estado: 'APROBADO'
+                };
+
+                vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 1, email: 'test@test.com' } as any);
+                vi.mocked(prisma.cliente.findUnique).mockResolvedValue({ id: 1, userId: 1 } as any);
+                vi.mocked(prisma.producto.findMany).mockResolvedValue([{
+                    id: 1,
+                    nombre: 'Service',
+                    precio: 0,
+                    stock: 99999
+                }] as any);
+
+                vi.mocked(prisma.$transaction).mockImplementation(async (callback) => {
+                    const tx = {
+                        venta: { create: vi.fn().mockResolvedValue({ id: 100 }) },
+                        producto: { update: vi.fn() }
+                    };
+                    return await callback(tx as any);
+                });
+
+                await service.createManualSale(data as any);
+
+                expect(prisma.$transaction).toHaveBeenCalled();
+            });
+        });
     });
 });

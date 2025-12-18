@@ -16,6 +16,9 @@ export default function ManualSaleForm() {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [pendingData, setPendingData] = useState<any>(null);
 
+    const [isCustomServiceOpen, setIsCustomServiceOpen] = useState(false);
+    const [customServiceData, setCustomServiceData] = useState({ price: '', description: '' });
+
     const { register, handleSubmit, reset } = useForm({
         defaultValues: { customerEmail: 'mostrador@pcfix.com', medioPago: 'EFECTIVO', estado: 'ENTREGADO' }
     });
@@ -25,9 +28,15 @@ export default function ManualSaleForm() {
         const timer = setTimeout(() => {
             // Si está vacío, traemos los primeros 20 productos/servicios populares
             const query = searchTerm.length >= 2 ? `search=${encodeURIComponent(searchTerm)}&limit=20` : `limit=20`;
-            fetchApi(`/products?${query}`, { headers: { 'Authorization': `Bearer ${token}` } })
+            fetchApi(`/products/pos?${query}`, { headers: { 'Authorization': `Bearer ${token}` } })
                 .then(res => res.json())
-                .then(data => { if (data.success) setSearchResults(data.data); })
+                .then(data => {
+                    if (data.success) {
+                        // Ocultamos el "Servicio Personalizado" del grid general
+                        const filtered = data.data.filter((p: any) => !p.nombre.includes('Servicio: Servicio Personalizado'));
+                        setSearchResults(filtered);
+                    }
+                })
                 .catch(() => { });
         }, 300);
         return () => clearTimeout(timer);
@@ -80,7 +89,41 @@ export default function ManualSaleForm() {
         }));
     };
 
-    const total = cart.reduce((acc, item) => acc + (Number(item.precio) * item.quantity), 0);
+    const addCustomService = () => {
+        const price = Number(customServiceData.price);
+        if (!price || price <= 0) return;
+
+        // Create a temporary "Custom Item" logic
+        // We need a real ID from the backend eventually, but for the cart we can use a negative ID or a specific one if we fetched the "Special Service" product.
+        // Ideally we should have fetched the "Servicio Personalizado" product ID.
+        // For now, let's assume we search it or use a placeholder.
+        // BETTER: Search for it first? Or just mock it?
+        // Since backend validates ID, we MUST have the ID of "Servicio Personalizado".
+        // Let's SEARCH for it efficiently.
+
+        fetchApi(`/products/pos?search=Servicio Personalizado&limit=1`, { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    const product = data.data[0];
+                    setCart(prev => [...prev, {
+                        ...product,
+                        quantity: 1,
+                        precio: price,
+                        nombre: `Servicio: ${customServiceData.description || 'Personalizado'}`,
+                        customPrice: price,
+                        customDescription: customServiceData.description
+                    }]);
+                    setIsCustomServiceOpen(false);
+                    setCustomServiceData({ price: '', description: '' });
+                    addToast('Servicio agregado', 'success');
+                } else {
+                    addToast('Error: No se encontró el producto "Servicio Personalizado". Corre el seed.', 'error');
+                }
+            });
+    };
+
+    const total = cart.reduce((acc, item) => acc + (Number(item.customPrice || item.precio) * item.quantity), 0);
 
     const onPreSubmit = (data: any) => {
         if (cart.length === 0) { addToast("Carrito vacío", 'error'); return; }
@@ -98,7 +141,12 @@ export default function ManualSaleForm() {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({
                     customerEmail: pendingData.customerEmail,
-                    items: cart.map((i: any) => ({ id: i.id, quantity: i.quantity })),
+                    items: cart.map((i: any) => ({
+                        id: i.id,
+                        quantity: i.quantity,
+                        customPrice: i.customPrice,
+                        customDescription: i.customDescription
+                    })),
                     medioPago: pendingData.medioPago,
                     estado: pendingData.estado
                 })
@@ -117,10 +165,18 @@ export default function ManualSaleForm() {
         <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-180px)] min-h-[600px] animate-fade-in">
             <div className="lg:w-2/3 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden relative">
                 <div className="p-4 border-b border-gray-100 bg-gray-50/50 z-20">
-                    <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-                        <input type="text" placeholder="Buscar producto o servicio..." className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                            value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} autoFocus />
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                            <input type="text" placeholder="Buscar producto o servicio..." className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} autoFocus />
+                        </div>
+                        <button
+                            onClick={() => setIsCustomServiceOpen(true)}
+                            className="bg-primary/10 text-primary font-bold px-4 rounded-xl border border-primary/20 hover:bg-primary/20 transition-all flex flex-col items-center justify-center text-xs sm:text-sm whitespace-nowrap"
+                        >
+                            <span>+ Personalizado</span>
+                        </button>
                     </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 bg-gray-50/30">
@@ -181,6 +237,54 @@ export default function ManualSaleForm() {
                     </form>
                 </div>
             </div>
+
+            {/* Modal Servicio Personalizado */}
+            {isCustomServiceOpen && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center animate-fade-in">
+                    <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
+                        <h3 className="text-xl font-bold mb-4">Servicio Personalizado</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Monto ($)</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    className="w-full p-2 border rounded-lg"
+                                    placeholder="0.00"
+                                    value={customServiceData.price}
+                                    onChange={e => setCustomServiceData({ ...customServiceData, price: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                                <textarea
+                                    className="w-full p-2 border rounded-lg"
+                                    rows={3}
+                                    placeholder="Detalles del servicio..."
+                                    value={customServiceData.description}
+                                    onChange={e => setCustomServiceData({ ...customServiceData, description: e.target.value })}
+                                />
+                            </div>
+                            <div className="flex gap-3 justify-end mt-6">
+                                <button
+                                    onClick={() => setIsCustomServiceOpen(false)}
+                                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-bold"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={addCustomService}
+                                    disabled={!customServiceData.price || Number(customServiceData.price) <= 0}
+                                    className="px-4 py-2 bg-primary text-white rounded-lg font-bold hover:opacity-90 disabled:opacity-50"
+                                >
+                                    Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <ConfirmModal isOpen={isConfirmOpen} title="Confirmar" message={`Total: $${total.toLocaleString('es-AR')}`} confirmText="Sí" onConfirm={handleConfirmSale} onCancel={() => setIsConfirmOpen(false)} />
         </div>
     );

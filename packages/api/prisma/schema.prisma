@@ -223,6 +223,8 @@ model LineaVenta {
   producto   Producto @relation(fields: [productoId], references: [id])
   cantidad   Int
   subTotal   Decimal  @db.Decimal(10, 2)
+  customPrice Decimal? @db.Decimal(10, 2)
+  customDescription String?
   @@unique([ventaId, productoId])
   @@index([ventaId])
   @@index([productoId])

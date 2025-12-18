@@ -113,7 +113,9 @@ const createManualSaleSchema = z.object({
     customerEmail: z.string().email(),
     items: z.array(z.object({
         id: z.number(),
-        quantity: z.number().min(1)
+        quantity: z.number().min(1),
+        customPrice: z.number().min(0).optional(),
+        customDescription: z.string().optional()
     })).min(1),
     medioPago: z.enum(['MERCADOPAGO', 'EFECTIVO', 'VIUMI', 'TRANSFERENCIA', 'BINANCE']),
     estado: z.enum(['PENDIENTE_PAGO', 'PENDIENTE_APROBACION', 'APROBADO', 'ENVIADO', 'ENTREGADO', 'RECHAZADO', 'CANCELADO']).optional()

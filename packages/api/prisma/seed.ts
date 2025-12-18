@@ -72,6 +72,7 @@ async function main() {
     { title: "Formateo Completo", price: 25000, description: "Instalación limpia de SO y drivers." },
     { title: "Mantenimiento Preventivo", price: 20000, description: "Limpieza profunda y cambio de pasta térmica." },
     { title: "Diagnóstico", price: 10000, description: "Detección de fallas de hardware/software." },
+    { title: "Servicio Personalizado", price: 0, description: "Servicio con precio y descripción variables." },
   ];
 
 

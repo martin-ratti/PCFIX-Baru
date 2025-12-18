@@ -9,6 +9,7 @@ const router = Router();
 // Rutas Públicas
 router.get('/', ProductController.getAll);
 router.get('/best-sellers', ProductController.getBestSellers);
+router.get('/pos', ProductController.getForPOS);
 router.get('/:id', ProductController.getById);
 
 router.post('/alert/subscribe', subscribeToStockAlert);

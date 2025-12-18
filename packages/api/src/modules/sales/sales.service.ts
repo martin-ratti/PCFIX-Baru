@@ -4,12 +4,19 @@ import { EmailService } from '../../shared/services/EmailService';
 import { ShippingService, ShippingItem } from '../../shared/services/ShippingService';
 import { MercadoPagoService } from '../../shared/services/MercadoPagoService';
 
-interface SaleItemInput { id: number; quantity: number; }
+interface SaleItemInput {
+    id: number;
+    quantity: number;
+    customPrice?: number;
+    customDescription?: string;
+}
 
 interface SaleLineItem {
     productoId: number;
     cantidad: number;
     subTotal: number;
+    customPrice?: number | null;
+    customDescription?: string | null;
 }
 
 export class SalesService {
@@ -203,13 +210,20 @@ export class SalesService {
                 throw new Error(`Stock insuficiente para ${product.nombre}. Hay ${product.stock}.`);
             }
 
-            const price = Number(product.precio);
+            // Custom Service Logic: Use custom price if provided, otherwise list price
+            let price = Number(product.precio);
+            if (item.customPrice !== undefined && item.customPrice !== null) {
+                price = Number(item.customPrice);
+            }
+
             total += price * item.quantity;
 
             saleLines.push({
                 productoId: product.id,
                 cantidad: item.quantity,
-                subTotal: price * item.quantity
+                subTotal: price * item.quantity,
+                customPrice: item.customPrice ? Number(item.customPrice) : null,
+                customDescription: item.customDescription || null
             });
         }
 
