@@ -4,7 +4,15 @@
   "workspaces": [
     "packages/*"
   ],
+  "overrides": {
+    "@vercel/routing-utils": {
+      "path-to-regexp": "^6.3.0"
+    }
+  },
   "scripts": {
     "dev": "npm run dev --workspace=web"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.16"
   }
 }
