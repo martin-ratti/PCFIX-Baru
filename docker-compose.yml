@@ -1,0 +1,54 @@
+services:
+  # 1. Servicio de Base de Datos
+  postgres:
+    image: postgres:15-alpine
+    container_name: pcfix-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: pcfix_db
+    ports:
+      - "5432:5432" # Expone el puerto para que puedas conectarte con DBveaver/TablePlus
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistencia de datos
+
+  # 2. Servicio de API (Backend)
+  api:
+    build: ./packages/api
+    container_name: pcfix-api
+    ports:
+      - "3001:3001"
+    environment:
+      # TRUCO: Aquí 'postgres' es el nombre del servicio definido arriba, no 'localhost'
+      DATABASE_URL: "postgresql://admin:password123@postgres:5432/pcfix_db?schema=public"
+      PORT: 3001
+      # Agrega aquí tus claves de JWT, MercadoPago, etc. o usa un archivo .env
+      JWT_SECRET: "tu_super_secreto_local"
+    volumes:
+      # Esto hace la MAGIA: conecta tu carpeta local con el contenedor
+      - ./packages/api:/app
+      - /app/node_modules # Evita que se sobrescriban los módulos del contenedor
+    depends_on:
+      - postgres
+    # Comando para esperar a que la BD esté lista antes de arrancar (opcional pero recomendado)
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+
+  # 3. Servicio Web (Frontend)
+  web:
+    build: ./packages/web
+    container_name: pcfix-web
+    ports:
+      - "4321:4321"
+    environment:
+      # URL de la API para que el frontend sepa a dónde llamar
+      PUBLIC_API_URL: "http://localhost:3001/api"
+      # URL interna para SSR (Docker networking)
+      SSR_API_URL: "http://api:3001/api"
+    volumes:
+      - ./packages/web:/app
+      - /app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:

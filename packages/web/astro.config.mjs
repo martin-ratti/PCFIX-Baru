@@ -1,21 +1,30 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
-// 1. CAMBIO: Usamos el adaptador de Vercel en lugar de Node
+// 1. CAMBIO: Importamos ambos adaptadores
 import vercel from '@astrojs/vercel';
+import node from '@astrojs/node';
+
 import sitemap from '@astrojs/sitemap';
 import sentry from '@sentry/astro';
+
+// Detectamos si estamos en Vercel
+const isVercel = !!process.env.VERCEL;
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://pcfixbaru.com.ar', // Tu dominio final o el de Vercel
   output: 'server',
 
-  // 2. CAMBIO: Configuración específica para Vercel Serverless
-  adapter: vercel({
-    webAnalytics: { enabled: true },
-    imageService: true, // Habilita optimización de imágenes de Vercel
-  }),
+  // 2. CAMBIO: Selección dinámica del adaptador
+  adapter: isVercel
+    ? vercel({
+      webAnalytics: { enabled: true },
+      imageService: true,
+    })
+    : node({
+      mode: 'standalone',
+    }),
 
   integrations: [
     react(),
