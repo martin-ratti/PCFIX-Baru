@@ -23,8 +23,11 @@ RUN npx prisma generate
 # 7. Copiamos el resto del código (aunque usaremos volúmenes, esto es buena práctica)
 COPY . .
 
-# 8. Exponemos el puerto donde corre tu API (ajusta si usas otro, ej: 3001)
+# 8. Compilamos el proyecto TypeScript
+RUN npm run build
+
+# 9. Exponemos el puerto donde corre tu API (ajusta si usas otro, ej: 3001)
 EXPOSE 3001
 
-# 9. Comando por defecto: arrancar en modo desarrollo
-CMD ["npm", "run", "dev"]
+# 10. Comando por defecto: arrancar en modo producción
+CMD ["npm", "start"]
