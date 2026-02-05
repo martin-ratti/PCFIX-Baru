@@ -42,8 +42,8 @@ RUN npm install --only=production --legacy-peer-deps
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
-# Generate Prisma Client for production
-RUN npx prisma generate
+# Generate Prisma Client for production (Pin version to match dependencies)
+RUN npx prisma@6 generate
 
 # Expose port
 EXPOSE 3001
