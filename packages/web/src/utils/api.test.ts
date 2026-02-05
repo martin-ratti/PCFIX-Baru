@@ -19,7 +19,6 @@ describe('fetchApi utility', () => {
         await fetchApi('/products');
 
         expect(global.fetch).toHaveBeenCalledWith(
-            // In test env, it defaults to localhost:3002
             'http://localhost:3002/api/products',
             expect.any(Object)
         );
@@ -40,7 +39,6 @@ describe('fetchApi utility', () => {
         await fetchApi('/test', options);
 
         expect(global.fetch).toHaveBeenCalledWith(
-            // In test env, it defaults to localhost:3002
             'http://localhost:3002/api/test',
             options
         );

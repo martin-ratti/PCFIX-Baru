@@ -14,7 +14,7 @@ export default defineConfig({
     ],
 
     use: {
-        baseURL: 'http://localhost:4321',
+        baseURL: 'http://pcfixbaru.com.ar',
         trace: 'on-first-retry',
 
         // SIEMPRE mostrar navegador (headless: false), excepto en CI

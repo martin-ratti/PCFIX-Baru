@@ -54,13 +54,14 @@ test.describe('Navegación Básica', () => {
 
     test('Página de registro carga correctamente', async ({ page }) => {
         await page.goto('/auth/registro');
+        // networkidle is fine here as auth pages are simple
         await page.waitForLoadState('networkidle');
         await expect(page.locator('h2:has-text("Crear Cuenta")')).toBeVisible({ timeout: 10000 });
     });
 
     test('Página de productos carga correctamente', async ({ page }) => {
         await page.goto('/tienda/productos');
-        await page.waitForLoadState('networkidle');
+        // Removed networkidle which was causing timeouts
         await expect(page).toHaveURL('/tienda/productos');
     });
 });
@@ -89,7 +90,7 @@ test.describe('Autenticación', () => {
 test.describe('Carrito', () => {
     test('Carrito vacío muestra contenido', async ({ page }) => {
         await page.goto('/tienda/carrito');
-        await page.waitForLoadState('networkidle');
+        // Removed networkidle
         await expect(page).toHaveURL('/tienda/carrito');
     });
 });
@@ -97,8 +98,8 @@ test.describe('Carrito', () => {
 test.describe('Productos', () => {
     test('Lista de productos carga', async ({ page }) => {
         await page.goto('/tienda/productos');
-        await page.waitForLoadState('networkidle');
-        await expect(page).toHaveURL('/tienda/productos');
+        // Check for visible H1 instead of networkidle
+        await expect(page.locator('h1')).toBeVisible();
     });
 });
 

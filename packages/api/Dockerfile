@@ -1,33 +1,52 @@
 # packages/api/Dockerfile
 
-# 1. Usamos una imagen ligera de Node.js (Versión LTS Alpine)
-FROM node:20-alpine
+# --- Stage 1: Builder ---
+FROM node:20-alpine AS builder
 
-# 2. Instalamos OpenSSL, necesario para que Prisma funcione en Alpine Linux
+# Install OpenSSL for Prisma
 RUN apk add --no-cache openssl
 
-# 3. Establecemos el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# 4. Copiamos los archivos de dependencias primero (para aprovechar la caché de Docker)
+# Copy dependency definitions
 COPY package*.json ./
-# Nota: Si usas Prisma, copiamos la carpeta prisma para generar el cliente
 COPY prisma ./prisma/
 
-# 5. Instalamos las dependencias
+# Install dependencies (including devDependencies for build)
 RUN npm install --legacy-peer-deps
 
-# 6. Generamos el cliente de Prisma
+# Generate Prisma Client
 RUN npx prisma generate
 
-# 7. Copiamos el resto del código (aunque usaremos volúmenes, esto es buena práctica)
+# Copy source code
 COPY . .
 
-# 8. Compilamos el proyecto TypeScript
+# Build the project
 RUN npm run build
 
-# 9. Exponemos el puerto donde corre tu API (ajusta si usas otro, ej: 3001)
+# --- Stage 2: Production ---
+FROM node:20-alpine AS production
+
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install ONLY production dependencies
+RUN npm install --only=production --legacy-peer-deps
+
+# Copy built artifacts from builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+
+# Generate Prisma Client for production
+RUN npx prisma generate
+
+# Expose port
 EXPOSE 3001
 
-# 10. Comando por defecto: arrancar en modo producción
+# Start command
 CMD ["npm", "start"]

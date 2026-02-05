@@ -35,7 +35,9 @@ services:
 
   # 3. Servicio Web (Frontend)
   web:
-    build: ./packages/web
+    build:
+      context: ./packages/web
+      target: dev
     container_name: pcfix-web
     ports:
       - "4321:4321"
