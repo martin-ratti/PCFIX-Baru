@@ -70,6 +70,7 @@ El proyecto implementa una arquitectura de **Monorepo** utilizando **NPM Workspa
 | **Email** | Nodemailer | Notificaciones transaccionales (confirmación de compra, alertas de stock). |
 | **Testing** | Vitest + Playwright | Tests unitarios, de integración y End-to-End (E2E). |
 | **Monitoring** | Sentry | Trazabilidad de errores y monitoreo de performance en tiempo real. |
+| **Containers** | Docker Compose | Orquestación local multi-servicio (API, Web, PostgreSQL). Multi-stage builds optimizados. |
 
 ---
 
@@ -238,6 +239,30 @@ cd packages/web
 npm run dev
 # 🌐 Web corriendo en http://localhost:4321
 ```
+
+-----
+
+## 🐳 Docker (Entorno Completo)
+
+Para ejecutar todos los servicios (API, Web, PostgreSQL) en contenedores:
+
+```bash
+# Desde la raíz del proyecto
+docker-compose up --build
+
+# En segundo plano
+docker-compose up -d --build
+
+# Ver logs
+docker-compose logs -f
+
+# Detener
+docker-compose down
+```
+
+> [!TIP]
+> El entorno Docker utiliza **multi-stage builds** optimizados para desarrollo y producción.
+> Los Dockerfiles están preparados para Railway.
 
 -----
 
