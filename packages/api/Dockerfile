@@ -1,10 +1,10 @@
 # packages/api/Dockerfile
 
 # --- Stage 1: Builder ---
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 # Install OpenSSL for Prisma
-RUN apk add --no-cache openssl
+RUN apt-get update -y && apt-get install -y openssl
 
 WORKDIR /app
 
@@ -25,10 +25,10 @@ COPY . .
 RUN npm run build
 
 # --- Stage 2: Production ---
-FROM node:20-alpine AS production
+FROM node:20-slim AS production
 
 # Install OpenSSL for Prisma
-RUN apk add --no-cache openssl
+RUN apt-get update -y && apt-get install -y openssl
 
 WORKDIR /app
 
