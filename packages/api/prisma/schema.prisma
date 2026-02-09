@@ -21,13 +21,27 @@ model User {
   cliente   Cliente?
   favoritos Favorite[]
   consultas ConsultaTecnica[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
   
   resetToken        String?
-  resetTokenExpires DateTime?
+  resetTokenExpires DateTime? @db.Timestamptz(3)
+  refreshTokens     RefreshToken[]
 
   cart      Cart?
+}
+
+model RefreshToken {
+  id          Int      @id @default(autoincrement())
+  token       String   @unique
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime @db.Timestamptz(3)
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
 }
 
 model Cart {
@@ -94,7 +108,7 @@ model Producto {
   stock          Int
   foto           String?
   isFeatured     Boolean  @default(false)
-  deletedAt      DateTime?
+  deletedAt      DateTime? @db.Timestamptz(3)
   
   peso           Decimal  @default(0.5) @db.Decimal(10, 3)
   alto           Int      @default(10)
@@ -125,7 +139,7 @@ model StockAlert {
   email      String
   productoId Int
   producto   Producto @relation(fields: [productoId], references: [id])
-  createdAt  DateTime @default(now())
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
   @@unique([email, productoId])
 }
 
@@ -151,7 +165,7 @@ model Banner {
   imagen    String
   marcaId   Int
   marca     Marca    @relation(fields: [marcaId], references: [id])
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
 
   @@index([marcaId])
 }
@@ -168,7 +182,7 @@ model Favorite {
 
 model Venta {
   id                Int         @id @default(autoincrement())
-  fecha             DateTime    @default(now())
+  fecha             DateTime    @default(now()) @db.Timestamptz(3)
   montoTotal        Decimal     @db.Decimal(10, 2)
   estado            VentaEstado @default(PENDIENTE_PAGO)
   comprobante       String?      
@@ -192,7 +206,7 @@ model Venta {
   
   // Elección del cliente
   tipoEntrega       String      @default("ENVIO") // 'ENVIO' | 'RETIRO'
-  medioPago         String      @default("TRANSFERENCIA") // 'TRANSFERENCIA' | 'BINANCE' | 'EFECTIVO'
+  medioPago         String      @default("TRANSFERENCIA") // 'TRANSFERENCIA' | 'BINANCE' | 'EFECTIVO' - Snapshot del método elegido
   tipoEnvio         String?   
 
   clienteId         Int
@@ -232,7 +246,7 @@ model LineaVenta {
 
 model Pago {
   id           Int        @id @default(autoincrement())
-  fecha        DateTime   @default(now())
+  fecha        DateTime   @default(now()) @db.Timestamptz(3)
   monto        Decimal    @db.Decimal(10, 2)
   ventaId      Int
   venta        Venta      @relation(fields: [ventaId], references: [id], onDelete: Cascade)
@@ -260,7 +274,6 @@ model Configuracion {
   costoEnvioFijo  Decimal @default(5000) @db.Decimal(10, 2)
   cotizacionUsdt  Decimal @default(1150) @db.Decimal(10, 2)
   
-  // 👇 NUEVOS CAMPOS DE CONFIG
   binanceAlias    String? @default("PCFIX.USDT")
   binanceCbu      String? @default("PAY-ID-123456")
   direccionLocal  String? @default("Av. Corrientes 1234, CABA")
@@ -278,11 +291,15 @@ model ConsultaTecnica {
   estado      EstadoConsulta @default(PENDIENTE)
   userId      Int
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  serviceItemId Int?
+  serviceItem   ServiceItem? @relation(fields: [serviceItemId], references: [id])
   createdAt   DateTime @default(now())
-  respondedAt DateTime?
+  respondedAt DateTime? @db.Timestamptz(3)
 
   @@index([userId])
   @@index([estado])
+  @@index([serviceItemId])
 }
 
 enum EstadoConsulta {
@@ -298,6 +315,9 @@ model ServiceItem {
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  consultas   ConsultaTecnica[]
+  
   @@map("service_items")
 }
 

@@ -248,7 +248,7 @@ export const handleMPWebhook = async (req: Request, res: Response) => {
             // but we don't have direct access here. 
             // Let's assume the notification is valid for now or quick-implementation:
 
-            // BETTER APPROACH: Let's assume we trust the notification OR (ToDo) fetch it.
+
             // But 'data.id' is the Payment ID. The sale ID is in external_reference.
 
             // To do this properly we need to fetch the payment from MP to get external_reference

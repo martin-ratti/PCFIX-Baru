@@ -26,7 +26,7 @@ export class EmailService {
         return false;
       }
 
-      console.log('✅ Email enviado:', data?.id);
+
       return true;
     } catch (error) {
       console.error('🔥 Error inesperado enviando email:', error);

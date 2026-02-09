@@ -76,7 +76,7 @@ export default function ManualSaleForm() {
                 if (newQty < 1) return item;
                 // Validar tope al aumentar (solo si no es servicio - los servicios en cart no tienen flag 'isService' pero en manual sale form no persistimos ese flag, podriamos inferirlo o buscar el original. 
                 // Simplificacion: Si stock > 90000 era "servicio", ahora no tenemos esa marca.
-                // CORRECCION: El item en cart trae todo lo de product? Si.
+
                 const service = isService(item);
 
                 if (!service && newQty > item.stock) {

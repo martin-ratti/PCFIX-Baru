@@ -195,7 +195,7 @@ export class ProductService {
 
             const productLink = `https://pcfixbaru.com.ar/tienda/producto/${product.id}`;
 
-            console.log(`📉 Detectada bajada de precio para ${product.nombre}. Notificando a ${favorites.length} interesados.`);
+
 
             // Send emails (non-blocking for main thread usually, but here we await them sequentially or parallel)
             // Using Promise.all for speed

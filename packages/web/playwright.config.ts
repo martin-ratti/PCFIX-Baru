@@ -14,11 +14,11 @@ export default defineConfig({
     ],
 
     use: {
-        baseURL: 'http://pcfixbaru.com.ar',
+        baseURL: process.env.BASE_URL || 'http://localhost:4321',
         trace: 'on-first-retry',
 
-        // SIEMPRE mostrar navegador (headless: false), excepto en CI
-        headless: !!process.env.CI,
+        // SIEMPRE mostrar navegador (headless: false), excepto en CI o si se fuerza
+        headless: true,
 
         // Sin slowMo para evitar timeouts
         launchOptions: {
