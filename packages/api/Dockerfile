@@ -22,7 +22,19 @@ RUN npx prisma generate
 COPY . .
 
 # Build the project
+# Build the project
 RUN npm run build
+
+# --- Stage 1.5: Development ---
+FROM node:20-slim AS dev
+RUN apt-get update -y && apt-get install -y openssl
+WORKDIR /app
+COPY package*.json ./
+COPY prisma ./prisma/
+RUN npm install --legacy-peer-deps
+RUN npx prisma generate
+EXPOSE 3001
+CMD ["npm", "run", "dev"]
 
 # --- Stage 2: Production ---
 FROM node:20-slim AS production

@@ -14,7 +14,9 @@ services:
 
   # 2. Servicio de API (Backend)
   api:
-    build: ./packages/api
+    build:
+      context: ./packages/api
+      target: dev
     container_name: pcfix-api
     ports:
       - "3001:3001"
