@@ -26,7 +26,7 @@ COPY . .
 RUN npm run build
 
 # Remove devDependencies to prepare for production copy
-RUN npm prune --production
+RUN npm prune --production --legacy-peer-deps
 
 # --- Stage 1.5: Development ---
 FROM node:20-slim AS dev
