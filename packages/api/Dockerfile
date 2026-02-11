@@ -13,6 +13,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install dependencies (including devDependencies for build)
+# Note: No package-lock.json in subfolder, so we generate one implicitly via install
 RUN npm install --legacy-peer-deps
 
 # Generate Prisma Client
@@ -22,8 +23,10 @@ RUN npx prisma generate
 COPY . .
 
 # Build the project
-# Build the project
 RUN npm run build
+
+# Remove devDependencies to prepare for production copy
+RUN npm prune --production
 
 # --- Stage 1.5: Development ---
 FROM node:20-slim AS dev
@@ -39,23 +42,19 @@ CMD ["npm", "run", "dev"]
 # --- Stage 2: Production ---
 FROM node:20-slim AS production
 
-# Install OpenSSL for Prisma
-RUN apt-get update -y && apt-get install -y openssl
+# Install OpenSSL for Prisma matches builder
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install ONLY production dependencies
-RUN npm install --only=production --legacy-peer-deps
-
-# Copy built artifacts from builder
+# Copy built artifacts and production dependencies from builder
+# This avoids running 'npm install' and 'prisma generate' again in production
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
-
-# Generate Prisma Client for production (Pin version to match dependencies)
-RUN npx prisma@6 generate
 
 # Expose port
 EXPOSE 3001
