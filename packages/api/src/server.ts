@@ -137,6 +137,12 @@ app.get('/health', async (req: Request, res: Response) => {
 
 // Debug route removed for production security
 
+// --- ROBOTS.TXT (Prevención de errores 404 por bots) ---
+app.get('/robots.txt', (req: Request, res: Response) => {
+  res.type('text/plain');
+  res.send('User-agent: *\nDisallow: /');
+});
+
 // --- MANEJO DE ERRORES GLOBAL (Siempre al final) ---
 
 // 1. Manejo de rutas inexistentes (404)
