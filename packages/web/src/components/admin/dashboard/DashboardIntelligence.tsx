@@ -5,6 +5,14 @@ import { useAuthStore } from '../../../stores/authStore';
 import { navigate } from 'astro:transitions/client';
 import DiscountModal from '../products/DiscountModal';
 import { useToastStore } from '../../../stores/toastStore';
+import {
+    DollarSignIcon,
+    AlertTriangleIcon,
+    ClipboardListIcon,
+    HeadphonesIcon,
+    SkullIcon,
+    ZapIcon
+} from '../../../components/SharedIcons';
 
 interface IntelligenceData {
     kpis: {
@@ -173,7 +181,9 @@ export default function DashboardIntelligence() {
                     onClick={handleRevenueClick}
                     className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
                 >
-                    <div className="absolute -right-4 -top-4 text-8xl opacity-5 group-hover:opacity-10 transition-opacity select-none">💰</div>
+                    <div className="absolute -right-4 -top-4 text-gray-100 opacity-20 group-hover:opacity-30 transition-opacity select-none">
+                        <DollarSignIcon className="w-24 h-24" />
+                    </div>
                     <h3 className="text-gray-500 font-bold text-xs uppercase mb-1">Ingresos (Mes)</h3>
                     <p className="text-4xl font-black text-primary mb-2 line-clamp-1" title={formatCurrency(data.kpis.grossRevenue)}>
                         {formatCurrency(data.kpis.grossRevenue)}
@@ -186,7 +196,9 @@ export default function DashboardIntelligence() {
                     onClick={handleLowStockClick}
                     className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
                 >
-                    <div className="absolute -right-4 -top-4 text-8xl opacity-5 group-hover:opacity-10 transition-opacity select-none">⚠️</div>
+                    <div className="absolute -right-4 -top-4 text-orange-100 opacity-20 group-hover:opacity-30 transition-opacity select-none">
+                        <AlertTriangleIcon className="w-24 h-24" />
+                    </div>
                     <h3 className="text-gray-500 font-bold text-xs uppercase mb-1">Bajo Stock</h3>
                     <p className="text-4xl font-black text-orange-500 mb-2 line-clamp-1">
                         {data.kpis.lowStockProducts}
@@ -199,7 +211,9 @@ export default function DashboardIntelligence() {
                     onClick={handlePendingReviewClick}
                     className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
                 >
-                    <div className="absolute -right-4 -top-4 text-8xl opacity-5 group-hover:opacity-10 transition-opacity select-none">📝</div>
+                    <div className="absolute -right-4 -top-4 text-emerald-100 opacity-20 group-hover:opacity-30 transition-opacity select-none">
+                        <ClipboardListIcon className="w-24 h-24" />
+                    </div>
                     <h3 className="text-gray-500 font-bold text-xs uppercase mb-1">Pendientes Revisión</h3>
                     <p className={`text-4xl font-black mb-2 ${data.kpis.pendingReview > 0 ? 'text-amber-500' : 'text-emerald-600'}`}>
                         {data.kpis.pendingReview}
@@ -212,7 +226,9 @@ export default function DashboardIntelligence() {
                     onClick={handleSupportClick}
                     className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
                 >
-                    <div className="absolute -right-4 -top-4 text-8xl opacity-5 group-hover:opacity-10 transition-opacity select-none">🎧</div>
+                    <div className="absolute -right-4 -top-4 text-purple-100 opacity-20 group-hover:opacity-30 transition-opacity select-none">
+                        <HeadphonesIcon className="w-24 h-24" />
+                    </div>
                     <h3 className="text-gray-500 font-bold text-xs uppercase mb-1">Soporte Técnico</h3>
                     <div className="flex items-end gap-2">
                         <p className="text-4xl font-black text-purple-600 mb-2">{data.kpis.pendingSupport}</p>
@@ -242,8 +258,8 @@ export default function DashboardIntelligence() {
                                     <YAxis hide />
                                     <Tooltip
                                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
-                                        formatter={(val: number) => formatCurrency(val)}
-                                        labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                                        formatter={(val: number) => formatCurrency(val || 0)}
+                                        labelFormatter={(label: string) => new Date(label).toLocaleDateString()}
                                     />
                                     <Area type="monotone" dataKey="total" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorTotal)" />
                                 </AreaChart>
@@ -279,7 +295,8 @@ export default function DashboardIntelligence() {
                 <div className="p-6 border-b border-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                            💀 Stock Inmovilizado
+                            <SkullIcon className="w-5 h-5 text-gray-400" />
+                            Stock Inmovilizado
                             <span className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{data.deadStock.length}</span>
                         </h3>
                         <p className="text-sm text-gray-400">Productos sin ventas en +90 días. ¡Muévelos!</p>
@@ -314,7 +331,7 @@ export default function DashboardIntelligence() {
                                                 onClick={() => setOfferProduct(item)} // OPEN EXISTING MODAL
                                                 className="bg-red-50 text-red-600 hover:bg-red-100 font-bold text-xs px-3 py-1.5 rounded-lg transition-colors inline-flex items-center gap-1"
                                             >
-                                                ⚡ Oferta Flash
+                                                <ZapIcon className="w-3 h-3" /> Oferta Flash
                                             </button>
                                         </td>
                                     </tr>

@@ -2,13 +2,13 @@
 export const prerender = false;
 
 import Layout from "../layouts/Layout.astro";
-import Carousel from "../components/ui/layout/Carousel.tsx";
 import BrandCarousel from "../components/ui/layout/BrandCarousel.tsx";
 import HomeBanners from "../components/ui/layout/HomeBanners.tsx";
 
 import FeaturesSection from "../components/ui/layout/FeaturesSection.astro";
 import BestSellersCarousel from "../components/ui/layout/BestSellersCarousel.tsx";
-import PromoBanner from "../components/ui/layout/PromoBanner.astro";
+import HomeCarousels from "../components/ui/layout/HomeCarousels.tsx";
+import ContactInfo from "../components/ui/layout/ContactInfo.tsx";
 import { API_URL } from "../utils/api";
 
 import type { ProductDB, ProductCardProps, Brand } from "../types/product";
@@ -89,101 +89,34 @@ if (!configHours) configHours = "Lunes a Viernes: 9:00 - 18:00"; // Fallback
       }
     </div>
 
+    <!-- FeatuersSection is imported but not used? It was imported in line 8 but not in markup? -->
+    <!-- Ah, I see FeaturesSection import. I should probably use it. -->
+    <!-- In previous file content it was commented out. -->
+
+    <div class="container mx-auto px-6 py-8">
+      <FeaturesSection />
+    </div>
+
     <div class="container mx-auto px-6 py-8">
       <BestSellersCarousel client:visible />
     </div>
 
     <div class="container mx-auto px-6 space-y-16 py-8">
-      {
-        featuredProducts.length > 0 && (
-          <div class="space-y-4">
-            <Carousel
-              title="🔥 Destacados de la Semana"
-              products={featuredProducts}
-              client:visible
-            />
-          </div>
-        )
-      }
-
-      <PromoBanner />
+      <!-- <PromoBanner /> -->
 
       <!-- Sección Atención Compacta -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <div
-          class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center divide-y md:divide-y-0 md:divide-x divide-gray-100"
-        >
-          <!-- Teléfono -->
-          <div
-            class="flex items-center gap-4 px-4 justify-center md:justify-center"
-          >
-            <div
-              class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-2xl shrink-0"
-            >
-              📞
-            </div>
-            <div>
-              <p
-                class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-0.5"
-              >
-                Atención Telefónica
-              </p>
-              <a
-                href="tel:+543464513588"
-                class="text-lg font-black text-gray-800 hover:text-primary transition-colors block leading-tight"
-                >+54 346 451 3588</a
-              >
-            </div>
-          </div>
+      <ContactInfo hours={configHours} client:visible />
 
-          <!-- Horarios -->
-          <div
-            class="flex items-center gap-4 px-4 justify-center md:justify-center pt-4 md:pt-0"
-          >
-            <div
-              class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center text-2xl shrink-0"
-            >
-              🕒
-            </div>
-            <div>
-              <p
-                class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-0.5"
-              >
-                Horarios de Local
-              </p>
-              <p class="text-lg font-bold text-gray-800 leading-tight">
-                {configHours}
-              </p>
-            </div>
-          </div>
-        </div>
+      <!-- Features Sections moved after Hero -->
+      <div class="space-y-20">
+        <!-- Increased spacing between sections -->
+        <HomeCarousels
+          featuredProducts={featuredProducts}
+          saleProducts={saleProducts}
+          newArrivalsProducts={newArrivalsProducts}
+          client:visible
+        />
       </div>
-
-      {
-        saleProducts.length > 0 && (
-          <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-pink-500" />
-            <Carousel
-              title="⚡ Ofertas Relámpago"
-              products={saleProducts}
-              client:visible
-            />
-          </div>
-        )
-      }
-
-      {
-        newArrivalsProducts.length > 0 && (
-          <div class="space-y-4">
-            <Carousel
-              title="🆕 Recién Llegados"
-              products={newArrivalsProducts}
-              client:visible
-            />
-          </div>
-        )
-      }
-
       {
         !errorApi && allProducts.length === 0 && (
           <div class="text-center py-32 opacity-50">

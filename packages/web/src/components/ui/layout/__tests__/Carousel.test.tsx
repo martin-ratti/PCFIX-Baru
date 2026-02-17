@@ -30,20 +30,24 @@ describe('Carousel', () => {
     ];
 
     it('renders carousel title', () => {
-        render(<Carousel title="Productos Destacados" products={mockProducts} />);
+        render(
+            <Carousel products={mockProducts}>
+                <h1>Productos Destacados</h1>
+            </Carousel>
+        );
 
         expect(screen.getByText('Productos Destacados')).toBeInTheDocument();
     });
 
     it('renders product cards for each product', () => {
-        render(<Carousel title="Test" products={mockProducts} />);
+        render(<Carousel products={mockProducts}><h2 >Test</h2></Carousel>);
 
         expect(screen.getByText('SSD 500GB')).toBeInTheDocument();
         expect(screen.getByText('RAM 16GB')).toBeInTheDocument();
     });
 
     it('renders swiper slides for each product', () => {
-        render(<Carousel title="Test" products={mockProducts} />);
+        render(<Carousel products={mockProducts}><h2>Test</h2></Carousel>);
 
         const slides = screen.getAllByTestId('swiper-slide');
         expect(slides).toHaveLength(2);

@@ -1,9 +1,22 @@
 ---
-import { Image } from "astro:assets";
-import cpuImage from "../../../assets/categories/cpu.jpg";
-import gpuImage from "../../../assets/categories/gpu.jpg";
-import monitorImage from "../../../assets/categories/monitor.jpg";
-import todoImage from "../../../assets/categories/todo.jpg";
+// import { Image } from "astro:assets";
+// import cpuImage from "../../../assets/categories/cpu.jpg";
+// import gpuImage from "../../../assets/categories/gpu.jpg";
+// import monitorImage from "../../../assets/categories/monitor.jpg";
+// import todoImage from "../../../assets/categories/todo.jpg";
+
+const cpuImage = {
+  src: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&q=80&w=400",
+};
+const gpuImage = {
+  src: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&q=80&w=400",
+};
+const monitorImage = {
+  src: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&q=80&w=400",
+};
+const todoImage = {
+  src: "https://images.unsplash.com/photo-1547082299-bb196bcc749c?auto=format&fit=crop&q=80&w=400",
+};
 
 const cardBaseClass =
   "group relative overflow-hidden rounded-2xl bg-gray-100 aspect-square flex flex-col items-center justify-end p-4 hover:shadow-xl transition-all border border-transparent hover:border-primary/20 cursor-pointer";
@@ -27,11 +40,10 @@ const textClass =
     >
       <a href="/tienda/productos?search=Procesador" class={cardBaseClass}>
         <div class={gradientClass}></div>
-        <Image
-          src={cpuImage}
+        <img
+          src={cpuImage.src}
           alt="Procesador de computadora"
-          width={400}
-          quality={"mid"}
+          width="400"
           class={imageClass}
         />
         <span class={textClass}>Procesadores</span>
@@ -39,11 +51,10 @@ const textClass =
 
       <a href="/tienda/productos?search=Placa de Video" class={cardBaseClass}>
         <div class={gradientClass}></div>
-        <Image
-          src={gpuImage}
+        <img
+          src={gpuImage.src}
           alt="Tarjeta gráfica potente"
-          width={400}
-          quality={"mid"}
+          width="400"
           class={imageClass}
         />
         <span class={textClass}>Placas de Video</span>
@@ -51,11 +62,10 @@ const textClass =
 
       <a href="/tienda/productos?search=Monitor" class={cardBaseClass}>
         <div class={gradientClass}></div>
-        <Image
-          src={monitorImage}
+        <img
+          src={monitorImage.src}
           alt="Monitor de alta resolución"
-          width={400}
-          quality={"mid"}
+          width="400"
           class={imageClass}
         />
         <span class={textClass}>Monitores</span>
@@ -68,11 +78,10 @@ const textClass =
         </div>
         <div class={gradientClass}></div>
 
-        <Image
-          src={todoImage}
+        <img
+          src={todoImage.src}
           alt="Ver todo el catálogo"
-          width={400}
-          quality={"mid"}
+          width="400"
           class={imageClass}
         />
 

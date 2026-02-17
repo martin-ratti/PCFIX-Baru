@@ -1,6 +1,13 @@
 ---
-import { Image } from "astro:assets";
+// import { Image } from "astro:assets";
+// import { MapPin, Mail, Phone, Instagram } from "lucide-react";
 import logo from "../../../assets/logo.png";
+import {
+  InstagramIcon,
+  MapPinIcon,
+  MailIcon,
+  PhoneIcon,
+} from "../../SharedIcons";
 
 const currentYear = new Date().getFullYear();
 ---
@@ -13,8 +20,8 @@ const currentYear = new Date().getFullYear();
       {/* Col 1: Brand & Desc */}
       <div class="space-y-4">
         <a href="/" class="block w-40 hover:opacity-90 transition-opacity">
-          <Image
-            src={logo}
+          <img
+            src={logo.src}
             alt="PCFIX Logo"
             class="w-full h-auto drop-shadow-sm"
           />
@@ -113,15 +120,9 @@ const currentYear = new Date().getFullYear();
           rel="noopener noreferrer"
           class="flex items-center gap-2 text-gray-800 hover:text-pink-600 transition-colors group"
         >
-          <svg
-            class="w-6 h-6 group-hover:scale-110 transition-transform"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path
-              d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5A4.25 4.25 0 0 0 20.5 16.25v-8.5A4.25 4.25 0 0 0 16.25 3.5Zm0 0M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM18.25 6a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"
-            ></path>
-          </svg>
+          <InstagramIcon
+            className="w-6 h-6 group-hover:scale-110 transition-transform"
+          />
           <span class="font-bold text-sm">@pcfix_baru</span>
         </a>
       </div>
@@ -135,20 +136,20 @@ const currentYear = new Date().getFullYear();
         </h3>
         <ul class="space-y-3 text-sm mb-6 font-medium w-full">
           <li class="flex items-start gap-2">
-            <span class="text-blue-700 text-sm">📍</span>
+            <MapPinIcon className="text-blue-700 w-5 h-5 shrink-0" />
             <span class="text-gray-800"
               >Corrientes 1481,<br />Arequito, Santa Fe</span
             >
           </li>
           <li class="flex items-center gap-2">
-            <span class="text-blue-700 text-sm">✉️</span>
+            <MailIcon className="text-blue-700 w-5 h-5 shrink-0" />
             <a
               href="mailto:pcfixbaru@gmail.com"
               class="hover:text-white transition-colors">pcfixbaru@gmail.com</a
             >
           </li>
           <li class="flex items-center gap-2">
-            <span class="text-blue-700 text-sm">📞</span>
+            <PhoneIcon className="text-blue-700 w-5 h-5 shrink-0" />
             <a
               href="tel:+543464513588"
               class="hover:text-white transition-colors">+54 346 451 3588</a

@@ -12,18 +12,18 @@ import 'swiper/css/pagination';
 export type { CarouselProduct };
 
 interface CarouselProps {
-  title: string;
+  children?: React.ReactNode;
   products: CarouselProduct[];
 }
 
-export default function Carousel({ title, products }: CarouselProps) {
+export default function Carousel({ children, products }: CarouselProps) {
   const shouldLoop = products.length > 4;
 
   if (!products || products.length === 0) return null;
 
   return (
     <section className="mb-16 relative">
-      <h2 className="text-3xl font-bold text-center mb-10 text-secondary">{title}</h2>
+      {children}
 
       <style>{`
         .swiper-pagination-bullet {

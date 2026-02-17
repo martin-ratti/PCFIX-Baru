@@ -1,7 +1,19 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import {
+    WrenchIcon,
+    CpuIcon,
+    ThermometerIcon,
+    HardDriveIcon,
+    CheckIcon,
+    LockIcon,
+    MessageCircleIcon,
+} from "../../components/SharedIcons";
 
-import { Image } from "astro:assets";
+// import servicioTecnicoImg from "../../assets/servicio-tecnico.jpg";
+const servicioTecnicoImg = {
+    src: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000",
+};
 
 import ServiceInquiryForm from "../../components/store/profile/ServiceInquiryForm";
 import ServicePriceList from "../../components/store/profile/ServicePriceList";
@@ -9,6 +21,33 @@ import UserSupportHistory from "../../components/store/profile/UserSupportHistor
 
 const techImageURL =
     "https://images.unsplash.com/photo-1581092921461-eab62e97a783?q=80&w=1000&auto=format&fit=crop";
+
+const services = [
+    {
+        icon: WrenchIcon,
+        title: "Reparación de PC y Notebooks",
+        description:
+            "Diagnóstico y reparación de fallas de hardware y software. solucionamos problemas de encendido, lentitud, virus y más.",
+    },
+    {
+        icon: CpuIcon,
+        title: "Armado de PC Gamer y Workstation",
+        description:
+            "Asesoramiento y ensamblado de equipos a medida según tus necesidades y presupuesto. Optimización de BIOS y drivers.",
+    },
+    {
+        icon: ThermometerIcon,
+        title: "Mantenimiento Preventivo",
+        description:
+            "Limpieza interna profunda, cambio de pasta térmica de alta calidad y gestión de cables para mejorar temperaturas.",
+    },
+    {
+        icon: HardDriveIcon,
+        title: "Upgrade de Hardware",
+        description:
+            "Actualización de componentes: SSD, memoria RAM, placa de video y fuentes para potenciar tu equipo.",
+    },
+];
 ---
 
 <Layout title="PCFIX | Servicio Técnico">
@@ -54,11 +93,9 @@ const techImageURL =
                         class="relative bg-gray-900 text-white p-8 lg:p-12 flex flex-col justify-between min-h-[500px]"
                     >
                         <div class="absolute inset-0 z-0">
-                            <Image
+                            <img
                                 src={techImageURL}
                                 alt="Técnico reparando hardware"
-                                width={600}
-                                height={800}
                                 class="w-full h-full object-cover opacity-30 mix-blend-overlay"
                             />
                             <div
@@ -80,7 +117,7 @@ const techImageURL =
                                 <li class="flex items-center gap-4">
                                     <span
                                         class="flex-shrink-0 w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center text-primary-light border border-white/10"
-                                        >✓</span
+                                        ><CheckIcon className="w-6 h-6" /></span
                                     >
                                     <span class="font-medium text-lg"
                                         >Diagnóstico Express (24-48hs)</span
@@ -89,7 +126,7 @@ const techImageURL =
                                 <li class="flex items-center gap-4">
                                     <span
                                         class="flex-shrink-0 w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center text-primary-light border border-white/10"
-                                        >🔒</span
+                                        ><LockIcon className="w-6 h-6" /></span
                                     >
                                     <span class="font-medium text-lg"
                                         >Backup de datos antes de reparar</span
@@ -98,7 +135,9 @@ const techImageURL =
                                 <li class="flex items-center gap-4">
                                     <span
                                         class="flex-shrink-0 w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center text-primary-light border border-white/10"
-                                        >🔧</span
+                                        ><WrenchIcon
+                                            className="w-6 h-6"
+                                        /></span
                                     >
                                     <span class="font-medium text-lg"
                                         >Repuestos de calidad certificada</span
@@ -107,7 +146,9 @@ const techImageURL =
                                 <li class="flex items-center gap-4">
                                     <span
                                         class="flex-shrink-0 w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center text-primary-light border border-white/10"
-                                        >💬</span
+                                        ><MessageCircleIcon
+                                            className="w-6 h-6"
+                                        /></span
                                     >
                                     <span class="font-medium text-lg"
                                         >Asesoramiento post-reparación gratuito</span
@@ -132,9 +173,55 @@ const techImageURL =
                         <ServiceInquiryForm client:load />
                     </div>
                 </div>
+            </div>
 
-                <UserSupportHistory client:visible />
+            <div class="bg-primary/5 py-12 mt-20 rounded-3xl">
+                <div class="container mx-auto px-4">
+                    <div class="max-w-4xl mx-auto text-center mb-12">
+                        <h2 class="text-3xl font-bold mb-4 gradient-text">
+                            Nuestros Servicios Destacados
+                        </h2>
+                        <p class="text-gray-600 text-lg">
+                            Soluciones integrales para todo tipo de equipos.
+                        </p>
+                    </div>
+
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 px-4"
+                    >
+                        <div
+                            class="rounded-2xl overflow-hidden shadow-lg h-full min-h-[300px]"
+                        >
+                            <img
+                                src={servicioTecnicoImg.src}
+                                alt="Taller de reparación PCFIX"
+                                class="w-full h-full object-cover"
+                            />
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {
+                                services.map((service) => (
+                                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-4">
+                                            <service.icon className="w-6 h-6" />
+                                        </div>
+                                        <h3 class="font-bold text-lg mb-2">
+                                            {service.title}
+                                        </h3>
+                                        <p class="text-gray-600 text-sm">
+                                            {service.description}
+                                        </p>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
+
+    <div class="container mx-auto px-6 py-8">
+        <UserSupportHistory client:visible />
+    </div>
 </Layout>

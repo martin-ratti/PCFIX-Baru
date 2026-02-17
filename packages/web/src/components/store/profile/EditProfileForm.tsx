@@ -7,6 +7,7 @@ import { useAuthStore } from '../../../stores/authStore';
 import { fetchApi } from '../../../utils/api';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 import ChangePasswordModal from './ChangePasswordModal';
+import { UserIcon, AlertTriangleIcon, LockIcon, InfoIcon, CrownIcon, MailIcon, KeyIcon, Trash2Icon } from '../../SharedIcons'; // 👇 Icons
 
 const profileUpdateSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -138,8 +139,8 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
 
       <div className="bg-gradient-to-r from-blue-800 to-sky-500 p-8 text-white">
         <div className="flex items-center gap-4">
-          <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center text-2xl border border-white/20 backdrop-blur-sm">
-            👤
+          <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center text-primary-light border border-white/20 backdrop-blur-sm">
+            <UserIcon className="w-8 h-8 text-white" />
           </div>
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Editar Mi Perfil</h2>
@@ -162,7 +163,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
                   placeholder="Tu nombre"
                 />
               </div>
-              {errors.nombre && <p className="text-red-500 text-xs ml-1 font-medium flex items-center gap-1">⚠️ {errors.nombre.message}</p>}
+              {errors.nombre && <p className="text-red-500 text-xs ml-1 font-medium flex items-center gap-1"><AlertTriangleIcon className="w-3 h-3" /> {errors.nombre.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -172,7 +173,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
                 className={`w-full px-4 py-3 bg-gray-50 border ${errors.apellido ? 'border-red-300 focus:ring-red-200' : 'border-gray-200 focus:border-primary focus:ring-primary/20'} rounded-xl focus:ring-4 focus:bg-white outline-none transition-all duration-200 font-medium text-gray-800`}
                 placeholder="Tu apellido"
               />
-              {errors.apellido && <p className="text-red-500 text-xs ml-1 font-medium flex items-center gap-1">⚠️ {errors.apellido.message}</p>}
+              {errors.apellido && <p className="text-red-500 text-xs ml-1 font-medium flex items-center gap-1"><AlertTriangleIcon className="w-3 h-3" /> {errors.apellido.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -196,7 +197,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
                 className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 cursor-not-allowed font-mono text-sm"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-gray-500 transition-colors">
-                🔒
+                <LockIcon className="w-4 h-4" />
               </div>
             </div>
             <p className="text-xs text-gray-400 ml-1">El correo electrónico no se puede modificar por seguridad.</p>
@@ -205,7 +206,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
           {/* Information Section */}
           <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-6 border border-gray-200/50">
             <h3 className="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs">ℹ️</span>
+              <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs"><InfoIcon className="w-3 h-3" /></span>
               Información de la Cuenta
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -215,7 +216,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
                   ? 'bg-purple-100 text-purple-700'
                   : 'bg-blue-100 text-blue-700'
                   }`}>
-                  {role === 'ADMIN' ? '👑' : '👤'}
+                  {role === 'ADMIN' ? <CrownIcon className="w-4 h-4" /> : <UserIcon className="w-4 h-4" />}
                   {role === 'ADMIN' ? 'Administrador' : 'Usuario'}
                 </span>
               </div>
@@ -243,7 +244,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
                       Google
                     </>
                   ) : (
-                    <>📧 Email</>
+                    <><MailIcon className="w-4 h-4" /> Email</>
                   )}
                 </span>
               </div>
@@ -252,7 +253,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
 
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm flex items-center justify-between">
             <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xs">🔑</span>
+              <span className="w-6 h-6 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xs"><KeyIcon className="w-3 h-3" /></span>
               Seguridad
             </h3>
 
@@ -275,7 +276,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
               onClick={() => setIsDeleteModalOpen(true)}
               className="text-red-500 hover:text-red-700 font-medium text-sm flex items-center gap-1 transition-all active:scale-95 px-4 py-2 hover:bg-red-50 rounded-lg"
             >
-              🗑️ Eliminar cuenta
+              <Trash2Icon className="w-4 h-4" /> Eliminar cuenta
             </button>
 
             <button

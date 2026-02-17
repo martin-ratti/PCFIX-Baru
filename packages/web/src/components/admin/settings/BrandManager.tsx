@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import { fetchApi } from '../../../utils/api';
-import ConfirmModal from '../../ui/feedback/ConfirmModal'; // 👇 Modal
+import ConfirmModal from '../../ui/feedback/ConfirmModal';
+import { ImageIcon, BuildingIcon, Trash2Icon } from '../../SharedIcons'; // 👇 Icons
 
 interface Brand { id: number; nombre: string; logo: string | null; }
 
@@ -99,8 +100,8 @@ export default function BrandManager() {
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 text-white">Cambiar</div>
                 </>
               ) : (
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl">🖼️</span>
+                <div className="flex flex-col items-center gap-2 text-gray-400">
+                  <ImageIcon className="w-8 h-8" />
                   <span className="truncate max-w-[150px]">{logoName || "Seleccionar logo..."}</span>
                 </div>
               )}
@@ -119,9 +120,11 @@ export default function BrandManager() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {brands.map(b => (
             <div key={b.id} className="border rounded-lg p-4 flex flex-col items-center justify-center relative group hover:shadow-md transition-shadow bg-gray-50">
-              <button onClick={() => setDeleteId(b.id)} className="absolute top-1 right-1 text-gray-400 hover:text-red-500 p-1 rounded-full transition-all active:scale-90"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-              <div className="h-12 flex items-center justify-center mb-2 w-full">
-                {b.logo ? <img src={b.logo} alt={b.nombre} className="max-h-full max-w-full object-contain" /> : <span className="text-2xl">🏢</span>}
+              <button onClick={() => setDeleteId(b.id)} className="absolute top-1 right-1 text-gray-400 hover:text-red-500 p-1 rounded-full transition-all active:scale-90">
+                <Trash2Icon className="w-4 h-4" />
+              </button>
+              <div className="h-12 flex items-center justify-center mb-2 w-full text-gray-300">
+                {b.logo ? <img src={b.logo} alt={b.nombre} className="max-h-full max-w-full object-contain" /> : <BuildingIcon className="w-8 h-8" />}
               </div>
               <span className="font-medium text-sm text-center truncate w-full">{b.nombre}</span>
             </div>

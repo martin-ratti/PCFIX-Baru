@@ -1,5 +1,6 @@
 ---
-import Layout from "../layouts/Layout.astro";
+// import Layout from "../layouts/Layout.astro";
+import { ConstructionIcon, MessageCircleIcon } from "../components/SharedIcons";
 ---
 
 <html lang="es">
@@ -16,7 +17,7 @@ import Layout from "../layouts/Layout.astro";
                 <div
                     class="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center text-4xl animate-bounce"
                 >
-                    🚧
+                    <ConstructionIcon className="w-12 h-12 text-yellow-500" />
                 </div>
             </div>
 
@@ -42,7 +43,7 @@ import Layout from "../layouts/Layout.astro";
                     target="_blank"
                     class="text-xl font-bold text-green-600 hover:text-green-700 transition-colors flex items-center justify-center gap-2"
                 >
-                    <span>💬</span> WhatsApp
+                    <MessageCircleIcon className="w-6 h-6" /> WhatsApp
                 </a>
             </div>
 

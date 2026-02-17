@@ -236,7 +236,6 @@ export const handleMPWebhook = async (req: Request, res: Response) => {
         const { type, data } = req.body;
 
         if (type === 'payment') {
-            console.log(`[MP Webhook] Received payment notification. Data:`, JSON.stringify(data));
             const paymentId = data.id;
             // Fetch payment details to verify status
             // We need to access the client from the service, or instantiate a new one here temporarily,

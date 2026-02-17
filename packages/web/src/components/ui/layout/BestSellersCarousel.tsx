@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FlameIcon } from '../../SharedIcons'; // 👇 Import
 import Carousel, { type CarouselProduct } from './Carousel';
 import ProductCardSkeleton from '../feedback/ProductCardSkeleton';
 
@@ -42,7 +43,9 @@ export default function BestSellersCarousel() {
     if (loading) {
         return (
             <section className="mb-16 relative">
-                <h2 className="text-3xl font-bold text-center mb-10 text-secondary">Lo Más Buscado 🔥</h2>
+                <h2 className="text-3xl font-bold text-center mb-10 text-secondary flex items-center justify-center gap-2">
+                    <FlameIcon className="w-8 h-8 text-orange-500" /> Lo Más Buscado
+                </h2>
                 <div className="container mx-auto">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[1, 2, 3, 4].map(idx => (
@@ -60,5 +63,11 @@ export default function BestSellersCarousel() {
         return null; // Don't show if no products
     }
 
-    return <Carousel title="Lo Más Buscado 🔥" products={products} />;
+    return (
+        <Carousel products={products}>
+            <h2 className="text-3xl font-bold text-center mb-10 text-secondary flex items-center justify-center gap-2">
+                <FlameIcon className="w-8 h-8 text-orange-500" /> Lo Más Buscado
+            </h2>
+        </Carousel>
+    );
 }

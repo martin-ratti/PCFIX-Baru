@@ -1,4 +1,5 @@
 import React from 'react';
+import { CheckIcon, XCircleIcon } from '../SharedIcons'; // 👇 Import
 
 // Enum matches Prisma VentaEstado
 export type OrderStatus = 'PENDIENTE_PAGO' | 'PENDIENTE_APROBACION' | 'APROBADO' | 'ENVIADO' | 'ENTREGADO' | 'RECHAZADO' | 'CANCELADO';
@@ -53,7 +54,7 @@ export default function OrderTimeline({ status, trackingCode, shippingMethod }: 
         <div className="w-full py-6">
             {isFailed ? (
                 <div className="flex items-center justify-center p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
-                    <span className="font-bold mr-2 text-xl">✕</span>
+                    <XCircleIcon className="w-6 h-6 mr-2" />
                     <span>El pedido fue {status === 'CANCELADO' ? 'Cancelado' : 'Rechazado'}</span>
                 </div>
             ) : (
@@ -80,7 +81,7 @@ export default function OrderTimeline({ status, trackingCode, shippingMethod }: 
                             `}
                                 >
                                     {isCompleted ? (
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                        <CheckIcon className="w-5 h-5" />
                                     ) : (
                                         <span className="text-xs font-bold">{index + 1}</span>
                                     )}

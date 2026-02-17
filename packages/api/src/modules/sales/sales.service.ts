@@ -431,7 +431,6 @@ export class SalesService {
             if (sale && sale.estado !== VentaEstado.APROBADO) {
                 await this.updateStatus(saleId, VentaEstado.APROBADO);
                 await this.updatePaymentMethod(saleId, 'MERCADOPAGO');
-                console.log(`[Webhook] Sale ${saleId} approved via MP Webhook`);
             }
         }
     }

@@ -6,6 +6,14 @@ import ErrorBoundary from '../../ui/feedback/ErrorBoundary';
 import SalesChart from './SalesChart';
 
 import DashboardIntelligence from '../dashboard/DashboardIntelligence';
+import {
+  PlusIcon,
+  RocketIcon,
+  StoreIcon,
+  ReceiptIcon,
+  MegaphoneIcon,
+  TagIcon
+} from '../../../components/SharedIcons';
 
 function DashboardContent() {
   const { user } = useAuthStore();
@@ -37,10 +45,12 @@ function DashboardContent() {
             <h3 className="text-xl font-bold mb-1">Nuevo Producto</h3>
             <p className="text-blue-200 text-sm mb-4 opacity-80">Agrega hardware al catálogo.</p>
             <div className="bg-white text-primary font-black text-sm py-2 px-5 rounded-lg hover:bg-blue-50 transition-all shadow-md w-fit flex items-center gap-2">
-              <span>+</span> Cargar Ahora
+              <PlusIcon className="w-4 h-4" /> Cargar Ahora
             </div>
           </div>
-          <div className="absolute -right-4 -bottom-6 opacity-10 text-8xl select-none group-hover:scale-110 transition-transform duration-500">🚀</div>
+          <div className="absolute -right-4 -bottom-6 opacity-10 text-8xl select-none group-hover:scale-110 transition-transform duration-500">
+            <RocketIcon className="w-24 h-24 text-white" />
+          </div>
         </a>
 
         {/* Punto de Venta */}
@@ -49,10 +59,12 @@ function DashboardContent() {
             <h3 className="text-xl font-bold mb-1">Punto de Venta</h3>
             <p className="text-emerald-200 text-sm mb-4 opacity-80">Registrar venta manual.</p>
             <div className="bg-white text-teal-800 font-black text-sm py-2 px-5 rounded-lg hover:bg-emerald-50 transition-all shadow-md w-fit flex items-center gap-2">
-              <span>🏪</span> Ir al POS
+              <StoreIcon className="w-4 h-4" /> Ir al POS
             </div>
           </div>
-          <div className="absolute -right-4 -bottom-6 opacity-10 text-8xl select-none group-hover:scale-110 transition-transform duration-500">🧾</div>
+          <div className="absolute -right-4 -bottom-6 opacity-10 text-8xl select-none group-hover:scale-110 transition-transform duration-500">
+            <ReceiptIcon className="w-24 h-24 text-white" />
+          </div>
         </a>
 
         {/* Marketing */}
@@ -61,10 +73,12 @@ function DashboardContent() {
             <h3 className="text-xl font-bold mb-1">Marketing</h3>
             <p className="text-purple-200 text-sm mb-4 opacity-80">Gestiona marcas y banners.</p>
             <div className="bg-white text-purple-900 font-black text-sm py-2 px-5 rounded-lg hover:bg-purple-50 transition-all shadow-md w-fit flex items-center gap-2">
-              <span>★</span> Gestionar
+              <MegaphoneIcon className="w-4 h-4" /> Gestionar
             </div>
           </div>
-          <div className="absolute -right-4 -bottom-6 opacity-10 text-8xl select-none group-hover:scale-110 transition-transform duration-500">🏷️</div>
+          <div className="absolute -right-4 -bottom-6 opacity-10 text-8xl select-none group-hover:scale-110 transition-transform duration-500">
+            <TagIcon className="w-24 h-24 text-white" />
+          </div>
         </a>
       </div>
     </div>

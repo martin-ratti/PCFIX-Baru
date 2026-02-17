@@ -1,65 +1,53 @@
-<section class="bg-white border-b border-gray-100">
-  <div class="container mx-auto px-6 py-8">
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-8 text-center">
-      <div class="flex flex-col items-center gap-3 group">
-        <div
-          class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300"
-        >
-          🚚
-        </div>
-        <div>
-          <h3 class="font-bold text-gray-800">Envíos a todo el país</h3>
-          <p class="text-sm text-gray-500">Llegamos a la puerta de tu casa</p>
-        </div>
-      </div>
+---
+import {
+  TruckIcon,
+  ShieldIcon,
+  CreditCardIcon,
+  HeadphonesIcon,
+} from "../../SharedIcons";
 
-      <div class="flex flex-col items-center gap-3 group">
-        <div
-          class="w-12 h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300"
-        >
-          🛡️
-        </div>
-        <div>
-          <h3 class="font-bold text-gray-800">Garantía Oficial</h3>
-          <p class="text-sm text-gray-500">En todos nuestros productos</p>
-        </div>
-      </div>
+const features = [
+  {
+    icon: TruckIcon,
+    title: "Envíos a todo el país",
+    description: "Recibí tu compra donde estés",
+  },
+  {
+    icon: ShieldIcon,
+    title: "Garantía Oficial",
+    description: "Todos nuestros productos tienen garantía",
+  },
+  {
+    icon: CreditCardIcon,
+    title: "Pagos Seguros",
+    description: "Todas las tarjetas, transferencia y efectivo",
+  },
+  {
+    icon: HeadphonesIcon,
+    title: "Atención Personalizada",
+    description: "Asesoramiento experto pre y post venta",
+  },
+];
+---
 
-      <div class="flex flex-col items-center gap-3 group">
-        <div
-          class="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300"
-        >
-          💳
-        </div>
-        <div>
-          <h3 class="font-bold text-gray-800">Pagos Seguros</h3>
-          <p class="text-sm text-gray-500">Transferencia o Depósito</p>
-        </div>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group">
-        <div
-          class="w-12 h-12 bg-gray-50 text-gray-600 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300"
-        >
-          🛠️
-        </div>
-        <div>
-          <h3 class="font-bold text-gray-800">Servicio Técnico</h3>
-          <p class="text-sm text-gray-500">Reparación y Mantenimiento</p>
-        </div>
-      </div>
-
-      <div class="flex flex-col items-center gap-3 group">
-        <div
-          class="w-12 h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300"
-        >
-          🎧
-        </div>
-        <div>
-          <h3 class="font-bold text-gray-800">Atención Personalizada</h3>
-          <p class="text-sm text-gray-500">Asesoramiento experto</p>
-        </div>
-      </div>
+<section class="py-12 bg-white border-b border-gray-100">
+  <div class="container mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {
+        features.map((feature) => (
+          <div class="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors group">
+            <div class="p-3 bg-blue-50 text-blue-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
+              <feature.icon className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                {feature.title}
+              </h3>
+              <p class="text-sm text-gray-500">{feature.description}</p>
+            </div>
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>
