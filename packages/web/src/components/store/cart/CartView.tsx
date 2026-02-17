@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ShoppingBagIcon } from '../../SharedIcons';
 import { useCartStore } from '../../../stores/cartStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
@@ -210,7 +211,7 @@ function CartContent() {
                     description="Parece que aún no has agregado productos. ¡Explorá nuestro catálogo y encontrá lo que buscas!"
                     icon={
                         <div className="relative">
-                            <span className="text-6xl filter grayscale opacity-50">🛒</span>
+                            <ShoppingBagIcon className="w-16 h-16 text-gray-300" />
                             <div className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm animate-bounce">0</div>
                         </div>
                     }

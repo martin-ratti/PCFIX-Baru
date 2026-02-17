@@ -58,7 +58,7 @@ El proyecto implementa una arquitectura de **Monorepo** utilizando **NPM Workspa
 | :--- | :--- | :--- |
 | **Frontend Core** | Astro 5.x | Server-Side Rendering (SSR) con ViewTransitions para navegación tipo SPA. |
 | **Interactividad** | React 18 + Zustand | Islas interactivas para Carrito, Auth, Favoritos y Admin. Persistencia en LocalStorage. |
-| **Estilos** | Tailwind CSS | Diseño responsivo, utilitario y sistema de diseño consistente con micro-animaciones. |
+| **Estilos** | Tailwind CSS + Lucide | Diseño responsivo, utilitario y sistema de diseño consistente con iconos vectoriales. |
 | **Backend API** | Express.js 5 + TS | API RESTful tipada, organizada por módulos (Auth, Products, Sales, Config...). |
 | **Base de Datos** | PostgreSQL + Prisma 6 | Relacional. Modelado de datos complejo (User, Product, Venta, Consulta). |
 | **Infraestructura** | Vercel + Railway | Frontend desplegado en Vercel (Edge Network) y Backend/DB en Railway. |
@@ -140,6 +140,7 @@ PCFIX/
   * **Soporte Técnico** - Bandeja de consultas con sistema de respuestas.
   * **Marketing** - Gestión de banners, marcas y categorías.
   * **Configuración** - Datos bancarios, cotización USDT, datos del local.
+  * **UI/UX Consistente** - Librería de iconos **Lucide React** unificada para una experiencia visual cohesiva en toda la plataforma (Admin y Tienda).
 
 ### 📊 Inteligencia Comercial
 
