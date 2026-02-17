@@ -1,0 +1,21 @@
+# PCFIX - E-Commerce Monorepo
+
+> PCFIX es una plataforma de comercio electrónico moderna y de alto rendimiento dedicada a la venta de hardware y servicios técnicos. Implementada como un Monorepo con Astro, React, Express y Prisma.
+
+## Documentación Principal
+
+- [README.md](README.md): Documentación general del proyecto, stack tecnológico, arquitectura y guías de instalación.
+- [AGENTS.md](agents.md): Guía específica para agentes de IA con comandos y convenciones.
+
+## Estructura del Proyecto
+
+El proyecto está organizado como un monorepo utilizando NPM Workspaces:
+
+- **packages/api**: Backend (Express, Prisma, PostgreSQL).
+- **packages/web**: Frontend (Astro, React, Tailwind).
+
+## Tecnologías Clave
+
+- **Frontend**: Astro 5, React 18, Tailwind CSS.
+- **Backend**: Express.js 5, Prisma 6, PostgreSQL.
+- **Infraestructura**: Docker, Railway, Vercel.

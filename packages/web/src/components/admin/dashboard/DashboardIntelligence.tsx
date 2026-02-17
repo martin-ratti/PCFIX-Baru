@@ -258,7 +258,7 @@ export default function DashboardIntelligence() {
                                     <YAxis hide />
                                     <Tooltip
                                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
-                                        formatter={(val: number) => formatCurrency(val || 0)}
+                                        formatter={(val: number | undefined) => formatCurrency(val || 0)}
                                         labelFormatter={(label: string) => new Date(label).toLocaleDateString()}
                                     />
                                     <Area type="monotone" dataKey="total" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorTotal)" />
