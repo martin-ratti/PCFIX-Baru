@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
-import { API_URL } from '../../../utils/api';
+import { API_URL, fetchApi } from '../../../utils/api';
 import { useToastStore } from '../../../stores/toastStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 
@@ -20,9 +20,7 @@ export default function SupportInbox() {
         if (!token) return;
 
         setIsLoading(true);
-        fetch(`${API_URL}/technical`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
+        fetchApi('/technical')
             .then(res => res.json())
             .then(data => {
                 if (data.success) setInquiries(data.data);
@@ -42,9 +40,8 @@ export default function SupportInbox() {
         if (!replyText.trim()) return;
         setIsSending(true);
         try {
-            const res = await fetch(`${API_URL}/technical/${id}/reply`, {
+            const res = await fetchApi(`/technical/${id}/reply`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ respuesta: replyText })
             });
             if (res.ok) {
@@ -66,9 +63,8 @@ export default function SupportInbox() {
 
         setDeletingId(confirmDeleteId);
         try {
-            const res = await fetch(`${API_URL}/technical/${confirmDeleteId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+            const res = await fetchApi(`/technical/${confirmDeleteId}`, {
+                method: 'DELETE'
             });
 
             if (res.ok) {

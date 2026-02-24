@@ -1,6 +1,5 @@
 import { prisma } from '../../shared/database/prismaClient';
 import { EmailService } from '../../shared/services/EmailService';
-import { EstadoConsulta } from '@prisma/client';
 
 export class TechnicalService {
   private emailService: EmailService;
@@ -33,7 +32,10 @@ export class TechnicalService {
       prisma.consultaTecnica.count(),
       prisma.consultaTecnica.findMany({
         include: { user: true },
-        orderBy: { createdAt: 'desc' },
+        orderBy: [
+          { estado: 'asc' }, // 'PENDIENTE' antes que 'RESPONDIDO'
+          { createdAt: 'desc' }
+        ],
         take: limit,
         skip
       })
@@ -51,7 +53,7 @@ export class TechnicalService {
   async replyInquiry(id: number, respuesta: string) {
     const consulta = await prisma.consultaTecnica.update({
       where: { id },
-      data: { respuesta, estado: EstadoConsulta.RESPONDIDO, respondedAt: new Date() },
+      data: { respuesta, estado: 'RESPONDIDO', respondedAt: new Date() },
       include: { user: true }
     });
 
