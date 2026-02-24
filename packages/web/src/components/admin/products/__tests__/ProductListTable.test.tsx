@@ -5,7 +5,7 @@ import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
 import { fetchApi } from '../../../../utils/api';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -120,7 +120,7 @@ describe('ProductListTable', () => {
         render(<ProductListTable />);
 
         await waitFor(() => {
-            // Product 2 has stock 0, finding the "0" text
+            
             const zeroStock = screen.getAllByText('0')[0];
             expect(zeroStock).toHaveClass('bg-red-50');
         });

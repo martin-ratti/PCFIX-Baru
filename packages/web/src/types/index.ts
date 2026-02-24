@@ -1,14 +1,6 @@
-/**
- * Centralized Type Definitions
- * 
- * Import types from here for convenience:
- * import type { User, ProductCardProps, Sale } from '../types';
- * 
- * Or import from specific files:
- * import type { User } from '../types/user';
- */
 
-// Product types
+
+
 export type {
     ProductDB,
     ProductCardProps,
@@ -20,21 +12,21 @@ export type {
 
 export { mapProductDBToCardProps } from './product';
 
-// User types
+
 export type {
     User,
     AuthState,
     LoginResponse,
 } from './user';
 
-// Config types
+
 export type {
     ConfigData,
     Banner,
     ServiceItem,
 } from './config';
 
-// Sale types
+
 export type {
     SaleStatus,
     DeliveryType,
@@ -45,9 +37,7 @@ export type {
     CartItem,
 } from './sale';
 
-/**
- * Common API response wrapper
- */
+
 export interface ApiResponse<T> {
     success: boolean;
     data?: T;
@@ -55,9 +45,7 @@ export interface ApiResponse<T> {
     message?: string;
 }
 
-/**
- * Paginated API response
- */
+
 export interface PaginatedResponse<T> {
     success: boolean;
     data: T[];

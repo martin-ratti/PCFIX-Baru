@@ -4,7 +4,7 @@ import FavoritesInitializer from '../FavoritesInitializer';
 import { useAuthStore } from '../../../../stores/authStore';
 import { useFavoritesStore } from '../../../../stores/favoritesStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));

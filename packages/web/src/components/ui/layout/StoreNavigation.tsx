@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { fetchApi } from '../../../utils/api';
 
@@ -15,7 +15,7 @@ export default function StoreNavigation() {
 
   useEffect(() => {
     setIsClient(true);
-    // Fetch categories
+    
     fetchApi('/categories')
       .then(res => res.json())
       .then(data => {
@@ -28,7 +28,7 @@ export default function StoreNavigation() {
 
   return (
     <div className="flex items-center space-x-8">
-      {/* Dropdown de Categorías */}
+      
       <div
         className="relative group z-50"
         onMouseEnter={() => setIsOpen(true)}
@@ -63,7 +63,7 @@ export default function StoreNavigation() {
         </div>
       </div>
 
-      {/* Link a Nosotros */}
+      
       <a href="/info/nosotros" className="text-secondary hover:text-primary transition-colors font-medium">
         Nosotros
       </a>

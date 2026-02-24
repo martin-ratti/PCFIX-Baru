@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import SortSelector from '../SortSelector';
 
-// Mock Astro navigate
+
 const mockNavigate = vi.fn();
 vi.mock('astro:transitions/client', () => ({
     navigate: (url: string) => mockNavigate(url)
@@ -11,7 +11,7 @@ vi.mock('astro:transitions/client', () => ({
 describe('SortSelector', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Mock window.location
+        
         Object.defineProperty(window, 'location', {
             value: {
                 search: '',

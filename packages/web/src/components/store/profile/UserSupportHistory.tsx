@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { fetchApi } from '../../../utils/api';
 
@@ -34,9 +34,9 @@ export default function UserSupportHistory() {
 
     if (isLoading) return <div className="text-center py-8 text-gray-400 animate-pulse">Cargando historial...</div>;
 
-    if (inquiries.length === 0) return null; // Don't show empty section if no history (or maybe show empty state?)
-    // Let's show empty state only if we really want to emphasize it, but "null" is cleaner if they haven't used it.
-    // Actually, let's show it if we are already here.
+    if (inquiries.length === 0) return null; 
+    
+    
 
     return (
         <div className="mt-16 border-t border-gray-200 pt-16">

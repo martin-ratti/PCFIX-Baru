@@ -4,7 +4,7 @@ import BrandManager from '../BrandManager';
 import { useToastStore } from '../../../../stores/toastStore';
 import { fetchApi } from '../../../../utils/api';
 
-// Mocks
+
 vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
@@ -60,7 +60,7 @@ describe('BrandManager', () => {
         const submitBtn = screen.getByText(/crear marca/i);
         fireEvent.click(submitBtn);
 
-        // Verify loading state
+        
         await waitFor(() => {
             expect(screen.getByText(/creando marca/i)).toBeInTheDocument();
             expect(submitBtn).toBeDisabled();
@@ -77,7 +77,7 @@ describe('BrandManager', () => {
 
         await waitFor(() => expect(screen.getByText('Brand 1')).toBeInTheDocument());
 
-        // Find delete button for the brand
+        
         const deleteButton = screen.getAllByRole('button').find(b => b.innerHTML.includes('<path'));
         if (deleteButton) fireEvent.click(deleteButton);
 

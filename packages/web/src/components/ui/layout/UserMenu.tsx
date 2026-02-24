@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
-import { UserIcon, ShoppingBagIcon, MessageCircleIcon, HeartIcon, LogOutIcon, ChevronDownIcon } from '../../SharedIcons'; // 👇 Import
+import { UserIcon, ShoppingBagIcon, MessageCircleIcon, HeartIcon, LogOutIcon, ChevronDownIcon } from '../../SharedIcons'; 
 
 export default function UserMenu() {
   const store = useAuthStore();

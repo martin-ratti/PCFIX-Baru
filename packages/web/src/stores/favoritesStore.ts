@@ -31,20 +31,20 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
     const isCurrentlyFavorite = favoriteIds.includes(productId);
     const previousIds = [...favoriteIds];
 
-    // 1. Optimistic Update
+    
     if (isCurrentlyFavorite) {
       removeFavorite(productId);
     } else {
       addFavorite(productId);
     }
 
-    // 2. Debounced API Call
-    // We use a simple strategy: Clear existing timeout for this product if any, then set new one.
-    // However, for simplicity and to match requirements, we'll just fire the request.
-    // The requirement says "implement debounce of 500ms".
-    // We need to track timeouts outside the store state or in a ref-like structure if we were in React,
-    // but in Zustand we can store them in a non-reactive property or just let the chaos reign?
-    // No, let's use a module-level variable for timeouts since Zustand stores are singletons.
+    
+    
+    
+    
+    
+    
+    
 
     const DEBOUNCE_MS = 500;
 
@@ -61,10 +61,10 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
         });
         delete favoriteTimeouts[productId];
       } catch (error) {
-        // 3. Rollback on Error
+        
         set({ favoriteIds: previousIds });
-        // Ideally we'd show a toast here, but the store shouldn't probably trigger UI side effects directly 
-        // coupled to valid stores. But we can import the toast store.
+        
+        
         import('./toastStore').then(mod => mod.useToastStore.getState().addToast("Error al guardar favorito", 'error'));
       }
     }, DEBOUNCE_MS);
@@ -84,5 +84,5 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
   }
 }));
 
-// Module-level Record for timeouts to handle debouncing per product
+
 const favoriteTimeouts: Record<number, NodeJS.Timeout> = {};

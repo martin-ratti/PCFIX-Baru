@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import { fetchApi } from '../../../utils/api';
-import ConfirmModal from '../../ui/feedback/ConfirmModal'; // 👇 Modal
+import ConfirmModal from '../../ui/feedback/ConfirmModal'; 
 import type { Brand } from '../../../types/product';
 import type { Banner } from '../../../types/config';
 
@@ -10,12 +10,12 @@ export default function BannerManager() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const addToast = useToastStore(s => s.addToast);
   const [bannerName, setBannerName] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Estado para eliminar
+  
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const fetchData = async () => {
@@ -77,7 +77,7 @@ export default function BannerManager() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-      {/* Formulario */}
+      
       <div className="bg-white p-6 rounded-lg shadow border border-gray-100">
         <h3 className="text-lg font-bold mb-4 text-secondary">Nuevo Banner</h3>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -130,7 +130,7 @@ export default function BannerManager() {
         </form>
       </div>
 
-      {/* Visualización */}
+      
       <div className="lg:col-span-2">
         <h3 className="text-lg font-bold mb-4 text-secondary flex justify-between">Banners Activos <span className="text-sm font-normal text-gray-500">{banners.length} / 5</span></h3>
         {banners.length === 0 ? (<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200"><p className="text-gray-400">No hay banners activos en el Home.</p></div>) : (

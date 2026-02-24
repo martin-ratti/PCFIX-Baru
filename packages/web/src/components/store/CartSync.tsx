@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useCartStore } from '../../stores/cartStore';
 import { useAuthStore } from '../../stores/authStore';
 import { fetchApi } from '../../utils/api';
@@ -17,7 +17,7 @@ export default function CartSync() {
 
         timeoutRef.current = setTimeout(async () => {
             try {
-                // Sync cart to backend
+                
                 await fetchApi('/cart/sync', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -30,12 +30,12 @@ export default function CartSync() {
             } catch (error) {
                 console.error('Failed to sync cart:', error);
             }
-        }, 2000); // Debounce 2 sec
+        }, 2000); 
 
         return () => {
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
         };
     }, [items, isAuthenticated, user?.id]);
 
-    return null; // Componente lógico, sin UI
+    return null; 
 }

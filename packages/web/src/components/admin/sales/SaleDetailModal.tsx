@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { API_URL } from '../../../utils/api';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
@@ -22,7 +22,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
 
     const trackingInputRef = useRef<HTMLInputElement>(null);
 
-    // Auto-focus solo si es ENVÍO y está aprobado
+    
     useEffect(() => {
         if (isOpen && autoFocusDispatch && sale?.estado === 'APROBADO' && sale.tipoEntrega === 'ENVIO') {
             setTimeout(() => trackingInputRef.current?.focus(), 100);
@@ -31,9 +31,9 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
 
     if (!isOpen || !sale) return null;
 
-    // Lógica de Despacho / Entrega
+    
     const handleDispatch = async () => {
-        // Si es Retiro, generamos un código automático. Si es Envío, requerimos el input.
+        
         const codeToSend = sale.tipoEntrega === 'RETIRO' ? 'RETIRO_EN_TIENDA' : trackingCode;
 
         if (!codeToSend.trim()) {
@@ -68,7 +68,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
         }
     };
 
-    // Crear envío en Zipnova
+    
     const handleCreateZipnovaShipment = async () => {
         if (!sale.direccionEnvio || !sale.ciudadEnvio || !sale.provinciaEnvio) {
             addToast('Faltan datos de dirección para crear el envío', 'error');
@@ -90,7 +90,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
             if (json.success) {
                 addToast(`Envío creado! Tracking: ${json.data.trackingCode}`, 'success');
                 if (onDispatch) onDispatch();
-                onClose(); // Cerrar modal para evitar doble click y refrescar datos
+                onClose(); 
             } else {
                 throw new Error(json.error);
             }
@@ -101,12 +101,12 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
         }
     };
 
-    // Helpers visuales para el método de pago
+    
     const getPaymentStyle = (method: string) => {
         switch (method) {
             case 'BINANCE': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
             case 'EFECTIVO': return 'bg-green-100 text-green-800 border-green-200';
-            case 'MERCADOPAGO': return 'bg-sky-100 text-sky-800 border-sky-200'; // New MP Style
+            case 'MERCADOPAGO': return 'bg-sky-100 text-sky-800 border-sky-200'; 
             default: return 'bg-blue-50 text-blue-800 border-blue-100';
         }
     };
@@ -115,7 +115,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
         switch (method) {
             case 'BINANCE': return '🪙';
             case 'EFECTIVO': return '💵';
-            case 'MERCADOPAGO': return '🤝'; // Handshake for MP
+            case 'MERCADOPAGO': return '🤝'; 
             default: return '🏦';
         }
     };
@@ -124,13 +124,13 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] animate-modal-enter">
 
-                {/* Header con Badge de Entrega */}
+                
                 <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                     <div>
                         <h3 className="text-xl font-bold text-secondary flex items-center gap-2">
                             Auditoría de Venta #{sale.id}
 
-                            {/* BADGE TIPO DE ENTREGA */}
+                            
                             <span className={`text-xs px-2 py-0.5 rounded border uppercase tracking-wide ${sale.tipoEntrega === 'RETIRO'
                                 ? 'bg-green-100 text-green-700 border-green-200'
                                 : 'bg-blue-100 text-blue-700 border-blue-200'
@@ -143,14 +143,14 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
                 </div>
 
-                {/* Body */}
+                
                 <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-                        {/* --- COLUMNA IZQUIERDA: DATOS --- */}
+                        
                         <div className="space-y-6">
 
-                            {/* TARJETA TOTAL Y PAGO */}
+                            
                             <div className={`p-5 rounded-xl border ${getPaymentStyle(sale.medioPago)}`}>
                                 <div className="flex justify-between items-start">
                                     <div>
@@ -167,7 +167,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                 </div>
                             </div>
 
-                            {/* DATOS CLIENTE */}
+                            
                             <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
                                 <h4 className="font-bold text-gray-800 border-b border-gray-100 pb-2 mb-3 uppercase text-xs tracking-wider">Datos del Cliente</h4>
                                 <div className="space-y-2 text-sm text-gray-600">
@@ -195,7 +195,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                 </div>
                             </div>
 
-                            {/* PRODUCTOS */}
+                            
                             <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
                                 <h4 className="font-bold text-gray-800 border-b border-gray-100 pb-2 mb-3 uppercase text-xs tracking-wider">
                                     Productos ({sale.lineasVenta?.length || 0})
@@ -214,7 +214,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                             </div>
                         </div>
 
-                        {/* --- COLUMNA DERECHA: COMPROBANTE --- */}
+                        
                         <div className="flex flex-col h-full">
                             <h4 className="font-bold text-gray-700 mb-3 flex justify-between items-center">
                                 Comprobante
@@ -257,7 +257,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                         </div>
                     </div>
 
-                    {/* --- SECCIÓN DE DESPACHO / ENTREGA (Solo si APROBADO) --- */}
+                    
                     {sale.estado === 'APROBADO' && (
                         <div className={`mt-8 p-6 border rounded-xl animate-in slide-in-from-bottom-2 ${sale.tipoEntrega === 'RETIRO' ? 'bg-green-50 border-green-100' : 'bg-blue-50 border-blue-100'}`}>
 
@@ -270,7 +270,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                             </h4>
 
                             {sale.tipoEntrega === 'RETIRO' ? (
-                                // UI RETIRO
+                                
                                 <div className="flex justify-between items-center">
                                     <p className="text-sm text-green-700">
                                         El cliente retira en el local. Haz clic cuando entregues el producto.
@@ -284,9 +284,9 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                     </button>
                                 </div>
                             ) : (
-                                // UI ENVÍO
+                                
                                 <div className="space-y-3">
-                                    {/* Botón Zipnova - Solo si tiene dirección y no tiene envío creado */}
+                                    
                                     {!sale.zipnovaShipmentId && sale.direccionEnvio && (
                                         <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-200">
                                             <span className="text-2xl">📦</span>
@@ -304,7 +304,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                         </div>
                                     )}
 
-                                    {/* Input manual de tracking */}
+                                    
                                     <div className="flex gap-3">
                                         <input
                                             ref={trackingInputRef}
@@ -327,7 +327,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                         </div>
                     )}
 
-                    {/* --- Info si ya está finalizado --- */}
+                    
                     {(sale.estado === 'ENVIADO' || sale.estado === 'ENTREGADO') && (
                         <div className="mt-8 p-4 bg-gray-100 border border-gray-200 rounded-lg text-center">
                             <p className="text-gray-800 font-bold flex items-center justify-center gap-2">
@@ -340,7 +340,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                     )}
                 </div>
 
-                {/* Footer: Acciones de Estado */}
+                
                 <div className="px-6 py-4 bg-white border-t border-gray-200 flex justify-between items-center">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold border ${sale.estado === 'APROBADO' ? 'bg-green-50 text-green-700 border-green-200' :
                         sale.estado === 'RECHAZADO' ? 'bg-red-50 text-red-700 border-red-200' :

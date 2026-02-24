@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuthStore } from '../../../stores/authStore';
 import { API_URL } from '../../../utils/api';
 import {
     XIcon, MenuIcon, LayoutDashboardIcon, ShoppingBagIcon, PackageIcon, LifeBuoyIcon, SettingsIcon,
-    HomeIcon, WrenchIcon, MessageSquareIcon, LogOutIcon, UserIcon, HeartIcon, ZapIcon, ChevronDownIcon, ChevronRightIcon
-} from '../../SharedIcons'; // 👇 Import
+    HomeIcon, WrenchIcon, MessageSquareIcon, LogOutIcon, UserIcon, HeartIcon, ZapIcon, ChevronDownIcon
+} from '../../SharedIcons';
 
 interface Category {
     id: number;
@@ -33,7 +33,7 @@ export default function MobileMenu() {
             .catch(console.error);
     }, []);
 
-    // Lock body scroll when menu is open
+
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
@@ -58,16 +58,16 @@ export default function MobileMenu() {
 
     const menuContent = (
         <>
-            {/* Backdrop with Glassmorphism */}
+
             <div
                 className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 onClick={() => setIsOpen(false)}
             />
 
-            {/* Drawer */}
+
             <div className={`fixed top-0 right-0 h-full w-[85vw] max-w-sm bg-white z-[70] shadow-2xl transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
 
-                {/* Header */}
+
                 <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-10">
                     <span className="text-xl font-black text-gray-900 tracking-tight">Menú</span>
                     <button
@@ -78,10 +78,10 @@ export default function MobileMenu() {
                     </button>
                 </div>
 
-                {/* Content */}
+
                 <div className="flex-1 overflow-y-auto px-6 py-8">
 
-                    {/* User Profile Card */}
+
                     <div className="mb-10">
                         {isAuthenticated ? (
                             <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 text-white shadow-lg shadow-gray-200">
@@ -130,7 +130,7 @@ export default function MobileMenu() {
                         )}
                     </div>
 
-                    {/* Navigation Links */}
+
                     <nav className="space-y-1">
                         {isAdmin ? (
                             <>
@@ -178,7 +178,7 @@ export default function MobileMenu() {
                                     Inicio
                                 </a>
 
-                                {/* Expandable Categories for Users only */}
+
                                 <div className="overflow-hidden">
                                     <button
                                         onClick={() => setShowCategories(!showCategories)}

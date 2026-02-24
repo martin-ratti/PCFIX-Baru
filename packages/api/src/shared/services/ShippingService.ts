@@ -19,8 +19,8 @@ export interface ShippingDestination {
   telefono?: string;
   nombre?: string;
   email?: string;
-  documento?: string; // DNI del destinatario
-  piso?: string; // Piso/Departamento
+  documento?: string; 
+  piso?: string; 
 }
 
 export interface ShipmentResult {
@@ -31,7 +31,7 @@ export interface ShipmentResult {
   estimatedDelivery?: string;
 }
 
-// Lista de provincias argentinas para validación/mapping
+
 export const PROVINCIAS_ARGENTINAS = [
   'Buenos Aires', 'CABA', 'Catamarca', 'Chaco', 'Chubut',
   'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy',
@@ -56,12 +56,12 @@ export class ShippingService {
     this.accountId = (process.env.ZIPPIN_ACCOUNT_ID || '').trim();
     this.isSandbox = process.env.ZIPPIN_SANDBOX === 'true';
 
-    // Usar sandbox o producción según configuración
+    
     this.baseUrl = this.isSandbox
       ? 'https://api-sandbox.zipnova.com.ar/v2'
       : 'https://api.zipnova.com.ar/v2';
 
-    // Construir header de autenticación básica HTTP
+    
     const credentials = Buffer.from(`${this.apiToken}:${this.apiSecret}`).toString('base64');
     this.basicAuthHeader = `Basic ${credentials}`;
 
@@ -85,7 +85,7 @@ export class ShippingService {
     return this.originId;
   }
 
-  // ========== COTIZACIÓN ==========
+  
   async calculateCost(zipCodeDestino: string, items: ShippingItem[]): Promise<number> {
     if (!this.apiToken) return 6500;
 
@@ -127,7 +127,7 @@ export class ShippingService {
         { headers: this.getHeaders() }
       );
 
-      // Zipnova retorna { all_results: [...] } donde cada item tiene amounts.price_incl_tax
+      
       const allResults = response.data?.all_results;
 
       if (!allResults || !Array.isArray(allResults) || allResults.length === 0) {
@@ -135,25 +135,25 @@ export class ShippingService {
         throw new Error("Sin resultados de cotización");
       }
 
-      // Buscar el precio más barato (con impuestos incluidos)
-      // Filtrar solo opciones seleccionables
+      
+      
       const selectableOptions = allResults.filter((opt: any) => opt.selectable);
 
       if (selectableOptions.length === 0) {
         throw new Error("No hay opciones de envío disponibles para este destino");
       }
 
-      // FILTRAR SOLO CORREO ARGENTINO
+      
       const correoArgentinoOptions = selectableOptions.filter((opt: any) =>
         opt.carrier?.name?.toLowerCase().includes('correo argentino')
       );
 
-      // Si hay opciones de Correo Argentino, usar la más barata de esas
+      
       const optionsToUse = correoArgentinoOptions.length > 0
         ? correoArgentinoOptions
         : selectableOptions;
 
-      // Encontrar el más barato
+      
       const cheapest = optionsToUse.reduce((prev: any, curr: any) => {
         const prevPrice = prev.amounts?.price_incl_tax || prev.amounts?.price || Infinity;
         const currPrice = curr.amounts?.price_incl_tax || curr.amounts?.price || Infinity;
@@ -173,7 +173,7 @@ export class ShippingService {
     }
   }
 
-  // ========== CREAR ENVÍO ==========
+  
   async createShipment(
     items: ShippingItem[],
     destination: ShippingDestination,
@@ -187,7 +187,7 @@ export class ShippingService {
 
     const origin = this.getOriginId();
 
-    // Calcular dimensiones del paquete
+    
     let totalWeight = 0;
     let totalVol = 0;
     const itemsForShipment: any[] = [];
@@ -200,7 +200,7 @@ export class ShippingService {
 
       itemsForShipment.push({
         sku: item.sku || `ITEM-${idx + 1}`,
-        weight: Math.max(peso * 1000, 100), // gramos
+        weight: Math.max(peso * 1000, 100), 
         height: item.height || 10,
         width: item.width || 10,
         length: item.depth || 10,
@@ -213,16 +213,16 @@ export class ShippingService {
       account_id: this.accountId,
       origin_id: origin,
       external_id: externalId || `PCFIX-${Date.now()}`,
-      declared_value: Math.round(declaredValue), // pesos (no centavos)
-      type_id: 1, // Standard delivery
-      service_type: 'standard_delivery', // REQUERIDO: tipo de servicio
+      declared_value: Math.round(declaredValue), 
+      type_id: 1, 
+      service_type: 'standard_delivery', 
       items: itemsForShipment,
       destination: {
         name: destination.nombre || 'Cliente',
-        document: destination.documento || '00000000', // DNI requerido
-        street: destination.direccion?.replace(/\d+$/, '').trim() || 'Sin calle', // calle sin número
-        street_number: destination.direccion?.match(/\d+$/)?.[0] || 'S/N', // número de calle
-        street_extras: destination.piso || '', // piso/depto
+        document: destination.documento || '00000000', 
+        street: destination.direccion?.replace(/\d+$/, '').trim() || 'Sin calle', 
+        street_number: destination.direccion?.match(/\d+$/)?.[0] || 'S/N', 
+        street_extras: destination.piso || '', 
         city: destination.ciudad || 'Ciudad',
         state: destination.provincia || 'Provincia',
         zipcode: destination.codigoPostal || '1000',
@@ -260,7 +260,7 @@ export class ShippingService {
     }
   }
 
-  // ========== OBTENER ETIQUETA ==========
+  
   async getLabel(shipmentId: string): Promise<string> {
     try {
       const response = await axios.get(
@@ -275,7 +275,7 @@ export class ShippingService {
     }
   }
 
-  // ========== CONSULTAR ESTADO ==========
+  
   async getTrackingInfo(shipmentId: string): Promise<any> {
     try {
       const response = await axios.get(
@@ -298,7 +298,7 @@ export class ShippingService {
     }
   }
 
-  // ========== CANCELAR ENVÍO ==========
+  
   async cancelShipment(shipmentId: string): Promise<boolean> {
     try {
       await axios.delete(
@@ -312,7 +312,7 @@ export class ShippingService {
     }
   }
 
-  // ========== HELPERS ==========
+  
   isSandboxMode(): boolean {
     return this.isSandbox;
   }

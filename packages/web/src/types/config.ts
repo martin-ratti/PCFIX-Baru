@@ -1,12 +1,8 @@
-/**
- * Centralized Config Types
- */
+
 
 import type { Brand } from './product';
 
-/**
- * Store configuration data
- */
+
 export interface ConfigData {
     nombreBanco: string;
     titular: string;
@@ -21,18 +17,14 @@ export interface ConfigData {
     maintenanceMode?: boolean;
 }
 
-/**
- * Banner data
- */
+
 export interface Banner {
     id: number;
     imagen: string;
     marca: Brand;
 }
 
-/**
- * Service item for technical services
- */
+
 export interface ServiceItem {
     id: number;
     title: string;

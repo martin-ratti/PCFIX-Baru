@@ -6,14 +6,14 @@ import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
 import * as apiUtils from '../../../../utils/api';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn(),
 }));
 
 vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn(),
-    // Keep internal implementations if needed, but simple mock is safer
+    
 }));
 
 vi.mock('../../../../utils/api', () => ({
@@ -21,7 +21,7 @@ vi.mock('../../../../utils/api', () => ({
     API_URL: 'http://localhost:3000/api',
 }));
 
-// Mock ConfirmModal
+
 vi.mock('../../../ui/feedback/ConfirmModal', () => ({
     default: ({ isOpen, title, message, onConfirm }: any) => isOpen ? (
         <div data-testid="confirm-modal">
@@ -32,7 +32,7 @@ vi.mock('../../../ui/feedback/ConfirmModal', () => ({
     ) : null
 }));
 
-// Mock ChangePasswordModal
+
 vi.mock('../ChangePasswordModal', () => ({
     default: ({ isOpen }: any) => isOpen ? <div data-testid="change-password-modal">Mock Change Password Modal</div> : null
 }));
@@ -49,13 +49,13 @@ describe('EditProfileForm', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         (useAuthStore as any).mockReturnValue(mockAuthStore);
-        // Correctly mock the store selector pattern
+        
         (useToastStore as any).mockImplementation((selector: any) => {
             if (selector) return selector({ addToast: mockAddToast });
             return { addToast: mockAddToast };
         });
 
-        // Default GET profile success
+        
         (apiUtils.fetchApi as any).mockResolvedValue({
             json: async () => ({
                 success: true,
@@ -107,7 +107,7 @@ describe('EditProfileForm', () => {
         const deleteBtn = screen.getByText(/Eliminar cuenta/i);
         fireEvent.click(deleteBtn);
 
-        // Mock DELETE response
+        
         (apiUtils.fetchApi as any).mockResolvedValueOnce({
             json: async () => ({ success: true })
         });

@@ -3,12 +3,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import MobileMenu from '../MobileMenu';
 import { useAuthStore } from '../../../../stores/authStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
 
-// Mock createPortal
+
 vi.mock('react-dom', async () => {
     const actual = await vi.importActual('react-dom');
     return {
@@ -58,17 +58,17 @@ describe('MobileMenu', () => {
 
         render(<MobileMenu />);
 
-        // Open menu
+        
         fireEvent.click(screen.getByRole('button', { name: /menú/i }));
 
         await waitFor(() => {
-            // Check for admin links
+            
             expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();
             expect(screen.getByText(/Ventas/i)).toBeInTheDocument();
             expect(screen.getByText(/Productos/i)).toBeInTheDocument();
             expect(screen.getByText(/Configuración/i)).toBeInTheDocument();
 
-            // Check that regular user links are NOT present
+            
             expect(screen.queryByText('Inicio')).not.toBeInTheDocument();
         });
     });
@@ -82,16 +82,16 @@ describe('MobileMenu', () => {
 
         render(<MobileMenu />);
 
-        // Open menu
+        
         fireEvent.click(screen.getByRole('button', { name: /menú/i }));
 
         await waitFor(() => {
-            // Check for user links
+            
             expect(screen.getByText('Inicio')).toBeInTheDocument();
             expect(screen.getByText('Productos')).toBeInTheDocument();
             expect(screen.getByText('Servicios')).toBeInTheDocument();
 
-            // Check that admin links are NOT present
+            
             expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
         });
     });
@@ -105,28 +105,28 @@ describe('MobileMenu', () => {
 
         render(<MobileMenu />);
 
-        // Open menu
+        
         const hamburger = screen.getByRole('button', { name: /menú/i });
         fireEvent.click(hamburger);
 
         await waitFor(() => expect(screen.getByText('Inicio')).toBeInTheDocument());
 
-        // Click a link (e.g., 'Inicio')
+        
         const link = screen.getByText('Inicio');
         fireEvent.click(link);
 
-        // Wait for menu content to disappear (or verify state if we could access it, but UI check is better)
-        // Since we are checking for disappearance, we wait for it to be removed/hidden.
-        // NOTE: In the implementation, we use conditional rendering or CSS classes. 
-        // If conditional rendering {isOpen && ...}:
+        
+        
+        
+        
         await waitFor(() => {
-            // The drawer uses translate-x, so it might still be in document but hidden visually. 
-            // However, the standard `createPortal(..., document.body)` with `{isOpen && ...}` means it should be removed from DOM if `isOpen` is false.
-            // Let's check if the portal content is removed.
+            
+            
+            
 
-            // Checking the class change or removal is safer if we know implementation
-            // Implementation: {isOpen && isClient ? createPortal(...) : null}
-            // So it should be removed from DOM.
+            
+            
+            
             expect(screen.queryByText('Inicio')).not.toBeInTheDocument();
         });
     });

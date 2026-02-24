@@ -1,28 +1,18 @@
-/**
- * Centralized Sale Types
- */
+
 
 import type { User } from './user';
-import type { ProductCardProps } from './product';
+import type {} from './product';
 
-/**
- * Sale status enum
- */
+
 export type SaleStatus = 'PENDIENTE' | 'APROBADO' | 'CANCELADO' | 'ENVIADO' | 'ENTREGADO';
 
-/**
- * Delivery type
- */
+
 export type DeliveryType = 'ENVIO' | 'RETIRO';
 
-/**
- * Payment method
- */
+
 export type PaymentMethod = 'TRANSFERENCIA' | 'MERCADOPAGO' | 'EFECTIVO' | 'BINANCE';
 
-/**
- * Sale line item
- */
+
 export interface SaleLine {
     id: number;
     productoId: number;
@@ -36,9 +26,7 @@ export interface SaleLine {
     };
 }
 
-/**
- * Full sale data from API
- */
+
 export interface Sale {
     id: number;
     fecha: string;
@@ -61,9 +49,7 @@ export interface Sale {
     updatedAt?: string;
 }
 
-/**
- * Create sale request payload
- */
+
 export interface CreateSalePayload {
     items: { id: number | string; quantity: number }[];
     subtotal: number;
@@ -77,9 +63,7 @@ export interface CreateSalePayload {
     documentoEnvio?: string;
 }
 
-/**
- * Cart item (for shopping cart)
- */
+
 export interface CartItem {
     id: string;
     name: string;

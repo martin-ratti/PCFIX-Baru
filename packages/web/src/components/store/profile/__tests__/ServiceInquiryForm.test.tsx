@@ -4,7 +4,7 @@ import ServiceInquiryForm from '../ServiceInquiryForm';
 import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -49,36 +49,36 @@ describe('ServiceInquiryForm', () => {
     it('shows error toast for empty message', async () => {
         const addToastMock = vi.fn();
         vi.mocked(useToastStore).mockImplementation(((selector: any) => {
-            if (selector) return addToastMock; // selector is (state) => state.addToast
-            return { getState: () => ({ addToast: addToastMock }) }; // partial store mock
+            if (selector) return addToastMock; 
+            return { getState: () => ({ addToast: addToastMock }) }; 
         }) as any);
-        // Also mock getState explicitly if needed, but for custom hooks usually the selector is enough or the store itself.
-        // Actually, looking at the component: `useToastStore.getState().addToast(...)`
-        // So we need to mock the implementation of useToastStore to have a getState method.
+        
+        
+        
 
-        // Let's refine the mock strategy efficiently:
+        
         const addToast = vi.fn();
         vi.mocked(useToastStore).mockReturnValue({
             getState: () => ({ addToast })
         } as any);
-        // AND handle the hook usage `useToastStore((state) => state.addToast)`? 
-        // No, the component was refactored to use `useToastStore.getState().addToast` in some places? 
-        // Wait, looking at the previous diff:
-        // +      useToastStore.getState().addToast('Por favor detalla tu problema...','error');
-        // AND
-        // +    const addToast = useToastStore((state) => state.addToast);
+        
+        
+        
+        
+        
+        
 
-        // Wait, I need to check the component code again to be sure if it mixes access patterns.
-        // Step 845 diff showed:
-        // +      useToastStore.getState().addToast(...)
+        
+        
+        
 
-        // Step 851 (ContactForm) showed:
-        // +    const addToast = useToastStore((state) => state.addToast);
+        
+        
 
-        // ServiceInquiryForm (Step 845/846/847) seemed to use `getState().addToast` for the validation error.
+        
 
-        // Let's assume `useToastStore` mock needs to support both or I should verify the component first.
-        // To be safe I'll assume `getState` usage. 
+        
+        
 
         vi.mocked(useToastStore).mockReturnValue({} as any);
         vi.mocked(useToastStore).getState = vi.fn().mockReturnValue({ addToast });
@@ -121,7 +121,7 @@ describe('ServiceInquiryForm', () => {
             'info'
         );
 
-        // Check sessionStorage has pending inquiry
+        
         expect(sessionStorage.getItem('pendingInquiry')).toBeTruthy();
     });
 

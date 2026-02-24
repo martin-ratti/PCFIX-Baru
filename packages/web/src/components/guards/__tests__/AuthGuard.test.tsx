@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import AuthGuard from '../AuthGuard';
 import { useAuthStore } from '../../../stores/authStore';
 
-// Mocks
+
 vi.mock('../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -16,7 +16,7 @@ describe('AuthGuard', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         localStorage.clear();
-        // Mock window.location.href
+        
         Object.defineProperty(window, 'location', {
             value: { href: '' },
             writable: true
@@ -66,7 +66,7 @@ describe('AuthGuard', () => {
             isAuthenticated: false
         } as any);
 
-        // Set localStorage with authenticated user
+        
         localStorage.setItem('auth-storage', JSON.stringify({
             state: { isAuthenticated: true }
         }));

@@ -5,7 +5,7 @@ import { useAuthStore } from '../../../../stores/authStore';
 import { useServiceStore } from '../../../../stores/serviceStore';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -22,7 +22,7 @@ vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
-import { fetchApi } from '../../../../utils/api';
+
 
 describe('ServicePriceModal', () => {
     const mockAddToast = vi.fn();
@@ -44,7 +44,7 @@ describe('ServicePriceModal', () => {
             fetchItems: mockFetchItems
         } as any);
 
-        // Mock getState for the component
+        
         (useServiceStore as any).getState = () => ({
             items: [
                 { id: 1, title: 'Limpieza', price: 5000 },

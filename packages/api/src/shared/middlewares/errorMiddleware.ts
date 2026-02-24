@@ -5,9 +5,9 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  // LOGIG REFINADO:
-  // Si es un error operacional (4xx) o controlado, usamos WARN para no alarmar.
-  // Si es un error desconocido o 500, usamos ERROR para investigar.
+  
+  
+  
   if (err.isOperational || err.statusCode < 500) {
     console.warn(`⚠️ [${req.method}] ${req.originalUrl} >> ${err.statusCode}: ${err.message}`);
   } else {
@@ -30,7 +30,7 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
         message: err.message
       });
     } else {
-      // Mensaje genérico para el cliente en errores 500 (Production)
+      
       res.status(500).json({
         success: false,
         status: 'error',

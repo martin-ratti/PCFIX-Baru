@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { API_URL } from '../../../utils/api';
 import { useToastStore } from '../../../stores/toastStore';
@@ -41,7 +41,7 @@ export default function FavoritesPageContent() {
         }
     };
 
-    // --- LOADING STATE (Estandarizado) ---
+    
     if (isLoading) {
         return (
             <div className="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 min-h-[400px] flex flex-col items-center justify-center">
@@ -53,7 +53,7 @@ export default function FavoritesPageContent() {
         );
     }
 
-    // --- NO AUTENTICADO (UI Mejorada) ---
+    
     if (!isAuthenticated || !user) {
         return (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 min-h-[400px] flex flex-col items-center justify-center text-center animate-fade-in">
@@ -69,12 +69,12 @@ export default function FavoritesPageContent() {
         );
     }
 
-    // --- LISTA VACÍA (UI Estandarizada) ---
+    
     if (favorites && favorites.length === 0) {
         return (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 min-h-[400px] flex flex-col items-center justify-center text-center animate-fade-in">
                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-400">
-                    {/* Icono Corazón */}
+                    
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>
                 </div>
 
@@ -83,7 +83,7 @@ export default function FavoritesPageContent() {
                     Parece que aún no has encontrado ese componente especial. ¡Explora nuestro catálogo!
                 </p>
 
-                {/* Botón Sólido (Consistente con Ventas y Consultas) */}
+                
                 <a
                     href="/tienda/productos"
                     className="bg-secondary text-white px-8 py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center gap-2"
@@ -95,7 +95,7 @@ export default function FavoritesPageContent() {
         );
     }
 
-    // --- LISTA DE FAVORITOS ---
+    
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 animate-in fade-in duration-500">
             {favorites?.map((product) => (

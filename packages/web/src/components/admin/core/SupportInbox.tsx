@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { API_URL } from '../../../utils/api';
 import { useToastStore } from '../../../stores/toastStore';
@@ -13,7 +13,7 @@ export default function SupportInbox() {
     const [error, setError] = useState<string | null>(null);
 
     const fetchInquiries = () => {
-        // Evitar petición si no hay token (evita el 401 inicial)
+        
         if (!token) return;
 
         setIsLoading(true);
@@ -27,7 +27,7 @@ export default function SupportInbox() {
         })
             .then(async (res) => {
                 if (res.status === 401) {
-                    logout(); // Token inválido -> Salir
+                    logout(); 
                     window.location.href = '/auth/login';
                     throw new Error("Sesión expirada. Ingresa nuevamente.");
                 }
@@ -49,10 +49,10 @@ export default function SupportInbox() {
             .finally(() => setIsLoading(false));
     };
 
-    // Efecto: Se dispara SOLO cuando el token cambia (o se carga inicialmente)
+    
     useEffect(() => {
         if (token) fetchInquiries();
-        else setIsLoading(false); // Si no hay token, dejamos de cargar (el Guard lo sacará)
+        else setIsLoading(false); 
     }, [token]);
 
     const handleReply = async (id: number) => {

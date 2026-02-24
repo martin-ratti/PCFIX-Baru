@@ -4,15 +4,15 @@ import { authenticate, requireAdmin } from '../../shared/middlewares/authMiddlew
 
 const router = Router();
 
-// --- Rutas de Precios de Servicios (Public + Admin) ---
-router.get('/prices', Controller.getPrices); // Público
-router.put('/prices/:id', authenticate, requireAdmin, Controller.updatePrice); // Admin
 
-// --- Rutas de Consultas Técnicas (User + Admin) ---
-router.post('/', authenticate, Controller.createInquiry); // Usuario crea
-router.get('/me', authenticate, Controller.getMyInquiries); // Usuario ve suyas
-router.get('/', authenticate, requireAdmin, Controller.getAllInquiries); // Admin ve todas
-router.put('/:id/reply', authenticate, requireAdmin, Controller.replyInquiry); // Admin responde
-router.delete('/:id', authenticate, requireAdmin, Controller.deleteInquiry); // Admin elimina
+router.get('/prices', Controller.getPrices); 
+router.put('/prices/:id', authenticate, requireAdmin, Controller.updatePrice); 
+
+
+router.post('/', authenticate, Controller.createInquiry); 
+router.get('/me', authenticate, Controller.getMyInquiries); 
+router.get('/', authenticate, requireAdmin, Controller.getAllInquiries); 
+router.put('/:id/reply', authenticate, requireAdmin, Controller.replyInquiry); 
+router.delete('/:id', authenticate, requireAdmin, Controller.deleteInquiry); 
 
 export default router;

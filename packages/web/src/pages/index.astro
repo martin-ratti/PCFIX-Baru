@@ -24,9 +24,9 @@ let banners: Banner[] = [];
 let configHours = "";
 let errorApi = false;
 
-// API URL
-// API URL
-// API URL imported at top
+
+
+
 
 try {
   const [prodRes, brandRes, bannerRes, configRes] = await Promise.all([
@@ -65,7 +65,7 @@ try {
     if (r.success) banners = r.data;
   }
 
-  // Parse Config
+  
   if (configRes.ok) {
     const json = await configRes.json();
     if (json.success && json.data?.horariosLocal) {
@@ -76,7 +76,7 @@ try {
   console.error("Error fetching data:", error);
   errorApi = true;
 }
-if (!configHours) configHours = "Lunes a Viernes: 9:00 - 18:00"; // Fallback
+if (!configHours) configHours = "Lunes a Viernes: 9:00 - 18:00"; 
 ---
 
 <Layout title="PCFIX | Tu Tienda de Tecnología">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
@@ -67,7 +67,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         if (!saleId) return;
         refreshData();
 
-        // Polling para detectar pago aprobado (cada 5 seg)
+        
         const interval = setInterval(() => {
             if (saleId) refreshData();
         }, 5000);
@@ -122,7 +122,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             const data = await res.json();
             if (data.success && data.data.url) {
                 window.open(data.data.url, '_blank');
-                setIsLoading(false); // Stop loading so user can see instructions/status
+                setIsLoading(false); 
             } else {
                 addToast('Error al generar pago con MP', 'error');
                 setIsLoading(false);
@@ -133,9 +133,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         }
     };
 
-    /* const handlePayWithViumi = async () => {
-        // ... (Viumi logic commented out)
-    }; */
+    
 
     const onSubmit = async (data: any) => {
         const isCash = sale?.medioPago === 'EFECTIVO';
@@ -160,7 +158,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         finally { setIsUpdating(false); }
     };
 
-    // Renders
+    
     const renderPaymentInfo = () => {
         if (!sale || !config) return null;
         const usdtRate = Number(config.cotizacionUsdt) || 1150;
@@ -191,11 +189,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         ) : (
                             <p className="text-xs text-gray-400 px-1 mt-1">* Efectivo no disponible para envío a domicilio.</p>
                         )}
-                        {/* Viumi commented out
-                        <label className="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-pointer hover:border-[#4429A6] transition-colors">
-                            <input type="radio" name="pm" value="VIUMI" checked={tempPaymentMethod === 'VIUMI'} onChange={(e) => setTempPaymentMethod(e.target.value)} className="accent-[#4429A6]" />
-                            <span>💳 Tarjeta de Débito/Crédito (ViüMi)</span>
-                        </label> */}
+                        
                     </div>
                     <div className="flex gap-2 mt-4">
                         <button onClick={handleChangePaymentMethod} disabled={isUpdating} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50">
@@ -207,10 +201,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             );
         }
 
-        /* if (sale.medioPago === 'VIUMI') { 
-            // Viumi info commented out 
-            return null;
-        } */
+        
 
         if (sale.medioPago === 'MERCADOPAGO') {
             return (
@@ -346,7 +337,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                     )}
                 </div>
 
-                {/* Order Summary Toggle */}
+                
                 <div className="mb-6 border rounded-xl overflow-hidden">
                     <button
                         onClick={() => setShowSummary(!showSummary)}

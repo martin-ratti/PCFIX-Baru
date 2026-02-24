@@ -11,7 +11,7 @@ export default function UserGuard({ children }: UserGuardProps) {
 
   useEffect(() => {
     const checkAccess = () => {
-      // Chequeo rápido en localStorage para evitar flash
+      
       const storedAuth = localStorage.getItem('auth-storage');
       let role = user?.role;
       let isAuth = isAuthenticated;
@@ -25,18 +25,18 @@ export default function UserGuard({ children }: UserGuardProps) {
       }
 
       if (!isAuth) {
-        // No logueado -> Replace a Login
+        
         window.location.replace('/auth/login');
         return;
       }
 
       if (role === 'ADMIN') {
-        // Admin en zona de cliente -> Replace a Denegado
+        
         window.location.replace('/acceso-denegado');
         return;
       }
 
-      // Es User -> Permitir
+      
       setIsLoading(false);
     };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { navigate } from 'astro:transitions/client';
 import { fetchApi } from '../../../utils/api';
@@ -53,7 +53,7 @@ export default function UserSales() {
       {sales.map((sale) => (
         <div key={sale.id} className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
 
-          {/* Header */}
+          
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 p-4 border-b border-gray-100 gap-4">
             <div>
               <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block">Orden #{sale.id}</span>
@@ -65,7 +65,7 @@ export default function UserSales() {
             </div>
           </div>
 
-          {/* Timeline */}
+          
           <div className="px-6 py-4 border-b border-gray-50">
             <OrderTimeline
               status={sale.estado as OrderStatus}

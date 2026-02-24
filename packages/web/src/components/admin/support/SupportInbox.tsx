@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
-import { API_URL, fetchApi } from '../../../utils/api';
+import {  fetchApi } from '../../../utils/api';
 import { useToastStore } from '../../../stores/toastStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 
@@ -12,7 +12,7 @@ export default function SupportInbox() {
     const [replyText, setReplyText] = useState('');
     const [isLoading, setIsLoading] = useState(true);
 
-    // States for delete action
+    
     const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
     const [deletingId, setDeletingId] = useState<number | null>(null);
 

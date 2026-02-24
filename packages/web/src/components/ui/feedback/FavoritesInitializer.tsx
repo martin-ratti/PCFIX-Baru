@@ -8,13 +8,13 @@ export default function FavoritesInitializer() {
 
   useEffect(() => {
     if (isAuthenticated && user?.id) {
-      // Si hay usuario, cargamos sus favoritos
+      
       fetchFavorites(user.id);
     } else {
-      // Si se desloguea, limpiamos
+      
       setFavorites([]);
     }
   }, [isAuthenticated, user?.id]);
 
-  return null; // Este componente no renderiza nada visual
+  return null; 
 }

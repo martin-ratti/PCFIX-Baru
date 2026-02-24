@@ -1,7 +1,7 @@
-import React from 'react';
+
 
 export default function WhatsAppButton() {
-  // Reemplaza con el número real
+  
   const phoneNumber = "543464513588"; 
   const message = "Hola PCFIX! Estoy viendo su web y tengo una consulta.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
@@ -14,13 +14,13 @@ export default function WhatsAppButton() {
       className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center w-16 h-16 bg-[#25D366] text-white rounded-full shadow-[0_4px_14px_rgba(37,211,102,0.5)] hover:shadow-[0_6px_20px_rgba(37,211,102,0.6)] hover:-translate-y-1 transition-all duration-300"
       aria-label="Contactar por WhatsApp"
     >
-      {/* Tooltip */}
+      
       <span className="absolute right-full mr-3 bg-gray-900 text-white text-sm font-bold px-3 py-1.5 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
         ¿Necesitas ayuda?
         <span className="absolute top-1/2 right-[-6px] -mt-1 border-4 border-transparent border-l-gray-900"></span>
       </span>
 
-      {/* Icono Oficial WhatsApp Clean */}
+      
       <svg 
         viewBox="0 0 24 24" 
         width="36" 

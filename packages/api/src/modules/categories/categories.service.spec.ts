@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Use vi.hoisted to properly hoist mock object
+
 const mockPrisma = vi.hoisted(() => ({
     categoria: {
         findMany: vi.fn(),

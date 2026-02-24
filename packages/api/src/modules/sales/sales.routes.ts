@@ -5,12 +5,12 @@ import { upload } from '../../shared/middlewares/uploadMiddleware';
 
 const router = Router();
 
-// --- RUTAS PÚBLICAS O SEMI-PÚBLICAS ---
-router.get('/mp-callback', Controller.handleMPCallback); // Must be before /:id
-router.post('/webhook', Controller.handleMPWebhook);
-router.post('/quote', Controller.quoteShipping); // Público para permitir cotizar sin login
 
-// --- RUTAS AUTENTICADAS ---
+router.get('/mp-callback', Controller.handleMPCallback); 
+router.post('/webhook', Controller.handleMPWebhook);
+router.post('/quote', Controller.quoteShipping); 
+
+
 router.get('/balance', authenticate, requireAdmin, Controller.getBalance);
 router.get('/my-sales', authenticate, Controller.getMySales);
 
@@ -21,19 +21,19 @@ router.post('/manual', authenticate, requireAdmin, Controller.createManualSale);
 router.get('/:id', authenticate, Controller.getSaleById);
 
 router.post('/:id/receipt', authenticate, upload.single('comprobante'), Controller.uploadReceipt);
-// Webhook (Public)
-// router.post('/webhook/viumi', Controller.handleViumiWebhook);
+
+
 
 router.put('/:id/payment-method', authenticate, Controller.updatePaymentMethod);
 router.put('/:id/payment-method', authenticate, Controller.updatePaymentMethod);
-// router.post('/:id/viumi-preference', authenticate, Controller.createViumiPreference);
+
 router.post('/:id/mp-preference', authenticate, Controller.createMPPreference);
 router.put('/:id/cancel', authenticate, Controller.cancelOrder);
 
 router.put('/:id/status', authenticate, requireAdmin, Controller.updateStatus);
 router.put('/:id/dispatch', authenticate, requireAdmin, Controller.dispatchSale);
 
-// Zipnova Integration
+
 router.post('/:id/create-shipment', authenticate, requireAdmin, Controller.createZipnovaShipment);
 router.get('/:id/label', authenticate, Controller.getShipmentLabel);
 

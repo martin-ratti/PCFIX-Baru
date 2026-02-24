@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 interface DiscountModalProps {
   isOpen: boolean;
@@ -37,9 +37,9 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     if (calculatedPrice >= basePrice) {
-      await onConfirm(basePrice, null); // Quitar oferta
+      await onConfirm(basePrice, null); 
     } else {
-      await onConfirm(calculatedPrice, basePrice); // Aplicar oferta
+      await onConfirm(calculatedPrice, basePrice); 
     }
   };
 

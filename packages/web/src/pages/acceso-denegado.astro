@@ -36,7 +36,7 @@ import Layout from "../layouts/Layout.astro";
       >
         Ir al Inicio
       </a>
-      {/* Botón dinámico: Logout para cambiar de cuenta si se equivocó */}
+      
       <a
         href="/auth/login"
         onclick="localStorage.removeItem('auth-storage'); window.location.href='/auth/login'; return false;"

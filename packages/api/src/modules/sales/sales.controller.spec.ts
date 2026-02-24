@@ -24,12 +24,12 @@ describe('Sales Controller', () => {
             items: [{ id: 1, quantity: 1 }],
             subtotal: 100,
             tipoEntrega: 'RETIRO',
-            medioPago: 'INVALIDO' // Invalid enum
+            medioPago: 'INVALIDO' 
         };
 
         await createSale(req as Request, res as Response);
 
-        expect(status).toHaveBeenCalledWith(400); // Expect Bad Request
+        expect(status).toHaveBeenCalledWith(400); 
         expect(json).toHaveBeenCalledWith(expect.objectContaining({
             success: false,
             error: 'Datos de venta inválidos'
@@ -54,7 +54,7 @@ describe('Sales Controller', () => {
 
     it('should reject missing quantity', async () => {
         req.body = {
-            items: [{ id: 1 }], // Missing quantity
+            items: [{ id: 1 }], 
             subtotal: 100,
             tipoEntrega: 'RETIRO',
             medioPago: 'EFECTIVO'

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fetchApi } from './api';
 
-// Mock global fetch
+
 global.fetch = vi.fn();
 
 describe('fetchApi utility', () => {
@@ -76,7 +76,7 @@ describe('fetchApi utility', () => {
 
         const result = await fetchApi('/test');
 
-        // 4xx errors are returned, not thrown
+        
         expect(result.status).toBe(400);
     });
 });

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ErrorBoundary from '../ErrorBoundary';
 
-// Component that throws an error
+
 const ThrowError = ({ shouldThrow = true }: { shouldThrow?: boolean }) => {
     if (shouldThrow) {
         throw new Error('Test error');
@@ -13,7 +13,7 @@ const ThrowError = ({ shouldThrow = true }: { shouldThrow?: boolean }) => {
 
 describe('ErrorBoundary', () => {
     beforeEach(() => {
-        // Suppress console.error for cleaner test output
+        
         vi.spyOn(console, 'error').mockImplementation(() => { });
     });
 
@@ -59,7 +59,7 @@ describe('ErrorBoundary', () => {
     });
 
     it('allows retry when button clicked', () => {
-        const { rerender } = render(
+        const {} = render(
             <ErrorBoundary>
                 <ThrowError shouldThrow={true} />
             </ErrorBoundary>
@@ -67,7 +67,7 @@ describe('ErrorBoundary', () => {
 
         expect(screen.getByText('Error temporal.')).toBeInTheDocument();
 
-        // The retry button should be present
+        
         const retryButton = screen.getByRole('button');
         expect(retryButton).toBeInTheDocument();
     });

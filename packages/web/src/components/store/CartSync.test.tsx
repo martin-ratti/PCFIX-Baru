@@ -5,11 +5,11 @@ import { useCartStore } from '../../stores/cartStore';
 import { useAuthStore } from '../../stores/authStore';
 import * as apiUtils from '../../utils/api';
 
-// Mock stores
+
 vi.mock('../../stores/cartStore');
 vi.mock('../../stores/authStore');
 
-// Mock API
+
 vi.mock('../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
@@ -30,7 +30,7 @@ describe('CartSync', () => {
 
         render(<CartSync />);
 
-        // Fast-forward debounce
+        
         vi.advanceTimersByTime(2000);
 
         expect(apiUtils.fetchApi).toHaveBeenCalledWith('/cart/sync', expect.objectContaining({

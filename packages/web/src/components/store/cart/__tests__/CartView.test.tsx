@@ -5,7 +5,7 @@ import { useCartStore } from '../../../../stores/cartStore';
 import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 vi.mock('../../../../stores/cartStore', () => ({
     useCartStore: vi.fn()
 }));

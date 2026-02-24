@@ -4,7 +4,7 @@ import LoginForm from '../LoginForm';
 import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -13,7 +13,7 @@ vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 
-// Mock window.location
+
 const mockLocation = { href: '' };
 Object.defineProperty(window, 'location', {
     value: mockLocation,
@@ -27,7 +27,7 @@ describe('LoginForm', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.mocked(useAuthStore).mockReturnValue(mockLogin);
-        // Fix for selector usage
+        
         vi.mocked(useToastStore).mockImplementation((selector: any) => {
             const state = { addToast: mockAddToast };
             return selector ? selector(state) : state;

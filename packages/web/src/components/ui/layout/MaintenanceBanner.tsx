@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { AlertTriangleIcon } from "../../SharedIcons"; // 👇 Import
+import { useEffect, useState } from "react";
+import { AlertTriangleIcon } from "../../SharedIcons"; 
 import { API_URL } from "../../../utils/api";
 
 export default function MaintenanceBanner() {
@@ -12,7 +12,7 @@ export default function MaintenanceBanner() {
                 if (res.ok) {
                     const json = await res.json();
                     if (json.success && json.data?.maintenanceMode) {
-                        // Check Admin
+                        
                         let isAdmin = false;
                         try {
                             const storage = localStorage.getItem("auth-storage");

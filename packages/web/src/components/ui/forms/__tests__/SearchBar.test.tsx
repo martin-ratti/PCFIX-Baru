@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SearchBar from '../SearchBar';
 import { useAuthStore } from '../../../../stores/authStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -16,7 +16,7 @@ vi.mock('astro:transitions/client', () => ({
     navigate: vi.fn()
 }));
 
-import { fetchApi } from '../../../../utils/api';
+
 import { navigate } from 'astro:transitions/client';
 
 describe('SearchBar', () => {

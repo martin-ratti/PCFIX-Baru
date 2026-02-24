@@ -15,7 +15,7 @@ const editProductSchema = z.object({
   categoriaId: z.coerce.number().int().positive(),
   marcaId: z.coerce.number().int().optional(),
   fotoFile: z.any().optional(),
-  // Nuevos campos
+  
   peso: z.coerce.number().positive(),
   alto: z.coerce.number().int().positive(),
   ancho: z.coerce.number().int().positive(),
@@ -75,7 +75,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
           setValue('marcaId', p.marcaId);
           setCurrentImage(p.foto);
 
-          // SETEAR VALORES LOGÍSTICOS
+          
           setValue('peso', Number(p.peso));
           setValue('alto', p.alto);
           setValue('ancho', p.ancho);
@@ -100,7 +100,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       formData.append('stock', data.stock.toString());
       formData.append('categoriaId', data.categoriaId.toString());
 
-      // Enviar nuevos campos
+      
       formData.append('peso', data.peso.toString());
       formData.append('alto', data.alto.toString());
       formData.append('ancho', data.ancho.toString());
@@ -114,7 +114,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       if (!result.success) throw new Error(result.error);
 
       addToast('Producto actualizado', 'success');
-      await navigate(`/producto/${productId}`); // Ir a ver el producto
+      await navigate(`/producto/${productId}`); 
     } catch (error: any) { addToast(error.message, 'error'); }
     finally { setIsLoading(false); }
   };
@@ -129,7 +129,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       </h2>
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        {/* Columna Izquierda */}
+        
         <div className="space-y-4">
           <div><label htmlFor="nombre" className="block text-sm font-medium text-gray-700">Nombre</label><input id="nombre" data-testid="input-nombre" {...register('nombre')} className="w-full mt-1 p-2 border rounded-md" /></div>
 
@@ -138,7 +138,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
             <div><label htmlFor="stock" className="block text-sm font-medium text-gray-700">Stock</label><input id="stock" data-testid="input-stock" type="number" {...register('stock')} className="w-full mt-1 p-2 border rounded-md" /></div>
           </div>
 
-          {/* SECCIÓN LOGÍSTICA */}
+          
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h3 className="text-xs font-bold text-gray-500 uppercase mb-3">Dimensiones y Peso</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -164,7 +164,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
           </div>
         </div>
 
-        {/* Columna Derecha */}
+        
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -184,7 +184,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
           <div>
             <label className="block text-sm font-medium text-gray-700">Imagen</label>
             <div className="flex gap-4 items-center mt-2 p-3 border border-gray-100 rounded-2xl bg-gray-50">
-              {/* Prioridad: Preview > Current Image */}
+              
               {(previewUrl || currentImage) && (
                 <img src={previewUrl || currentImage} alt="Preview" className="w-20 h-20 object-cover rounded-xl border-2 border-white shadow-sm" />
               )}

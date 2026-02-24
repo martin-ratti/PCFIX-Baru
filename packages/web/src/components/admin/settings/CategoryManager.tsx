@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
-import { fetchApi } from '../../../utils/api'; // 👇 API Utility
+import { fetchApi } from '../../../utils/api'; 
 
 interface Category {
   id: number;
@@ -22,12 +22,12 @@ export default function CategoryManager() {
 
   const fetchData = async () => {
     try {
-      // 👇 fetchApi (Lista árbol)
+      
       const resTree = await fetchApi('/categories');
       const jsonTree = await resTree.json();
       if (jsonTree.success) setCategories(jsonTree.data);
 
-      // 👇 fetchApi (Lista plana)
+      
       const resFlat = await fetchApi('/categories?flat=true');
       const jsonFlat = await resFlat.json();
       if (jsonFlat.success) setFlatCategories(jsonFlat.data);
@@ -44,7 +44,7 @@ export default function CategoryManager() {
         padreId: data.padreId ? Number(data.padreId) : null
       };
 
-      // 👇 fetchApi (POST)
+      
       const res = await fetchApi('/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,7 +68,7 @@ export default function CategoryManager() {
   const confirmDelete = async () => {
     if (!categoryToDelete) return;
     try {
-      // 👇 fetchApi (DELETE)
+      
       await fetchApi(`/categories/${categoryToDelete.id}`, { method: 'DELETE' });
       fetchData();
       addToast('Categoría eliminada', 'success');
@@ -81,7 +81,7 @@ export default function CategoryManager() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-      {/* Formulario */}
+      
       <div className="bg-white p-6 rounded-lg shadow border border-gray-100 sticky top-6">
         <h3 className="text-lg font-bold mb-4 text-secondary">Nueva Categoría</h3>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -105,7 +105,7 @@ export default function CategoryManager() {
         </form>
       </div>
 
-      {/* Lista */}
+      
       <div className="md:col-span-2 bg-white p-6 rounded-lg shadow border border-gray-100">
         <h3 className="text-lg font-bold mb-4 text-secondary">Estructura del Catálogo</h3>
         <div className="space-y-3">

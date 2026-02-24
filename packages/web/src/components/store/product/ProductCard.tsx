@@ -53,7 +53,7 @@ export default function ProductCard({ product, disableTransition = false }: Prod
     e.preventDefault(); e.stopPropagation();
     if (!isAuthenticated) { addToast("Inicia sesión", 'info'); return; }
 
-    // Optimistic toggle via store
+    
     if (user?.id) {
       toggleFavoriteOptimistic(user.id, Number(product.id));
     }

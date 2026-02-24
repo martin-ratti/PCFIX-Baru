@@ -1,24 +1,24 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import StockAlertModal from '../StockAlertModal';
 
-// Mock Auth Store
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn().mockReturnValue({ user: null, isAuthenticated: false }),
 }));
 
-// Mock API
+
 vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn(),
 }));
 
-// Mock Portal because render in test env is different
+
 vi.mock('react-dom', async () => {
     const actual = await vi.importActual('react-dom');
     return {
         ...actual,
-        createPortal: (node: React.ReactNode) => node, // Render directly in body for test
+        createPortal: (node: React.ReactNode) => node, 
     };
 });
 

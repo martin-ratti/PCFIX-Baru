@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -8,8 +8,8 @@ interface ConfirmModalProps {
   onCancel: () => void;
   confirmText?: string;
   cancelText?: string;
-  isDanger?: boolean; // Para poner el botón rojo
-  isLoading?: boolean; // Optional loading state for confirm button
+  isDanger?: boolean; 
+  isLoading?: boolean; 
 }
 
 export default function ConfirmModal({
@@ -28,21 +28,21 @@ export default function ConfirmModal({
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden animate-modal-enter">
-        {/* Header */}
+        
         <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
           <h3 className={`text-lg font-bold ${isDanger ? 'text-red-600' : 'text-primary'}`}>
             {title}
           </h3>
         </div>
 
-        {/* Body */}
+        
         <div className="px-6 py-6">
           <p className="text-gray-600 text-sm leading-relaxed">
             {message}
           </p>
         </div>
 
-        {/* Footer */}
+        
         <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3">
           <button
             onClick={onCancel}

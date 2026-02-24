@@ -3,13 +3,13 @@ import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import { fetchApi } from '../../../utils/api';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
-import { ImageIcon, BuildingIcon, Trash2Icon } from '../../SharedIcons'; // 👇 Icons
+import { ImageIcon, BuildingIcon, Trash2Icon } from '../../SharedIcons'; 
 
 interface Brand { id: number; nombre: string; logo: string | null; }
 
 export default function BrandManager() {
   const [brands, setBrands] = useState<Brand[]>([]);
-  const { register, handleSubmit, reset, watch } = useForm();
+  const { register, handleSubmit, reset } = useForm();
   const addToast = useToastStore(s => s.addToast);
   const [logoName, setLogoName] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -71,7 +71,7 @@ export default function BrandManager() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {/* Formulario */}
+      
       <div className="bg-white p-6 rounded-lg shadow h-fit border border-gray-100">
         <h3 className="text-lg font-bold mb-4 text-secondary">Nueva Marca</h3>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -114,7 +114,7 @@ export default function BrandManager() {
         </form>
       </div>
 
-      {/* Lista */}
+      
       <div className="md:col-span-2 bg-white p-6 rounded-lg shadow border border-gray-100">
         <h3 className="text-lg font-bold mb-4 text-secondary">Marcas Existentes ({brands.length})</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

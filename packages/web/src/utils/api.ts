@@ -1,4 +1,4 @@
-// Export constant so other components can use it
+
 const isServer = import.meta.env.SSR;
 const isProd = import.meta.env.PROD;
 
@@ -13,12 +13,12 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
     'Content-Type': 'application/json',
   };
 
-  // Check if body is FormData (browser sets Content-Type automatically with boundary)
+  
   if (options.body instanceof FormData) {
     delete (defaultHeaders as any)['Content-Type'];
   }
 
-  // Auto-inject token if available
+  
   const authStorage = localStorage.getItem('auth-storage');
   if (authStorage) {
     try {
@@ -41,11 +41,11 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
 
   const res = await fetch(`${BASE_URL}${endpoint}`, mergedOptions);
 
-  // Only redirect on truly critical server errors (5xx) that the user can't recover from
-  // Let 4xx errors (validation, auth, etc.) be handled by the calling component
+  
+  
   if (res.status >= 500) {
     console.error(`[fetchApi] Server error ${res.status} on ${endpoint}`);
-    // Don't auto-redirect - throw instead so component can handle gracefully
+    
     throw new Error(`Error del servidor (${res.status})`);
   }
 

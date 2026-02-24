@@ -1,10 +1,10 @@
-// @vitest-environment jsdom
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ForgotPasswordModal from '../ForgotPasswordModal';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
@@ -55,7 +55,7 @@ describe('ForgotPasswordModal', () => {
     it('submits valid email successfully', async () => {
         render(<ForgotPasswordModal isOpen={true} onClose={mockOnClose} />);
 
-        // Mock success response
+        
         (global.fetch as any).mockResolvedValue({
             json: async () => ({ success: true })
         });
@@ -79,7 +79,7 @@ describe('ForgotPasswordModal', () => {
     it('handles api error', async () => {
         render(<ForgotPasswordModal isOpen={true} onClose={mockOnClose} />);
 
-        // Mock error response
+        
         (global.fetch as any).mockResolvedValue({
             json: async () => ({ success: false, error: 'Usuario no encontrado' })
         });

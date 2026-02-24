@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,7 +16,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 import { API_URL } from '../../../utils/api';
-// API_URL is imported
+
 
 export default function ForgotPasswordModal({ isOpen, onClose }: Props) {
     const [isLoading, setIsLoading] = useState(false);

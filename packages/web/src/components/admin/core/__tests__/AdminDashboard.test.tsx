@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import AdminDashboard from '../AdminDashboard';
 import { useAuthStore } from '../../../../stores/authStore';
-import { fetchApi } from '../../../../utils/api';
 
-// Mocks
+
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -13,7 +13,7 @@ vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
-// Mock child components
+
 vi.mock('../../dashboard/DashboardIntelligence', () => ({
     default: () => <div data-testid="dashboard-intelligence">Mock Dashboard Intelligence</div>
 }));
@@ -38,7 +38,7 @@ describe('AdminDashboard', () => {
     it('renders quick action buttons', () => {
         render(<AdminDashboard />);
 
-        // Use regex for case-insensitive matching and robustness
+        
         const newProductBtn = screen.getByRole('link', { name: /nuevo producto/i });
         const posBtn = screen.getByRole('link', { name: /punto de venta/i });
         const marketingBtn = screen.getByRole('link', { name: /marketing/i });

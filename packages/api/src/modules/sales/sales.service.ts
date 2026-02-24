@@ -28,7 +28,7 @@ export class SalesService {
         this.shippingService = new ShippingService();
     }
 
-    // 1. COTIZAR ENVÍO
+    
     async getQuote(zipCode: string, items: { id: number; quantity: number }[]) {
         const productIds = items.map((i) => Number(i.id));
         const dbProducts = await prisma.producto.findMany({
@@ -50,7 +50,7 @@ export class SalesService {
         return await this.shippingService.calculateCost(zipCode, shippingItems);
     }
 
-    // --- VIUMI ---
+    
     async createViumiPreference(saleId: number) {
         const sale = await prisma.venta.findUnique({
             where: { id: saleId },
@@ -58,17 +58,17 @@ export class SalesService {
         });
         if (!sale) throw new Error("Venta no encontrada");
 
-        // Define callback URL (where user returns after paying)
+        
         const callbackUrl = `${process.env.APP_URL || 'http://localhost:4321'}/checkout/viumi-success`;
 
-        // Transform items
+        
         const items = sale.lineasVenta.map((line: any) => ({
             nombre: line.producto.nombre,
             cantidad: line.cantidad,
             precio: Number(line.subTotal) / line.cantidad
         }));
 
-        // Add shipping if any (as an item)
+        
         if (Number(sale.costoEnvio) > 0) {
             items.push({
                 nombre: "Envío",
@@ -77,12 +77,12 @@ export class SalesService {
             });
         }
 
-        // Initialize service
+        
         const viumiService = new (require('../../shared/services/ViumiService').ViumiService)();
         return await viumiService.createPaymentPreference(sale, items, callbackUrl);
     }
 
-    // 2. CREAR VENTA WEB
+    
     async createSale(
         userId: number,
         items: any[],
@@ -110,7 +110,7 @@ export class SalesService {
                 throw new Error(`Stock insuficiente: ${dbProduct.nombre}`);
             }
 
-            // Apply 8% discount if not paying with Mercado Pago
+            
             let precio = Number(dbProduct.precio);
             if (medioPago !== 'MERCADOPAGO') {
                 precio = precio * 0.92;
@@ -142,7 +142,7 @@ export class SalesService {
                 const config = await prisma.configuracion.findFirst();
                 baseCosto = config ? Number(config.costoEnvioFijo) : 6500;
             }
-            // Apply 21% VAT to shipping
+            
             costoEnvio = baseCosto * 1.21;
         }
 
@@ -155,7 +155,7 @@ export class SalesService {
                     metodoEnvio: tipoEntrega === 'RETIRO' ? "RETIRO_LOCAL" : "ZIPPIN_LOGISTICA",
                     estado: VentaEstado.PENDIENTE_PAGO,
                     lineasVenta: { create: lineasParaCrear },
-                    // Guardar dirección de envío para Zipnova
+                    
                     direccionEnvio: direccionEnvio?.direccion || null,
                     ciudadEnvio: direccionEnvio?.ciudad || null,
                     provinciaEnvio: direccionEnvio?.provincia || null,
@@ -176,7 +176,7 @@ export class SalesService {
         });
     }
 
-    // 3. CREAR VENTA MANUAL (POS)
+    
     async createManualSale(data: { customerEmail: string, items: SaleItemInput[], medioPago: string, estado: string }) {
 
         let user = await prisma.user.findUnique({ where: { email: data.customerEmail } });
@@ -210,7 +210,7 @@ export class SalesService {
                 throw new Error(`Stock insuficiente para ${product.nombre}. Hay ${product.stock}.`);
             }
 
-            // Custom Service Logic: Use custom price if provided, otherwise list price
+            
             let price = Number(product.precio);
             if (item.customPrice !== undefined && item.customPrice !== null) {
                 price = Number(item.customPrice);
@@ -256,7 +256,7 @@ export class SalesService {
         if (userId) where.cliente = { userId };
 
         if (date) {
-            // Filter by specific date (YYYY-MM-DD)
+            
             const [y, m, d] = date.split('-').map(Number);
             const startDate = new Date(y, m - 1, d, 0, 0, 0);
             const endDate = new Date(y, m - 1, d, 23, 59, 59);
@@ -361,12 +361,12 @@ export class SalesService {
 
         if (!sale) throw new Error('Venta no encontrada');
 
-        // Recalculate prices based on new payment method
+        
         let newSubtotal = 0;
         const updateLinesPromises = sale.lineasVenta.map(line => {
             let unitPrice = Number(line.producto.precio);
 
-            // Apply 8% discount if NOT MercadoPago
+            
             if (medioPago !== 'MERCADOPAGO') {
                 unitPrice = unitPrice * 0.92;
             }
@@ -380,7 +380,7 @@ export class SalesService {
             });
         });
 
-        // Update Sale Total (Subtotal + Shipping)
+        
         const newTotal = newSubtotal + Number(sale.costoEnvio || 0);
 
         return await prisma.$transaction([
@@ -393,7 +393,7 @@ export class SalesService {
                 },
                 include: { lineasVenta: { include: { producto: true } } }
             })
-        ]).then(results => results[results.length - 1]); // Return the updated sale
+        ]).then(results => results[results.length - 1]); 
     }
 
     async cancelOrder(saleId: number) {
@@ -427,7 +427,7 @@ export class SalesService {
             const saleId = Number(payment.external_reference);
             const sale = await prisma.venta.findUnique({ where: { id: saleId } });
 
-            // Only update if not already approved to avoid duplicate emails/updates
+            
             if (sale && sale.estado !== VentaEstado.APROBADO) {
                 await this.updateStatus(saleId, VentaEstado.APROBADO);
                 await this.updatePaymentMethod(saleId, 'MERCADOPAGO');
@@ -435,7 +435,7 @@ export class SalesService {
         }
     }
 
-    // ========== ZIPNOVA INTEGRATION ==========
+    
 
     async createShipmentForSale(saleId: number) {
         const sale = await prisma.venta.findUnique({
@@ -453,7 +453,7 @@ export class SalesService {
             throw new Error('Faltan datos de dirección de envío');
         }
 
-        // Preparar items para Zipnova
+        
         const items: ShippingItem[] = sale.lineasVenta.map((linea: any) => ({
             weight: Number(linea.producto.peso) || 0.5,
             height: linea.producto.alto || 10,
@@ -464,7 +464,7 @@ export class SalesService {
             sku: `P${linea.producto.id}`
         }));
 
-        // Crear envío en Zipnova
+        
         const result = await this.shippingService.createShipment(
             items,
             {
@@ -481,7 +481,7 @@ export class SalesService {
             `PCFIX-${saleId}`
         );
 
-        // Actualizar venta con datos de Zipnova
+        
         await prisma.venta.update({
             where: { id: saleId },
             data: {
@@ -492,7 +492,7 @@ export class SalesService {
             }
         });
 
-        // Notificar al cliente
+        
         if (sale.cliente?.user?.email && result.trackingCode) {
             this.emailService.sendStatusUpdate(
                 sale.cliente.user.email,
@@ -502,7 +502,7 @@ export class SalesService {
             ).catch(console.error);
         }
 
-        // Notificar al admin con link a Zipnova
+        
         this.emailService.sendNewShipmentNotification(
             saleId,
             sale.cliente?.user?.email || 'N/A',
@@ -524,15 +524,15 @@ export class SalesService {
 
         if (!sale) throw new Error('Venta no encontrada');
 
-        // Si ya tiene URL guardada, devolverla
+        
         if (sale.etiquetaUrl) return sale.etiquetaUrl;
 
-        // Si tiene ID de envío en Zipnova, intentar obtener etiqueta
+        
         if (sale.zipnovaShipmentId) {
             try {
                 const labelUrl = await this.shippingService.getLabel(sale.zipnovaShipmentId);
 
-                // Guardar para cache
+                
                 if (labelUrl) {
                     await prisma.venta.update({
                         where: { id: saleId },

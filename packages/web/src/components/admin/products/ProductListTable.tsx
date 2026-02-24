@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { navigate } from 'astro:transitions/client';
 import { useToastStore } from '../../../stores/toastStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
@@ -6,7 +6,7 @@ import UpdateStockModal from './UpdateStockModal';
 import DiscountModal from './DiscountModal';
 import { fetchApi } from '../../../utils/api';
 import ErrorBoundary from '../../ui/feedback/ErrorBoundary';
-import { SearchIcon, AlertTriangleIcon, PlusIcon, StarIcon, TagIcon, RefreshCwIcon, EditIcon, Trash2Icon } from '../../SharedIcons'; // 👇 Icons
+import { SearchIcon, AlertTriangleIcon, PlusIcon, StarIcon, TagIcon, RefreshCwIcon, EditIcon, Trash2Icon } from '../../SharedIcons'; 
 
 interface Product { id: number; nombre: string; precio: string; precioOriginal?: string | null; stock: number; isFeatured: boolean; categoria: { nombre: string }; }
 interface Category { id: number; nombre: string; }
@@ -15,32 +15,32 @@ interface Brand { id: number; nombre: string; }
 function ProductListContent() {
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [brands, setBrands] = useState<Brand[]>([]); // Agregué estado para marcas
+    const [brands, setBrands] = useState<Brand[]>([]); 
 
-    // Filtros
+    
     const [filterCat, setFilterCat] = useState<string>('');
     const [filterBrand, setFilterBrand] = useState<string>('');
     const [showLowStock, setShowLowStock] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Paginación
+    
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Modales
+    
     const [productToDelete, setProductToDelete] = useState<Product | null>(null);
     const [productToUpdateStock, setProductToUpdateStock] = useState<Product | null>(null);
     const [productToDiscount, setProductToDiscount] = useState<Product | null>(null);
 
     const addToast = useToastStore(s => s.addToast);
 
-    // Carga inicial
+    
     useEffect(() => {
         fetchApi('/categories').then(res => res.json()).then(d => d.success && setCategories(d.data));
         fetchApi('/brands').then(res => res.json()).then(d => d.success && setBrands(d.data));
 
-        // URL Params Logic
+        
         const params = new URLSearchParams(window.location.search);
         if (params.get('filter') === 'lowStock') {
             setShowLowStock(true);
@@ -50,7 +50,7 @@ function ProductListContent() {
         }
     }, []);
 
-    // Carga de productos (con debounce)
+    
     useEffect(() => {
         const timer = setTimeout(() => {
             setPage(1);
@@ -83,7 +83,7 @@ function ProductListContent() {
     const handlePrevPage = () => { if (page > 1) fetchProducts(page - 1); };
     const handleNextPage = () => { if (page < totalPages) fetchProducts(page + 1); };
 
-    // --- ACCIONES ---
+    
 
     const handleDelete = async () => {
         if (!productToDelete) return;
@@ -138,10 +138,10 @@ function ProductListContent() {
 
     return (
         <div className="space-y-4">
-            {/* BARRA DE FILTROS ESTILO LIMPIO (Tu Imagen) */}
+            
             <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-200 flex flex-wrap items-center justify-between gap-3">
 
-                {/* Buscador */}
+                
                 <div className="relative flex-1 min-w-[200px] max-w-md">
                     <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
                     <input
@@ -177,7 +177,7 @@ function ProductListContent() {
                 </div>
             </div>
 
-            {/* Tabla */}
+            
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div className="overflow-x-auto relative min-h-[300px]">
                     {isLoading && <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center backdrop-blur-[1px]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}
@@ -195,7 +195,7 @@ function ProductListContent() {
                                     </td>
                                     <td className="px-6 py-4 text-sm"><span className={`px-2 py-1 rounded-md font-bold text-xs ${p.categoria?.nombre?.toLowerCase().includes('servicio') ? 'bg-blue-50 text-blue-600' : p.stock <= 5 ? 'bg-red-50 text-red-600 animate-pulse' : 'text-green-700 bg-green-50'}`}>{p.categoria?.nombre?.toLowerCase().includes('servicio') ? '∞' : p.stock}</span></td>
                                     <td className="px-6 py-4 text-right text-sm font-medium">
-                                        {/* Botones SIEMPRE visibles */}
+                                        
                                         <div className="flex justify-end gap-1">
                                             <button data-testid="btn-feature" onClick={() => handleToggleFeatured(p)} className={`p-1.5 rounded-lg transition-all active:scale-90 ${p.isFeatured ? 'text-yellow-500 bg-yellow-50' : 'text-gray-300 hover:text-yellow-500 hover:bg-yellow-50'}`} title="Destacar"><StarIcon className={`w-5 h-5 ${p.isFeatured ? 'fill-current' : ''}`} /></button>
                                             <button data-testid="btn-discount" onClick={() => setProductToDiscount(p)} className={`p-1.5 rounded-lg transition-all active:scale-90 ${p.precioOriginal ? 'text-purple-600 bg-purple-50' : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50'}`} title="Oferta"><TagIcon className="w-5 h-5" /></button>
@@ -210,7 +210,7 @@ function ProductListContent() {
                     </table>
                 </div>
 
-                {/* Paginación */}
+                
                 <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
                     <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div><p className="text-sm text-gray-500">Página <span className="font-bold text-gray-800">{page}</span> de <span className="font-bold text-gray-800">{totalPages}</span></p></div>
@@ -224,7 +224,7 @@ function ProductListContent() {
                 </div>
             </div>
 
-            {/* Modales */}
+            
             <ConfirmModal isOpen={!!productToDelete} title="Eliminar" message="¿Seguro que deseas eliminar este producto?" confirmText="Sí, eliminar" isDanger={true} onConfirm={handleDelete} onCancel={() => setProductToDelete(null)} />
             <UpdateStockModal isOpen={!!productToUpdateStock} productName={productToUpdateStock?.nombre || ''} currentStock={productToUpdateStock?.stock || 0} onConfirm={handleStockUpdate} onCancel={() => setProductToUpdateStock(null)} />
             <DiscountModal isOpen={!!productToDiscount} product={productToDiscount} onConfirm={handleDiscountUpdate} onCancel={() => setProductToDiscount(null)} />

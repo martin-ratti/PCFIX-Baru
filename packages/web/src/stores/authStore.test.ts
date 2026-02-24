@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { useAuthStore } from './authStore';
 
-// Mock localStorage
+
 const localStorageMock = {
     getItem: vi.fn(),
     setItem: vi.fn(),
@@ -14,7 +14,7 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 describe('authStore', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Reset store state
+        
         useAuthStore.setState({
             token: null,
             user: null,
@@ -43,12 +43,12 @@ describe('authStore', () => {
         it('should clear user and token on logout', () => {
             const { result } = renderHook(() => useAuthStore());
 
-            // First login
+            
             act(() => {
                 result.current.login('token', { id: 1, email: 'test@test.com', role: 'USER' });
             });
 
-            // Then logout
+            
             act(() => {
                 result.current.logout();
             });

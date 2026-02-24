@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useServiceStore, type ServiceItem } from '../../../stores/serviceStore';
 
 export default function ServicePriceList() {
   const { items, fetchItems, isLoading } = useServiceStore();
 
-  // Forzar la carga de datos frescos al montar el componente
+  
   useEffect(() => {
     fetchItems();
   }, []);

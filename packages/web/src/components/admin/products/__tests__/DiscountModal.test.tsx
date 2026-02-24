@@ -58,7 +58,7 @@ describe('DiscountModal', () => {
         const input = screen.getByPlaceholderText('Ej: 20');
         fireEvent.change(input, { target: { value: '20' } });
 
-        // 20% off of 200000 = 160000
+        
         expect(screen.getByText('$160.000')).toBeInTheDocument();
     });
 
@@ -77,7 +77,7 @@ describe('DiscountModal', () => {
         const applyBtn = screen.getByText('Aplicar');
         fireEvent.click(applyBtn);
 
-        // 10% off of 200000 = 180000, original is 200000
+        
         expect(mockOnConfirm).toHaveBeenCalledWith(180000, 200000);
     });
 

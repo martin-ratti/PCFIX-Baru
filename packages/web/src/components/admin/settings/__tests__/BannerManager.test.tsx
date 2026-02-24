@@ -4,7 +4,7 @@ import BannerManager from '../BannerManager';
 import { useToastStore } from '../../../../stores/toastStore';
 import { fetchApi } from '../../../../utils/api';
 
-// Mocks
+
 vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
@@ -50,7 +50,7 @@ describe('BannerManager', () => {
         render(<BannerManager />);
 
         await waitFor(() => {
-            // "Brand 1" appears in option and in banner list, so we expect at least one occurrence
+            
             const elements = screen.getAllByText('Brand 1');
             expect(elements.length).toBeGreaterThan(0);
             expect(screen.getAllByRole('img')).toHaveLength(1);
@@ -64,7 +64,7 @@ describe('BannerManager', () => {
         fireEvent.click(submitBtn);
 
         await waitFor(() => {
-            expect(screen.getAllByText(/requerido/i)).toHaveLength(2); // Brand + Image
+            expect(screen.getAllByText(/requerido/i)).toHaveLength(2); 
         });
     });
 
@@ -73,12 +73,12 @@ describe('BannerManager', () => {
 
         await waitFor(() => expect(screen.getAllByRole('img')).toHaveLength(1));
 
-        // Find delete button based on svg path usage (common pattern for icon buttons without text)
-        // or getting all buttons and filtering by those that are likely delete buttons (inside the list)
+        
+        
 
         const buttons = screen.getAllByRole('button');
-        // The delete button is the one with the trash icon (or similar X icon)
-        // In the code it uses d="M6 18L18 6M6 6l12 12" which is an X.
+        
+        
         const deleteButton = buttons.find(b => b.innerHTML.includes('d="M6 18L18 6M6 6l12 12"'));
 
         if (deleteButton) fireEvent.click(deleteButton);

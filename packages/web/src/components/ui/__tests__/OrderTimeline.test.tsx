@@ -22,8 +22,8 @@ describe('OrderTimeline', () => {
     });
 
     it('marks active step correctly', () => {
-        const { container } = render(<OrderTimeline status="ENVIADO" shippingMethod="ENVIO" />);
-        // Logic to check active step class or visual indicator
-        // Usually checked by class name or aria-current
+        const {} = render(<OrderTimeline status="ENVIADO" shippingMethod="ENVIO" />);
+        
+        
     });
 });

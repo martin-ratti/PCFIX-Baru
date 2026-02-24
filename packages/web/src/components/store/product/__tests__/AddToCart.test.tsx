@@ -4,7 +4,7 @@ import AddToCart from '../AddToCart';
 import { useCartStore } from '../../../../stores/cartStore';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 vi.mock('../../../../stores/cartStore', () => ({
     useCartStore: vi.fn()
 }));
@@ -17,7 +17,7 @@ vi.mock('astro:transitions/client', () => ({
 vi.mock('../../../../utils/api', () => ({
     API_URL: 'http://test-api.com'
 }));
-// Mock StockAlertModal to verify it's rendered and receives props
+
 vi.mock('../StockAlertModal', () => ({
     default: ({ isOpen, onClose, productName }: any) => (
         isOpen ? (
@@ -48,7 +48,7 @@ describe('AddToCart', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.mocked(useCartStore).mockReturnValue({ addItem: mockAddItem } as any);
-        // Fix for selector usage: useToastStore(state => state.addToast)
+        
         vi.mocked(useToastStore).mockImplementation((selector: any) => {
             const state = { addToast: mockAddToast };
             return selector ? selector(state) : state;
@@ -67,7 +67,7 @@ describe('AddToCart', () => {
         fireEvent.click(btn);
 
         await waitFor(() => {
-            // Just check that it was called, strict message matching was failing
+            
             expect(mockAddToast).toHaveBeenCalled();
             expect(mockAddItem).toHaveBeenCalled();
         });

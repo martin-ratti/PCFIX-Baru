@@ -1,20 +1,20 @@
 import { prisma } from '../../shared/database/prismaClient';
 
 export interface SyncCartItemDto {
-    id: string; // Product ID
+    id: string; 
     quantity: number;
 }
 
 export class CartService {
     async syncCart(userId: number, items: SyncCartItemDto[]) {
-        // 1. Find or create cart for user
+        
         const cart = await (prisma as any).cart.upsert({
             where: { userId },
             create: { userId },
             update: { abandonedEmailSent: false },
         });
 
-        // 2. Validate Products (Filter out non-existent IDs to prevent FK errors)
+        
         let validItems: SyncCartItemDto[] = [];
         if (items.length > 0) {
             const productIds = items.map(i => Number(i.id)).filter(id => !isNaN(id));
@@ -30,7 +30,7 @@ export class CartService {
             }
         }
 
-        // 3. Clear existing items and replace with VALID new ones
+        
         return await (prisma as any).$transaction(async (tx: any) => {
             await tx.cartItem.deleteMany({
                 where: { cartId: cart.id }

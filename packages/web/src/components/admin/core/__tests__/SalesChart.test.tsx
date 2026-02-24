@@ -4,7 +4,7 @@ import SalesChart from '../SalesChart';
 import { useAuthStore } from '../../../../stores/authStore';
 import { fetchApi } from '../../../../utils/api';
 
-// Mock dependencies
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -17,7 +17,7 @@ vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
-// Mock Recharts components since they need browser environment
+
 vi.mock('recharts', () => ({
     BarChart: ({ children }: any) => <div data-testid="bar-chart">{children}</div>,
     Bar: () => <div data-testid="bar" />,
@@ -40,7 +40,7 @@ describe('SalesChart', () => {
     it('renders loading placeholder when no data', () => {
         mockUseAuthStore.mockReturnValue({ token: null } as any);
         const { container } = render(<SalesChart />);
-        // When loading with no data, shows animate-pulse placeholder
+        
         expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
     });
 

@@ -4,7 +4,7 @@ import UserSupportHistory from '../UserSupportHistory';
 import { useAuthStore } from '../../../../stores/authStore';
 import * as apiUtils from '../../../../utils/api';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore');
 vi.mock('../../../../utils/api');
 

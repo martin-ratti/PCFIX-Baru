@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCartStore } from '../../../stores/cartStore';
 import { useAuthStore } from '../../../stores/authStore';
 import cartIcon from '../../../assets/cart.png';
@@ -14,7 +14,7 @@ export default function CartIcon() {
     setIsClient(true);
   }, []);
 
-  // Trigger bounce animation when items are added
+  
   useEffect(() => {
     const currentCount = items.reduce((total, item) => total + item.quantity, 0);
     if (currentCount > prevItemsCount.current) {

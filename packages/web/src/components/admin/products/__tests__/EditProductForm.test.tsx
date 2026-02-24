@@ -4,7 +4,7 @@ import EditProductForm from '../EditProductForm';
 import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -18,7 +18,7 @@ vi.mock('../../../../utils/api', () => ({
     API_URL: 'http://local-test-api'
 }));
 
-// Mock navigate
+
 vi.mock('astro:transitions/client', () => ({
     navigate: vi.fn()
 }));
@@ -97,7 +97,7 @@ describe('EditProductForm', () => {
         fireEvent.click(submitBtn);
 
         await waitFor(() => {
-            // Check calling global.fetch.
+            
             expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/products/1'), expect.objectContaining({ method: 'PUT' }));
             expect(mockAddToast).toHaveBeenCalledWith(expect.stringContaining('actualizado'), 'success');
         });

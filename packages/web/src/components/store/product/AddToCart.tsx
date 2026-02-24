@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-// Asegúrate de que estas rutas sean correctas según tu estructura actual
+import { useState, useEffect } from 'react';
+
 import { useCartStore } from '../../../stores/cartStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
@@ -25,8 +25,8 @@ interface AddToCartProps {
 }
 
 export default function AddToCart({ product, stock }: AddToCartProps) {
-  // Solo necesitamos addItem del store, no increaseQuantity
-  const { addItem, items, increaseQuantity: increaseCartItem } = useCartStore();
+  
+  const { addItem, increaseQuantity: increaseCartItem } = useCartStore();
   const { user, isAuthenticated } = useAuthStore();
   const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore();
   const addToast = useToastStore((state) => state.addToast);
@@ -43,7 +43,7 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
     setIsClient(true);
   }, []);
 
-  // Handlers para el contador LOCAL
+  
   const handleIncrease = () => {
     if (quantity < stock) setQuantity(q => q + 1);
     else addToast('Stock máximo alcanzado', 'error');
@@ -59,13 +59,13 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
 
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    // 1. Agregamos el producto base al carrito
-    // Convertimos originalPrice null -> undefined para satisfacer TS
+    
+    
     const productToAdd = {
       id: product.id,
       name: product.name,
       price: product.price,
-      originalPrice: product.originalPrice === null ? undefined : product.originalPrice, // FIX
+      originalPrice: product.originalPrice === null ? undefined : product.originalPrice, 
       imageUrl: product.imageUrl,
       imageAlt: product.imageAlt,
       stock: product.stock,
@@ -73,10 +73,10 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
       description: product.description
     };
 
-    // Agregamos el primer ítem
+    
     addItem(productToAdd);
 
-    // 2. Si la cantidad local es > 1, incrementamos en el store
+    
     if (quantity > 1) {
       for (let i = 0; i < quantity - 1; i++) {
         increaseCartItem(product.id);
@@ -147,7 +147,7 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
         <div className="flex flex-col sm:flex-row gap-4 w-full">
 
           <div className="flex gap-3 w-full sm:w-auto">
-            {/* Selector de Cantidad */}
+            
             <div className="flex items-center border-2 border-gray-200 rounded-xl h-14 sm:h-12 bg-white shadow-sm flex-1 sm:flex-initial sm:min-w-[120px]">
               <button
                 onClick={handleDecrease}
@@ -168,7 +168,7 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
               </button>
             </div>
 
-            {/* Botón Favorito (Visible solo en mobile junto a cantidad) */}
+            
             <div className="sm:hidden">
               <button
                 onClick={handleToggleFavorite}
@@ -195,7 +195,7 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
             </div>
           </div>
 
-          {/* Botón Agregar */}
+          
           {product.category === 'Servicios' ? (
             <a
               href="/tienda/servicios"
@@ -223,7 +223,7 @@ export default function AddToCart({ product, stock }: AddToCartProps) {
             </button>
           )}
 
-          {/* Botón Favorito (Solo Desktop) */}
+          
           <button
             onClick={handleToggleFavorite}
             disabled={isTogglingFav}

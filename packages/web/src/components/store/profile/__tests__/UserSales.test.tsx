@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import UserSales from '../UserSales';
 import { useAuthStore } from '../../../../stores/authStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -174,7 +174,7 @@ describe('UserSales', () => {
         render(<UserSales />);
 
         await waitFor(() => {
-            // StatusBadge should show "Entregado" and the action should be shown
+            
             expect(screen.getAllByText(/entregado/i).length).toBeGreaterThan(0);
         });
     });

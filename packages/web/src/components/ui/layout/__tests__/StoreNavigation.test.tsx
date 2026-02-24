@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import StoreNavigation from '../StoreNavigation';
 import { useAuthStore } from '../../../../stores/authStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -63,7 +63,7 @@ describe('StoreNavigation', () => {
             expect(screen.getByText('Categorías')).toBeInTheDocument();
         });
 
-        // Hover to open dropdown
+        
         const dropdown = screen.getByText('Categorías').closest('.group');
         fireEvent.mouseEnter(dropdown!);
 

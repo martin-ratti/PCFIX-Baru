@@ -29,9 +29,9 @@ export default function ContactForm() {
         }
 
         setIsLoading(true);
-        const toastId = 'contact-toast';
-        // Use external toast lib directly if store doesn't support id or loading
-        // But for now using store addToast
+/* unused:         const toastId = 'contact-toast'; */
+        
+        
         addToast('Enviando mensaje...', 'info');
 
         try {

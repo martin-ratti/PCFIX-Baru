@@ -102,18 +102,18 @@ export const changePassword = async (req: Request, res: Response) => {
 
 export const deleteProfile = async (req: Request, res: Response) => {
   try {
-    // Assuming authentication middleware attaches user to req.user or similar
-    // The previous code in AuthController doesn't show where userId comes from for protected routes.
-    // I need to check how other protected routes get the user ID. 
-    // Usually it's req.user.id or similar after middleware. 
-    // Inspecting 'req' type or middleware usage in routes would verify this.
-    // For now, I'll assume standard Express practice or check auth middleware usage in routes.
-    // Update: Looking at previous context, there are guards.
+    
+    
+    
+    
+    
+    
+    
 
-    // SAFEGUARE: I will assume req.user exists if protected.
-    // However, TypeScript might complain if Request is not extended.
-    // Let's use (req as any).user.id for now to avoid TS issues if types aren't set up globally, 
-    // or better, check how it's done elsewhere.
+    
+    
+    
+    
 
     const userId = (req as any).user?.id;
     if (!userId) return res.status(401).json({ success: false, error: 'No autorizado' });

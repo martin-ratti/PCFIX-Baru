@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useToastStore, type Toast, type ToastType } from '../../../stores/toastStore';
 
 const styles: Record<ToastType, string> = {
-  // Más transparente (/80) y con blur fuerte
+  
   success: 'bg-green-600/80 border-green-500/50 text-white shadow-green-900/20',
   error:   'bg-red-600/80 border-red-500/50 text-white shadow-red-900/20',
   info:    'bg-blue-600/80 border-blue-500/50 text-white shadow-blue-900/20',
@@ -14,20 +14,20 @@ const icons: Record<ToastType, React.ReactNode> = {
   info:    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>,
 };
 
-// Componente individual para manejar su propia animación de salida
+
 const ToastItem = ({ toast, onRemove }: { toast: Toast; onRemove: (id: string) => void }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Animación de entrada (pequeño delay para permitir render)
+    
     requestAnimationFrame(() => setIsVisible(true));
 
-    // Configurar temporizador de salida (3s visibles + 300ms animación)
+    
     const timer = setTimeout(() => {
-      setIsVisible(false); // Inicia fade out
+      setIsVisible(false); 
       setTimeout(() => {
-        onRemove(toast.id); // Elimina del store después del fade out
-      }, 300); // Debe coincidir con duration-300
+        onRemove(toast.id); 
+      }, 300); 
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -58,7 +58,7 @@ export default function ToastContainer() {
   const { toasts, removeToast } = useToastStore();
 
   return (
-    // top-24 baja el contenedor para no tapar el header
+    
     <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none">
       {toasts.map((toast) => (
         <div key={toast.id} className="pointer-events-auto">

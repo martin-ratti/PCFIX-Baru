@@ -10,7 +10,7 @@ router.post('/google', AuthController.loginGoogle);
 router.post('/forgot-password', AuthController.forgotPassword);
 router.post('/reset-password', AuthController.resetPassword);
 
-// Protected routes
+
 router.post('/change-password', authenticate, AuthController.changePassword);
 router.delete('/profile', authenticate, AuthController.deleteProfile);
 

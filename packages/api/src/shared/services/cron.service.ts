@@ -9,7 +9,7 @@ const emailService = new EmailService();
 export class CronService {
 
   start() {
-    // Cron: Actualizar USDT cada 4 horas "0 */4 * * *"
+    
     cron.schedule('0 */4 * * *', async () => {
       try {
         const result = await configService.syncUsdtPrice();
@@ -23,7 +23,7 @@ export class CronService {
       }
     });
 
-    // Cron: Carritos Abandonados (Cada 30 minutos)
+    
     cron.schedule('*/30 * * * *', async () => {
 
       await this.checkAbandonedCarts();
@@ -44,7 +44,7 @@ export class CronService {
 
   private async checkAbandonedCarts() {
     try {
-      // 30 minutos de inactividad
+      
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
@@ -55,8 +55,8 @@ export class CronService {
             gt: twentyFourHoursAgo
           },
           abandonedEmailSent: false,
-          items: { some: {} }, // Tiene items
-          userId: { not: undefined } // Tiene usuario (aunque el schema lo hace obligatorio unique, pero por seguridad)
+          items: { some: {} }, 
+          userId: { not: undefined } 
         },
         include: {
           user: true,

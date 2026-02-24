@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 
 export class CategoryService {
 
-  // 1. Obtener todas
+  
   async findAll(flat: boolean = false) {
 
     const excludeServices: Prisma.CategoriaWhereInput = {

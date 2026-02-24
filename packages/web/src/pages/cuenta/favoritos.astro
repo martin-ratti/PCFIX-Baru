@@ -13,7 +13,7 @@ import UserGuard from "../../components/guards/UserGuard.tsx";
             Mi Lista de Deseos
         </h1>
 
-        {/* Solo usuarios normales pueden ver esto */}
+        
         <UserGuard client:only="react">
             <FavoritesPageContent client:load />
         </UserGuard>

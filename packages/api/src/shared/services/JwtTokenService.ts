@@ -1,4 +1,4 @@
-// packages/api/src/shared/services/JwtTokenService.ts
+
 import jwt from 'jsonwebtoken';
 
 export class JwtTokenService {

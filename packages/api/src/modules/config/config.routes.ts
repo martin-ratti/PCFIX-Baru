@@ -4,14 +4,14 @@ import { authenticate, requireAdmin } from '../../shared/middlewares/authMiddlew
 
 const router = Router();
 
-// Rutas existentes
+
 router.get('/', Controller.getConfig);
 router.put('/', authenticate, requireAdmin, Controller.updateConfig);
 
-// Trigger de actualización
+
 router.post('/sync-usdt', authenticate, requireAdmin, Controller.syncUsdt);
 
-// Formulario de Contacto (Público)
+
 router.post('/contact', Controller.sendContactEmail);
 
 export default router;

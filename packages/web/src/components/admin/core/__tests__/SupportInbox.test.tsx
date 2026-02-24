@@ -4,7 +4,7 @@ import SupportInbox from '../SupportInbox';
 import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 global.fetch = vi.fn();
 
 vi.mock('../../../../stores/authStore', () => ({

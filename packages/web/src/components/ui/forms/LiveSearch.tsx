@@ -16,15 +16,15 @@ export default function LiveSearch() {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
 
-    // Set isClient on mount
+    
     useEffect(() => setIsClient(true), []);
 
-    // Reset selection when results change
+    
     useEffect(() => {
         setSelectedIndex(-1);
     }, [results]);
 
-    // Load history on mount
+    
     useEffect(() => {
         const saved = localStorage.getItem('search_history');
         if (saved) {
@@ -34,7 +34,7 @@ export default function LiveSearch() {
         }
     }, []);
 
-    // Click outside to close
+    
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
@@ -45,20 +45,20 @@ export default function LiveSearch() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Live Search logic
+    
     useEffect(() => {
-        // Don't trigger search for admin or before client hydration
+        
         if (!isClient || user?.role === 'ADMIN') return;
 
         if (term.length < 2) {
             setResults([]);
             if (term.length === 0) {
-                // Show history logic could be here if we want list to change
+                
             }
             return;
         }
 
-        // Cancel previous request
+        
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
         }
@@ -85,12 +85,12 @@ export default function LiveSearch() {
                     setIsLoading(false);
                 }
             }
-        }, 300); // 300ms Debounce
+        }, 300); 
 
         return () => clearTimeout(timeoutId);
     }, [term, isClient, user?.role]);
 
-    // Early returns AFTER all hooks
+    
     if (!isClient) return null;
     if (user?.role === 'ADMIN') return null;
 
@@ -183,7 +183,7 @@ export default function LiveSearch() {
             {isOpen && (
                 <div className="absolute top-full left-0 w-full bg-white mt-2 rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-fade-in-down">
 
-                    {/* History Section */}
+                    
                     {term.length < 2 && history.length > 0 && (
                         <div className="p-2 border-b border-gray-100">
                             <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2 flex items-center gap-1">
@@ -200,7 +200,7 @@ export default function LiveSearch() {
                         </div>
                     )}
 
-                    {/* Results Section */}
+                    
                     {term.length >= 2 && results.length > 0 && (
                         <ul>
                             {results.map((product, index) => (
@@ -231,14 +231,14 @@ export default function LiveSearch() {
                         </ul>
                     )}
 
-                    {/* No results */}
+                    
                     {term.length >= 2 && results.length === 0 && !isLoading && (
                         <div className="p-4 text-center text-sm text-gray-500">
                             No econtramos productos para "{term}"
                         </div>
                     )}
 
-                    {/* Footer */}
+                    
                     {results.length > 0 && (
                         <div onClick={handleSearch} className="bg-gray-50 p-3 text-center text-xs font-bold text-blue-600 cursor-pointer hover:bg-blue-600 hover:text-white transition-all active:scale-95 border-t border-gray-100">
                             Ver todos los resultados &rarr;

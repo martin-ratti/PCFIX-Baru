@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PaymentForm from '../PaymentForm';
-import * as api from '../../../../utils/api'; // Import namespace
+import * as api from '../../../../utils/api';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn(() => ({ token: 'test-token' }))
 }));
 vi.mock('../../../../stores/toastStore', () => ({
-    useToastStore: vi.fn(() => (msg: string) => { })
+    useToastStore: vi.fn(() => () => { })
 }));
 
 vi.mock('../../../ui/feedback/ConfirmModal', () => ({
@@ -19,8 +19,8 @@ vi.mock('../../../ui/feedback/ConfirmModal', () => ({
     ) : null
 }));
 
-// Mock fetchApi using spyOn to avoid hoisting issues or module resolution complexity
-// But we need to mock the module first
+
+
 vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
@@ -59,15 +59,15 @@ describe('PaymentForm', () => {
 
         render(<PaymentForm saleId={1} />);
 
-        // Wait for loading to finish
-        // Expect loading text to disappear
+
+
         await waitFor(() => {
             expect(screen.queryByText('Cargando...')).not.toBeInTheDocument();
         }, { timeout: 4000 });
 
-        // Check for config content (CBU) - simpler than formatted currency
+
         expect(screen.getByText('123456')).toBeInTheDocument();
-        // expect(screen.getByText('50.000')).toBeInTheDocument();
+
     });
 
     it('cancels order when confirmed', async () => {
@@ -105,7 +105,7 @@ describe('PaymentForm', () => {
             return Promise.resolve({ ok: false } as Response);
         });
 
-        // Mock window.open
+
         const openMock = vi.fn();
         window.open = openMock;
 

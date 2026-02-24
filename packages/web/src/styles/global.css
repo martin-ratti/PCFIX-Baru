@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== MICRO-ANIMATIONS ===== */
+
 @keyframes bounce-once {
 
   0%,
@@ -127,13 +127,13 @@
   animation: slide-up-bounce 0.4s ease-out;
 }
 
-/* ===== ACCESSIBILITY ===== */
-/* Clear focus ring for keyboard navigation */
+
+
 .focus-ring {
   @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
 }
 
-/* Screen reader only (visually hidden but accessible) */
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -146,7 +146,7 @@
   border: 0;
 }
 
-/* Skip to main content link (for keyboard users) */
+
 .skip-link {
   @apply absolute left-0 top-0 bg-primary text-white px-4 py-2 z-50 transform -translate-y-full focus:translate-y-0 transition-transform;
 }

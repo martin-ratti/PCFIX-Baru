@@ -13,14 +13,14 @@ import {
 } from '../../../components/SharedIcons';
 
 export default function ConfigForm() {
-    const { register, handleSubmit, setValue, watch } = useForm<ConfigData>();
+    const { register, handleSubmit, setValue } = useForm<ConfigData>();
     const { token } = useAuthStore();
     const addToast = useToastStore(s => s.addToast);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
 
-    // Carga Inicial
+    
     useEffect(() => {
         if (token) {
             fetchApi('/config', { headers: { 'Authorization': `Bearer ${token}` } })
@@ -42,7 +42,7 @@ export default function ConfigForm() {
         }
     }, [setValue, token]);
 
-    // Función Guardar General
+    
     const onSubmit = async (data: ConfigData) => {
         setIsLoading(true);
         try {
@@ -83,7 +83,7 @@ export default function ConfigForm() {
         <div className="max-w-4xl mx-auto animate-fade-in pb-12">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
 
-                {/* === SECCIÓN BANCOS === */}
+                
                 <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
                     <div className="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
                         <div>
@@ -114,7 +114,7 @@ export default function ConfigForm() {
                         </div>
                     </div>
 
-                    {/* Botón Específico Banco */}
+                    
                     <div className="mt-6 flex justify-end">
                         <button type="submit" disabled={isLoading} className="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                             {isLoading ? <><div className="animate-spin h-4 w-4 border-2 border-gray-600 border-t-transparent rounded-full" /> Guardando...</> : <><SaveIcon className="w-4 h-4" /> Guardar Datos Bancarios</>}
@@ -122,7 +122,7 @@ export default function ConfigForm() {
                     </div>
                 </div>
 
-                {/* === SECCIÓN CRYPTO === */}
+                
                 <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
                     <div className="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
                         <div>
@@ -157,7 +157,7 @@ export default function ConfigForm() {
                                         placeholder="1200.00"
                                     />
                                 </div>
-                                {/* Botón Descriptivo de Sync */}
+                                
                                 <button
                                     onClick={handleSyncUsdt}
                                     disabled={isSyncing}
@@ -177,7 +177,7 @@ export default function ConfigForm() {
                         </div>
                     </div>
 
-                    {/* Botón Específico Crypto */}
+                    
                     <div className="mt-6 flex justify-end">
                         <button type="submit" disabled={isLoading} className="text-sm bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg font-bold hover:bg-yellow-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                             {isLoading ? <><div className="animate-spin h-4 w-4 border-2 border-yellow-800 border-t-transparent rounded-full" /> Guardando...</> : <><SaveIcon className="w-4 h-4" /> Guardar Configuración Crypto</>}
@@ -185,7 +185,7 @@ export default function ConfigForm() {
                     </div>
                 </div>
 
-                {/* === SECCIÓN LOCAL === */}
+                
                 <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
                     <h2 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center gap-2">
                         <MapPinIcon className="w-6 h-6 text-red-500" />
@@ -202,7 +202,7 @@ export default function ConfigForm() {
                         </div>
                     </div>
 
-                    {/* Botón Específico Local */}
+                    
                     <div className="mt-6 flex justify-end">
                         <button type="submit" disabled={isLoading} className="text-sm bg-green-100 text-green-800 px-4 py-2 rounded-lg font-bold hover:bg-green-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                             {isLoading ? <><div className="animate-spin h-4 w-4 border-2 border-green-800 border-t-transparent rounded-full" /> Guardando...</> : <><SaveIcon className="w-4 h-4" /> Guardar Datos del Local</>}
@@ -210,7 +210,7 @@ export default function ConfigForm() {
                     </div>
                 </div>
 
-                {/* Botón Flotante Global (Opcional, pero útil si cambiaste varias cosas) */}
+                
                 <div className="sticky bottom-4 z-10 flex justify-center">
                     <button disabled={isLoading} className="bg-gray-900 text-white px-8 py-3 rounded-full font-bold hover:bg-black transition-all active:scale-95 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed flex items-center gap-2">
                         {isLoading ? <><div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> <span>💾 Guardando cambios...</span></> : <><SaveIcon className="w-4 h-4" /> <span>Guardar TODOS los Cambios</span></>}

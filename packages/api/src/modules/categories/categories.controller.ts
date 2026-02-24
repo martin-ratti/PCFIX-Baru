@@ -3,7 +3,7 @@ import { CategoryService } from './categories.service';
 
 const categoryService = new CategoryService();
 
-// 1. Obtener todas
+
 export const getAll = async (req: Request, res: Response) => {
   try {
     const flat = req.query.flat === 'true';
@@ -14,7 +14,7 @@ export const getAll = async (req: Request, res: Response) => {
   }
 };
 
-// 2. Obtener por ID
+
 export const getById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
@@ -32,7 +32,7 @@ export const getById = async (req: Request, res: Response) => {
   }
 };
 
-// 3. Crear
+
 export const create = async (req: Request, res: Response) => {
   try {
     const { nombre, padreId } = req.body;
@@ -45,7 +45,7 @@ export const create = async (req: Request, res: Response) => {
   }
 };
 
-// 4. Eliminar
+
 export const remove = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);

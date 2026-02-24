@@ -1,12 +1,6 @@
-/**
- * Centralized Product Types
- * This file contains all product-related interfaces used across the application.
- * Import from here instead of defining locally to maintain consistency.
- */
 
-/**
- * Raw product data as returned from the API/Database
- */
+
+
 export interface ProductDB {
     id: number;
     nombre: string;
@@ -28,9 +22,7 @@ export interface ProductDB {
     updatedAt?: string;
 }
 
-/**
- * Transformed product for UI components (ProductCard, Carousel, etc.)
- */
+
 export interface ProductCardProps {
     id: string;
     name: string;
@@ -44,14 +36,10 @@ export interface ProductCardProps {
     categoria?: { nombre: string };
 }
 
-/**
- * Product for Carousel components (extends ProductCardProps)
- */
+
 export interface CarouselProduct extends ProductCardProps { }
 
-/**
- * Helper function to transform ProductDB to ProductCardProps
- */
+
 export function mapProductDBToCardProps(p: ProductDB): ProductCardProps {
     return {
         id: p.id.toString(),
@@ -67,9 +55,7 @@ export function mapProductDBToCardProps(p: ProductDB): ProductCardProps {
     };
 }
 
-/**
- * Pagination metadata from API
- */
+
 export interface PaginationMeta {
     total: number;
     page: number;
@@ -77,9 +63,7 @@ export interface PaginationMeta {
     limit: number;
 }
 
-/**
- * Category interface
- */
+
 export interface Category {
     id: number;
     nombre: string;
@@ -87,9 +71,7 @@ export interface Category {
     subcategorias?: Category[];
 }
 
-/**
- * Brand interface
- */
+
 export interface Brand {
     id: number;
     nombre: string;

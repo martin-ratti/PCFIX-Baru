@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ProductCard from './ProductCard';
 import ProductCardSkeleton from '../../ui/feedback/ProductCardSkeleton';
 import EmptyState from '../../ui/feedback/EmptyState';
@@ -81,19 +81,19 @@ export default function ProductCatalog({
 
     return (
         <div className="space-y-8">
-            {/* Product Grid */}
+            
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 animate-fade-in">
                 {products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                 ))}
 
-                {/* Skeletons while loading */}
+                
                 {isLoading && Array(4).fill(0).map((_, i) => (
                     <ProductCardSkeleton key={`skeleton-${i}`} />
                 ))}
             </div>
 
-            {/* Load More Button */}
+            
             {hasMore && !isLoading && (
                 <div className="flex justify-center pt-4">
                     <button
@@ -115,7 +115,7 @@ export default function ProductCatalog({
                 </div>
             )}
 
-            {/* Loading indicator */}
+            
             {isLoading && (
                 <div className="flex justify-center pt-4">
                     <div className="flex items-center gap-2 text-gray-500">
@@ -125,7 +125,7 @@ export default function ProductCatalog({
                 </div>
             )}
 
-            {/* Pagination info */}
+            
             <div className="text-center text-sm text-gray-400">
                 Mostrando {products.length} de {meta.total} productos
             </div>

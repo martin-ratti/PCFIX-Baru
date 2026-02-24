@@ -8,7 +8,7 @@ export class TechnicalService {
     this.emailService = new EmailService();
   }
 
-  // --- PARTE 1: CONSULTAS TÉCNICAS ---
+  
 
   async createInquiry(userId: number, asunto: string, mensaje: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -33,7 +33,7 @@ export class TechnicalService {
       prisma.consultaTecnica.findMany({
         include: { user: true },
         orderBy: [
-          { estado: 'asc' }, // 'PENDIENTE' antes que 'RESPONDIDO'
+          { estado: 'asc' }, 
           { createdAt: 'desc' }
         ],
         take: limit,
@@ -65,17 +65,17 @@ export class TechnicalService {
   }
 
   async deleteInquiry(id: number) {
-    // 1. Verificar si existe
+    
     const exists = await prisma.consultaTecnica.findUnique({ where: { id } });
     if (!exists) throw new Error("Consulta no encontrada");
 
-    // 2. Eliminar
+    
     return await prisma.consultaTecnica.delete({
       where: { id }
     });
   }
 
-  // --- PARTE 2: GESTIÓN DE PRECIOS (TARIFAS) ---
+  
 
   async getServicePrices() {
     return await prisma.serviceItem.findMany({
@@ -84,9 +84,9 @@ export class TechnicalService {
     });
   }
 
-  // SINCRONIZACIÓN AUTOMÁTICA CON EL POS
+  
   async updateServicePrice(id: number, price: number) {
-    // 1. Actualizamos el Servicio
+    
     const serviceItem = await prisma.serviceItem.update({
       where: { id },
       data: { price }

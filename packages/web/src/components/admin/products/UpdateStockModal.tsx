@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 interface UpdateStockModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ export default function UpdateStockModal({
   const [stock, setStock] = useState(currentStock);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Sincronizar el estado cuando se abre el modal con un nuevo producto
+  
   useEffect(() => {
     setStock(currentStock);
     setIsSubmitting(false);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
@@ -6,7 +6,7 @@ import SaleDetailModal from './SaleDetailModal';
 import { fetchApi } from '../../../utils/api';
 import ErrorBoundary from '../../ui/feedback/ErrorBoundary';
 
-// 1. COMPONENTE INTERNO
+
 function SalesListContent() {
   const [sales, setSales] = useState<any[]>([]);
   const [filteredSales, setFilteredSales] = useState<any[]>([]);
@@ -53,7 +53,7 @@ function SalesListContent() {
   useEffect(() => {
     const filterData = () => {
       let data = sales;
-      if (selectedMonth || selectedPayment) return data; // Update filter bypass
+      if (selectedMonth || selectedPayment) return data; 
 
       switch (filter) {
         case 'VERIFICATION': return data.filter(s => s.estado === 'PENDIENTE_APROBACION' || s.estado === 'PENDIENTE_PAGO');
@@ -88,7 +88,7 @@ function SalesListContent() {
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden animate-fade-in">
 
-      {/* Header Filtros */}
+      
       <div className="p-4 bg-gray-50 border-b border-gray-200 flex flex-col gap-4">
         <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
           {['VERIFICATION', 'TO_SHIP', 'SHIPPED', 'ALL'].map(f => (
@@ -131,7 +131,7 @@ function SalesListContent() {
         </div>
       </div>
 
-      {/* Tabla */}
+      
       <div className="overflow-x-auto min-h-[300px]">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-white">
@@ -200,7 +200,7 @@ function SalesListContent() {
   );
 }
 
-// 2. EXPORTACIÓN PROTEGIDA
+
 export default function SalesListTable() {
   return (
     <ErrorBoundary fallback={<div className="p-4 text-red-500 border border-red-200 rounded">Error cargando tabla de ventas.</div>}>

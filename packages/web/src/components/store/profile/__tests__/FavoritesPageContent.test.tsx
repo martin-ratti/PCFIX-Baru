@@ -4,7 +4,7 @@ import FavoritesPageContent from '../FavoritesPageContent';
 import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -41,7 +41,7 @@ describe('FavoritesPageContent', () => {
 
         render(<FavoritesPageContent />);
 
-        // Loading skeleton should have pulse animation class
+        
         expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
 

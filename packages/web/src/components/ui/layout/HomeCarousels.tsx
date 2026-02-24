@@ -1,5 +1,5 @@
-import React from 'react';
-import { FlameIcon, ZapIcon, SparklesIcon } from '../../SharedIcons'; // 👇 Import
+
+import { FlameIcon, ZapIcon, SparklesIcon } from '../../SharedIcons'; 
 import Carousel from './Carousel';
 import type { CarouselProduct } from '../../../types/product';
 

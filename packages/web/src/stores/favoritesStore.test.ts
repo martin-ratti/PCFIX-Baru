@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { useFavoritesStore } from './favoritesStore';
 
-// Mock fetch
+
 global.fetch = vi.fn();
 
 describe('favoritesStore', () => {

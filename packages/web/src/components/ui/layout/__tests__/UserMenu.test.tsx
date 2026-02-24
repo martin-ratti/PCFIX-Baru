@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import UserMenu from '../UserMenu';
 import { useAuthStore } from '../../../../stores/authStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -45,7 +45,7 @@ describe('UserMenu', () => {
         render(<UserMenu />);
 
         await waitFor(() => {
-            // Should show first letter of name
+            
             expect(screen.getByText('J')).toBeInTheDocument();
         });
     });

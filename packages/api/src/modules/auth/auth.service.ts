@@ -30,12 +30,12 @@ export class AuthService {
       },
     });
 
-    // Create Cliente profile
+    
     await prisma.cliente.create({ data: { userId: user.id } });
 
     const token = this.generateToken(user);
 
-    // Send Welcome Email (Non-blocking)
+    
     emailService.sendWelcomeEmail(user.email, user.nombre)
       .catch(e => console.error('Error sending welcome email:', e));
 
@@ -84,11 +84,11 @@ export class AuthService {
 
       await prisma.cliente.create({ data: { userId: user.id } });
 
-      // Send Welcome Email for Google Sign Up too (Non-blocking)
+      
       emailService.sendWelcomeEmail(user.email, user.nombre)
         .catch(e => console.error('Error sending welcome email (Google):', e));
     } else if (!user.googleId) {
-      // Link Google ID if expecting it
+      
       await prisma.user.update({
         where: { id: user.id },
         data: { googleId: payload.sub },
@@ -102,13 +102,13 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      // Don't reveal user existence, but technically we return success
+      
       return { message: 'Si el correo existe, se envió el enlace.' };
     }
 
-    // Generate token
+    
     const token = crypto.randomBytes(32).toString('hex');
-    const expires = new Date(Date.now() + 3600000); // 1 hour
+    const expires = new Date(Date.now() + 3600000); 
 
     await prisma.user.update({
       where: { id: user.id },
@@ -167,7 +167,7 @@ export class AuthService {
   }
 
   async deleteAccount(userId: number) {
-    // 1. Check for active orders
+    
     const activeOrdersCount = await prisma.venta.count({
       where: {
         cliente: { userId },
@@ -181,10 +181,10 @@ export class AuthService {
       throw new Error('No puedes eliminar tu cuenta porque tienes pedidos en curso.');
     }
 
-    // 2. Delete dependencies if necessary (Cascade usually handles this, but let's be safe/explicit if needed)
-    // For now, relying on Prisma Cascade or simple delete if schema allows. 
-    // If Client is unique to User and onDelete: Cascade is set, deleting User deletes Client.
-    // Let's assume Prisma schema handles cascade for now, or we delete user which is the root.
+    
+    
+    
+    
 
     await prisma.user.delete({
       where: { id: userId }

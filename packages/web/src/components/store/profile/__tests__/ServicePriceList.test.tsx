@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import ServicePriceList from '../ServicePriceList';
 import { useServiceStore } from '../../../../stores/serviceStore';
 
-// Mocks
+
 vi.mock('../../../../stores/serviceStore', () => ({
     useServiceStore: vi.fn()
 }));
@@ -22,7 +22,7 @@ describe('ServicePriceList', () => {
 
         render(<ServicePriceList />);
 
-        // Should show 4 skeleton cards
+        
         expect(document.querySelectorAll('.animate-pulse')).toHaveLength(4);
     });
 
@@ -59,7 +59,7 @@ describe('ServicePriceList', () => {
 
         render(<ServicePriceList />);
 
-        // Should format as $15.000 (Argentine format)
+        
         expect(screen.getByText(/15\.000|15,000/)).toBeInTheDocument();
     });
 

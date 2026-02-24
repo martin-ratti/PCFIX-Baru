@@ -35,7 +35,7 @@ export class StatsService {
     const ninetyDaysAgo = new Date(now);
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
-    // 1. Gross Revenue & Ticket (Current Month)
+    
     const currentMonthSales = await prisma.venta.findMany({
       where: {
         fecha: { gte: startOfMonth },
@@ -47,24 +47,24 @@ export class StatsService {
     const grossRevenue = currentMonthSales.reduce((acc, sale) => acc + Number(sale.montoTotal), 0);
 
 
-    // 2. Low Stock Products (Stock <= 5)
-    // Replaced Average Ticket as per user request
+    
+    
     const lowStockProducts = await prisma.producto.count({
       where: { deletedAt: null, stock: { lte: 5 } }
     });
 
-    // 3. Ventas Pendientes de Revisión (comprobante subido, sin aprobar)
+    
     const pendingReview = await prisma.venta.count({
       where: { estado: 'PENDIENTE_APROBACION' }
     });
 
-    // 4. Pending Technical Support Tickets
-    // Replaced Retention Rate as per user request
+    
+    
     const pendingSupport = await prisma.consultaTecnica.count({
       where: { estado: 'PENDIENTE' }
     });
 
-    // 4. Sales Trend (Last 30 Days)
+    
     const salesLast30Days = await prisma.venta.findMany({
       where: {
         fecha: { gte: thirtyDaysAgo },
@@ -75,7 +75,7 @@ export class StatsService {
 
     const salesTrendMap = new Map<string, { date: string, count: number, total: number }>();
 
-    // Initialize last 30 days
+    
     for (let i = 0; i < 30; i++) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
@@ -94,7 +94,7 @@ export class StatsService {
 
     const salesTrend = Array.from(salesTrendMap.values()).reverse();
 
-    // 5. Top 5 Products (Last 30 Days)
+    
     const topProductsRaw = await prisma.lineaVenta.groupBy({
       by: ['productoId'],
       where: {
@@ -116,8 +116,8 @@ export class StatsService {
       };
     }));
 
-    // 6. Dead Stock (> 90 days no sales)
-    // Find products with stock > 0
+    
+    
     const deadStockCandidates = await prisma.producto.findMany({
       where: {
         deletedAt: null,
@@ -135,7 +135,7 @@ export class StatsService {
         include: { venta: { select: { fecha: true } } }
       });
 
-      const lastInteractionDate = lastSale?.venta?.fecha || product.createdAt; // If never sold, use creation date
+      const lastInteractionDate = lastSale?.venta?.fecha || product.createdAt; 
 
       if (lastInteractionDate < ninetyDaysAgo) {
         deadStock.push({

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { useToastStore } from '../../../stores/toastStore';
 import CategorySelect from '../../ui/forms/CategorySelect';
 
-// 1. ACTUALIZACIÓN DEL SCHEMA (Validación)
+
 const productSchema = z.object({
   nombre: z.string().min(3, 'Nombre muy corto'),
   descripcion: z.string().min(10, 'Descripción muy corta'),
@@ -15,7 +15,7 @@ const productSchema = z.object({
   categoriaId: z.coerce.number().int().positive('Selecciona una categoría'),
   marcaId: z.coerce.number().int().optional(),
   fotoFile: z.any().optional(),
-  // Nuevos campos logísticos
+  
   peso: z.coerce.number().positive('Peso requerido'),
   alto: z.coerce.number().int().positive('Alto requerido'),
   ancho: z.coerce.number().int().positive('Ancho requerido'),
@@ -43,7 +43,7 @@ export default function CreateProductForm() {
     resolver: zodResolver(productSchema),
     defaultValues: {
       stock: 1,
-      // Valores por defecto lógicos para no frustrar al usuario
+      
       peso: 0.5,
       alto: 10,
       ancho: 10,
@@ -51,7 +51,7 @@ export default function CreateProductForm() {
     }
   });
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+/* unused:   const fileInputRef = React.useRef<HTMLInputElement>(null); */
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -76,7 +76,7 @@ export default function CreateProductForm() {
       formData.append('stock', data.stock.toString());
       formData.append('categoriaId', data.categoriaId.toString());
 
-      // 2. AGREGAR CAMPOS LOGÍSTICOS AL FORMDATA
+      
       formData.append('peso', data.peso.toString());
       formData.append('alto', data.alto.toString());
       formData.append('ancho', data.ancho.toString());
@@ -94,16 +94,16 @@ export default function CreateProductForm() {
       setFileName(null);
       setPreviewUrl(null);
 
-      // Esperar un momento para que el usuario vea el toast
+      
       setTimeout(() => {
-        // Usar window.location para forzar recarga y ver el producto nuevo en la lista asegurada
-        // o navigate de astro si confiamos en el refetch
+        
+        
         window.location.href = '/admin/productos';
       }, 1000);
 
     } catch (error: any) {
       addToast(error.message || 'Error al crear', 'error');
-      setIsLoading(false); // Solo resetear loading si falló, si tuvo éxito dejamos loading para la redirección
+      setIsLoading(false); 
     }
   };
 
@@ -112,7 +112,7 @@ export default function CreateProductForm() {
       <h2 className="text-2xl font-bold mb-6 text-secondary border-b pb-2">Nuevo Producto</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        {/* Columna Izquierda: Datos Básicos */}
+        
         <div className="space-y-4">
           <div>
             <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">Nombre</label>
@@ -130,7 +130,7 @@ export default function CreateProductForm() {
             </div>
           </div>
 
-          {/* 3. SECCIÓN LOGÍSTICA (NUEVO) */}
+          
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h3 className="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-1">
               📦 Dimensiones y Peso
@@ -159,7 +159,7 @@ export default function CreateProductForm() {
 
         </div>
 
-        {/* Columna Derecha: Clasificación e Imagen */}
+        
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>

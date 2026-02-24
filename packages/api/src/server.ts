@@ -1,4 +1,4 @@
-// Sentry must be initialized FIRST before any other imports
+
 import 'dotenv/config';
 import * as Sentry from '@sentry/node';
 
@@ -6,7 +6,7 @@ if (process.env.SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV || 'development',
-    tracesSampleRate: 1.0, // Capture 100% of transactions for performance monitoring
+    tracesSampleRate: 1.0, 
   });
 }
 
@@ -17,7 +17,7 @@ import morgan from 'morgan';
 import path from 'path';
 import { prisma } from './shared/database/prismaClient';
 
-// Imports de Rutas
+
 import authRoutes from './modules/auth/auth.routes';
 import productsRoutes from './modules/products/products.routes';
 import categoriesRoutes from './modules/categories/categories.routes';
@@ -31,19 +31,19 @@ import favoritesRoutes from './modules/favorites/favorites.routes';
 import technicalRoutes from './modules/technical/technical.routes';
 import cartRoutes from './modules/cart/cart.routes';
 
-// Imports de Manejo de Errores y Servicios
+
 import { AppError } from './shared/utils/AppError';
 import { globalErrorHandler } from './shared/middlewares/errorMiddleware';
 import { CronService } from './shared/services/cron.service';
 
 const app = express();
-// Trust proxy is required for Vercel/Railway/Heroku
+
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3002;
 
-// --- SEGURIDAD Y CONFIGURACIÓN (CORS CORREGIDO) ---
 
-// 1. Obtenemos la variable de entorno
+
+
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const whitelist = [
@@ -57,9 +57,9 @@ const whitelist = [
   'http://www.pcfixbaru.com.ar',
 ];
 
-// Si hay una URL específica en Railway (y no es *), la agregamos dinámicamente
+
 if (FRONTEND_URL && FRONTEND_URL !== '*') {
-  // Soporte para múltiples URLs separadas por coma (opcional)
+  
   const urls = FRONTEND_URL.split(',');
   urls.forEach(url => {
     if (!whitelist.includes(url.trim())) whitelist.push(url.trim());
@@ -68,13 +68,13 @@ if (FRONTEND_URL && FRONTEND_URL !== '*') {
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
-    // CASO 1: Si Railway dice "Permitir todo (*)", dejamos pasar a todos.
+    
     if (FRONTEND_URL === '*') {
       return callback(null, true);
     }
 
-    // CASO 2: Si no hay origen (postman/server-to-server) o está en la lista blanca
-    // O si es un dominio de Vercel (para Previews / Deployments)
+    
+    
     if (
       !origin ||
       whitelist.indexOf(origin) !== -1 ||
@@ -97,15 +97,15 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- ARCHIVOS ESTÁTICOS ---
+
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-// --- RATE LIMITING ---
+
 import { authLimiter, apiLimiter } from './shared/middlewares/rateLimitMiddleware';
 app.use('/api/', apiLimiter);
 app.use('/api/auth', authLimiter);
 
-// --- RUTAS DE LA API ---
+
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);
@@ -119,7 +119,7 @@ app.use('/api/favorites', favoritesRoutes);
 app.use('/api/technical', technicalRoutes);
 app.use('/api/cart', cartRoutes);
 
-// --- HEALTH CHECK ---
+
 app.get('/health', async (req: Request, res: Response) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -135,25 +135,25 @@ app.get('/health', async (req: Request, res: Response) => {
   }
 });
 
-// Debug route removed for production security
 
-// --- ROBOTS.TXT (Prevención de errores 404 por bots) ---
+
+
 app.get('/robots.txt', (req: Request, res: Response) => {
   res.type('text/plain');
   res.send('User-agent: *\nDisallow: /');
 });
 
-// --- MANEJO DE ERRORES GLOBAL (Siempre al final) ---
 
-// 1. Manejo de rutas inexistentes (404)
+
+
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`No se encontró la ruta ${req.originalUrl} en este servidor`, 404));
 });
 
-// 2. Middleware de Errores
+
 app.use(globalErrorHandler);
 
-// --- INICIO DEL SERVIDOR ---
+
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);

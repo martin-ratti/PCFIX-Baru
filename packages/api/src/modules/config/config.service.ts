@@ -29,7 +29,7 @@ export class ConfigService {
     });
   }
 
-  // Lógica P2P
+  
   async syncUsdtPrice() {
     try {
       const response = await axios.get('https://criptoya.com/api/usdt/ars/0.1');

@@ -7,7 +7,7 @@ import { VentaEstado } from '@prisma/client';
 
 const service = new SalesService();
 
-// --- COTIZACIÓN ---
+
 export const quoteShipping = async (req: Request, res: Response) => {
     try {
         const { zipCode, items } = req.body;
@@ -30,12 +30,12 @@ const createSaleSchema = z.object({
     cpDestino: z.string().min(4).optional(),
     tipoEntrega: z.enum(['ENVIO', 'RETIRO']),
     medioPago: z.enum(['MERCADOPAGO', 'EFECTIVO', 'VIUMI', 'TRANSFERENCIA', 'BINANCE']),
-    // Dirección de envío para Zipnova
+    
     direccionEnvio: z.string().optional(),
     ciudadEnvio: z.string().optional(),
     provinciaEnvio: z.string().optional(),
     telefonoEnvio: z.string().optional(),
-    documentoEnvio: z.string().optional() // DNI del destinatario
+    documentoEnvio: z.string().optional() 
 });
 
 export const createSale = async (req: Request, res: Response) => {
@@ -65,7 +65,7 @@ export const createSale = async (req: Request, res: Response) => {
         if (e instanceof z.ZodError) {
             return res.status(400).json({ success: false, error: 'Datos de venta inválidos', details: e.errors });
         }
-        // Handle known domain errors
+        
         if (e.message.includes('no encontrado') || e.message.includes('Stock insuficiente')) {
             return res.status(400).json({ success: false, error: e.message });
         }
@@ -92,14 +92,14 @@ export const createMPPreference = async (req: Request, res: Response) => {
                 id: String(line.productoId),
                 title: line.producto.nombre || 'Producto',
                 quantity: Number(line.cantidad),
-                unit_price: Number(unitPrice.toFixed(2)), // Ensure 2 decimal places max
+                unit_price: Number(unitPrice.toFixed(2)), 
                 currency_id: 'ARS'
             };
         });
 
 
 
-        // Use user email if available, otherwise a placeholder (MP requires email)
+        
         const payerEmail = sale.cliente?.user?.email || 'test_user_123456@testuser.com';
 
         const link = await mpService.createPreference(Number(id), items, payerEmail);
@@ -121,7 +121,7 @@ const createManualSaleSchema = z.object({
     estado: z.enum(['PENDIENTE_PAGO', 'PENDIENTE_APROBACION', 'APROBADO', 'ENVIADO', 'ENTREGADO', 'RECHAZADO', 'CANCELADO']).optional()
 });
 
-// Argumentos unificados
+
 export const createManualSale = async (req: Request, res: Response) => {
     try {
         const adminId = (req as AuthRequest).user?.id;
@@ -212,20 +212,20 @@ export const handleMPCallback = async (req: Request, res: Response) => {
             await prisma.venta.update({
                 where: { id: saleId },
                 data: {
-                    estado: VentaEstado.APROBADO, // Correct enum value from 'PAGADO'
+                    estado: VentaEstado.APROBADO, 
                     medioPago: 'MERCADOPAGO'
                 }
             });
 
         }
 
-        // Redirect to Frontend Success Page
+        
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
         res.redirect(`${frontendUrl}/cuenta/miscompras?status=${status}`);
 
     } catch (error) {
         console.error('[MP Callback] Error:', error);
-        // Redirect to Frontend Failure Page or generic error
+        
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
         res.redirect(`${frontendUrl}/cuenta/miscompras?status=error`);
     }
@@ -237,38 +237,35 @@ export const handleMPWebhook = async (req: Request, res: Response) => {
 
         if (type === 'payment') {
             const paymentId = data.id;
-            // Fetch payment details to verify status
-            // We need to access the client from the service, or instantiate a new one here temporarily,
-            // or better yet, delegate this to the service. For now, let's keep it simple and safe.
-            // Ideally SalesService should handle this logic.
-            // Checking via service would be cleaner but let's do it here:
+            
+            
+            
+            
+            
 
-            // NOTE: Ideally we should use mpService.client to fetch payment
-            // but we don't have direct access here. 
-            // Let's assume the notification is valid for now or quick-implementation:
+            
+            
+            
 
 
-            // But 'data.id' is the Payment ID. The sale ID is in external_reference.
+            
 
-            // To do this properly we need to fetch the payment from MP to get external_reference
-            // because the webhook body might not have it directly in 'data'.
+            
+            
 
-            // However, to avoid circular deps or complex refactor, let's try to infer or just respond 200 OK
-            // and actually implement the fetch.
+            
+            
 
-            /* 
-               Since we need to fetch the payment to know the order ID (external_reference),
-               we really should use the MP Client. 
-            */
+            
 
-            // QUICK FIX: We will just log it for now and respond 200 so MP doesn't retry infinitely 
-            // until we add the proper fetch logic. 
-            // BUT the user needs this working. 
+            
+            
+            
 
-            // Re-instantiating MP Service locally to use its client? 
-            // It's private. Let's make a clear separation.
+            
+            
 
-            // Delegate to Service:
+            
             await service.processMPWebhook(paymentId);
         }
 
@@ -308,7 +305,7 @@ export const updateStatus = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
-        // Validamos si status es válido
+        
         if (!Object.values(VentaEstado).includes(status)) return res.status(400).json({ success: false, error: 'Invalid status' });
 
         const updated = await service.updateStatus(Number(id), status);
@@ -342,7 +339,7 @@ export const getBalance = async (req: Request, res: Response) => {
     }
 };
 
-// ========== ZIPNOVA INTEGRATION ==========
+
 export const createZipnovaShipment = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;

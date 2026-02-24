@@ -9,7 +9,7 @@ export const subscribeToStockAlert = async (req: Request, res: Response) => {
             return res.status(400).json({ success: false, message: 'Email y producto son requeridos' });
         }
 
-        // Check if already subscribed
+        
         const existingAlert = await (prisma as any).stockAlert.findUnique({
             where: {
                 email_productoId: {

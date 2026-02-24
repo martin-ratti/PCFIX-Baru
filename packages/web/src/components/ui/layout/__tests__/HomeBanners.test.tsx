@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import HomeBanners from '../HomeBanners';
 
-// Mock Swiper
+
 vi.mock('swiper/react', () => ({
     Swiper: ({ children }: any) => <div data-testid="swiper">{children}</div>,
     SwiperSlide: ({ children }: any) => <div data-testid="swiper-slide">{children}</div>

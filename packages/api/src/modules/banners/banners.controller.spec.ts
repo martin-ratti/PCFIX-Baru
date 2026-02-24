@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import * as BannersController from './banners.controller';
 import { BannerService } from './banners.service';
 
-// Mock dependencies
+
 vi.mock('./banners.service');
 
 describe('BannersController', () => {

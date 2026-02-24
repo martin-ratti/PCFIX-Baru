@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
@@ -23,16 +23,16 @@ export default function ManualSaleForm() {
         defaultValues: { customerEmail: 'mostrador@pcfix.com', medioPago: 'EFECTIVO', estado: 'ENTREGADO' }
     });
 
-    {/* Búsqueda */ }
+    
     useEffect(() => {
         const timer = setTimeout(() => {
-            // Si está vacío, traemos los primeros 20 productos/servicios populares
+            
             const query = searchTerm.length >= 2 ? `search=${encodeURIComponent(searchTerm)}&limit=20` : `limit=20`;
             fetchApi(`/products/pos?${query}`, { headers: { 'Authorization': `Bearer ${token}` } })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        // Ocultamos el "Servicio Personalizado" del grid general
+                        
                         const filtered = data.data.filter((p: any) => !p.nombre.includes('Servicio: Servicio Personalizado'));
                         setSearchResults(filtered);
                     }
@@ -46,7 +46,7 @@ export default function ManualSaleForm() {
 
     const addToCart = (product: any) => {
         const service = isService(product);
-        // 1. Validar Stock Inicial (Físico vs Servicio)
+        
         if (!service && product.stock <= 0) {
             addToast('Producto SIN STOCK', 'error');
             return;
@@ -55,7 +55,7 @@ export default function ManualSaleForm() {
         setCart(prev => {
             const existing = prev.find((i: any) => i.id === product.id);
             if (existing) {
-                // Validar tope de stock solo si NO es servicio
+                
                 if (!service && existing.quantity >= product.stock) {
                     addToast(`Solo hay ${product.stock} unidades`, 'error');
                     return prev;
@@ -64,7 +64,7 @@ export default function ManualSaleForm() {
             }
             return [...prev, { ...product, quantity: 1 }];
         });
-        // Mantenemos los resultados abiertos para agregar más rápido
+        
     };
 
     const removeFromCart = (id: number) => setCart(prev => prev.filter((i: any) => i.id !== id));
@@ -74,8 +74,8 @@ export default function ManualSaleForm() {
             if (item.id === id) {
                 const newQty = item.quantity + delta;
                 if (newQty < 1) return item;
-                // Validar tope al aumentar (solo si no es servicio - los servicios en cart no tienen flag 'isService' pero en manual sale form no persistimos ese flag, podriamos inferirlo o buscar el original. 
-                // Simplificacion: Si stock > 90000 era "servicio", ahora no tenemos esa marca.
+                
+                
 
                 const service = isService(item);
 
@@ -93,13 +93,13 @@ export default function ManualSaleForm() {
         const price = Number(customServiceData.price);
         if (!price || price <= 0) return;
 
-        // Create a temporary "Custom Item" logic
-        // We need a real ID from the backend eventually, but for the cart we can use a negative ID or a specific one if we fetched the "Special Service" product.
-        // Ideally we should have fetched the "Servicio Personalizado" product ID.
-        // For now, let's assume we search it or use a placeholder.
-        // BETTER: Search for it first? Or just mock it?
-        // Since backend validates ID, we MUST have the ID of "Servicio Personalizado".
-        // Let's SEARCH for it efficiently.
+        
+        
+        
+        
+        
+        
+        
 
         fetchApi(`/products/pos?search=Servicio Personalizado&limit=1`, { headers: { 'Authorization': `Bearer ${token}` } })
             .then(res => res.json())
@@ -238,7 +238,7 @@ export default function ManualSaleForm() {
                 </div>
             </div>
 
-            {/* Modal Servicio Personalizado */}
+            
             {isCustomServiceOpen && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center animate-fade-in">
                     <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">

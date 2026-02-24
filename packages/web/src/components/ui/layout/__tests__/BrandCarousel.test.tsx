@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import BrandCarousel from '../BrandCarousel';
 
-// Mock Swiper
+
 vi.mock('swiper/react', () => ({
     Swiper: ({ children }: any) => <div data-testid="swiper">{children}</div>,
     SwiperSlide: ({ children }: any) => <div data-testid="swiper-slide">{children}</div>
@@ -66,7 +66,7 @@ describe('BrandCarousel', () => {
 
         render(<BrandCarousel brands={brands} />);
 
-        // Check the link has correct href
+        
         const link = screen.getByRole('link');
         expect(link).toHaveAttribute('href', '/tienda/productos?marcaId=42');
     });

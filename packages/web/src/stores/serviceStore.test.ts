@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { useServiceStore } from './serviceStore';
 
-// Mock fetch
+
 global.fetch = vi.fn();
 
 describe('serviceStore', () => {
@@ -56,10 +56,10 @@ describe('serviceStore', () => {
                 result.current.fetchItems();
             });
 
-            // During fetch, isLoading should be true
+            
             expect(result.current.isLoading).toBe(true);
 
-            // Resolve the fetch
+            
             await act(async () => {
                 resolvePromise({
                     ok: true,

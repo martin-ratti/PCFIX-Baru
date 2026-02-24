@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import UserInquiries from '../UserInquiries';
 import { useAuthStore } from '../../../../stores/authStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-// Mock the toast store
+
 const mockToasts = [
     { id: '1', message: 'Success message', type: 'success' as const },
     { id: '2', message: 'Error message', type: 'error' as const }

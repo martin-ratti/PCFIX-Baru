@@ -8,7 +8,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-// Re-export for backward compatibility
+
 export type { CarouselProduct };
 
 interface CarouselProps {

@@ -4,7 +4,7 @@ import SupportInbox from '../SupportInbox';
 import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 global.fetch = vi.fn();
 
 vi.mock('../../../../stores/authStore', () => ({
@@ -99,7 +99,7 @@ describe('SupportInbox (admin/support)', () => {
             json: async () => ({ success: true, data: mockInquiries })
         });
 
-        // Mock delete success
+        
         (global.fetch as any).mockResolvedValueOnce({
             ok: true,
             json: async () => ({ success: true })
@@ -111,11 +111,11 @@ describe('SupportInbox (admin/support)', () => {
             expect(screen.getByText('Problema Técnico')).toBeInTheDocument();
         });
 
-        // 1. Click Trash Icon
+        
         const deleteBtns = screen.getAllByTitle('Eliminar consulta');
         fireEvent.click(deleteBtns[0]);
 
-        // 2. Expect Modal to appear and Click Confirm
+        
         await waitFor(() => {
             expect(screen.getByText(/¿Estás seguro de eliminar esta consulta?/i)).toBeInTheDocument();
         });
@@ -123,7 +123,7 @@ describe('SupportInbox (admin/support)', () => {
         const confirmBtn = screen.getByText('Eliminar');
         fireEvent.click(confirmBtn);
 
-        // 3. Verify API call and UI update
+        
         await waitFor(() => {
             expect(global.fetch).toHaveBeenCalledWith(
                 expect.stringContaining('/api/technical/1'),

@@ -4,7 +4,7 @@ import CreateProductForm from '../CreateProductForm';
 import { useAuthStore } from '../../../../stores/authStore';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -28,7 +28,7 @@ describe('CreateProductForm', () => {
         mockUseAuthStore.mockReturnValue({ token: 'test-token' } as any);
         vi.mocked(useToastStore).mockReturnValue(mockAddToast);
 
-        // STUB GLOBAL FETCH
+        
         global.fetch = mockFetch;
 
         mockFetch.mockImplementation((url: string | URL) => {
@@ -77,15 +77,15 @@ describe('CreateProductForm', () => {
     });
 
     it('submits valid form data and redirects', async () => {
-        // Mock window.location
+        
         const originalLocation = window.location;
         delete (window as any).location;
         (window as any).location = { href: '' };
 
         render(<CreateProductForm />);
 
-        // Wait for fetch to complete (by checking non-category element or just waiting)
-        // We can't check for 'Categoria 1' yet because it is hidden in the dropdown
+        
+        
         await waitFor(() => {
             expect(screen.getByText('Sin Marca')).toBeInTheDocument();
         });
@@ -95,15 +95,15 @@ describe('CreateProductForm', () => {
         fireEvent.change(screen.getByTestId('input-precio'), { target: { value: '1000' } });
         fireEvent.change(screen.getByTestId('input-stock'), { target: { value: '10' } });
 
-        // Selects
-        // Select Category (Custom Component)
+        
+        
         const catTrigger = screen.getByText('Seleccionar...');
         fireEvent.click(catTrigger);
         const catOption = await screen.findByText('Categoria 1');
         fireEvent.click(catOption);
         fireEvent.change(screen.getByTestId('select-brand'), { target: { value: '1' } });
 
-        // Dimensions
+        
         fireEvent.change(screen.getByTestId('input-peso'), { target: { value: '0.5' } });
         fireEvent.change(screen.getByTestId('input-alto'), { target: { value: '10' } });
         fireEvent.change(screen.getByTestId('input-ancho'), { target: { value: '10' } });
@@ -119,12 +119,12 @@ describe('CreateProductForm', () => {
             );
         });
 
-        // Wait for timeout redirect
+        
         await waitFor(() => {
             expect(window.location.href).toBe('/admin/productos');
         }, { timeout: 2000 });
 
-        // Restore window.location
+        
         window.location = originalLocation as any;
     });
 });

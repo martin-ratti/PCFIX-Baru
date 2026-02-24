@@ -28,7 +28,7 @@ const absoluteImageUrl = image.startsWith("http")
     : `${siteUrl}${image}`;
 const canonicalURL = new URL(Astro.url.pathname, siteUrl);
 
-// Obtenemos la URL de la API en el servidor (Build time)
+
 const SERVER_API_URL =
     import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
 ---
@@ -89,10 +89,10 @@ const SERVER_API_URL =
         <Footer />
 
         <script is:inline define:vars={{ API_BASE: SERVER_API_URL }}>
-            // Maintenance Mode Logic
+            
             async function checkMaintenance() {
                 try {
-                    // Usamos la variable inyectada
+                    
                     const res = await fetch(`${API_BASE}/config`);
 
                     if (!res.ok) return;
@@ -103,7 +103,7 @@ const SERVER_API_URL =
                     if (maintenanceMode) {
                         const path = window.location.pathname.toLowerCase();
 
-                        // Robust Allow List: Login, Register, Maintenance, Admin
+                        
                         if (
                             path.includes("/mantenimiento") ||
                             path.includes("/auth/login") ||
@@ -112,7 +112,7 @@ const SERVER_API_URL =
                         )
                             return;
 
-                        // Check Admin Role
+                        
                         let isAdmin = false;
                         try {
                             const storage =

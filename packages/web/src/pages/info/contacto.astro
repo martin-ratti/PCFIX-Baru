@@ -1,5 +1,5 @@
 ---
-export const prerender = false; // Disable prerender to fetch fresh config on request
+export const prerender = false; 
 
 import Layout from "../../layouts/Layout.astro";
 import { API_URL } from "../../utils/api";
@@ -13,7 +13,7 @@ let config = {
 };
 
 try {
-  // API_URL imported at top
+  
   const response = await fetch(`${API_URL}/config`);
   const result = await response.json();
   if (result.success && result.data) {
@@ -22,14 +22,14 @@ try {
     if (data.horariosLocal) config.horariosLocal = data.horariosLocal;
   }
 } catch (error) {
-  // Silent fallback to default config if API is down or building
+  
   console.warn("Could not fetch dynamic config, using defaults.");
 }
 ---
 
 <Layout title="PCFIX | Contacto">
   <main class="bg-gray-50 pb-12">
-    {/* Banner Info Atención */}
+    
     <div class="bg-white border-b border-gray-200 py-6 mb-8">
       <div class="container mx-auto px-6">
         <div
@@ -95,7 +95,7 @@ try {
 
     <div class="container mx-auto px-6">
       <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Columna Izquierda: Mapa e Info */}
+        
         <div class="space-y-8">
           <div class="space-y-2">
             <h1 class="text-3xl font-black text-secondary">
@@ -106,7 +106,7 @@ try {
             </p>
           </div>
 
-          {/* Datos de Contacto Grid */}
+          
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="flex items-start gap-3">
               <div class="text-blue-600 mt-1">
@@ -191,7 +191,7 @@ try {
             </div>
           </div>
 
-          {/* Mapa */}
+          
           <div
             class="rounded-xl overflow-hidden shadow-lg border border-gray-200 h-64 md:h-80 relative bg-gray-200"
           >
@@ -207,7 +207,7 @@ try {
           </div>
         </div>
 
-        {/* Columna Derecha: Formulario (Bandeja de Entrada) */}
+        
         <div
           class="bg-white p-8 rounded-xl shadow-lg border border-gray-100 h-fit"
         >
@@ -241,5 +241,5 @@ try {
 </Layout>
 
 <script>
-  // React component handles logic now
+  
 </script>

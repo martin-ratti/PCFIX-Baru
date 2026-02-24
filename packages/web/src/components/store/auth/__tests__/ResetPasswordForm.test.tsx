@@ -1,15 +1,15 @@
-// @vitest-environment jsdom
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ResetPasswordForm from '../ResetPasswordForm';
 import { useToastStore } from '../../../../stores/toastStore';
 
-// Mocks
+
 vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
 
-// Mock window.location
+
 const mockLocation = { href: '' };
 Object.defineProperty(window, 'location', {
     value: mockLocation,
@@ -21,16 +21,16 @@ describe('ResetPasswordForm', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // Reset location
+        
         mockLocation.href = '';
 
-        // Mock toast store
+        
         vi.mocked(useToastStore).mockImplementation((selector: any) => {
             const state = { addToast: mockAddToast };
             return selector ? selector(state) : state;
         });
 
-        // Mock fetch
+        
         global.fetch = vi.fn();
     });
 
@@ -58,7 +58,7 @@ describe('ResetPasswordForm', () => {
     it('submits successfully and redirects', async () => {
         render(<ResetPasswordForm token="fake-token" />);
 
-        // Mock successful API response
+        
         (global.fetch as any).mockResolvedValue({
             json: async () => ({ success: true })
         });
@@ -80,7 +80,7 @@ describe('ResetPasswordForm', () => {
             expect(mockAddToast).toHaveBeenCalledWith('Contraseña actualizada con éxito', 'success');
         });
 
-        // Check redirect (simulated via timeout)
+        
         await new Promise(r => setTimeout(r, 2100));
         expect(window.location.href).toBe('/auth/login');
     });
@@ -88,7 +88,7 @@ describe('ResetPasswordForm', () => {
     it('handles api error', async () => {
         render(<ResetPasswordForm token="fake-token" />);
 
-        // Mock error API response
+        
         (global.fetch as any).mockResolvedValue({
             json: async () => ({ success: false, error: 'Token inválido' })
         });

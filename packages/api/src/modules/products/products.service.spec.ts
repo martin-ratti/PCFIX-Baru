@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ProductService } from './products.service';
 import { prisma } from '../../shared/database/prismaClient';
 
-// Mock EmailService
+
 const mockSendPriceDropNotification = vi.fn();
 const mockSendStockAlertEmail = vi.fn();
 
@@ -43,7 +43,7 @@ describe('Products Service', () => {
     });
 
     it('should use minimal select when selectMinimal is true', async () => {
-        (prisma.$transaction as any).mockResolvedValue([1, []]); // count, products
+        (prisma.$transaction as any).mockResolvedValue([1, []]); 
         await service.findAll(1, 10, undefined, undefined, 'test', undefined, undefined, true);
         expect(prisma.producto.findMany).toHaveBeenCalledWith(expect.objectContaining({
             select: {
@@ -70,7 +70,7 @@ describe('Products Service', () => {
         const newPrice = 800;
         const userEmail = 'user@example.com';
 
-        // 1. Mock FindUnique (Current Product)
+        
         (prisma.producto.findUnique as any).mockResolvedValue({
             id: productId,
             nombre: 'GPU Test',
@@ -79,7 +79,7 @@ describe('Products Service', () => {
             foto: 'img.jpg'
         });
 
-        // 2. Mock Update (Updated Product)
+        
         (prisma.producto.update as any).mockResolvedValue({
             id: productId,
             nombre: 'GPU Test',
@@ -88,22 +88,22 @@ describe('Products Service', () => {
             foto: 'img.jpg'
         });
 
-        // 3. Mock Favorites (Users watching this product)
+        
         (prisma.favorite.findMany as any).mockResolvedValue([
             { user: { email: userEmail } }
         ]);
 
-        // Act
+        
         await service.update(productId, { precio: newPrice });
 
-        // Assert
+        
         expect(prisma.favorite.findMany).toHaveBeenCalledWith({
             where: { productoId: productId },
             include: { user: true }
         });
 
-        // Wait for async email sending (since it might not be awaited properly in service or mocked)
-        // In our implementation we do `await Promise.all(...)` so it should be called immediately.
+        
+        
         expect(mockSendPriceDropNotification).toHaveBeenCalledWith(
             userEmail,
             'GPU Test',

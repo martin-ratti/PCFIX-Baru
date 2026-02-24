@@ -26,9 +26,9 @@ export class FavoriteService {
             }
         });
 
-        // Determine action: 
-        // If forceState is provided, follow it.
-        // If not, toggle existing.
+        
+        
+        
         const shouldAdd = forceState !== undefined ? forceState : !existingFavorite;
 
         if (existingFavorite && !shouldAdd) {
@@ -45,7 +45,7 @@ export class FavoriteService {
             return { added: true, message: 'Producto agregado a favoritos' };
         }
 
-        // If state matches desired (e.g. exists and shouldAdd=true), do nothing.
+        
         return { added: shouldAdd, message: shouldAdd ? 'Producto ya estaba en favoritos' : 'Producto ya estaba eliminado' };
     }
 }

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { API_URL } from '../utils/api';
 import type { ServiceItem } from '../types/config';
 
-// Re-export for backward compatibility
+
 export type { ServiceItem };
 
 interface ServiceState {

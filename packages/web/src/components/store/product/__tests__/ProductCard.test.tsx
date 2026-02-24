@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import ProductCard from '../ProductCard';
 import { useCartStore } from '../../../../stores/cartStore';
 
-// Mock dependencies
+
 vi.mock('../../../../stores/cartStore', () => ({
     useCartStore: vi.fn(),
 }));
@@ -17,10 +17,10 @@ vi.mock('../../../../stores/favoritesStore', () => ({
 }));
 
 vi.mock('../../../../stores/toastStore', () => ({
-    useToastStore: vi.fn().mockReturnValue(() => { }), // addToast
+    useToastStore: vi.fn().mockReturnValue(() => { }), 
 }));
 
-// Mock navigation
+
 vi.mock('astro:transitions/client', () => ({
     navigate: vi.fn(),
 }));
@@ -74,9 +74,9 @@ describe('ProductCard', () => {
         const noStockProduct = { ...mockProduct, stock: 0 };
         render(<ProductCard product={noStockProduct} />);
 
-        // Expect "Avísame" button to be present
+        
         expect(screen.getByRole('button', { name: /Avísame/i })).toBeInTheDocument();
-        // And "Agregar" should not be present (use queryByText to avoid aria-label conflicts)
+        
         expect(screen.queryByText('Agregar')).not.toBeInTheDocument();
     });
 });

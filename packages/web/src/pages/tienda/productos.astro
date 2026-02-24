@@ -27,11 +27,11 @@ let categoryName = "";
 let brandName = "";
 
 try {
-  // API_URL is imported at top level
+  
 
   const apiUrl = new URL(`${API_URL}/products`);
   apiUrl.searchParams.append("page", "1");
-  apiUrl.searchParams.append("limit", "12"); // Load 12 products initially
+  apiUrl.searchParams.append("limit", "12"); 
   if (search) apiUrl.searchParams.append("search", search);
   if (marcaId) apiUrl.searchParams.append("marcaId", marcaId);
   if (categoryId) apiUrl.searchParams.append("categoryId", categoryId);

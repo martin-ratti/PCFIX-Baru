@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { useCartStore } from './cartStore';
 import { act } from '@testing-library/react';
 
 describe('Cart Store', () => {
     beforeEach(() => {
-        // Reset store before each test
+        
         act(() => useCartStore.getState().clearCart());
         sessionStorage.clear();
     });
@@ -51,7 +51,7 @@ describe('Cart Store', () => {
     it('should respect persistence', () => {
         act(() => useCartStore.getState().addItem(mockProduct));
 
-        // Check if saved to sessionStorage mock
+        
         const storage = JSON.parse(sessionStorage.getItem('cart-session-storage') || '{}');
         expect(storage.state.items).toHaveLength(1);
     });

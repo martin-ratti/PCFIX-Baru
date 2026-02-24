@@ -4,7 +4,7 @@ export const prerender = false;
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumbs from "../../components/ui/navigation/Breadcrumbs.astro";
 import AddToCart from "../../components/store/product/AddToCart.tsx";
-// import { Image } from "astro:assets";
+
 import { API_URL } from "../../utils/api";
 
 interface Product {
@@ -24,7 +24,7 @@ const { slug } = Astro.params;
 let product: Product | null = null;
 
 try {
-  // API_URL is imported at top level
+  
 
   const response = await fetch(`${API_URL}/products/${slug}`);
 
@@ -321,7 +321,7 @@ if (!product) {
           try {
             await navigator.share({ title, text, url });
           } catch (err) {
-            // Canceled
+            
           }
         } else {
           try {

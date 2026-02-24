@@ -5,7 +5,7 @@ import { fetchApi } from '../../../../utils/api';
 import { useAuthStore } from '../../../../stores/authStore';
 import { navigate } from 'astro:transitions/client';
 
-// Mock dependencies
+
 vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
@@ -22,7 +22,7 @@ describe('LiveSearch', () => {
     beforeEach(() => {
         vi.clearAllMocks();
 
-        // Mock as regular user so LiveSearch renders
+        
         vi.mocked(useAuthStore).mockReturnValue({
             user: { id: 1, nombre: 'User', role: 'USER' }
         } as any);
@@ -44,7 +44,7 @@ describe('LiveSearch', () => {
     it('renders search input after hydration for regular users', async () => {
         render(<LiveSearch />);
 
-        // Wait for the input to appear after isClient becomes true
+        
         await waitFor(() => {
             expect(screen.getByPlaceholderText(/buscar productos/i)).toBeInTheDocument();
         }, { timeout: 2000 });
@@ -60,7 +60,7 @@ describe('LiveSearch', () => {
     });
 
     it('handles keyboard navigation (ArrowDown + Enter)', async () => {
-        // Mock API results
+        
         vi.mocked(fetchApi).mockResolvedValue({
             json: async () => ({
                 success: true,
@@ -71,29 +71,29 @@ describe('LiveSearch', () => {
         render(<LiveSearch />);
         const input = await screen.findByPlaceholderText(/buscar productos/i);
 
-        // Trigger search
+        
         fireEvent.change(input, { target: { value: 'Ryzen' } });
 
-        // Wait for API call first
+        
         await waitFor(() => {
             expect(fetchApi).toHaveBeenCalled();
         }, { timeout: 2000 });
 
-        // Wait for results
+        
         await waitFor(() => {
-            // Find by finding the button that contains the text
+            
             const buttons = screen.getAllByRole('button');
             const found = buttons.some(b => b.textContent?.includes('Ryzen 9'));
             expect(found).toBe(true);
         }, { timeout: 3000 });
 
-        // Press Arrow Down
+        
         fireEvent.keyDown(input, { key: 'ArrowDown', code: 'ArrowDown' });
 
-        // Press Enter
+        
         fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
-        // Verify navigation
+        
         await waitFor(() => {
             expect(navigate).toHaveBeenCalledWith('/producto/99');
         });

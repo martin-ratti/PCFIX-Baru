@@ -12,7 +12,7 @@ vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn(),
 }));
 
-// Mock inner components
+
 vi.mock('../../../ui/feedback/PasswordStrengthMeter', () => ({
     default: () => <div data-testid="strength-meter">Strength Meter</div>
 }));
@@ -28,7 +28,7 @@ describe('ChangePasswordModal', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         (useToastStore as any).mockReturnValue((s: any) => s.addToast || mockAddToast);
-        // Handle selector form
+        
         (useToastStore as any).mockImplementation((selector: any) => {
             if (selector) return selector({ addToast: mockAddToast });
             return { addToast: mockAddToast };

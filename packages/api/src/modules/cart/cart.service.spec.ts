@@ -31,7 +31,7 @@ describe('CartService', () => {
 
             vi.mocked(prisma.cart.upsert).mockResolvedValue(cart as any);
 
-            // Mock Transaction
+            
             vi.mocked(prisma.$transaction).mockImplementation(async (callback) => {
                 const tx = {
                     cartItem: {
@@ -45,7 +45,7 @@ describe('CartService', () => {
                 return await callback(tx as any);
             });
 
-            // Mock Product Validation
+            
             vi.mocked(prisma.producto.findMany).mockResolvedValue([{ id: 1 }] as any);
 
             const result = await service.syncCart(userId, items);

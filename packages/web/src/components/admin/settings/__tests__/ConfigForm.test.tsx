@@ -5,7 +5,7 @@ import { useToastStore } from '../../../../stores/toastStore';
 import { useAuthStore } from '../../../../stores/authStore';
 import { fetchApi } from '../../../../utils/api';
 
-// Mocks
+
 vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));

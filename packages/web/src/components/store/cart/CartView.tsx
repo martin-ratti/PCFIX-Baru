@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ShoppingBagIcon } from '../../SharedIcons';
 import { useCartStore } from '../../../stores/cartStore';
 import { useAuthStore } from '../../../stores/authStore';
@@ -27,19 +27,19 @@ function CartContent() {
     const [shippingCost, setShippingCost] = useState<number | null>(null);
     const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
 
-    // Dirección de envío para Zipnova
+    
     const [direccion, setDireccion] = useState('');
     const [ciudad, setCiudad] = useState('');
     const [provincia, setProvincia] = useState('');
     const [telefono, setTelefono] = useState('');
-    const [documento, setDocumento] = useState(''); // DNI del destinatario
+    const [documento, setDocumento] = useState(''); 
 
     const [baseShippingCost, setBaseShippingCost] = useState(0);
     const [localAddress, setLocalAddress] = useState('');
 
     useEffect(() => {
         setIsClient(true);
-        // Non-blocking config fetch - errors are logged but don't crash the page
+        
         const loadConfig = async () => {
             try {
                 const res = await fetch(
@@ -52,7 +52,7 @@ function CartContent() {
                 }
             } catch (err) {
                 console.error("Error loading config:", err);
-                // Continue with defaults, don't crash the page
+                
             }
         };
         loadConfig();
@@ -67,11 +67,11 @@ function CartContent() {
 
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
 
-    // Apply 8% Discount if NOT Mercado Pago
+    
     const discountFactor = paymentMethod !== 'MERCADOPAGO' ? 0.92 : 1;
     const finalSubtotal = subtotal * discountFactor;
 
-    // Apply 21% VAT to shipping cost if delivery type is ENVIO
+    
     const finalShippingCost = deliveryType === 'ENVIO' && shippingCost !== null ? (shippingCost * 1.21) : 0;
 
     const totalFinal = finalSubtotal + finalShippingCost;
@@ -82,7 +82,7 @@ function CartContent() {
             return;
         }
 
-        // Si es CP local (2183), cambiar a retiro automáticamente
+        
         if (zipCode === '2183') {
             setDeliveryType('RETIRO');
             setShippingCost(null);
@@ -134,7 +134,7 @@ function CartContent() {
             return;
         }
 
-        // Validar dirección completa para envío
+        
         if (deliveryType === 'ENVIO') {
             if (!direccion.trim()) {
                 addToast("Ingresa tu dirección (calle y número)", 'error');
@@ -150,7 +150,7 @@ function CartContent() {
                 addToast("Selecciona tu provincia", 'error');
                 return;
             }
-            // DNI requerido para etiqueta de envío
+            
             if (!documento.trim() || documento.length < 7) {
                 addToast("Ingresa un DNI válido (requerido para envíos)", 'error');
                 document.getElementById('documentoInput')?.focus();
@@ -173,7 +173,7 @@ function CartContent() {
                 cpDestino: deliveryType === 'ENVIO' ? zipCode : undefined,
                 tipoEntrega: deliveryType,
                 medioPago: paymentMethod,
-                // Dirección para Zipnova
+                
                 direccionEnvio: deliveryType === 'ENVIO' ? direccion : undefined,
                 ciudadEnvio: deliveryType === 'ENVIO' ? ciudad : undefined,
                 provinciaEnvio: deliveryType === 'ENVIO' ? provincia : undefined,
@@ -275,7 +275,7 @@ function CartContent() {
                                             <button onClick={() => setShippingCost(null)} className="text-[10px] text-blue-500 hover:underline">Cambiar</button>
                                         </div>
                                     </div>
-                                    {/* Formulario dirección */}
+                                    
                                     <div className="space-y-2">
                                         <input
                                             type="text" id="direccionInput"
@@ -324,7 +324,7 @@ function CartContent() {
                                                 <option value="Tucumán">Tucumán</option>
                                             </select>
                                         </div>
-                                        {/* DNI y Teléfono */}
+                                        
                                         <div className="grid grid-cols-2 gap-2">
                                             <input
                                                 type="text" id="documentoInput"

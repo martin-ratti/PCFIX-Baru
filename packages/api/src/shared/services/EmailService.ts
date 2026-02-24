@@ -44,7 +44,7 @@ export class EmailService {
   }
 
 
-  // Notificar Consulta (Admin)
+  
   async sendNewInquiryNotification(userEmail: string, userName: string, subject: string, message: string) {
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
@@ -94,7 +94,7 @@ export class EmailService {
     return await this.sendEmail(adminEmail, emailSubject, html);
   }
 
-  // Notificar Respuesta (Usuario)
+  
   async sendReplyNotification(userEmail: string, asuntoOriginal: string, respuestaTecnico: string) {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
     const subject = `Respuesta a tu consulta: ${asuntoOriginal}`;
@@ -134,7 +134,7 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  // Notificar Comprobante (Admin)
+  
   async sendNewReceiptNotification(saleId: number, userEmail: string) {
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
@@ -163,12 +163,12 @@ export class EmailService {
     return await this.sendEmail(adminEmail, subject, html);
   }
 
-  // Notificar Envío Creado (Admin)
+  
   async sendNewShipmentNotification(saleId: number, customerEmail: string, shipmentId: string, trackingCode: string) {
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
     const subject = `🚚 Envío Creado - Orden #${saleId}`;
 
-    // Link directo al envío en el panel de Zipnova
+    
     const zipnovaLink = `https://app.zipnova.com.ar/shipments/${shipmentId}`;
 
     const html = `
@@ -206,7 +206,7 @@ export class EmailService {
     return await this.sendEmail(adminEmail, subject, html);
   }
 
-  // Notificar Cambio de Estado (Usuario)
+  
   async sendStatusUpdate(userEmail: string, saleId: number, newStatus: string, tipoEntrega?: string, trackingCode?: string) {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
     let mensaje = 'El estado de tu pedido ha cambiado.';
@@ -284,11 +284,11 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  // Notificar Carrito Abandonado
+  
   async sendAbandonedCartEmail(userEmail: string, userName: string, products: any[]) {
     const subject = `👀 ¿Olvidaste algo, ${userName}?`;
 
-    // Find most expensive item for hero image
+    
     const mainProduct = products.sort((a, b) => Number(b.precio) - Number(a.precio))[0];
     const otherCount = products.length - 1;
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
@@ -343,9 +343,9 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  // Notificar Stock
+  
   async sendStockAlertEmail(userEmail: string, productName: string, productLink: string, foto: string, price: number) {
-    // ... existing logic ...
+    
     const subject = `📢 ¡Volvió el stock! ${productName} ya está disponible`;
     const html = `
       <div style="font-family: 'Segoe UI', serif; color: #1f2937; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
@@ -383,7 +383,7 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  // Notificar Bienvenida
+  
   async sendWelcomeEmail(email: string, name: string) {
     const subject = '¡Bienvenido a la comunidad PCFIX! 🚀';
     const html = `
@@ -432,7 +432,7 @@ export class EmailService {
     return await this.sendEmail(email, subject, html);
   }
 
-  // Notificar Reset Password
+  
   async sendPasswordResetEmail(email: string, token: string) {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
     const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
@@ -484,7 +484,7 @@ export class EmailService {
     return await this.sendEmail(email, subject, html);
   }
 
-  // Notificar Confirmación de Contacto (Usuario)
+  
   async sendContactConfirmationEmail(userEmail: string, userName: string) {
     const subject = '📩 Recibimos tu consulta - PC FIX';
     const businessHours = await this.getBusinessHours();
@@ -526,7 +526,7 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  // Notificar Bajada de Precio (Smart Wishlist)
+  
   async sendPriceDropNotification(userEmail: string, productName: string, productLink: string, foto: string, oldPrice: number, newPrice: number) {
     const subject = `📉 ¡Bajó de precio! ${productName} está más barato`;
     const discount = Math.round(((oldPrice - newPrice) / oldPrice) * 100);

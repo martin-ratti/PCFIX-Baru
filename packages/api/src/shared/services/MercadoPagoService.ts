@@ -14,28 +14,28 @@ export class MercadoPagoService {
     }
 
     async createPreference(saleId: number, items: any[], payerEmail: string) {
-        // Items are already formatted by the controller
+        
         const mpItems = items;
 
         const backendUrl = process.env.API_URL ||
             (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : 'http://localhost:3002');
         const successUrl = `${backendUrl}/api/sales/mp-callback?external_reference=${saleId}`;
 
-        // MP requires HTTPS for notification_url. If localhost, we skip it (webhook won't work locally without tunnel)
+        
         const isProduction = backendUrl.includes('https') && !backendUrl.includes('localhost');
         const notificationUrl = isProduction ? `${backendUrl}/api/sales/webhook` : undefined;
 
         try {
             const body: any = {
                 items: mpItems,
-                // payer: { email: payerEmail }, // Commented out to avoid Sandbox mismatch (Real Email vs Test User)
+                
                 external_reference: String(saleId),
                 back_urls: {
                     success: successUrl,
                     failure: successUrl,
                     pending: successUrl
                 },
-                // auto_return: 'approved',
+                
             };
 
             if (notificationUrl) {
@@ -44,7 +44,7 @@ export class MercadoPagoService {
 
             const result = await this.preference.create({ body });
 
-            return result.init_point; // URL to redirect user
+            return result.init_point; 
         } catch (error) {
             console.error('Error creating MP preference:', error);
             console.error('MP Error Details:', JSON.stringify(error, null, 2));

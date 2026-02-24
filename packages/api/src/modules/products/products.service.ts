@@ -14,7 +14,7 @@ export class ProductService {
         return ids;
     }
 
-    // 1. LISTAR TODO
+    
     async findAll(
         page: number = 1,
         limit: number = 10,
@@ -28,7 +28,7 @@ export class ProductService {
         const skip = (page - 1) * limit;
         const where: Prisma.ProductoWhereInput = { deletedAt: null };
 
-        // Filtros
+        
         if (search) {
             where.OR = [
                 { nombre: { contains: search, mode: 'insensitive' } },
@@ -37,7 +37,7 @@ export class ProductService {
             ];
         }
 
-        // Exclude "Servicio Personalizado" from public list
+        
         where.nombre = { not: 'Servicio: Servicio Personalizado' };
 
         if (categoryId) {
@@ -49,12 +49,12 @@ export class ProductService {
         if (filter === 'featured') where.isFeatured = true;
         if (filter === 'hasDiscount') where.precioOriginal = { not: null };
 
-        // LÓGICA DE ORDENAMIENTO
+        
         let orderBy: Prisma.ProductoOrderByWithRelationInput = { createdAt: 'desc' };
 
-        if (sort === 'price_asc') orderBy = { precio: 'asc' };       // Menor precio
-        else if (sort === 'price_desc') orderBy = { precio: 'desc' }; // Mayor precio
-        else if (sort === 'name_asc') orderBy = { nombre: 'asc' };    // A-Z
+        if (sort === 'price_asc') orderBy = { precio: 'asc' };       
+        else if (sort === 'price_desc') orderBy = { precio: 'desc' }; 
+        else if (sort === 'name_asc') orderBy = { nombre: 'asc' };    
 
         const queryOptions: any = {
             where,
@@ -86,7 +86,7 @@ export class ProductService {
         };
     }
 
-    // 2. LISTAR POS
+    
     async findAllPOS(search?: string, limit: number = 20) {
         const where: Prisma.ProductoWhereInput = { deletedAt: null };
         if (search) {
@@ -115,7 +115,7 @@ export class ProductService {
         if (data.categoriaId !== undefined) updateData.categoriaId = Number(data.categoriaId);
         if (data.marcaId !== undefined) updateData.marcaId = data.marcaId ? Number(data.marcaId) : null;
 
-        // Logística
+        
         if (data.peso !== undefined) updateData.peso = Number(data.peso);
         if (data.alto !== undefined) updateData.alto = Number(data.alto);
         if (data.ancho !== undefined) updateData.ancho = Number(data.ancho);
@@ -123,20 +123,20 @@ export class ProductService {
 
         if (data.foto) updateData.foto = data.foto;
 
-        // Check previous values
+        
         const currentProduct = await prisma.producto.findUnique({ where: { id } });
         const oldStock = currentProduct?.stock || 0;
         const oldPrice = Number(currentProduct?.precio || 0);
 
         const updatedProduct = await prisma.producto.update({ where: { id }, data: updateData });
 
-        // Trigger Stock Alert if stock went from 0 to > 0
+        
         const newStock = updatedProduct.stock;
         if (oldStock === 0 && newStock > 0) {
             this.processStockAlerts(updatedProduct);
         }
 
-        // Trigger Price Drop Alert (Smart Wishlist)
+        
         const newPrice = Number(updatedProduct.precio);
         if (oldPrice > 0 && newPrice < oldPrice) {
             this.processPriceDropAlerts(updatedProduct, oldPrice, newPrice);
@@ -145,7 +145,7 @@ export class ProductService {
         return updatedProduct;
     }
 
-    // Helper to process alerts
+    
     private async processStockAlerts(product: any) {
         try {
             const alerts = await (prisma as any).stockAlert.findMany({
@@ -170,7 +170,7 @@ export class ProductService {
                 );
             }
 
-            // Delete processed alerts
+            
             await (prisma as any).stockAlert.deleteMany({
                 where: { productoId: product.id }
             });
@@ -180,10 +180,10 @@ export class ProductService {
         }
     }
 
-    // Helper to process price drop alerts
+    
     private async processPriceDropAlerts(product: any, oldPrice: number, newPrice: number) {
         try {
-            // Find users who have this product in favorites
+            
             const favorites = await prisma.favorite.findMany({
                 where: { productoId: product.id },
                 include: { user: true }
@@ -197,8 +197,8 @@ export class ProductService {
 
 
 
-            // Send emails (non-blocking for main thread usually, but here we await them sequentially or parallel)
-            // Using Promise.all for speed
+            
+            
             await Promise.all(favorites.map(fav => {
                 if (fav.user.email) {
                     return emailService.sendPriceDropNotification(
@@ -218,9 +218,9 @@ export class ProductService {
         }
     }
 
-    // BEST SELLERS - Products most sold (based on LineaVenta quantities)
+    
     async findBestSellers(limit: number = 10) {
-        // Query to get products sorted by total quantity sold
+        
         const bestSellers = await prisma.$queryRaw<{ productoId: number; totalSold: bigint }[]>`
             SELECT lv."productoId", SUM(lv.cantidad) as "totalSold"
             FROM "LineaVenta" lv
@@ -232,7 +232,7 @@ export class ProductService {
         `;
 
         if (bestSellers.length === 0) {
-            // Fallback: return featured products if no sales yet
+            
             return await prisma.producto.findMany({
                 where: {
                     deletedAt: null,
@@ -246,7 +246,7 @@ export class ProductService {
 
         const productIds = bestSellers.map(bs => bs.productoId);
 
-        // Fetch full product details
+        
         const products = await prisma.producto.findMany({
             where: {
                 id: { in: productIds },
@@ -256,7 +256,7 @@ export class ProductService {
             include: { categoria: true, marca: true }
         });
 
-        // Maintain the order from best sellers query
+        
         const orderedProducts = productIds
             .map(id => products.find(p => p.id === id))
             .filter(Boolean);

@@ -4,7 +4,7 @@ import { AuthRequest } from '../../shared/middlewares/authMiddleware';
 
 const service = new TechnicalService();
 
-// --- CONSULTAS ---
+
 
 export const createInquiry = async (req: Request, res: Response) => {
     try {
@@ -63,7 +63,7 @@ export const deleteInquiry = async (req: Request, res: Response) => {
     }
 };
 
-// --- PRECIOS ---
+
 
 export const getPrices = async (req: Request, res: Response) => {
     try {

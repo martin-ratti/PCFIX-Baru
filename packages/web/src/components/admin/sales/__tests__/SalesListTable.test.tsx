@@ -4,7 +4,7 @@ import SalesListTable from '../SalesListTable';
 import { useAuthStore } from '../../../../stores/authStore';
 import { fetchApi } from '../../../../utils/api';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -62,7 +62,7 @@ describe('SalesListTable', () => {
         await waitFor(() => {
             expect(mockFetchApi).toHaveBeenCalled();
             expect(screen.getByRole('table')).toBeInTheDocument();
-            // We relaxed strict user text checks due to environment rendering flakiness
+            
         });
     });
 
@@ -99,14 +99,14 @@ describe('SalesListTable', () => {
         const select = screen.getByRole('combobox', { name: /filtro compra/i });
         fireEvent.change(select, { target: { value: 'TRANSFERENCIA' } });
 
-        // Debug
+        
         expect((select as HTMLSelectElement).value).toBe('TRANSFERENCIA');
 
-        // Use findByText which has built-in retry and better error message
+        
         const clearBtn = await screen.findByText(/borrar filtros/i, {}, { timeout: 3000 });
         fireEvent.click(clearBtn);
 
-        // Should fetch without query params (except page)
+        
         await waitFor(() => {
             expect(mockFetchApi).toHaveBeenCalledWith('/sales?page=1', expect.any(Object));
         });

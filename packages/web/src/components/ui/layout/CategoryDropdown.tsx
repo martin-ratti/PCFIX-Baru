@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 
 import { API_URL } from '../../../utils/api';
@@ -87,7 +87,7 @@ export default function CategoryDropdown({ initialCategories = [] }: Props) {
             </div>
           )) : <div className="px-4 py-3 text-sm text-gray-400 text-center">Cargando...</div>}
 
-          {/* Ver todo link */}
+          
           <div className="border-t border-gray-100 mt-2 pt-2">
             <a
               href="/tienda/productos"

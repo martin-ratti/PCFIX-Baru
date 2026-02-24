@@ -57,7 +57,7 @@ describe('UsersController', () => {
 
         it('should return 400 for validation errors', async () => {
             req.params = { id: '1' };
-            req.body = { nombre: 'J' }; // Too short
+            req.body = { nombre: 'J' }; 
 
             await UsersController.updateProfile(req as Request, res as Response);
 

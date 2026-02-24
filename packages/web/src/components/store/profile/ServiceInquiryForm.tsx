@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
 
-import { fetchApi } from '../../../utils/api'; // 👇 API Utility
+import { fetchApi } from '../../../utils/api'; 
 
 export default function ServiceInquiryForm() {
   const { user, token } = useAuthStore();
@@ -29,10 +29,10 @@ export default function ServiceInquiryForm() {
     }
 
     setLoading(true);
-    // Removed toast.loading as store doesn't support it, relied on button loading state
+    
 
     try {
-      // 👇 fetchApi
+      
       const res = await fetchApi('/technical', {
         method: 'POST',
         headers: {

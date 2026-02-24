@@ -18,7 +18,7 @@ export default function CategorySelect({ categories, value, onChange, error, pla
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Find selected option label
+    
     const getSelectedLabel = () => {
         if (!value) return placeholder;
 
@@ -32,7 +32,7 @@ export default function CategorySelect({ categories, value, onChange, error, pla
         return placeholder;
     };
 
-    // Click outside to close
+    
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -51,7 +51,7 @@ export default function CategorySelect({ categories, value, onChange, error, pla
     return (
         <div className="relative w-full" ref={containerRef}>
             <button
-                type="button" // Prevent form submission
+                type="button" 
                 onClick={() => setIsOpen(!isOpen)}
                 className={`w-full mt-1 p-2 border rounded-md bg-white text-left flex justify-between items-center ${error ? 'border-red-500' : 'border-gray-300'
                     }`}
@@ -76,7 +76,7 @@ export default function CategorySelect({ categories, value, onChange, error, pla
                     ) : (
                         categories.map(cat => (
                             <React.Fragment key={cat.id}>
-                                {/* Parent Category */}
+                                
                                 <div
                                     className={`cursor-pointer select-none py-2 pl-3 pr-9 font-bold hover:bg-indigo-50 ${value === cat.id ? 'bg-indigo-100 text-indigo-900' : 'text-gray-900'}`}
                                     onClick={() => handleSelect(cat.id)}
@@ -84,7 +84,7 @@ export default function CategorySelect({ categories, value, onChange, error, pla
                                     {cat.nombre}
                                 </div>
 
-                                {/* Subcategories */}
+                                
                                 {cat.subcategorias?.map(sub => (
                                     <div
                                         key={sub.id}

@@ -4,10 +4,10 @@ import { CryptoService } from '../../shared/services/CryptoService';
 
 const cryptoService = new CryptoService();
 
-// Obtener configuración actual
+
 export const getConfig = async (req: Request, res: Response) => {
     try {
-        // Asumimos que solo hay una configuración con ID 1
+        
         const config = await prisma.configuracion.findFirst({
             where: { id: 1 }
         });
@@ -31,7 +31,7 @@ export const getConfig = async (req: Request, res: Response) => {
     }
 };
 
-// Actualizar configuración manual
+
 export const updateConfig = async (req: Request, res: Response) => {
     try {
         const data = req.body;
@@ -39,18 +39,18 @@ export const updateConfig = async (req: Request, res: Response) => {
         const updated = await prisma.configuracion.update({
             where: { id: 1 },
             data: {
-                // Banco
+                
                 nombreBanco: data.nombreBanco,
                 titular: data.titular,
                 cbu: data.cbu,
                 alias: data.alias,
-                // Envío
-                costoEnvioFijo: data.costoEnvioFijo, // Si lo envías
-                // Crypto
+                
+                costoEnvioFijo: data.costoEnvioFijo, 
+                
                 binanceAlias: data.binanceAlias,
                 binanceCbu: data.binanceCbu,
                 cotizacionUsdt: data.cotizacionUsdt ? Number(data.cotizacionUsdt) : undefined,
-                // Local
+                
                 direccionLocal: data.direccionLocal,
                 horariosLocal: data.horariosLocal,
                 maintenanceMode: data.maintenanceMode
@@ -63,7 +63,7 @@ export const updateConfig = async (req: Request, res: Response) => {
     }
 };
 
-// Sincronizar Cotización
+
 export const syncUsdt = async (req: Request, res: Response) => {
     try {
         const price = await cryptoService.getUsdtPrice();
@@ -84,7 +84,7 @@ export const syncUsdt = async (req: Request, res: Response) => {
     }
 };
 
-// Enviar Email de Contacto
+
 import { EmailService } from '../../shared/services/EmailService';
 
 export const sendContactEmail = async (req: Request, res: Response) => {
@@ -98,11 +98,11 @@ export const sendContactEmail = async (req: Request, res: Response) => {
         const emailService = new EmailService();
         const userName = `${nombre} ${apellido || ''}`.trim();
 
-        // 1. Notificar al Admin (Non-blocking)
+        
         emailService.sendNewInquiryNotification(email, userName, "Consulta Web", mensaje)
             .catch(e => console.error("Fallo notifiación admin:", e));
 
-        // 2. Confirmar al Usuario (Non-blocking)
+        
         emailService.sendContactConfirmationEmail(email, userName)
             .catch(e => console.error("Fallo confirmación contacto:", e));
 

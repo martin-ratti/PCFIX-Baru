@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { FlameIcon } from '../../SharedIcons'; // 👇 Import
+import { useState, useEffect } from 'react';
+import { FlameIcon } from '../../SharedIcons'; 
 import Carousel, { type CarouselProduct } from './Carousel';
 import ProductCardSkeleton from '../feedback/ProductCardSkeleton';
 
 import { API_URL } from '../../../utils/api';
-// API_URL is imported
+
 
 export default function BestSellersCarousel() {
     const [products, setProducts] = useState<CarouselProduct[]>([]);
@@ -60,7 +60,7 @@ export default function BestSellersCarousel() {
     }
 
     if (products.length === 0) {
-        return null; // Don't show if no products
+        return null; 
     }
 
     return (

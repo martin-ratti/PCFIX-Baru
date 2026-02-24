@@ -1,13 +1,13 @@
-import React from 'react';
-import { CheckIcon, XCircleIcon } from '../SharedIcons'; // 👇 Import
 
-// Enum matches Prisma VentaEstado
+import { CheckIcon, XCircleIcon } from '../SharedIcons'; 
+
+
 export type OrderStatus = 'PENDIENTE_PAGO' | 'PENDIENTE_APROBACION' | 'APROBADO' | 'ENVIADO' | 'ENTREGADO' | 'RECHAZADO' | 'CANCELADO';
 
 interface OrderTimelineProps {
     status: OrderStatus;
     trackingCode?: string;
-    trackingUrl?: string; // e.g. Correo Argentino URL
+    trackingUrl?: string; 
 }
 
 const steps = [
@@ -19,35 +19,35 @@ const steps = [
 
 export default function OrderTimeline({ status, trackingCode, shippingMethod }: OrderTimelineProps & { shippingMethod?: string }) {
 
-    // Dynamic steps based on shipping method
+    
     let stepsToRender = steps;
     if (shippingMethod === 'RETIRO') {
         stepsToRender = [
-            { label: 'Esperando Pago', status: ['PENDIENTE_PAGO' as const, 'PENDIENTE_APROBACION' as const] }, // Combine pending states
+            { label: 'Esperando Pago', status: ['PENDIENTE_PAGO' as const, 'PENDIENTE_APROBACION' as const] }, 
             { label: 'Listo para retirar', status: ['APROBADO' as const, 'ENVIADO' as const] },
             { label: 'Retirado', status: 'ENTREGADO' as const },
         ];
     }
 
-    // Determine Cancelled/Rejected state
+    
     const isFailed = status === 'RECHAZADO' || status === 'CANCELADO';
 
-    // Determine current active step index dynamically
+    
     let currentStepIndex = 0;
     if (isFailed) {
         currentStepIndex = -1;
     } else {
-        // Find the index where the current status matches
-        // We reverse find to ensure we get the latest visible step if multiple match (though statuses should be unique usually)
-        // Actually, we just need to find which bucket the status falls into.
+        
+        
+        
         const foundIndex = stepsToRender.findIndex(step =>
             Array.isArray(step.status) ? step.status.includes(status) : step.status === status
         );
         if (foundIndex !== -1) currentStepIndex = foundIndex;
 
-        // Fallback for logical progression if status not exact match but implied? 
-        // No, status should match.
-        // Special case: if 'ENVIADO' is not in RETIRO steps (it is now), etc.
+        
+        
+        
     }
 
     return (
@@ -59,10 +59,10 @@ export default function OrderTimeline({ status, trackingCode, shippingMethod }: 
                 </div>
             ) : (
                 <div className="relative flex items-center justify-between w-full">
-                    {/* Connecting Line Background */}
+                    
                     <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 -z-10 rounded"></div>
 
-                    {/* Connecting Line Progress */}
+                    
                     <div
                         className="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-green-500 -z-10 rounded transition-all duration-1000 ease-out"
                         style={{ width: `${(currentStepIndex / (stepsToRender.length - 1)) * 100}%` }}
@@ -95,11 +95,11 @@ export default function OrderTimeline({ status, trackingCode, shippingMethod }: 
                 </div>
             )}
 
-            {/* Tracking Link for Shipped Orders */}
+            
             {status === 'ENVIADO' && trackingCode && (
                 <div className="mt-6 text-center">
                     <a
-                        href={`https://www.correoargentino.com.ar/formularios/e-commerce?id=${trackingCode}`} // Defaulting to Correo Argentino as per context
+                        href={`https://www.correoargentino.com.ar/formularios/e-commerce?id=${trackingCode}`} 
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"

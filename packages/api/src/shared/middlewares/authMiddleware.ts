@@ -1,4 +1,4 @@
-// packages/api/src/shared/middlewares/authMiddleware.ts
+
 import { Request, Response, NextFunction } from 'express';
 import { JwtTokenService } from '../services/JwtTokenService';
 import { prisma } from '../database/prismaClient';

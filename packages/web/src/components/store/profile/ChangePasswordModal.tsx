@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm, useWatch, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -90,7 +90,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
-                        {/* Current Password */}
+                        
                         <div>
                             <div className="flex justify-between items-center mb-1">
                                 <label className="text-sm font-bold text-gray-700">Contraseña Actual</label>
@@ -111,7 +111,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
                             {errors.currentPassword && <p className="text-red-500 text-xs mt-1 ml-1">{errors.currentPassword.message}</p>}
                         </div>
 
-                        {/* New Password */}
+                        
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-1">Nueva Contraseña</label>
                             <input
@@ -124,7 +124,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
                             <StrengthMeterController control={control} />
                         </div>
 
-                        {/* Confirm New Password */}
+                        
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-1">Confirmar Nueva Contraseña</label>
                             <input

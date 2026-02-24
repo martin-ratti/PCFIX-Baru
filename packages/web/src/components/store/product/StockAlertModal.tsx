@@ -13,9 +13,9 @@ interface StockAlertModalProps {
 export default function StockAlertModal({ isOpen, onClose, productId, productName }: StockAlertModalProps) {
     const { user, isAuthenticated } = useAuthStore();
 
-    // State
+    
     const [email, setEmail] = useState(user?.email || '');
-    const [isEditing, setIsEditing] = useState(!isAuthenticated); // If not auth, edit by default. If auth, view mode.
+    const [isEditing, setIsEditing] = useState(!isAuthenticated); 
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
@@ -59,14 +59,14 @@ export default function StockAlertModal({ isOpen, onClose, productId, productNam
 
     const modalContent = (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" style={{ margin: 0 }}>
-            {/* Click outside to close */}
+            
             <div className="absolute inset-0" onClick={onClose}></div>
 
-            {/* Forced Light Theme Container */}
+            
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-modal-enter border border-gray-100 relative z-10">
 
                 <div className="p-6 text-center">
-                    {/* Icon */}
+                    
                     {!success && (
                         <div className="w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
@@ -92,7 +92,7 @@ export default function StockAlertModal({ isOpen, onClose, productId, productNam
                         </div>
                     ) : (
                         <>
-                            {/* Email Selection */}
+                            
                             <div className="mb-6 text-left">
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Enviar a</label>
 

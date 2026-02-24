@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { authService } from './auth.service';
 import { prisma } from '../../shared/database/prismaClient';
 
-// Mock dependencies
+
 vi.mock('../../shared/database/prismaClient', () => ({
     prisma: {
         user: {
@@ -47,7 +47,7 @@ describe('AuthService', () => {
 
     describe('deleteAccount', () => {
         it('should throw error if user has active orders', async () => {
-            // Mock active order count > 0
+            
             (prisma.venta.count as any).mockResolvedValue(1);
 
             await expect(authService.deleteAccount(1)).rejects.toThrow(
@@ -66,7 +66,7 @@ describe('AuthService', () => {
         });
 
         it('should delete user if no active orders', async () => {
-            // Mock active order count = 0
+            
             (prisma.venta.count as any).mockResolvedValue(0);
             (prisma.user.delete as any).mockResolvedValue({ id: 1 });
 

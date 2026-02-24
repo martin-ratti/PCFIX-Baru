@@ -4,7 +4,7 @@ import DashboardIntelligence from '../DashboardIntelligence';
 import { useAuthStore } from '../../../../stores/authStore';
 import { fetchApi } from '../../../../utils/api';
 
-// Mock dependencies
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -17,7 +17,7 @@ vi.mock('../../../../utils/api', () => ({
     fetchApi: vi.fn()
 }));
 
-// Mock Recharts
+
 vi.mock('recharts', () => ({
     AreaChart: ({ children }: any) => <div data-testid="area-chart">{children}</div>,
     Area: () => <div data-testid="area" />,
@@ -56,7 +56,7 @@ describe('DashboardIntelligence', () => {
 
     it('renders loading state initially', () => {
         mockUseAuthStore.mockReturnValue({ token: 'test' } as any);
-        mockFetchApi.mockReturnValue(new Promise(() => { })); // Never resolves
+        mockFetchApi.mockReturnValue(new Promise(() => { })); 
         render(<DashboardIntelligence />);
         expect(screen.getByText(/Analizando datos comerciales/i)).toBeInTheDocument();
     });
@@ -73,17 +73,17 @@ describe('DashboardIntelligence', () => {
             expect(screen.getByText(/Inteligencia de Ventas/i)).toBeInTheDocument();
         });
 
-        // KPIs
-        expect(screen.getByText('$ 100.000')).toBeInTheDocument(); // Gross Revenue
-        expect(screen.getByText('12')).toBeInTheDocument(); // Low Stock
-        expect(screen.getByText('3')).toBeInTheDocument(); // Pending Review
-        expect(screen.getByText('5')).toBeInTheDocument(); // Pending Support
+        
+        expect(screen.getByText('$ 100.000')).toBeInTheDocument(); 
+        expect(screen.getByText('12')).toBeInTheDocument(); 
+        expect(screen.getByText('3')).toBeInTheDocument(); 
+        expect(screen.getByText('5')).toBeInTheDocument(); 
 
-        // Charts
+        
         expect(screen.getByTestId('area-chart')).toBeInTheDocument();
         expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
 
-        // Dead Stock
+        
         expect(screen.getByText('Old GPU')).toBeInTheDocument();
         expect(screen.getByText('120 días')).toBeInTheDocument();
     });

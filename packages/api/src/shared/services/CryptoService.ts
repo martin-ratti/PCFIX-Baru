@@ -1,8 +1,8 @@
-import axios from 'axios'; // Asegúrate de tener axios: npm install axios
+import axios from 'axios'; 
 
 export class CryptoService {
 
-  // Obtener precio USDT/ARS
+  
   async getUsdtPrice(): Promise<number> {
     try {
       const response = await axios.get('https://api.binance.com/api/v3/ticker/price?symbol=USDTARS');

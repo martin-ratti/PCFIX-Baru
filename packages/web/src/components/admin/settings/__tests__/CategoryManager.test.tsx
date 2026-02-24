@@ -4,7 +4,7 @@ import CategoryManager from '../CategoryManager';
 import { useToastStore } from '../../../../stores/toastStore';
 import { fetchApi } from '../../../../utils/api';
 
-// Mocks
+
 vi.mock('../../../../stores/toastStore', () => ({
     useToastStore: vi.fn()
 }));
@@ -57,7 +57,7 @@ describe('CategoryManager', () => {
             expect(screen.getByText('Child Cat')).toBeInTheDocument();
         });
 
-        // Check flat categories loaded in select
+        
         expect(screen.getByText('Parent Cat', { selector: 'option' })).toBeInTheDocument();
     });
 
@@ -69,7 +69,7 @@ describe('CategoryManager', () => {
         const submitBtn = screen.getByText('Crear');
         fireEvent.click(submitBtn);
 
-        // Verify loading state
+        
         await waitFor(() => {
             expect(screen.getByText(/creando/i)).toBeInTheDocument();
             expect(submitBtn).toBeDisabled();
@@ -86,7 +86,7 @@ describe('CategoryManager', () => {
 
         await waitFor(() => expect(screen.getByText('Parent Cat')).toBeInTheDocument());
 
-        // Click delete on parent category
+        
         const deleteBtns = screen.getAllByText('Eliminar');
         fireEvent.click(deleteBtns[0]);
 

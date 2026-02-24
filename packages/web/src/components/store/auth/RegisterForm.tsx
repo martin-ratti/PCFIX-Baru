@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -33,12 +33,12 @@ export default function RegisterForm() {
     formState: { errors, touchedFields, dirtyFields },
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
-    mode: 'onChange', // Real-time validation
+    mode: 'onChange', 
   });
 
   const passwordValue = watch('password');
 
-  // Helper to determine field status
+  
   const getFieldStatus = (fieldName: keyof RegisterSchema) => {
     const isError = !!errors[fieldName];
     const isValid = !isError && (touchedFields[fieldName] || dirtyFields[fieldName]);

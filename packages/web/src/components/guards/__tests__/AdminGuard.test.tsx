@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import AdminGuard from '../AdminGuard';
 import { useAuthStore } from '../../../stores/authStore';
 
-// Mocks
+
 vi.mock('../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -13,12 +13,12 @@ describe('AdminGuard', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // Mock window.location.replace
+        
         Object.defineProperty(window, 'location', {
             value: { replace: mockReplace },
             writable: true
         });
-        // Clear localStorage
+        
         localStorage.clear();
     });
 
@@ -34,7 +34,7 @@ describe('AdminGuard', () => {
 
         render(<AdminGuard><div>Protected Content</div></AdminGuard>);
 
-        // Should show spinner, not content
+        
         expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
     });
 
@@ -83,7 +83,7 @@ describe('AdminGuard', () => {
             isAuthenticated: false
         } as any);
 
-        // Set localStorage with admin user
+        
         localStorage.setItem('auth-storage', JSON.stringify({
             state: { user: { role: 'ADMIN' }, isAuthenticated: true }
         }));

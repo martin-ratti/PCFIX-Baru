@@ -22,7 +22,7 @@ export default function Skeleton({
                 {
                     'rounded-full': variant === 'circular',
                     'rounded-md': variant === 'rectangular' || variant === 'text',
-                    // Text variant usually has a specific height ratio, but we can stick to defaults
+                    
                 },
                 className
             )}

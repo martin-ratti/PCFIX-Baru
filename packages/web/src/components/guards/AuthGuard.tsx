@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
-import { navigate } from 'astro:transitions/client';
+
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -12,13 +12,13 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   useEffect(() => {
     const checkAccess = () => {
-      // 1. Chequeo Memoria
+      
       if (isAuthenticated) {
         setIsLoading(false);
         return;
       }
 
-      // 2. Chequeo Disco (LocalStorage)
+      
       const storedAuth = localStorage.getItem('auth-storage');
       if (storedAuth) {
         try {
@@ -30,7 +30,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         } catch (e) { }
       }
 
-      // 3. No logueado -> Login
+      
       window.location.href = '/auth/login';
     };
 

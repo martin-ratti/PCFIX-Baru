@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CategoryDropdown from '../CategoryDropdown';
 import { useAuthStore } from '../../../../stores/authStore';
 
-// Mocks
+
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
@@ -47,7 +47,7 @@ describe('CategoryDropdown', () => {
             expect(screen.getByText('Categorías')).toBeInTheDocument();
         });
 
-        // Hover to open dropdown
+        
         const button = screen.getByText('Categorías');
         fireEvent.mouseEnter(button.closest('.group')!);
 

@@ -25,14 +25,14 @@ describe('Auth Controller', () => {
             AuthService: function () {
                 return mockAuthService;
             },
-            authService: mockAuthService // Also mock the instance export if that's what is used
+            authService: mockAuthService 
         }));
 
         const controller = await import('./auth.controller');
         login = controller.login;
         register = controller.register;
         // @ts-ignore
-        const changePassword = controller.changePassword; // Retrieve new controller
+        const changePassword = controller.changePassword; 
 
         json = vi.fn();
         status = vi.fn().mockReturnValue({ json });
@@ -92,7 +92,7 @@ describe('Auth Controller', () => {
             req.body = { currentPassword: '', newPassword: '123' };
 
             await changePassword(req as Request, res as Response);
-            expect(status).toHaveBeenCalledWith(400); // Validation error
+            expect(status).toHaveBeenCalledWith(400); 
         });
 
         it('should call service changePassword', async () => {
