@@ -30,12 +30,12 @@ const createSaleSchema = z.object({
     cpDestino: z.string().min(4).optional(),
     tipoEntrega: z.enum(['ENVIO', 'RETIRO']),
     medioPago: z.enum(['MERCADOPAGO', 'EFECTIVO', 'VIUMI', 'TRANSFERENCIA', 'BINANCE']),
-    
+
     direccionEnvio: z.string().optional(),
     ciudadEnvio: z.string().optional(),
     provinciaEnvio: z.string().optional(),
     telefonoEnvio: z.string().optional(),
-    documentoEnvio: z.string().optional() 
+    documentoEnvio: z.string().optional()
 });
 
 export const createSale = async (req: Request, res: Response) => {
@@ -65,7 +65,7 @@ export const createSale = async (req: Request, res: Response) => {
         if (e instanceof z.ZodError) {
             return res.status(400).json({ success: false, error: 'Datos de venta inválidos', details: e.errors });
         }
-        
+
         if (e.message.includes('no encontrado') || e.message.includes('Stock insuficiente')) {
             return res.status(400).json({ success: false, error: e.message });
         }
@@ -86,25 +86,23 @@ export const createMPPreference = async (req: Request, res: Response) => {
         const sale = await service.findById(Number(id));
         if (!sale) return res.status(404).json({ success: false, error: 'Venta no encontrada' });
 
-        const items = sale.lineasVenta.map((line: any) => {
+        const items: any[] = sale.lineasVenta.map((line: any) => {
             const unitPrice = Number(line.subTotal) / Number(line.cantidad);
             return {
                 id: String(line.productoId),
                 title: line.producto.nombre || 'Producto',
                 quantity: Number(line.cantidad),
-                unit_price: Number(unitPrice.toFixed(2)), 
+                unit_price: Number(unitPrice.toFixed(2)),
                 currency_id: 'ARS'
             };
         });
 
-
-
-        
+        const costoEnvioNum = sale.tipoEntrega === 'ENVIO' ? Number(sale.costoEnvio ?? 0) : 0;
         const payerEmail = sale.cliente?.user?.email || 'test_user_123456@testuser.com';
-
-        const link = await mpService.createPreference(Number(id), items, payerEmail);
+        const link = await mpService.createPreference(Number(id), items, payerEmail, costoEnvioNum);
         res.json({ success: true, data: { url: link } });
     } catch (e: any) {
+        console.error('[MP] Error:', e.message);
         res.status(500).json({ success: false, error: e.message });
     }
 };
@@ -212,20 +210,20 @@ export const handleMPCallback = async (req: Request, res: Response) => {
             await prisma.venta.update({
                 where: { id: saleId },
                 data: {
-                    estado: VentaEstado.APROBADO, 
+                    estado: VentaEstado.APROBADO,
                     medioPago: 'MERCADOPAGO'
                 }
             });
 
         }
 
-        
+
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
         res.redirect(`${frontendUrl}/cuenta/miscompras?status=${status}`);
 
     } catch (error) {
         console.error('[MP Callback] Error:', error);
-        
+
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
         res.redirect(`${frontendUrl}/cuenta/miscompras?status=error`);
     }
@@ -237,35 +235,35 @@ export const handleMPWebhook = async (req: Request, res: Response) => {
 
         if (type === 'payment') {
             const paymentId = data.id;
-            
-            
-            
-            
-            
-
-            
-            
-            
 
 
-            
 
-            
-            
 
-            
-            
 
-            
 
-            
-            
-            
 
-            
-            
 
-            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             await service.processMPWebhook(paymentId);
         }
 
@@ -305,7 +303,7 @@ export const updateStatus = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
-        
+
         if (!Object.values(VentaEstado).includes(status)) return res.status(400).json({ success: false, error: 'Invalid status' });
 
         const updated = await service.updateStatus(Number(id), status);

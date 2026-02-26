@@ -13,29 +13,42 @@ export class MercadoPagoService {
         this.preference = new Preference(this.client);
     }
 
-    async createPreference(saleId: number, items: any[], payerEmail: string) {
-        
-        const mpItems = items;
+    async createPreference(saleId: number, items: any[], payerEmail: string, shipmentCost?: number) {
+
+        const mpItems = items.map(item => ({
+            ...item,
+            title: item.title
+        }));
+
+        if (shipmentCost && shipmentCost > 0) {
+            mpItems.push({
+                id: 'shipping',
+                title: 'Costo de envio',
+                quantity: 1,
+                unit_price: shipmentCost,
+                currency_id: 'ARS'
+            });
+        }
 
         const backendUrl = process.env.API_URL ||
             (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : 'http://localhost:3002');
         const successUrl = `${backendUrl}/api/sales/mp-callback?external_reference=${saleId}`;
 
-        
+
         const isProduction = backendUrl.includes('https') && !backendUrl.includes('localhost');
         const notificationUrl = isProduction ? `${backendUrl}/api/sales/webhook` : undefined;
 
         try {
             const body: any = {
                 items: mpItems,
-                
+
                 external_reference: String(saleId),
                 back_urls: {
                     success: successUrl,
                     failure: successUrl,
                     pending: successUrl
                 },
-                
+
             };
 
             if (notificationUrl) {
@@ -44,7 +57,7 @@ export class MercadoPagoService {
 
             const result = await this.preference.create({ body });
 
-            return result.init_point; 
+            return result.init_point;
         } catch (error) {
             console.error('Error creating MP preference:', error);
             console.error('MP Error Details:', JSON.stringify(error, null, 2));
