@@ -1,6 +1,7 @@
 ---
 
 
+import { Image } from "astro:assets";
 import logo from "../../../assets/logo.png";
 import {
   InstagramIcon,
@@ -20,9 +21,11 @@ const currentYear = new Date().getFullYear();
       
       <div class="space-y-4">
         <a href="/" class="block w-40 hover:opacity-90 transition-opacity">
-          <img
-            src={logo.src}
+          <Image
+            src={logo}
             alt="PCFIX Logo"
+            width={160}
+            height={85}
             class="w-full h-auto drop-shadow-sm"
           />
         </a>

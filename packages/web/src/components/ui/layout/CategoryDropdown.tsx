@@ -21,7 +21,9 @@ export default function CategoryDropdown({ initialCategories = [] }: Props) {
 
   useEffect(() => {
     setIsClient(true);
-    if (initialCategories.length === 0) {
+    if (initialCategories && initialCategories.length > 0) {
+      setCategories(initialCategories);
+    } else {
       fetch(`${API_URL}/categories`)
         .then(res => res.json())
         .then(data => data.success && setCategories(data.data))
@@ -38,7 +40,7 @@ export default function CategoryDropdown({ initialCategories = [] }: Props) {
       onMouseLeave={() => setIsOpen(false)}
     >
       <button
-        className="flex items-center gap-2 text-gray-500 hover:text-black transition-all active:scale-95 py-2 font-medium group-hover:text-black cursor-pointer"
+        className="flex items-center gap-2 text-gray-700 hover:text-black transition-all active:scale-95 py-2 font-medium group-hover:text-black cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
         Categorías
@@ -87,7 +89,7 @@ export default function CategoryDropdown({ initialCategories = [] }: Props) {
             </div>
           )) : <div className="px-4 py-3 text-sm text-gray-400 text-center">Cargando...</div>}
 
-          
+
           <div className="border-t border-gray-100 mt-2 pt-2">
             <a
               href="/tienda/productos"

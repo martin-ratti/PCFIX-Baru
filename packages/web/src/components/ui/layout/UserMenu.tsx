@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
-import { UserIcon, ShoppingBagIcon, MessageCircleIcon, HeartIcon, LogOutIcon, ChevronDownIcon } from '../../SharedIcons'; 
+import { UserIcon, ShoppingBagIcon, MessageCircleIcon, HeartIcon, LogOutIcon, ChevronDownIcon } from '../../SharedIcons';
 
 export default function UserMenu() {
   const store = useAuthStore();
@@ -26,7 +26,7 @@ export default function UserMenu() {
   if (!store.isAuthenticated) {
     return (
       <div className="flex items-center gap-3">
-        <a href="/auth/login" className="text-sm font-semibold text-gray-500 hover:text-primary transition-colors px-3 py-2 rounded-md hover:bg-gray-100">Ingresar</a>
+        <a href="/auth/login" className="text-sm font-semibold text-gray-700 hover:text-primary transition-colors px-3 py-2 rounded-md hover:bg-gray-100">Ingresar</a>
         <a href="/auth/registro" className="text-sm font-bold bg-primary text-white px-5 py-2.5 rounded-full shadow-md hover:shadow-lg hover:bg-opacity-90 transition-all transform hover:-translate-y-0.5 active:scale-95">Registrarse</a>
       </div>
     );
@@ -53,7 +53,7 @@ export default function UserMenu() {
           <span className="text-xs font-bold text-secondary">{user?.nombre}</span>
           {isAdmin && <span className="text-[10px] text-purple-600 font-bold">ADMINISTRADOR</span>}
         </div>
-        <ChevronDownIcon className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDownIcon className={`w-4 h-4 text-gray-700 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       <div className={`absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 transition-all duration-200 z-50 transform origin-top-right ${isOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 hidden'}`}>

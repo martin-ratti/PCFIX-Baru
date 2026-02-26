@@ -99,6 +99,7 @@ if (!product) {
                 alt={product.nombre}
                 class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
                 transition:name={`image-${product.id}`}
+                fetchpriority="high"
               />
             ) : (
               <img
@@ -106,6 +107,7 @@ if (!product) {
                 alt={product.nombre}
                 class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
                 transition:name={`image-${product.id}`}
+                fetchpriority="high"
               />
             )
           }

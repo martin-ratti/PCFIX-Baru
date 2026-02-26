@@ -14,7 +14,7 @@ export default function CartIcon() {
     setIsClient(true);
   }, []);
 
-  
+
   useEffect(() => {
     const currentCount = items.reduce((total, item) => total + item.quantity, 0);
     if (currentCount > prevItemsCount.current) {
@@ -35,7 +35,14 @@ export default function CartIcon() {
       className={`relative p-2 transition-transform hover:scale-110 focus-ring rounded-lg ${isAnimating ? 'animate-bounce-once' : ''}`}
       aria-label={`Carrito de compras${totalItems > 0 ? `, ${totalItems} productos` : ', vacío'}`}
     >
-      <img src={cartIcon.src} alt="" className="w-8 h-8" aria-hidden="true" />
+      <img
+        src={cartIcon.src}
+        alt=""
+        className="w-8 h-8"
+        aria-hidden="true"
+        width="32"
+        height="32"
+      />
 
       {isClient && totalItems > 0 && (
         <span

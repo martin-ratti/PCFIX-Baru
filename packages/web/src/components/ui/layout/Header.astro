@@ -1,6 +1,5 @@
 ---
-
-
+import { Image } from "astro:assets";
 import logo from "../../../assets/logo.png";
 import MaintenanceBanner from "./MaintenanceBanner";
 
@@ -14,7 +13,18 @@ import ErrorBoundary from "../../ui/feedback/ErrorBoundary.tsx";
 import MobileMenu from "../../ui/layout/MobileMenu.tsx";
 
 import type { Category } from "../../../types";
-const categories: Category[] = [];
+import { API_URL } from "../../../utils/api";
+
+let categories: Category[] = [];
+try {
+  const response = await fetch(`${API_URL}/categories`);
+  const data = await response.json();
+  if (data.success) {
+    categories = data.data;
+  }
+} catch (e) {
+  console.error("Error fetching categories for Header:", e);
+}
 ---
 
 <header
@@ -27,12 +37,14 @@ const categories: Category[] = [];
   >
     <div class="shrink-0 flex items-center gap-6">
       <a href="/" class="block hover:opacity-90 transition-opacity">
-        <img
-          src={logo.src}
+        <Image
+          src={logo}
           alt="PCFIX Logo"
           width={150}
+          height={80}
           class="object-contain transition-all duration-300 origin-left h-20 w-auto"
           id="header-logo"
+          loading="eager"
         />
       </a>
       <div class="h-6 w-px bg-white/10 mx-2 hidden md:block"></div>
@@ -85,10 +97,6 @@ const categories: Category[] = [];
     document.addEventListener("astro:page-load", () => {
       const header = document.getElementById("main-header");
 
-      
-      
-      
-
       let ticking = false;
 
       const handleScroll = () => {
@@ -113,7 +121,6 @@ const categories: Category[] = [];
 
       window.addEventListener("scroll", handleScroll, { passive: true });
 
-      
       const cleanup = () => {
         window.removeEventListener("scroll", handleScroll);
         document.removeEventListener("astro:before-swap", cleanup);
@@ -121,7 +128,6 @@ const categories: Category[] = [];
 
       document.addEventListener("astro:before-swap", cleanup);
 
-      
       handleScroll();
     });
   </script>

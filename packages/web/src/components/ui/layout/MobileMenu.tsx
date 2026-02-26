@@ -117,7 +117,7 @@ export default function MobileMenu() {
                         ) : (
                             <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 text-center">
                                 <p className="text-gray-900 font-bold text-lg mb-2">¡Bienvenido!</p>
-                                <p className="text-gray-500 text-sm mb-5">Inicia sesión para acceder a tu perfil y compras.</p>
+                                <p className="text-gray-700 text-sm mb-5">Inicia sesión para acceder a tu perfil y compras.</p>
                                 <div className="grid gap-3">
                                     <a href="/auth/login" onClick={handleLinkClick} className="w-full py-3 bg-white border border-gray-200 text-gray-900 font-bold rounded-xl hover:bg-gray-50 transition-all shadow-sm">
                                         Ingresar
@@ -197,7 +197,7 @@ export default function MobileMenu() {
                                         <div className="ml-[3.5rem] mt-2 space-y-1 border-l-2 border-gray-100 pl-3">
                                             <a href="/tienda/productos" onClick={handleLinkClick} className="block py-2 px-3 text-sm font-bold text-primary hover:translate-x-1 transition-transform">ver todo</a>
                                             {categories.map(cat => (
-                                                <a key={cat.id} href={`/tienda/productos?categoryId=${cat.id}`} onClick={handleLinkClick} className="block py-2 px-3 text-sm font-medium text-gray-500 hover:text-gray-900 hover:translate-x-1 transition-transform">
+                                                <a key={cat.id} href={`/tienda/productos?categoryId=${cat.id}`} onClick={handleLinkClick} className="block py-2 px-3 text-sm font-medium text-gray-700 hover:text-gray-900 hover:translate-x-1 transition-transform">
                                                     {cat.nombre}
                                                 </a>
                                             ))}
