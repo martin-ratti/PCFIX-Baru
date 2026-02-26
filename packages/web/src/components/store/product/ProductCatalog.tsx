@@ -4,6 +4,7 @@ import ProductCardSkeleton from '../../ui/feedback/ProductCardSkeleton';
 import EmptyState from '../../ui/feedback/EmptyState';
 import type { ProductCardProps, ProductDB, PaginationMeta } from '../../../types/product';
 import { mapProductDBToCardProps } from '../../../types/product';
+import { SearchIcon } from '../../SharedIcons';
 
 import { API_URL } from '../../../utils/api';
 
@@ -69,7 +70,7 @@ export default function ProductCatalog({
                 <EmptyState
                     title="No encontramos productos"
                     description="Intenta ajustar tus filtros o busca con términos más generales."
-                    icon={<span className="text-4xl">🔍</span>}
+                    icon={<SearchIcon className="w-12 h-12 text-gray-400" />}
                     action={{
                         label: "Ver todo el catálogo",
                         href: "/tienda/productos"
@@ -81,19 +82,19 @@ export default function ProductCatalog({
 
     return (
         <div className="space-y-8">
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 animate-fade-in">
                 {products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                 ))}
 
-                
+
                 {isLoading && Array(4).fill(0).map((_, i) => (
                     <ProductCardSkeleton key={`skeleton-${i}`} />
                 ))}
             </div>
 
-            
+
             {hasMore && !isLoading && (
                 <div className="flex justify-center pt-4">
                     <button
@@ -115,7 +116,7 @@ export default function ProductCatalog({
                 </div>
             )}
 
-            
+
             {isLoading && (
                 <div className="flex justify-center pt-4">
                     <div className="flex items-center gap-2 text-gray-500">
@@ -125,7 +126,7 @@ export default function ProductCatalog({
                 </div>
             )}
 
-            
+
             <div className="text-center text-sm text-gray-400">
                 Mostrando {products.length} de {meta.total} productos
             </div>
