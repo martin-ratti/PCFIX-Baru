@@ -13,7 +13,7 @@ describe('Products Controller', () => {
     let statusMock: any;
 
     beforeEach(() => {
-        
+
         jsonMock = vi.fn();
         statusMock = vi.fn().mockReturnValue({ json: jsonMock });
         mockRes = {
@@ -30,7 +30,7 @@ describe('Products Controller', () => {
                 precio: '1000',
                 stock: '10',
                 categoriaId: '1',
-                marcaId: '5', 
+                marcaId: '5',
                 peso: '0.5',
                 alto: '10',
                 ancho: '10',
@@ -41,21 +41,19 @@ describe('Products Controller', () => {
             file: undefined
         };
 
-        
+
         const createSpy = vi.spyOn(ProductService.prototype, 'create').mockResolvedValue({ id: 1, nombre: 'Test Product' } as any);
 
         await create(mockReq as Request, mockRes as Response);
 
-        
-        if (statusMock.mock.calls.length === 0 && jsonMock.mock.calls.length > 0) {
-            console.log('JSON response (failure):', jsonMock.mock.calls[0][0]);
-        }
+
+
 
         expect(statusMock).toHaveBeenCalledWith(201);
 
-        
+
         expect(createSpy).toHaveBeenCalledWith(expect.objectContaining({
-            marcaId: 5, 
+            marcaId: 5,
             precio: 1000,
             stock: 10
         }));

@@ -24,10 +24,6 @@ let banners: Banner[] = [];
 let configHours = "";
 let errorApi = false;
 
-
-
-
-
 try {
   const [prodRes, brandRes, bannerRes, configRes] = await Promise.all([
     fetch(`${API_URL}/products?limit=30`),
@@ -65,7 +61,6 @@ try {
     if (r.success) banners = r.data;
   }
 
-  
   if (configRes.ok) {
     const json = await configRes.json();
     if (json.success && json.data?.horariosLocal) {
@@ -76,7 +71,7 @@ try {
   console.error("Error fetching data:", error);
   errorApi = true;
 }
-if (!configHours) configHours = "Lunes a Viernes: 9:00 - 18:00"; 
+if (!configHours) configHours = "Lunes a Viernes: 9:00 - 18:00";
 ---
 
 <Layout title="PCFIX | Tu Tienda de Tecnología">
@@ -89,10 +84,6 @@ if (!configHours) configHours = "Lunes a Viernes: 9:00 - 18:00";
       }
     </div>
 
-    <!-- FeatuersSection is imported but not used? It was imported in line 8 but not in markup? -->
-    <!-- Ah, I see FeaturesSection import. I should probably use it. -->
-    <!-- In previous file content it was commented out. -->
-
     <div class="container mx-auto px-6 py-8">
       <FeaturesSection />
     </div>
@@ -102,14 +93,9 @@ if (!configHours) configHours = "Lunes a Viernes: 9:00 - 18:00";
     </div>
 
     <div class="container mx-auto px-6 space-y-16 py-8">
-      <!-- <PromoBanner /> -->
-
-      <!-- Sección Atención Compacta -->
       <ContactInfo hours={configHours} client:visible />
 
-      <!-- Features Sections moved after Hero -->
       <div class="space-y-20">
-        <!-- Increased spacing between sections -->
         <HomeCarousels
           featuredProducts={featuredProducts}
           saleProducts={saleProducts}

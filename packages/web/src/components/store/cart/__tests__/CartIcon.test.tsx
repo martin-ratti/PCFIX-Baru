@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-
 vi.mock('../../../../stores/cartStore', () => ({
     useCartStore: vi.fn()
 }));
@@ -10,7 +9,6 @@ vi.mock('../../../../stores/cartStore', () => ({
 vi.mock('../../../../stores/authStore', () => ({
     useAuthStore: vi.fn()
 }));
-
 
 vi.mock('../../../../assets/cart.png', () => ({
     default: { src: '/cart.png' }
@@ -23,7 +21,7 @@ import { useAuthStore } from '../../../../stores/authStore';
 describe('CartIcon', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        
+
         (useCartStore as any).mockImplementation((selector: any) =>
             selector({ items: [] })
         );
@@ -50,12 +48,7 @@ describe('CartIcon', () => {
 
         render(<CartIcon />);
 
-        
         await new Promise(resolve => setTimeout(resolve, 10));
-
-        
-/* unused:         const badge = screen.queryByText('5'); */
-        
     });
 
     it('does not render for admin users', async () => {
@@ -63,13 +56,9 @@ describe('CartIcon', () => {
             selector({ user: { role: 'ADMIN' } })
         );
 
-        const {} = render(<CartIcon />);
+        render(<CartIcon />);
 
-        
         await new Promise(resolve => setTimeout(resolve, 10));
-
-        
-        
     });
 
     it('links to /carrito', () => {
