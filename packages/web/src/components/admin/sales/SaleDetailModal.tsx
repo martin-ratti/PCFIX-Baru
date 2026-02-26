@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { API_URL } from '../../../utils/api';
 import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
+import { LandmarkIcon, DollarSignIcon, BitcoinIcon, PackageIcon, AlertTriangleIcon, ClipboardListIcon, CreditCardIcon, StoreIcon, TruckIcon, CheckCircleIcon } from '../../SharedIcons';
 
 interface SaleDetailModalProps {
     isOpen: boolean;
@@ -22,7 +23,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
 
     const trackingInputRef = useRef<HTMLInputElement>(null);
 
-    
+
     useEffect(() => {
         if (isOpen && autoFocusDispatch && sale?.estado === 'APROBADO' && sale.tipoEntrega === 'ENVIO') {
             setTimeout(() => trackingInputRef.current?.focus(), 100);
@@ -31,9 +32,9 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
 
     if (!isOpen || !sale) return null;
 
-    
+
     const handleDispatch = async () => {
-        
+
         const codeToSend = sale.tipoEntrega === 'RETIRO' ? 'RETIRO_EN_TIENDA' : trackingCode;
 
         if (!codeToSend.trim()) {
@@ -68,7 +69,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
         }
     };
 
-    
+
     const handleCreateZipnovaShipment = async () => {
         if (!sale.direccionEnvio || !sale.ciudadEnvio || !sale.provinciaEnvio) {
             addToast('Faltan datos de dirección para crear el envío', 'error');
@@ -90,7 +91,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
             if (json.success) {
                 addToast(`Envío creado! Tracking: ${json.data.trackingCode}`, 'success');
                 if (onDispatch) onDispatch();
-                onClose(); 
+                onClose();
             } else {
                 throw new Error(json.error);
             }
@@ -101,22 +102,22 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
         }
     };
 
-    
+
     const getPaymentStyle = (method: string) => {
         switch (method) {
             case 'BINANCE': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
             case 'EFECTIVO': return 'bg-green-100 text-green-800 border-green-200';
-            case 'MERCADOPAGO': return 'bg-sky-100 text-sky-800 border-sky-200'; 
+            case 'MERCADOPAGO': return 'bg-sky-100 text-sky-800 border-sky-200';
             default: return 'bg-blue-50 text-blue-800 border-blue-100';
         }
     };
 
     const getPaymentIcon = (method: string) => {
         switch (method) {
-            case 'BINANCE': return '🪙';
-            case 'EFECTIVO': return '💵';
-            case 'MERCADOPAGO': return '🤝'; 
-            default: return '🏦';
+            case 'BINANCE': return <BitcoinIcon className="w-8 h-8 text-yellow-600" />;
+            case 'EFECTIVO': return <DollarSignIcon className="w-8 h-8 text-green-600" />;
+            case 'MERCADOPAGO': return <CreditCardIcon className="w-8 h-8 text-sky-500" />;
+            default: return <LandmarkIcon className="w-8 h-8 text-blue-600" />;
         }
     };
 
@@ -124,18 +125,22 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] animate-modal-enter">
 
-                
+
                 <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                     <div>
                         <h3 className="text-xl font-bold text-secondary flex items-center gap-2">
                             Auditoría de Venta #{sale.id}
 
-                            
+
                             <span className={`text-xs px-2 py-0.5 rounded border uppercase tracking-wide ${sale.tipoEntrega === 'RETIRO'
                                 ? 'bg-green-100 text-green-700 border-green-200'
                                 : 'bg-blue-100 text-blue-700 border-blue-200'
                                 }`}>
-                                {sale.tipoEntrega === 'RETIRO' ? '🏪 RETIRO EN LOCAL' : '🚚 ENVÍO A DOMICILIO'}
+                                {sale.tipoEntrega === 'RETIRO' ? (
+                                    <><StoreIcon className="w-3.5 h-3.5 inline mr-1" />RETIRO EN LOCAL</>
+                                ) : (
+                                    <><TruckIcon className="w-3.5 h-3.5 inline mr-1" />ENVÍO A DOMICILIO</>
+                                )}
                             </span>
                         </h3>
                         <p className="text-sm text-gray-500">{new Date(sale.fecha).toLocaleString()}</p>
@@ -143,14 +148,14 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
                 </div>
 
-                
+
                 <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-                        
+
                         <div className="space-y-6">
 
-                            
+
                             <div className={`p-5 rounded-xl border ${getPaymentStyle(sale.medioPago)}`}>
                                 <div className="flex justify-between items-start">
                                     <div>
@@ -160,14 +165,14 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                             <p className="text-xs mt-1 opacity-80">+ Envío: ${Number(sale.costoEnvio).toLocaleString('es-AR')}</p>
                                         )}
                                     </div>
-                                    <div className="text-right">
-                                        <span className="text-3xl block">{getPaymentIcon(sale.medioPago)}</span>
+                                    <div className="text-right flex flex-col items-end">
+                                        <span className="flex justify-end">{getPaymentIcon(sale.medioPago)}</span>
                                         <span className="text-xs font-bold uppercase block mt-1">{sale.medioPago}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            
+
                             <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
                                 <h4 className="font-bold text-gray-800 border-b border-gray-100 pb-2 mb-3 uppercase text-xs tracking-wider">Datos del Cliente</h4>
                                 <div className="space-y-2 text-sm text-gray-600">
@@ -176,7 +181,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
 
                                     {sale.tipoEntrega === 'ENVIO' && (
                                         <div className="mt-2 pt-2 border-t border-gray-50">
-                                            <p className="text-blue-600 font-medium mb-1">📦 Dirección de Envío:</p>
+                                            <p className="text-blue-600 font-medium mb-1 flex items-center gap-1"><PackageIcon className="w-4 h-4" /> Dirección de Envío:</p>
                                             {sale.direccionEnvio ? (
                                                 <div className="text-sm space-y-0.5">
                                                     <p>{sale.direccionEnvio}</p>
@@ -185,17 +190,17 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                                     {sale.telefonoEnvio && <p>Tel: {sale.telefonoEnvio}</p>}
                                                 </div>
                                             ) : (
-                                                <p className="text-orange-600 text-sm">⚠️ Sin dirección completa</p>
+                                                <p className="text-orange-600 text-sm flex items-center gap-1"><AlertTriangleIcon className="w-4 h-4" /> Sin dirección completa</p>
                                             )}
                                             {sale.zipnovaShipmentId && (
-                                                <p className="mt-2 text-green-600 font-medium">✅ Envío Zipnova: {sale.codigoSeguimiento}</p>
+                                                <p className="mt-2 text-green-600 font-medium flex items-center gap-1"><CheckCircleIcon className="w-4 h-4" /> Envío Zipnova: {sale.codigoSeguimiento}</p>
                                             )}
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            
+
                             <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
                                 <h4 className="font-bold text-gray-800 border-b border-gray-100 pb-2 mb-3 uppercase text-xs tracking-wider">
                                     Productos ({sale.lineasVenta?.length || 0})
@@ -214,7 +219,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                             </div>
                         </div>
 
-                        
+
                         <div className="flex flex-col h-full">
                             <h4 className="font-bold text-gray-700 mb-3 flex justify-between items-center">
                                 Comprobante
@@ -231,7 +236,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                     <div className="text-gray-500 flex flex-col items-center p-8 text-center">
                                         {sale.medioPago === 'EFECTIVO' ? (
                                             <>
-                                                <span className="text-5xl mb-4">💵</span>
+                                                <DollarSignIcon className="w-14 h-14 text-green-500 mb-4" />
                                                 <span className="font-bold text-gray-400">Pago Presencial</span>
                                                 <span className="text-xs mt-2 text-gray-600">Se abona al retirar</span>
                                             </>
@@ -247,7 +252,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                             </>
                                         ) : (
                                             <>
-                                                <span className="text-5xl mb-4">📄</span>
+                                                <ClipboardListIcon className="w-14 h-14 text-gray-400 mb-4" />
                                                 <span>Sin comprobante</span>
                                             </>
                                         )}
@@ -257,7 +262,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                         </div>
                     </div>
 
-                    
+
                     {sale.estado === 'APROBADO' && (
                         <div className={`mt-8 p-6 border rounded-xl animate-in slide-in-from-bottom-2 ${sale.tipoEntrega === 'RETIRO' ? 'bg-green-50 border-green-100' : 'bg-blue-50 border-blue-100'}`}>
 
@@ -270,7 +275,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                             </h4>
 
                             {sale.tipoEntrega === 'RETIRO' ? (
-                                
+
                                 <div className="flex justify-between items-center">
                                     <p className="text-sm text-green-700">
                                         El cliente retira en el local. Haz clic cuando entregues el producto.
@@ -284,12 +289,12 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                     </button>
                                 </div>
                             ) : (
-                                
+
                                 <div className="space-y-3">
-                                    
+
                                     {!sale.zipnovaShipmentId && sale.direccionEnvio && (
                                         <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-200">
-                                            <span className="text-2xl">📦</span>
+                                            <PackageIcon className="w-6 h-6 text-blue-600 flex-shrink-0" />
                                             <div className="flex-1">
                                                 <p className="font-bold text-blue-800">Crear envío con Zipnova</p>
                                                 <p className="text-xs text-blue-600">Genera etiqueta y tracking automáticamente</p>
@@ -304,7 +309,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                         </div>
                                     )}
 
-                                    
+
                                     <div className="flex gap-3">
                                         <input
                                             ref={trackingInputRef}
@@ -327,11 +332,11 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                         </div>
                     )}
 
-                    
+
                     {(sale.estado === 'ENVIADO' || sale.estado === 'ENTREGADO') && (
                         <div className="mt-8 p-4 bg-gray-100 border border-gray-200 rounded-lg text-center">
                             <p className="text-gray-800 font-bold flex items-center justify-center gap-2">
-                                ✅ {sale.tipoEntrega === 'RETIRO' ? 'Entregado en Local' : 'Pedido Despachado'}
+                                <CheckCircleIcon className="w-5 h-5 text-green-500" /> {sale.tipoEntrega === 'RETIRO' ? 'Entregado en Local' : 'Pedido Despachado'}
                             </p>
                             {sale.codigoSeguimiento && sale.codigoSeguimiento !== 'RETIRO_EN_TIENDA' && (
                                 <p className="text-gray-600 text-sm mt-1 font-mono">Tracking: {sale.codigoSeguimiento}</p>
@@ -340,7 +345,7 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                     )}
                 </div>
 
-                
+
                 <div className="px-6 py-4 bg-white border-t border-gray-200 flex justify-between items-center">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold border ${sale.estado === 'APROBADO' ? 'bg-green-50 text-green-700 border-green-200' :
                         sale.estado === 'RECHAZADO' ? 'bg-red-50 text-red-700 border-red-200' :

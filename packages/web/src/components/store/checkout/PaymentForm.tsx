@@ -5,6 +5,7 @@ import { useAuthStore } from '../../../stores/authStore';
 import { navigate } from 'astro:transitions/client';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 import { fetchApi } from '../../../utils/api';
+import { LandmarkIcon, CreditCardIcon, BitcoinIcon, DollarSignIcon, MapPinIcon, CheckCircleIcon, SparklesIcon, ClockIcon } from '../../SharedIcons';
 
 interface PaymentFormProps { saleId: number; }
 
@@ -67,7 +68,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         if (!saleId) return;
         refreshData();
 
-        
+
         const interval = setInterval(() => {
             if (saleId) refreshData();
         }, 5000);
@@ -122,7 +123,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             const data = await res.json();
             if (data.success && data.data.url) {
                 window.open(data.data.url, '_blank');
-                setIsLoading(false); 
+                setIsLoading(false);
             } else {
                 addToast('Error al generar pago con MP', 'error');
                 setIsLoading(false);
@@ -133,7 +134,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         }
     };
 
-    
+
 
     const onSubmit = async (data: any) => {
         const isCash = sale?.medioPago === 'EFECTIVO';
@@ -158,7 +159,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
         finally { setIsUpdating(false); }
     };
 
-    
+
     const renderPaymentInfo = () => {
         if (!sale || !config) return null;
         const usdtRate = Number(config.cotizacionUsdt) || 1150;
@@ -170,26 +171,30 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                     <div className="space-y-2">
                         <label className="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
                             <input type="radio" name="pm" value="TRANSFERENCIA" checked={tempPaymentMethod === 'TRANSFERENCIA'} onChange={(e) => setTempPaymentMethod(e.target.value)} className="text-blue-600" />
-                            <span>🏦 Transferencia Bancaria</span>
+                            <LandmarkIcon className="w-4 h-4 text-blue-600" />
+                            <span>Transferencia Bancaria</span>
                         </label>
                         <label className="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
                             <input type="radio" name="pm" value="BINANCE" checked={tempPaymentMethod === 'BINANCE'} onChange={(e) => setTempPaymentMethod(e.target.value)} className="text-blue-600" />
-                            <span>🪙 Binance Pay (USDT)</span>
+                            <BitcoinIcon className="w-4 h-4 text-yellow-500" />
+                            <span>Binance Pay (USDT)</span>
                         </label>
                         <label className="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-pointer hover:border-[#009EE3] transition-colors">
                             <input type="radio" name="pm" value="MERCADOPAGO" checked={tempPaymentMethod === 'MERCADOPAGO'} onChange={(e) => setTempPaymentMethod(e.target.value)} className="accent-[#009EE3]" />
-                            <span>💳 Mercado Pago</span>
+                            <CreditCardIcon className="w-4 h-4 text-sky-500" />
+                            <span>Mercado Pago</span>
                         </label>
 
                         {sale.tipoEntrega === 'RETIRO' ? (
                             <label className="flex items-center gap-3 p-3 bg-white border rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
                                 <input type="radio" name="pm" value="EFECTIVO" checked={tempPaymentMethod === 'EFECTIVO'} onChange={(e) => setTempPaymentMethod(e.target.value)} className="text-blue-600" />
-                                <span>💵 Efectivo en Local</span>
+                                <DollarSignIcon className="w-4 h-4 text-green-600" />
+                                <span>Efectivo en Local</span>
                             </label>
                         ) : (
                             <p className="text-xs text-gray-400 px-1 mt-1">* Efectivo no disponible para envío a domicilio.</p>
                         )}
-                        
+
                     </div>
                     <div className="flex gap-2 mt-4">
                         <button onClick={handleChangePaymentMethod} disabled={isUpdating} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50">
@@ -201,7 +206,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
             );
         }
 
-        
+
 
         if (sale.medioPago === 'MERCADOPAGO') {
             return (
@@ -253,7 +258,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                         <p className="text-4xl font-black tracking-tight">${Number(sale.montoTotal).toLocaleString('es-AR')}</p>
                     </div>
                     <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 text-left">
-                        <p className="text-gray-500 text-xs uppercase font-bold mb-2">📍 Dirección de Retiro</p>
+                        <p className="text-gray-500 text-xs uppercase font-bold mb-2 flex items-center gap-1"><MapPinIcon className="w-3.5 h-3.5" /> Dirección de Retiro</p>
                         <p className="text-lg font-bold text-gray-900">{config.direccionLocal}</p>
                     </div>
                 </div>
@@ -304,7 +309,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
     if (sale.estado !== 'PENDIENTE_PAGO') {
         return (
             <div className="max-w-2xl mx-auto bg-white p-12 rounded-3xl shadow-xl text-center border border-gray-100 animate-fade-in-up">
-                <div className="mb-6 text-6xl">{sale.estado === 'APROBADO' ? '🎉' : '⏳'}</div>
+                <div className="mb-6 flex justify-center">{sale.estado === 'APROBADO' ? <SparklesIcon className="w-16 h-16 text-yellow-400" /> : <ClockIcon className="w-16 h-16 text-gray-400" />}</div>
                 <h2 className="text-3xl font-black text-gray-900 mb-4">{sale.estado === 'APROBADO' ? '¡Pago Aprobado!' : 'En Revisión'}</h2>
                 <p className="text-gray-500 mb-8">
                     {sale.estado === 'PENDIENTE_APROBACION'
@@ -337,7 +342,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                     )}
                 </div>
 
-                
+
                 <div className="mb-6 border rounded-xl overflow-hidden">
                     <button
                         onClick={() => setShowSummary(!showSummary)}
@@ -382,7 +387,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
 
                 {isMP ? (
                     <div className="bg-[#009EE3]/5 p-6 rounded-xl border border-[#009EE3]/20 text-center animate-fade-in">
-                        <span className="text-4xl mb-4 block">💳</span>
+                        <CreditCardIcon className="w-12 h-12 text-[#009EE3] mx-auto mb-4" />
                         <p className="text-[#009EE3] font-bold">Mercado Pago</p>
                         <p className="text-gray-600 text-sm mt-2">
                             Haz clic en el botón <strong>"Pagar con Mercado Pago"</strong> para abrir la ventana de pago.
@@ -434,7 +439,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                             </div>
                         ) : (
                             <div className="bg-green-50 p-6 rounded-xl border border-green-100 text-center">
-                                <span className="text-4xl mb-4 block">🤝</span>
+                                <CheckCircleIcon className="w-12 h-12 text-green-500 mx-auto mb-4" />
                                 <p className="text-green-800 font-bold">Pago Presencial</p>
                                 <p className="text-green-600 text-sm mt-1">Confirma para reservar tu stock por 24hs.</p>
                             </div>

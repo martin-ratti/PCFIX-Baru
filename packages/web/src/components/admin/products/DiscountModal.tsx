@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { TagIcon } from '../../SharedIcons';
 
 interface DiscountModalProps {
   isOpen: boolean;
@@ -37,9 +38,9 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     if (calculatedPrice >= basePrice) {
-      await onConfirm(basePrice, null); 
+      await onConfirm(basePrice, null);
     } else {
-      await onConfirm(calculatedPrice, basePrice); 
+      await onConfirm(calculatedPrice, basePrice);
     }
   };
 
@@ -53,7 +54,7 @@ export default function DiscountModal({ isOpen, product, onConfirm, onCancel }: 
             <h3 className="text-lg font-bold text-purple-900">Aplicar Descuento</h3>
             <p className="text-xs text-purple-700 truncate max-w-[200px]">{product.nombre}</p>
           </div>
-          <span className="text-2xl">🏷️</span>
+          <span className="text-2xl"><TagIcon className="w-6 h-6 text-purple-600" /></span>
         </div>
         <div className="px-6 py-6 space-y-6">
           <div className="flex bg-gray-100 p-1 rounded-lg">

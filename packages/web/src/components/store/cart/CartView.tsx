@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ShoppingBagIcon } from '../../SharedIcons';
+import { ShoppingBagIcon, LandmarkIcon, CreditCardIcon, BitcoinIcon, DollarSignIcon } from '../../SharedIcons';
 import { useCartStore } from '../../../stores/cartStore';
 import { useAuthStore } from '../../../stores/authStore';
 import { useToastStore } from '../../../stores/toastStore';
@@ -27,19 +27,19 @@ function CartContent() {
     const [shippingCost, setShippingCost] = useState<number | null>(null);
     const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
 
-    
+
     const [direccion, setDireccion] = useState('');
     const [ciudad, setCiudad] = useState('');
     const [provincia, setProvincia] = useState('');
     const [telefono, setTelefono] = useState('');
-    const [documento, setDocumento] = useState(''); 
+    const [documento, setDocumento] = useState('');
 
     const [baseShippingCost, setBaseShippingCost] = useState(0);
     const [localAddress, setLocalAddress] = useState('');
 
     useEffect(() => {
         setIsClient(true);
-        
+
         const loadConfig = async () => {
             try {
                 const res = await fetch(
@@ -52,7 +52,7 @@ function CartContent() {
                 }
             } catch (err) {
                 console.error("Error loading config:", err);
-                
+
             }
         };
         loadConfig();
@@ -67,11 +67,11 @@ function CartContent() {
 
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
 
-    
+
     const discountFactor = paymentMethod !== 'MERCADOPAGO' ? 0.92 : 1;
     const finalSubtotal = subtotal * discountFactor;
 
-    
+
     const finalShippingCost = deliveryType === 'ENVIO' && shippingCost !== null ? (shippingCost * 1.21) : 0;
 
     const totalFinal = finalSubtotal + finalShippingCost;
@@ -82,7 +82,7 @@ function CartContent() {
             return;
         }
 
-        
+
         if (zipCode === '2183') {
             setDeliveryType('RETIRO');
             setShippingCost(null);
@@ -134,7 +134,7 @@ function CartContent() {
             return;
         }
 
-        
+
         if (deliveryType === 'ENVIO') {
             if (!direccion.trim()) {
                 addToast("Ingresa tu dirección (calle y número)", 'error');
@@ -150,7 +150,7 @@ function CartContent() {
                 addToast("Selecciona tu provincia", 'error');
                 return;
             }
-            
+
             if (!documento.trim() || documento.length < 7) {
                 addToast("Ingresa un DNI válido (requerido para envíos)", 'error');
                 document.getElementById('documentoInput')?.focus();
@@ -173,7 +173,7 @@ function CartContent() {
                 cpDestino: deliveryType === 'ENVIO' ? zipCode : undefined,
                 tipoEntrega: deliveryType,
                 medioPago: paymentMethod,
-                
+
                 direccionEnvio: deliveryType === 'ENVIO' ? direccion : undefined,
                 ciudadEnvio: deliveryType === 'ENVIO' ? ciudad : undefined,
                 provinciaEnvio: deliveryType === 'ENVIO' ? provincia : undefined,
@@ -275,7 +275,7 @@ function CartContent() {
                                             <button onClick={() => setShippingCost(null)} className="text-[10px] text-blue-500 hover:underline">Cambiar</button>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="space-y-2">
                                         <input
                                             type="text" id="direccionInput"
@@ -324,7 +324,7 @@ function CartContent() {
                                                 <option value="Tucumán">Tucumán</option>
                                             </select>
                                         </div>
-                                        
+
                                         <div className="grid grid-cols-2 gap-2">
                                             <input
                                                 type="text" id="documentoInput"
@@ -360,12 +360,21 @@ function CartContent() {
                                 </span>
                             )}
                         </div>
-                        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as any)} className="w-full p-2 border rounded-lg text-sm bg-white">
-                            <option value="TRANSFERENCIA">🏦 Transferencia Bancaria (8% OFF)</option>
-                            <option value="MERCADOPAGO">💳 Mercado Pago</option>
-                            <option value="BINANCE">🪙 Crypto (Binance Pay) (8% OFF)</option>
-                            {deliveryType === 'RETIRO' && <option value="EFECTIVO">💵 Efectivo en Local (8% OFF)</option>}
-                        </select>
+                        <div className="space-y-2">
+                            {[
+                                { value: 'TRANSFERENCIA', label: 'Transferencia Bancaria (8% OFF)', Icon: LandmarkIcon, color: 'text-blue-600' },
+                                { value: 'MERCADOPAGO', label: 'Mercado Pago', Icon: CreditCardIcon, color: 'text-sky-500' },
+                                { value: 'BINANCE', label: 'Crypto (Binance Pay) (8% OFF)', Icon: BitcoinIcon, color: 'text-yellow-500' },
+                                ...(deliveryType === 'RETIRO' ? [{ value: 'EFECTIVO', label: 'Efectivo en Local (8% OFF)', Icon: DollarSignIcon, color: 'text-green-600' }] : [])
+                            ].map(({ value: val, label, Icon, color }) => (
+                                <label key={val} className={`flex items-center gap-2 p-2 border rounded-lg cursor-pointer transition-colors ${paymentMethod === val ? 'border-primary bg-blue-50' : 'hover:bg-gray-50'
+                                    }`}>
+                                    <input type="radio" name="paymentMethod" value={val} checked={paymentMethod === val} onChange={() => setPaymentMethod(val as any)} className="sr-only" />
+                                    <Icon className={`w-4 h-4 flex-shrink-0 ${color}`} />
+                                    <span className="text-sm font-medium text-gray-700">{label}</span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="border-t pt-4 space-y-2 text-sm">
