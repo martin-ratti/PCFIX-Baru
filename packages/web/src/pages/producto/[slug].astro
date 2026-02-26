@@ -80,61 +80,91 @@ if (!product) {
     <div
       class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start animate-fade-in"
     >
-      <div
-        class="lg:col-span-6 bg-white rounded-2xl border border-gray-100 p-6 lg:p-8 flex items-center justify-center relative overflow-hidden shadow-sm group"
-      >
-        {
-          product.precioOriginal &&
-            Number(product.precioOriginal) > Number(product.precio) && (
-              <div class="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg z-10">
-                OFERTA
-              </div>
-            )
-        }
-        {
-          product.foto ? (
-            <img
-              src={product.foto}
-              alt={product.nombre}
-              class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
-              transition:name={`image-${product.id}`}
-            />
-          ) : (
-            <img
-              src="https://placehold.co/600x600/png?text=Sin+Imagen"
-              alt={product.nombre}
-              class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
-              transition:name={`image-${product.id}`}
-            />
-          )
-        }
-        <button
-          id="share-btn"
-          class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm border border-gray-100 text-gray-500 hover:text-blue-600 hover:bg-white p-2.5 rounded-full transition-all shadow-sm active:scale-95 z-20 opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
-          aria-label="Compartir"
-          data-title={product.nombre}
-          data-text={`Mira este ${product.nombre} en PC FIX`}
-          data-url={Astro.url.href}
+      <div class="lg:col-span-6 space-y-8">
+        <div
+          class="bg-white rounded-2xl border border-gray-100 p-6 lg:p-8 flex items-center justify-center relative overflow-hidden shadow-sm group"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"
-            ></circle><circle cx="18" cy="19" r="3"></circle><line
-              x1="8.59"
-              x2="15.42"
-              y1="13.51"
-              y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"
-            ></line></svg
+          {
+            product.precioOriginal &&
+              Number(product.precioOriginal) > Number(product.precio) && (
+                <div class="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg z-10">
+                  OFERTA
+                </div>
+              )
+          }
+          {
+            product.foto ? (
+              <img
+                src={product.foto}
+                alt={product.nombre}
+                class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
+                transition:name={`image-${product.id}`}
+              />
+            ) : (
+              <img
+                src="https://placehold.co/600x600/png?text=Sin+Imagen"
+                alt={product.nombre}
+                class="w-full h-auto object-contain max-h-[500px] transition-transform duration-500 group-hover:scale-105"
+                transition:name={`image-${product.id}`}
+              />
+            )
+          }
+          <button
+            id="share-btn"
+            class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm border border-gray-100 text-gray-500 hover:text-blue-600 hover:bg-white p-2.5 rounded-full transition-all shadow-sm active:scale-95 z-20 opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+            aria-label="Compartir"
+            data-title={product.nombre}
+            data-text={`Mira este ${product.nombre} en PC FIX`}
+            data-url={Astro.url.href}
           >
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><circle cx="18" cy="5" r="3"></circle><circle
+                cx="6"
+                cy="12"
+                r="3"></circle><circle cx="18" cy="19" r="3"></circle><line
+                x1="8.59"
+                x2="15.42"
+                y1="13.51"
+                y2="17.49"></line><line
+                x1="15.41"
+                x2="8.59"
+                y1="6.51"
+                y2="10.49"></line></svg
+            >
+          </button>
+        </div>
+
+        <div>
+          <h3
+            class="text-lg font-bold text-secondary mb-4 flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 text-primary"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              ><path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clip-rule="evenodd"></path></svg
+            >
+            Detalles del Producto
+          </h3>
+          <div
+            class="text-gray-600 leading-relaxed text-base bg-white p-6 rounded-xl border border-gray-100 shadow-sm"
+          >
+            <p class="whitespace-pre-line">{product.descripcion}</p>
+          </div>
+        </div>
       </div>
 
       <div class="lg:col-span-6 space-y-8">
@@ -283,29 +313,6 @@ if (!product) {
                 category: product.categoria?.nombre,
               }}
             />
-          </div>
-        </div>
-
-        <div>
-          <h3
-            class="text-lg font-bold text-secondary mb-4 flex items-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 text-primary"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              ><path
-                fill-rule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                clip-rule="evenodd"></path></svg
-            >
-            Detalles del Producto
-          </h3>
-          <div
-            class="text-gray-600 leading-relaxed text-base bg-white p-6 rounded-xl border border-gray-100 shadow-sm"
-          >
-            <p class="whitespace-pre-line">{product.descripcion}</p>
           </div>
         </div>
 
