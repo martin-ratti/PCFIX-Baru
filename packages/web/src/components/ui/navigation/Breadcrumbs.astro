@@ -9,8 +9,11 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<nav aria-label="Breadcrumb" class="mb-4 animate-fade-in block">
-    <ol role="list" class="flex items-center space-x-2 text-sm text-gray-500">
+<nav aria-label="Breadcrumb" class="mb-4 animate-fade-in block overflow-hidden">
+    <ol
+        role="list"
+        class="flex flex-wrap items-center gap-y-2 text-sm text-gray-500"
+    >
         {
             items.map((item, index) => {
                 const isLast = index === items.length - 1;
@@ -19,7 +22,7 @@ const { items } = Astro.props;
                         {index > 0 && (
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="h-4 w-4 text-gray-300 mx-2"
+                                class="h-4 w-4 text-gray-300 mx-2 flex-shrink-0"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -42,7 +45,7 @@ const { items } = Astro.props;
                         ) : (
                             <a
                                 href={item.href}
-                                class="hover:text-primary transition-colors font-medium"
+                                class="hover:text-primary transition-colors font-medium whitespace-nowrap"
                             >
                                 {item.label}
                             </a>

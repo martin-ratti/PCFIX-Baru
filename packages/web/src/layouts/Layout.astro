@@ -23,11 +23,8 @@ const {
 } = Astro.props;
 
 const siteUrl = import.meta.env.SITE || "https://pcfixbaru.com.ar";
-const absoluteImageUrl = image.startsWith("http")
-    ? image
-    : `${siteUrl}${image}`;
+const absoluteImageUrl = new URL(image, siteUrl).toString();
 const canonicalURL = new URL(Astro.url.pathname, siteUrl);
-
 
 const SERVER_API_URL =
     import.meta.env.PUBLIC_API_URL || "http://localhost:3002/api";
@@ -50,12 +47,17 @@ const SERVER_API_URL =
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:image" content={absoluteImageUrl} />
+        <meta property="og:image:secure_url" content={absoluteImageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={title} />
         <meta property="og:site_name" content="PC FIX" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={absoluteImageUrl} />
+        <meta name="twitter:image:alt" content={title} />
 
         {
             price && (
@@ -89,10 +91,8 @@ const SERVER_API_URL =
         <Footer />
 
         <script is:inline define:vars={{ API_BASE: SERVER_API_URL }}>
-            
             async function checkMaintenance() {
                 try {
-                    
                     const res = await fetch(`${API_BASE}/config`);
 
                     if (!res.ok) return;
@@ -103,7 +103,6 @@ const SERVER_API_URL =
                     if (maintenanceMode) {
                         const path = window.location.pathname.toLowerCase();
 
-                        
                         if (
                             path.includes("/mantenimiento") ||
                             path.includes("/auth/login") ||
@@ -112,7 +111,6 @@ const SERVER_API_URL =
                         )
                             return;
 
-                        
                         let isAdmin = false;
                         try {
                             const storage =
