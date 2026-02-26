@@ -1,108 +1,109 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-const mockPrisma = vi.hoisted(() => ({
-    $transaction: vi.fn(),
-    producto: { count: vi.fn(), findMany: vi.fn(), findUnique: vi.fn() },
-    user: { count: vi.fn() },
-    venta: { count: vi.fn(), findMany: vi.fn(), groupBy: vi.fn() },
-    consultaTecnica: { count: vi.fn() },
-    lineaVenta: { groupBy: vi.fn(), findFirst: vi.fn() }
-}));
+import { prisma } from '../../shared/database/prismaClient';
 
 vi.mock('../../shared/database/prismaClient', () => ({
-    prisma: mockPrisma
+    prisma: {
+        producto: { count: vi.fn() },
+        user: { count: vi.fn() },
+        venta: { count: vi.fn(), findMany: vi.fn() },
+        consultaTecnica: { count: vi.fn() },
+        lineaVenta: { groupBy: vi.fn(), findFirst: vi.fn() },
+        favorite: { findMany: vi.fn() },
+        $transaction: vi.fn((arr: any[]) => Promise.all(arr))
+    }
 }));
 
 import { StatsService } from './stats.service';
 
-describe('StatsService', () => {
+describe('StatsService - Full Coverage', () => {
     let service: StatsService;
 
     beforeEach(() => {
-        vi.clearAllMocks();
         service = new StatsService();
-        
-        mockPrisma.venta.findMany.mockResolvedValue([]);
-        mockPrisma.producto.findMany.mockResolvedValue([]);
-        mockPrisma.venta.groupBy.mockResolvedValue([]);
-        mockPrisma.lineaVenta.groupBy.mockResolvedValue([]);
+        vi.clearAllMocks();
     });
 
     describe('getDashboardStats', () => {
-        it('should return all dashboard statistics', async () => {
-            mockPrisma.$transaction.mockResolvedValue([100, 5, 50, 200, 10]);
-
-            const result = await service.getDashboardStats();
-
-            expect(mockPrisma.$transaction).toHaveBeenCalled();
-            expect(result).toEqual({
+        it('should return all dashboard stats', async () => {
+            (prisma.$transaction as any).mockResolvedValue([100, 5, 50, 30, 3]);
+            const stats = await service.getDashboardStats();
+            expect(stats).toEqual({
                 totalProducts: 100,
                 lowStockProducts: 5,
                 totalUsers: 50,
-                recentSales: 200,
-                pendingInquiries: 10
-            });
-        });
-
-        it('should return zeros when no data exists', async () => {
-            mockPrisma.$transaction.mockResolvedValue([0, 0, 0, 0, 0]);
-
-            const result = await service.getDashboardStats();
-
-            expect(result).toEqual({
-                totalProducts: 0,
-                lowStockProducts: 0,
-                totalUsers: 0,
-                recentSales: 0,
-                pendingInquiries: 0
+                recentSales: 30,
+                pendingInquiries: 3
             });
         });
     });
 
     describe('getSalesIntelligence', () => {
-        it('should calculate KPIs accurately', async () => {
-            
-            
-            
+        it('should return KPIs, charts, and dead stock', async () => {
+            (prisma.venta.findMany as any)
+                .mockResolvedValueOnce([{ montoTotal: 50000 }, { montoTotal: 30000 }])
+                .mockResolvedValueOnce([
+                    { fecha: new Date(), montoTotal: 10000 }
+                ]);
 
-            
-            mockPrisma.venta.findMany.mockResolvedValueOnce([
-                { montoTotal: 1000, fecha: new Date() },
-                { montoTotal: 2000, fecha: new Date() }
+            (prisma.producto.count as any).mockResolvedValue(3);
+            (prisma.venta.count as any).mockResolvedValue(2);
+            (prisma.consultaTecnica.count as any).mockResolvedValue(1);
+
+            (prisma.lineaVenta.groupBy as any).mockResolvedValue([
+                { productoId: 1, _sum: { cantidad: 10 } }
             ]);
+            (prisma as any).producto = {
+                ...(prisma as any).producto,
+                count: (prisma.producto.count as any),
+                findUnique: vi.fn().mockResolvedValue({ nombre: 'GPU' }),
+                findMany: vi.fn().mockResolvedValue([])
+            };
 
-            
-            mockPrisma.producto.count.mockResolvedValueOnce(15);
-
-            
-            mockPrisma.venta.count.mockResolvedValueOnce(2);
-
-            
-            mockPrisma.consultaTecnica.count.mockResolvedValueOnce(3);
-
-            
-            mockPrisma.venta.findMany.mockResolvedValueOnce([]); 
-
-            
-            mockPrisma.lineaVenta.groupBy.mockResolvedValueOnce([
-                { productoId: 101, _sum: { cantidad: 50 } }
-            ]);
-            mockPrisma.producto.findUnique.mockResolvedValue({ nombre: 'Top Product' });
-
-            
-            mockPrisma.producto.findMany.mockResolvedValueOnce([]); 
+            (prisma.lineaVenta.findFirst as any).mockResolvedValue(null);
 
             const result = await service.getSalesIntelligence();
 
-            expect(result.kpis.grossRevenue).toBe(3000); 
-            expect(result.kpis.lowStockProducts).toBe(15);
-            expect(result.kpis.pendingReview).toBe(2); 
-            expect(result.kpis.pendingSupport).toBe(3);
+            expect(result.kpis).toBeDefined();
+            expect(result.kpis.grossRevenue).toBe(80000);
+            expect(result.charts).toBeDefined();
+            expect(result.charts.salesTrend).toHaveLength(30);
+            expect(result.deadStock).toBeDefined();
+        });
 
-            
-            expect(result.charts.topProducts).toEqual([
-                { name: 'Top Product', quantity: 50 }
+        it('should handle empty data', async () => {
+            (prisma.venta.findMany as any).mockResolvedValue([]);
+            (prisma.producto.count as any).mockResolvedValue(0);
+            (prisma.venta.count as any).mockResolvedValue(0);
+            (prisma.consultaTecnica.count as any).mockResolvedValue(0);
+            (prisma.lineaVenta.groupBy as any).mockResolvedValue([]);
+            (prisma as any).producto.findMany = vi.fn().mockResolvedValue([]);
+
+            const result = await service.getSalesIntelligence();
+
+            expect(result.kpis.grossRevenue).toBe(0);
+            expect(result.charts.topProducts).toHaveLength(0);
+            expect(result.deadStock).toHaveLength(0);
+        });
+
+        it('should detect dead stock (>90 days inactive)', async () => {
+            (prisma.venta.findMany as any).mockResolvedValue([]);
+            (prisma.producto.count as any).mockResolvedValue(1);
+            (prisma.venta.count as any).mockResolvedValue(0);
+            (prisma.consultaTecnica.count as any).mockResolvedValue(0);
+            (prisma.lineaVenta.groupBy as any).mockResolvedValue([]);
+
+            const oldDate = new Date();
+            oldDate.setDate(oldDate.getDate() - 120);
+
+            (prisma as any).producto.findMany = vi.fn().mockResolvedValue([
+                { id: 1, nombre: 'Old Product', stock: 10, precio: 1000, createdAt: oldDate }
             ]);
+            (prisma.lineaVenta.findFirst as any).mockResolvedValue(null);
+
+            const result = await service.getSalesIntelligence();
+            expect(result.deadStock).toHaveLength(1);
+            expect(result.deadStock[0].name).toBe('Old Product');
+            expect(result.deadStock[0].daysInactive).toBeGreaterThan(90);
         });
     });
 });

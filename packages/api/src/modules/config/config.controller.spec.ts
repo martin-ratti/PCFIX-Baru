@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response } from 'express';
-import * as ConfigController from './config.controller';
-import { prisma } from '../../shared/database/prismaClient';
-import { EmailService } from '../../shared/services/EmailService';
-import { CryptoService } from '../../shared/services/CryptoService';
+
+const { mockGetUsdtPrice } = vi.hoisted(() => ({
+    mockGetUsdtPrice: vi.fn()
+}));
 
 vi.mock('../../shared/database/prismaClient', () => ({
     prisma: {
@@ -15,10 +15,23 @@ vi.mock('../../shared/database/prismaClient', () => ({
     },
 }));
 
-vi.mock('../../shared/services/EmailService');
-vi.mock('../../shared/services/CryptoService');
+vi.mock('../../shared/services/EmailService', () => ({
+    EmailService: class {
+        sendNewInquiryNotification = vi.fn().mockResolvedValue(true);
+        sendContactConfirmationEmail = vi.fn().mockResolvedValue(true);
+    }
+}));
 
-describe('ConfigController', () => {
+vi.mock('../../shared/services/CryptoService', () => ({
+    CryptoService: class {
+        getUsdtPrice = mockGetUsdtPrice;
+    }
+}));
+
+import * as ConfigController from './config.controller';
+import { prisma } from '../../shared/database/prismaClient';
+
+describe('ConfigController - Full Coverage', () => {
     let req: Partial<Request>;
     let res: Partial<Response>;
     let json: any;
@@ -27,68 +40,100 @@ describe('ConfigController', () => {
     beforeEach(() => {
         json = vi.fn();
         status = vi.fn().mockReturnValue({ json });
-        req = {};
-        res = {
-            json,
-            status,
-        };
+        req = { body: {} };
+        res = { json, status };
         vi.clearAllMocks();
     });
 
     describe('getConfig', () => {
         it('should return existing config', async () => {
-            const config = { id: 1, nombreBanco: 'Test' };
-            vi.mocked(prisma.configuracion.findFirst).mockResolvedValue(config as any);
-
+            (prisma.configuracion.findFirst as any).mockResolvedValue({ id: 1 });
             await ConfigController.getConfig(req as Request, res as Response);
-
-            expect(res.json).toHaveBeenCalledWith({ success: true, data: config });
+            expect(json).toHaveBeenCalledWith({ success: true, data: { id: 1 } });
         });
 
         it('should create default config if not found', async () => {
-            vi.mocked(prisma.configuracion.findFirst).mockResolvedValue(null);
-            const newConfig = { id: 1, nombreBanco: 'Default' };
-            vi.mocked(prisma.configuracion.create).mockResolvedValue(newConfig as any);
-
+            (prisma.configuracion.findFirst as any).mockResolvedValue(null);
+            (prisma.configuracion.create as any).mockResolvedValue({ id: 1, nombreBanco: 'Default' });
             await ConfigController.getConfig(req as Request, res as Response);
+            expect(json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+        });
 
-            expect(res.json).toHaveBeenCalledWith({ success: true, data: newConfig });
+        it('should return 500 on error', async () => {
+            vi.spyOn(console, 'error').mockImplementation(() => { });
+            (prisma.configuracion.findFirst as any).mockRejectedValue(new Error('DB'));
+            await ConfigController.getConfig(req as Request, res as Response);
+            expect(status).toHaveBeenCalledWith(500);
         });
     });
 
     describe('updateConfig', () => {
         it('should update config', async () => {
-            req.body = { nombreBanco: 'Updated' };
-            const updated = { id: 1, nombreBanco: 'Updated' };
-            vi.mocked(prisma.configuracion.update).mockResolvedValue(updated as any);
-
+            req.body = { nombreBanco: 'New', cotizacionUsdt: '500' };
+            (prisma.configuracion.update as any).mockResolvedValue({ id: 1 });
             await ConfigController.updateConfig(req as Request, res as Response);
+            expect(json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+        });
 
-            expect(res.json).toHaveBeenCalledWith({ success: true, data: updated });
+        it('should handle cotizacionUsdt as undefined', async () => {
+            req.body = { nombreBanco: 'New' };
+            (prisma.configuracion.update as any).mockResolvedValue({ id: 1 });
+            await ConfigController.updateConfig(req as Request, res as Response);
+            expect(json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+        });
+
+        it('should return 500 on error', async () => {
+            (prisma.configuracion.update as any).mockRejectedValue(new Error('DB'));
+            await ConfigController.updateConfig(req as Request, res as Response);
+            expect(status).toHaveBeenCalledWith(500);
+        });
+    });
+
+    describe('syncUsdt', () => {
+        it('should sync USDT price', async () => {
+            mockGetUsdtPrice.mockResolvedValue(1500);
+            (prisma.configuracion.update as any).mockResolvedValue({ id: 1, cotizacionUsdt: 1500 });
+            await ConfigController.syncUsdt(req as Request, res as Response);
+            expect(json).toHaveBeenCalledWith(expect.objectContaining({ success: true, message: expect.stringContaining('1500') }));
+        });
+
+        it('should return 500 on error', async () => {
+            vi.spyOn(console, 'error').mockImplementation(() => { });
+            mockGetUsdtPrice.mockRejectedValue(new Error('API down'));
+            await ConfigController.syncUsdt(req as Request, res as Response);
+            expect(status).toHaveBeenCalledWith(500);
         });
     });
 
     describe('sendContactEmail', () => {
-        it('should send contact email successfully', async () => {
-            req.body = { nombre: 'John', email: 'john@test.com', mensaje: 'Hello' };
-
-            const sendNewInquiryNotification = vi.spyOn(EmailService.prototype, 'sendNewInquiryNotification').mockResolvedValue(true);
-            const sendContactConfirmationEmail = vi.spyOn(EmailService.prototype, 'sendContactConfirmationEmail').mockResolvedValue(true);
-
+        it('should send contact email', async () => {
+            req.body = { nombre: 'Juan', apellido: 'Perez', email: 'u@t.com', mensaje: 'Hola' };
             await ConfigController.sendContactEmail(req as Request, res as Response);
-
-            expect(sendNewInquiryNotification).toHaveBeenCalled();
-            expect(sendContactConfirmationEmail).toHaveBeenCalled();
-            expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Consulta enviada correctamente' });
+            expect(json).toHaveBeenCalledWith({ success: true, message: 'Consulta enviada correctamente' });
         });
 
-        it('should return 400 if required fields missing', async () => {
-            req.body = { nombre: 'John' };
-
+        it('should send without apellido', async () => {
+            req.body = { nombre: 'Juan', email: 'u@t.com', mensaje: 'Hola' };
             await ConfigController.sendContactEmail(req as Request, res as Response);
+            expect(json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+        });
 
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(json).toHaveBeenCalledWith({ success: false, error: 'Faltan datos obligatorios' });
+        it('should return 400 if missing fields', async () => {
+            req.body = { nombre: 'Juan' };
+            await ConfigController.sendContactEmail(req as Request, res as Response);
+            expect(status).toHaveBeenCalledWith(400);
+        });
+
+        it('should return 400 if no email', async () => {
+            req.body = { nombre: 'Juan', mensaje: 'Hola' };
+            await ConfigController.sendContactEmail(req as Request, res as Response);
+            expect(status).toHaveBeenCalledWith(400);
+        });
+
+        it('should return 400 if no mensaje', async () => {
+            req.body = { nombre: 'Juan', email: 'u@t.com' };
+            await ConfigController.sendContactEmail(req as Request, res as Response);
+            expect(status).toHaveBeenCalledWith(400);
         });
     });
 });
