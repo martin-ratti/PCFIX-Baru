@@ -353,14 +353,20 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                     </button>
                     {showSummary && (
                         <div className="p-4 bg-white border-t border-gray-100 space-y-3">
-                            {sale.items?.map((item: any) => (
-                                <div key={item.id} className="flex justify-between text-sm">
-                                    <span className="text-gray-600">{item.quantity}x {item.product.nombre}</span>
-                                    <span className="font-medium">${Number(item.price).toLocaleString('es-AR')}</span>
+                            {sale.lineasVenta?.map((line: any) => (
+                                <div key={line.id} className="flex justify-between text-sm">
+                                    <span className="text-gray-600">{line.cantidad}x {line.producto?.nombre}</span>
+                                    <span className="font-medium">${Number(line.subTotal).toLocaleString('es-AR')}</span>
                                 </div>
                             ))}
+                            {sale.tipoEntrega === 'ENVIO' && Number(sale.costoEnvio) > 0 && (
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Envío a domicilio</span>
+                                    <span className="font-medium text-blue-600">${Number(sale.costoEnvio).toLocaleString('es-AR')}</span>
+                                </div>
+                            )}
                             <div className="pt-2 border-t flex justify-between font-bold text-gray-800">
-                                <span>Total</span>
+                                <span>Total Final</span>
                                 <span>${Number(sale.montoTotal).toLocaleString('es-AR')}</span>
                             </div>
                         </div>
@@ -416,26 +422,7 @@ export default function PaymentForm({ saleId }: PaymentFormProps) {
                                         </>
                                     )}
                                 </div>
-                                {!previewUrl && (
-                                    <div className="text-center">
-                                        <div className="relative flex py-2 items-center">
-                                            <div className="flex-grow border-t border-gray-100"></div>
-                                            <span className="flex-shrink-0 mx-4 text-gray-300 text-xs uppercase font-bold">O envía por WhatsApp</span>
-                                            <div className="flex-grow border-t border-gray-100"></div>
-                                        </div>
-                                        <a
-                                            href={`https://wa.me/5491112345678?text=Hola!%20Envio%20comprobante%20del%20pedido%20%23${sale.id}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-full flex items-center justify-center gap-2 py-3 bg-green-50 text-green-600 font-bold rounded-xl hover:bg-green-100 transition-colors"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                                <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z" />
-                                            </svg>
-                                            Enviar por WhatsApp
-                                        </a>
-                                    </div>
-                                )}
+
                             </div>
                         ) : (
                             <div className="bg-green-50 p-6 rounded-xl border border-green-100 text-center">
