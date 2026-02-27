@@ -1,5 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import {
+  MapPinIcon,
+  PackageIcon,
+  ClockIcon,
+  SearchIcon,
+} from "../../components/SharedIcons";
 ---
 
 <Layout title="PCFIX | Envíos y Entregas">
@@ -12,8 +18,8 @@ import Layout from "../../layouts/Layout.astro";
 
     <div class="space-y-8 text-gray-600 leading-relaxed text-justify">
       <section>
-        <h2 class="text-xl font-bold text-primary mb-3">
-          📍 Origen y Cobertura
+        <h2 class="text-xl font-bold text-primary mb-3 flex items-center gap-2">
+          <MapPinIcon className="w-5 h-5 text-secondary" /> Origen y Cobertura
         </h2>
         <p>
           Todos nuestros productos se despachan desde nuestra sucursal central
@@ -25,7 +31,9 @@ import Layout from "../../layouts/Layout.astro";
       </section>
 
       <section>
-        <h2 class="text-xl font-bold text-primary mb-3">📦 Costo de Envío</h2>
+        <h2 class="text-xl font-bold text-primary mb-3 flex items-center gap-2">
+          <PackageIcon className="w-5 h-5 text-secondary" /> Costo de Envío
+        </h2>
         <p>
           El costo de envío se calcula ingresando tu Codigo Postal en el carrito
           de compras. En algunos casos, si estás en una zona aledaña, podemos
@@ -34,8 +42,8 @@ import Layout from "../../layouts/Layout.astro";
       </section>
 
       <section>
-        <h2 class="text-xl font-bold text-primary mb-3">
-          ⏱️ Tiempos de Demora
+        <h2 class="text-xl font-bold text-primary mb-3 flex items-center gap-2">
+          <ClockIcon className="w-5 h-5 text-secondary" /> Tiempos de Demora
         </h2>
         <p>
           Generalmente despachamos dentro de las 24/48 horas hábiles posteriores
@@ -49,8 +57,8 @@ import Layout from "../../layouts/Layout.astro";
       </section>
 
       <section>
-        <h2 class="text-xl font-bold text-primary mb-3">
-          🔎 Código de Seguimiento
+        <h2 class="text-xl font-bold text-primary mb-3 flex items-center gap-2">
+          <SearchIcon className="w-5 h-5 text-secondary" /> Código de Seguimiento
         </h2>
         <p>
           Recibirás un email automático con el número de guía apenas tu pedido
