@@ -3,6 +3,7 @@ import { useForm, useWatch, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToastStore } from '../../../stores/toastStore';
+import { Lock } from 'lucide-react';
 import { fetchApi } from '../../../utils/api';
 import PasswordStrengthMeter from '../../ui/feedback/PasswordStrengthMeter';
 import ForgotPasswordModal from '../auth/ForgotPasswordModal';
@@ -85,12 +86,12 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
                     <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
 
                     <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                        <span className="text-2xl">🔒</span> Cambiar Contraseña
+                        <Lock className="w-5 h-5 text-yellow-600" /> Cambiar Contraseña
                     </h2>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
-                        
+
                         <div>
                             <div className="flex justify-between items-center mb-1">
                                 <label className="text-sm font-bold text-gray-700">Contraseña Actual</label>
@@ -111,7 +112,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
                             {errors.currentPassword && <p className="text-red-500 text-xs mt-1 ml-1">{errors.currentPassword.message}</p>}
                         </div>
 
-                        
+
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-1">Nueva Contraseña</label>
                             <input
@@ -124,7 +125,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
                             <StrengthMeterController control={control} />
                         </div>
 
-                        
+
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-1">Confirmar Nueva Contraseña</label>
                             <input

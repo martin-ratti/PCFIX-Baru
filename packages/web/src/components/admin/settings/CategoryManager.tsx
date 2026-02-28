@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToastStore } from '../../../stores/toastStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
-import { fetchApi } from '../../../utils/api'; 
+import { Folder } from 'lucide-react';
+import { fetchApi } from '../../../utils/api';
 
 interface Category {
   id: number;
@@ -22,12 +23,12 @@ export default function CategoryManager() {
 
   const fetchData = async () => {
     try {
-      
+
       const resTree = await fetchApi('/categories');
       const jsonTree = await resTree.json();
       if (jsonTree.success) setCategories(jsonTree.data);
 
-      
+
       const resFlat = await fetchApi('/categories?flat=true');
       const jsonFlat = await resFlat.json();
       if (jsonFlat.success) setFlatCategories(jsonFlat.data);
@@ -44,7 +45,7 @@ export default function CategoryManager() {
         padreId: data.padreId ? Number(data.padreId) : null
       };
 
-      
+
       const res = await fetchApi('/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,7 +69,7 @@ export default function CategoryManager() {
   const confirmDelete = async () => {
     if (!categoryToDelete) return;
     try {
-      
+
       await fetchApi(`/categories/${categoryToDelete.id}`, { method: 'DELETE' });
       fetchData();
       addToast('Categoría eliminada', 'success');
@@ -81,7 +82,7 @@ export default function CategoryManager() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-      
+
       <div className="bg-white p-6 rounded-lg shadow border border-gray-100 sticky top-6">
         <h3 className="text-lg font-bold mb-4 text-secondary">Nueva Categoría</h3>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -105,14 +106,14 @@ export default function CategoryManager() {
         </form>
       </div>
 
-      
+
       <div className="md:col-span-2 bg-white p-6 rounded-lg shadow border border-gray-100">
         <h3 className="text-lg font-bold mb-4 text-secondary">Estructura del Catálogo</h3>
         <div className="space-y-3">
           {categories.map(cat => (
             <div key={cat.id} className="border rounded-lg overflow-hidden shadow-sm">
               <div className="bg-gray-50 p-3 flex justify-between items-center font-bold text-secondary">
-                <span className="flex items-center gap-2">📁 {cat.nombre}</span>
+                <span className="flex items-center gap-2"><Folder className="w-4 h-4" /> {cat.nombre}</span>
                 <button onClick={() => requestDelete(cat)} className="text-red-500 hover:text-red-700 text-sm hover:bg-red-50 px-2 py-1 rounded transition-colors">Eliminar</button>
               </div>
 

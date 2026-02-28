@@ -86,7 +86,7 @@ function CartContent() {
         if (zipCode === '2183') {
             setDeliveryType('RETIRO');
             setShippingCost(null);
-            addToast("¡Estás cerca! Contactanos para coordinar la entrega 📞", 'success');
+            addToast("¡Estás cerca! Contactanos para coordinar la entrega", 'success');
             return;
         }
 

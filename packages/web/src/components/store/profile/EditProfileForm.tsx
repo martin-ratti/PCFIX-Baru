@@ -7,7 +7,7 @@ import { useAuthStore } from '../../../stores/authStore';
 import { fetchApi } from '../../../utils/api';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 import ChangePasswordModal from './ChangePasswordModal';
-import { UserIcon, AlertTriangleIcon, LockIcon, InfoIcon, CrownIcon, MailIcon, KeyIcon, Trash2Icon } from '../../SharedIcons'; 
+import { UserIcon, AlertTriangleIcon, LockIcon, InfoIcon, CrownIcon, MailIcon, KeyIcon, Trash2Icon } from '../../SharedIcons';
 
 const profileUpdateSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -27,10 +27,10 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  
+
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
 
-  
+
   const [role, setRole] = useState<string>('USER');
   const [createdAt, setCreatedAt] = useState<string>('');
   const [isGoogleAccount, setIsGoogleAccount] = useState(false);
@@ -48,7 +48,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
       const data = await res.json();
 
       if (data.success) {
-        addToast('Cuenta eliminada. Te vamos a extrañar 👋', 'info');
+        addToast('Cuenta eliminada. Te vamos a extrañar', 'info');
         authStore.logout();
         window.location.href = '/';
       } else {
@@ -61,7 +61,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
     }
   };
 
-  
+
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -89,7 +89,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
     loadProfile();
   }, [userId, setValue, addToast]);
 
-  
+
   const onSubmit = async (data: ProfileData) => {
     setIsSaving(true);
 
@@ -203,7 +203,7 @@ export default function EditProfileForm({ userId }: EditProfileFormProps) {
             <p className="text-xs text-gray-400 ml-1">El correo electrónico no se puede modificar por seguridad.</p>
           </div>
 
-          
+
           <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-6 border border-gray-200/50">
             <h3 className="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs"><InfoIcon className="w-3 h-3" /></span>

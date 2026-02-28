@@ -73,7 +73,7 @@ export default function DashboardIntelligence() {
 
     const toggleMaintenance = async () => {
         const newValue = !maintenanceMode;
-        setMaintenanceMode(newValue); 
+        setMaintenanceMode(newValue);
         setToggling(true);
         try {
             await fetchApi('/config', {
@@ -81,12 +81,12 @@ export default function DashboardIntelligence() {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ maintenanceMode: newValue })
             });
-            addToast(newValue ? '🛑 Sitio puesto en Mantenimiento' : '✅ Sitio Operativo nuevamente', newValue ? 'info' : 'success');
+            addToast(newValue ? 'Sitio puesto en Mantenimiento' : 'Sitio Operativo nuevamente', newValue ? 'info' : 'success');
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
         } catch (e) {
-            setMaintenanceMode(!newValue); 
+            setMaintenanceMode(!newValue);
             addToast('Error al cambiar modo', 'error');
         } finally {
             setToggling(false);
@@ -120,7 +120,7 @@ export default function DashboardIntelligence() {
         if (data && data.activePayload && data.activePayload.length > 0) {
             const dateStr = data.activePayload[0].payload.date;
             if (dateStr) {
-                
+
                 const [year, month] = dateStr.split('-');
                 if (year && month) {
                     navigate(`/admin/ventas?month=${parseInt(month)}&year=${year}`);
@@ -168,15 +168,15 @@ export default function DashboardIntelligence() {
                     />
                     <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-500 shadow-inner"></div>
                     <span className={`ml-3 text-sm font-bold select-none transition-colors ${maintenanceMode ? 'text-red-600 animate-pulse' : 'text-gray-500 group-hover:text-gray-700'}`}>
-                        {maintenanceMode ? '🛑 MANTENIMIENTO ON' : 'Sitio Online'}
+                        {maintenanceMode ? 'MANTENIMIENTO ON' : 'Sitio Online'}
                     </span>
                 </label>
             </div>
 
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-                
+
                 <div
                     onClick={handleRevenueClick}
                     className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
@@ -191,7 +191,7 @@ export default function DashboardIntelligence() {
                     <p className="text-xs text-gray-400">Facturación bruta este mes (Clic para ver)</p>
                 </div>
 
-                
+
                 <div
                     onClick={handleLowStockClick}
                     className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
@@ -206,7 +206,7 @@ export default function DashboardIntelligence() {
                     <p className="text-xs text-gray-400">Productos con stock ≤ 5 (Clic para ver)</p>
                 </div>
 
-                
+
                 <div
                     onClick={handlePendingReviewClick}
                     className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
@@ -221,7 +221,7 @@ export default function DashboardIntelligence() {
                     <p className="text-xs text-gray-400">Ventas con comprobante (Clic para ver)</p>
                 </div>
 
-                
+
                 <div
                     onClick={handleSupportClick}
                     className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group cursor-pointer hover:shadow-md transition-all hover:scale-[1.02]"
@@ -237,10 +237,10 @@ export default function DashboardIntelligence() {
                 </div>
             </div>
 
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                
+
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[400px] flex flex-col">
                     <h3 className="text-lg font-bold text-gray-800 mb-4">Tendencia de Ventas (30 días)</h3>
                     <div className="flex-1 w-full min-h-0 relative">
@@ -268,7 +268,7 @@ export default function DashboardIntelligence() {
                     </div>
                 </div>
 
-                
+
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[400px] flex flex-col">
                     <h3 className="text-lg font-bold text-gray-800 mb-4">Top 5 Productos (30 días)</h3>
                     <div className="flex-1 w-full min-h-0 relative">
@@ -290,7 +290,7 @@ export default function DashboardIntelligence() {
                 </div>
             </div>
 
-            
+
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
@@ -328,7 +328,7 @@ export default function DashboardIntelligence() {
                                         <td className="p-4 text-right text-gray-500">{item.daysInactive} días</td>
                                         <td className="p-4 text-right">
                                             <button
-                                                onClick={() => setOfferProduct(item)} 
+                                                onClick={() => setOfferProduct(item)}
                                                 className="bg-red-50 text-red-600 hover:bg-red-100 font-bold text-xs px-3 py-1.5 rounded-lg transition-colors inline-flex items-center gap-1"
                                             >
                                                 <ZapIcon className="w-3 h-3" /> Oferta Flash
