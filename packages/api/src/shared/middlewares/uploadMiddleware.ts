@@ -11,20 +11,30 @@ cloudinary.config({
 });
 
 
-const storage = new CloudinaryStorage({
+const productStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
+  params: async (req: any, file: any) => {
     return {
-      folder: 'pcfix-products', 
-      format: 'webp',           
+      folder: 'pcfix-products',
+      format: 'webp',
       public_id: `foto-${Date.now()}-${Math.round(Math.random() * 1e9)}`,
-      
+    };
+  },
+});
+
+const receiptStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req: any, file: any) => {
+    return {
+      folder: 'pcfix-receipts',
+      resource_type: 'auto',
+      public_id: `comprobante-${Date.now()}-${Math.round(Math.random() * 1e9)}`,
     };
   },
 });
 
 
-const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
+const imageFilter = (req: any, file: any, cb: any) => {
   const allowedTypes = /jpeg|jpg|png|webp|gif/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
@@ -35,8 +45,25 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
   cb(new Error('Solo se permiten archivos de imagen (jpg, jpeg, png, webp, gif)'));
 };
 
+const receiptFilter = (req: any, file: any, cb: any) => {
+  const allowedTypes = /jpeg|jpg|png|webp|gif|pdf/;
+  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedTypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  }
+  cb(new Error('Solo se permiten archivos de imagen o PDF (jpg, jpeg, png, webp, gif, pdf)'));
+};
+
 export const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, 
-  fileFilter: fileFilter,
+  storage: productStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: imageFilter,
+});
+
+export const uploadReceipt = multer({
+  storage: receiptStorage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: receiptFilter,
 });

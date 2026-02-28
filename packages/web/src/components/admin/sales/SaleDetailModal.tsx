@@ -227,10 +227,32 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                             <div className="bg-gray-900 rounded-xl flex items-center justify-center overflow-hidden relative flex-grow min-h-[300px] border-4 border-white shadow-md group">
                                 {sale.comprobante ? (
                                     <>
-                                        <img src={sale.comprobante} alt="Comprobante" className="max-w-full max-h-full object-contain" />
-                                        <a href={sale.comprobante} target="_blank" rel="noreferrer" className="absolute bottom-4 right-4 bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                                            Ver Original ↗
-                                        </a>
+                                        {sale.comprobante.toLowerCase().endsWith('.pdf') ? (
+                                            <div className="flex flex-col items-center gap-4 p-6">
+                                                <div className="bg-white/10 p-6 rounded-full">
+                                                    <ClipboardListIcon className="w-20 h-20 text-red-400" />
+                                                </div>
+                                                <div className="text-center">
+                                                    <p className="text-white font-bold text-lg">Comprobante PDF</p>
+                                                    <p className="text-gray-400 text-sm mb-4">El archivo adjunto es un PDF</p>
+                                                    <a
+                                                        href={sale.comprobante}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold transition-all shadow-lg active:scale-95"
+                                                    >
+                                                        Abrir PDF en pestaña nueva ↗
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <img src={sale.comprobante} alt="Comprobante" className="max-w-full max-h-full object-contain" />
+                                                <a href={sale.comprobante} target="_blank" rel="noreferrer" className="absolute bottom-4 right-4 bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                                                    Ver Original ↗
+                                                </a>
+                                            </>
+                                        )}
                                     </>
                                 ) : (
                                     <div className="text-gray-500 flex flex-col items-center p-8 text-center">

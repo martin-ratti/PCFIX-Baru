@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import * as Controller from './sales.controller';
 import { authenticate, requireAdmin } from '../../shared/middlewares/authMiddleware';
-import { upload } from '../../shared/middlewares/uploadMiddleware';
+import { upload, uploadReceipt } from '../../shared/middlewares/uploadMiddleware';
 
 const router = Router();
 
 
-router.get('/mp-callback', Controller.handleMPCallback); 
+router.get('/mp-callback', Controller.handleMPCallback);
 router.post('/webhook', Controller.handleMPWebhook);
-router.post('/quote', Controller.quoteShipping); 
+router.post('/quote', Controller.quoteShipping);
 
 
 router.get('/balance', authenticate, requireAdmin, Controller.getBalance);
@@ -20,7 +20,7 @@ router.get('/', authenticate, requireAdmin, Controller.getAllSales);
 router.post('/manual', authenticate, requireAdmin, Controller.createManualSale);
 router.get('/:id', authenticate, Controller.getSaleById);
 
-router.post('/:id/receipt', authenticate, upload.single('comprobante'), Controller.uploadReceipt);
+router.post('/:id/receipt', authenticate, uploadReceipt.single('comprobante'), Controller.uploadReceipt);
 
 
 

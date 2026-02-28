@@ -224,9 +224,7 @@ describe('Sales Controller - Full Coverage', () => {
             mockService.uploadReceipt.mockResolvedValue({ id: 1 });
             const { req, res, json } = mockReqRes({
                 params: { id: '1' },
-                file: { filename: 'receipt.jpg' },
-                protocol: 'http',
-                get: () => 'localhost:3002'
+                file: { path: 'https://cloudinary.com/receipt.jpg' }
             });
             await uploadReceipt(req, res);
             expect(json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
