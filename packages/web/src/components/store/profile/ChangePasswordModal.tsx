@@ -3,7 +3,7 @@ import { useForm, useWatch, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToastStore } from '../../../stores/toastStore';
-import { Lock } from 'lucide-react';
+import { Lock, X } from 'lucide-react';
 import { fetchApi } from '../../../utils/api';
 import PasswordStrengthMeter from '../../ui/feedback/PasswordStrengthMeter';
 import ForgotPasswordModal from '../auth/ForgotPasswordModal';
@@ -83,7 +83,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
         <>
             <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
                 <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative animate-slide-up max-h-[90vh] overflow-y-auto">
-                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
+                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
 
                     <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                         <Lock className="w-5 h-5 text-yellow-600" /> Cambiar Contraseña

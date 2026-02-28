@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToastStore } from '../../../stores/toastStore';
+import { X, Mail, Send } from 'lucide-react';
 
 interface Props {
     isOpen: boolean;
@@ -50,7 +51,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }: Props) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative animate-slide-up">
-                <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
+                <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
 
                 <h2 className="text-xl font-bold text-gray-800 mb-2">Recuperar Contraseña</h2>
                 <p className="text-sm text-gray-500 mb-6">Ingresa tu email y te enviaremos las instrucciones.</p>
@@ -72,7 +73,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }: Props) {
                         disabled={isLoading}
                         className="w-full py-2.5 bg-primary text-white rounded-lg font-bold hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                        {isLoading ? <><div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> Enviando...</> : 'Enviar Instrucciones'}
+                        {isLoading ? <><div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> Enviando...</> : <><Send className="w-4 h-4" /> Enviar Instrucciones</>}
                     </button>
                 </form>
             </div>
