@@ -14,7 +14,7 @@ export class ProductService {
         return ids;
     }
 
-    
+
     async findAll(
         page: number = 1,
         limit: number = 10,
@@ -28,7 +28,7 @@ export class ProductService {
         const skip = (page - 1) * limit;
         const where: Prisma.ProductoWhereInput = { deletedAt: null };
 
-        
+
         if (search) {
             where.OR = [
                 { nombre: { contains: search, mode: 'insensitive' } },
@@ -37,7 +37,7 @@ export class ProductService {
             ];
         }
 
-        
+
         where.nombre = { not: 'Servicio: Servicio Personalizado' };
 
         if (categoryId) {
@@ -49,12 +49,12 @@ export class ProductService {
         if (filter === 'featured') where.isFeatured = true;
         if (filter === 'hasDiscount') where.precioOriginal = { not: null };
 
-        
+
         let orderBy: Prisma.ProductoOrderByWithRelationInput = { createdAt: 'desc' };
 
-        if (sort === 'price_asc') orderBy = { precio: 'asc' };       
-        else if (sort === 'price_desc') orderBy = { precio: 'desc' }; 
-        else if (sort === 'name_asc') orderBy = { nombre: 'asc' };    
+        if (sort === 'price_asc') orderBy = { precio: 'asc' };
+        else if (sort === 'price_desc') orderBy = { precio: 'desc' };
+        else if (sort === 'name_asc') orderBy = { nombre: 'asc' };
 
         const queryOptions: any = {
             where,
@@ -86,7 +86,7 @@ export class ProductService {
         };
     }
 
-    
+
     async findAllPOS(search?: string, limit: number = 20) {
         const where: Prisma.ProductoWhereInput = { deletedAt: null };
         if (search) {
@@ -115,7 +115,7 @@ export class ProductService {
         if (data.categoriaId !== undefined) updateData.categoriaId = Number(data.categoriaId);
         if (data.marcaId !== undefined) updateData.marcaId = data.marcaId ? Number(data.marcaId) : null;
 
-        
+
         if (data.peso !== undefined) updateData.peso = Number(data.peso);
         if (data.alto !== undefined) updateData.alto = Number(data.alto);
         if (data.ancho !== undefined) updateData.ancho = Number(data.ancho);
@@ -123,20 +123,20 @@ export class ProductService {
 
         if (data.foto) updateData.foto = data.foto;
 
-        
+
         const currentProduct = await prisma.producto.findUnique({ where: { id } });
         const oldStock = currentProduct?.stock || 0;
         const oldPrice = Number(currentProduct?.precio || 0);
 
         const updatedProduct = await prisma.producto.update({ where: { id }, data: updateData });
 
-        
+
         const newStock = updatedProduct.stock;
         if (oldStock === 0 && newStock > 0) {
             this.processStockAlerts(updatedProduct);
         }
 
-        
+
         const newPrice = Number(updatedProduct.precio);
         if (oldPrice > 0 && newPrice < oldPrice) {
             this.processPriceDropAlerts(updatedProduct, oldPrice, newPrice);
@@ -145,7 +145,7 @@ export class ProductService {
         return updatedProduct;
     }
 
-    
+
     private async processStockAlerts(product: any) {
         try {
             const alerts = await (prisma as any).stockAlert.findMany({
@@ -158,7 +158,8 @@ export class ProductService {
 
             const emailService = new EmailService();
 
-            const productLink = `https://pcfixbaru.com.ar/tienda/producto/${product.id}`;
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+            const productLink = `${frontendUrl}/tienda/producto/${product.id}`;
 
             for (const alert of alerts) {
                 await emailService.sendStockAlertEmail(
@@ -170,7 +171,7 @@ export class ProductService {
                 );
             }
 
-            
+
             await (prisma as any).stockAlert.deleteMany({
                 where: { productoId: product.id }
             });
@@ -180,10 +181,10 @@ export class ProductService {
         }
     }
 
-    
+
     private async processPriceDropAlerts(product: any, oldPrice: number, newPrice: number) {
         try {
-            
+
             const favorites = await prisma.favorite.findMany({
                 where: { productoId: product.id },
                 include: { user: true }
@@ -193,12 +194,13 @@ export class ProductService {
 
             const emailService = new EmailService();
 
-            const productLink = `https://pcfixbaru.com.ar/tienda/producto/${product.id}`;
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+            const productLink = `${frontendUrl}/tienda/producto/${product.id}`;
 
 
 
-            
-            
+
+
             await Promise.all(favorites.map(fav => {
                 if (fav.user.email) {
                     return emailService.sendPriceDropNotification(
@@ -218,9 +220,9 @@ export class ProductService {
         }
     }
 
-    
+
     async findBestSellers(limit: number = 10) {
-        
+
         const bestSellers = await prisma.$queryRaw<{ productoId: number; totalSold: bigint }[]>`
             SELECT lv."productoId", SUM(lv.cantidad) as "totalSold"
             FROM "LineaVenta" lv
@@ -232,7 +234,7 @@ export class ProductService {
         `;
 
         if (bestSellers.length === 0) {
-            
+
             return await prisma.producto.findMany({
                 where: {
                     deletedAt: null,
@@ -246,7 +248,7 @@ export class ProductService {
 
         const productIds = bestSellers.map(bs => bs.productoId);
 
-        
+
         const products = await prisma.producto.findMany({
             where: {
                 id: { in: productIds },
@@ -256,7 +258,7 @@ export class ProductService {
             include: { categoria: true, marca: true }
         });
 
-        
+
         const orderedProducts = productIds
             .map(id => products.find(p => p.id === id))
             .filter(Boolean);

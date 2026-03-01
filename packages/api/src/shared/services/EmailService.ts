@@ -3,9 +3,11 @@ import { prisma } from '../database/prismaClient';
 
 export class EmailService {
   private resend: Resend;
+  private frontendUrl: string;
 
   constructor() {
     this.resend = new Resend(process.env.RESEND_API_KEY);
+    this.frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
   }
 
   async sendEmail(to: string, subject: string, htmlContent: string) {
@@ -44,10 +46,10 @@ export class EmailService {
   }
 
 
-  
+
   async sendNewInquiryNotification(userEmail: string, userName: string, subject: string, message: string) {
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+    const frontendUrl = this.frontendUrl;
     const emailSubject = `📩 Nueva Consulta Web: ${subject}`;
 
     const html = `
@@ -94,9 +96,9 @@ export class EmailService {
     return await this.sendEmail(adminEmail, emailSubject, html);
   }
 
-  
+
   async sendReplyNotification(userEmail: string, asuntoOriginal: string, respuestaTecnico: string) {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+    const frontendUrl = this.frontendUrl;
     const subject = `Respuesta a tu consulta: ${asuntoOriginal}`;
 
     const html = `
@@ -134,10 +136,10 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  
+
   async sendNewReceiptNotification(saleId: number, userEmail: string) {
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+    const frontendUrl = this.frontendUrl;
     const subject = `💸 Nuevo Comprobante - Orden #${saleId}`;
 
     const html = `
@@ -163,12 +165,12 @@ export class EmailService {
     return await this.sendEmail(adminEmail, subject, html);
   }
 
-  
+
   async sendNewShipmentNotification(saleId: number, customerEmail: string, shipmentId: string, trackingCode: string) {
     const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || '';
     const subject = `🚚 Envío Creado - Orden #${saleId}`;
 
-    
+
     const zipnovaLink = `https://app.zipnova.com.ar/shipments/${shipmentId}`;
 
     const html = `
@@ -206,9 +208,9 @@ export class EmailService {
     return await this.sendEmail(adminEmail, subject, html);
   }
 
-  
+
   async sendStatusUpdate(userEmail: string, saleId: number, newStatus: string, tipoEntrega?: string, trackingCode?: string) {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+    const frontendUrl = this.frontendUrl;
     let mensaje = 'El estado de tu pedido ha cambiado.';
     let icon = '📦';
     let color = '#2563eb';
@@ -284,14 +286,14 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  
+
   async sendAbandonedCartEmail(userEmail: string, userName: string, products: any[]) {
     const subject = `👀 ¿Olvidaste algo, ${userName}?`;
 
-    
+
     const mainProduct = products.sort((a, b) => Number(b.precio) - Number(a.precio))[0];
     const otherCount = products.length - 1;
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+    const frontendUrl = this.frontendUrl;
     const cartLink = `${frontendUrl}/carrito`;
 
     const html = `
@@ -343,9 +345,9 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  
+
   async sendStockAlertEmail(userEmail: string, productName: string, productLink: string, foto: string, price: number) {
-    
+
     const subject = `📢 ¡Volvió el stock! ${productName} ya está disponible`;
     const html = `
       <div style="font-family: 'Segoe UI', serif; color: #1f2937; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
@@ -383,7 +385,7 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  
+
   async sendWelcomeEmail(email: string, name: string) {
     const subject = '¡Bienvenido a la comunidad PCFIX! 🚀';
     const html = `
@@ -412,7 +414,7 @@ export class EmailService {
             </div>
 
             <div style="text-align: center;">
-                <a href="https://pcfixbaru.com.ar" style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; transition: background-color 0.2s;">
+                <a href="${this.frontendUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; transition: background-color 0.2s;">
                     Ir a la Tienda
                 </a>
             </div>
@@ -432,9 +434,9 @@ export class EmailService {
     return await this.sendEmail(email, subject, html);
   }
 
-  
+
   async sendPasswordResetEmail(email: string, token: string) {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4321';
+    const frontendUrl = this.frontendUrl;
     const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
     const subject = '🔐 Recuperación de Contraseña - PCFIX';
 
@@ -484,7 +486,7 @@ export class EmailService {
     return await this.sendEmail(email, subject, html);
   }
 
-  
+
   async sendContactConfirmationEmail(userEmail: string, userName: string) {
     const subject = '📩 Recibimos tu consulta - PC FIX';
     const businessHours = await this.getBusinessHours();
@@ -526,7 +528,7 @@ export class EmailService {
     return await this.sendEmail(userEmail, subject, html);
   }
 
-  
+
   async sendPriceDropNotification(userEmail: string, productName: string, productLink: string, foto: string, oldPrice: number, newPrice: number) {
     const subject = `📉 ¡Bajó de precio! ${productName} está más barato`;
     const discount = Math.round(((oldPrice - newPrice) / oldPrice) * 100);

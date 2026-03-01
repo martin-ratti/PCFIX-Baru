@@ -11,10 +11,11 @@ interface SaleDetailModalProps {
     onClose: () => void;
     onApprove: () => void;
     onReject: () => void;
+    onCancel?: () => void;
     onDispatch?: () => void;
 }
 
-export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClose, onApprove, onReject, onDispatch }: SaleDetailModalProps) {
+export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClose, onApprove, onReject, onCancel, onDispatch }: SaleDetailModalProps) {
     const [trackingCode, setTrackingCode] = useState('');
     const [isDispatching, setIsDispatching] = useState(false);
     const [isCreatingShipment, setIsCreatingShipment] = useState(false);
@@ -382,6 +383,9 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
 
                         {sale.estado === 'PENDIENTE_APROBACION' && (
                             <>
+                                <button onClick={onCancel} className="px-5 py-2 text-red-500 font-bold hover:bg-red-50 rounded-lg transition-all active:scale-95">
+                                    Cancelar Pedido
+                                </button>
                                 <button onClick={onReject} className="px-5 py-2 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 border border-red-200 transition-all active:scale-95">
                                     Rechazar
                                 </button>
@@ -389,6 +393,12 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                     {sale.medioPago === 'EFECTIVO' ? 'Confirmar Pago Efectivo' : 'Confirmar Acreditación'}
                                 </button>
                             </>
+                        )}
+
+                        {sale.estado === 'PENDIENTE_PAGO' && (
+                            <button onClick={onCancel} className="px-6 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 shadow-md transition-colors hover:shadow-lg transform active:scale-95">
+                                Cancelar Pedido
+                            </button>
                         )}
                     </div>
                 </div>
