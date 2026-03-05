@@ -53,11 +53,11 @@ describe('CategoryManager', () => {
         render(<CategoryManager />);
 
         await waitFor(() => {
-            expect(screen.getByText('Parent Cat')).toBeInTheDocument();
+            expect(screen.getAllByText('Parent Cat').length).toBeGreaterThan(0);
             expect(screen.getByText('Child Cat')).toBeInTheDocument();
         });
 
-        
+
         expect(screen.getByText('Parent Cat', { selector: 'option' })).toBeInTheDocument();
     });
 
@@ -69,7 +69,7 @@ describe('CategoryManager', () => {
         const submitBtn = screen.getByText('Crear');
         fireEvent.click(submitBtn);
 
-        
+
         await waitFor(() => {
             expect(screen.getByText(/creando/i)).toBeInTheDocument();
             expect(submitBtn).toBeDisabled();
@@ -84,9 +84,9 @@ describe('CategoryManager', () => {
     it('opens delete modal and confirms deletion', async () => {
         render(<CategoryManager />);
 
-        await waitFor(() => expect(screen.getByText('Parent Cat')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getAllByText('Parent Cat').length).toBeGreaterThan(0));
 
-        
+
         const deleteBtns = screen.getAllByText('Eliminar');
         fireEvent.click(deleteBtns[0]);
 

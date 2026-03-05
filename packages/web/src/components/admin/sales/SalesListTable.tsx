@@ -21,7 +21,7 @@ function SalesListContent() {
 
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [isDispatchMode, setIsDispatchMode] = useState(false);
-  const [actionSale, setActionSale] = useState<{ id: number, approve: boolean } | null>(null);
+  const [actionSale, setActionSale] = useState<{ id: number, type: 'APPROVE' | 'REJECT' | 'CANCEL' } | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -53,7 +53,7 @@ function SalesListContent() {
   useEffect(() => {
     const filterData = () => {
       let data = sales;
-      if (selectedMonth || selectedPayment) return data; 
+      if (selectedMonth || selectedPayment) return data;
 
       switch (filter) {
         case 'VERIFICATION': return data.filter(s => s.estado === 'PENDIENTE_APROBACION' || s.estado === 'PENDIENTE_PAGO');
@@ -66,19 +66,28 @@ function SalesListContent() {
   }, [filter, sales, selectedMonth, selectedPayment]);
 
   const handleOpenDetail = (sale: any, dispatchMode = false) => { setSelectedSale(sale); setIsDispatchMode(dispatchMode); };
-  const requestAction = (id: number, approve: boolean) => { setSelectedSale(null); setActionSale({ id, approve }); };
+  const requestAction = (id: number, type: 'APPROVE' | 'REJECT' | 'CANCEL') => { setSelectedSale(null); setActionSale({ id, type }); };
 
   const executeAction = async () => {
     if (!actionSale) return;
     try {
-      const res = await fetchApi(`/sales/${actionSale.id}/status`, {
-        method: 'PUT',
+      const isCancel = actionSale.type === 'CANCEL';
+      const url = isCancel ? `/sales/${actionSale.id}/cancel` : `/sales/${actionSale.id}/status`;
+      const body = isCancel ? {} : { status: actionSale.type === 'APPROVE' ? 'APROBADO' : 'RECHAZADO' };
+
+      const res = await fetchApi(url, {
+        method: isCancel ? 'PUT' : 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ status: actionSale.approve ? 'APROBADO' : 'RECHAZADO' })
+        body: JSON.stringify(body)
       });
       const json = await res.json();
       if (json.success) {
-        addToast(actionSale.approve ? 'Venta Aprobada' : 'Venta Rechazada', actionSale.approve ? 'success' : 'info');
+        addToast(
+          actionSale.type === 'APPROVE' ? 'Venta Aprobada' :
+            actionSale.type === 'REJECT' ? 'Venta Rechazada' :
+              'Venta Cancelada y Stock restablecido',
+          actionSale.type === 'APPROVE' ? 'success' : 'info'
+        );
         fetchSales();
       } else throw new Error(json.error);
     } catch (e: any) { addToast(e.message || 'Error', 'error'); }
@@ -88,7 +97,7 @@ function SalesListContent() {
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden animate-fade-in">
 
-      
+
       <div className="p-4 bg-gray-50 border-b border-gray-200 flex flex-col gap-4">
         <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
           {['VERIFICATION', 'TO_SHIP', 'SHIPPED', 'ALL'].map(f => (
@@ -131,7 +140,7 @@ function SalesListContent() {
         </div>
       </div>
 
-      
+
       <div className="overflow-x-auto min-h-[300px]">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-white">
@@ -182,17 +191,18 @@ function SalesListContent() {
         sale={selectedSale}
         autoFocusDispatch={isDispatchMode}
         onClose={() => setSelectedSale(null)}
-        onApprove={() => requestAction(selectedSale.id, true)}
-        onReject={() => requestAction(selectedSale.id, false)}
+        onApprove={() => requestAction(selectedSale.id, 'APPROVE')}
+        onReject={() => requestAction(selectedSale.id, 'REJECT')}
+        onCancel={() => requestAction(selectedSale.id, 'CANCEL')}
         onDispatch={() => fetchSales()}
       />
 
       <ConfirmModal
         isOpen={!!actionSale}
-        title={actionSale?.approve ? "Aprobar" : "Rechazar"}
-        message="¿Confirmas esta acción?"
+        title={actionSale?.type === 'APPROVE' ? "Aprobar" : actionSale?.type === 'CANCEL' ? "Cancelar Orden" : "Rechazar"}
+        message={actionSale?.type === 'CANCEL' ? "¿Confirmas la cancelación? Se devolverá el stock disponible." : "¿Confirmas esta acción?"}
         confirmText="Confirmar"
-        isDanger={!actionSale?.approve}
+        isDanger={actionSale?.type !== 'APPROVE'}
         onConfirm={executeAction}
         onCancel={() => setActionSale(null)}
       />

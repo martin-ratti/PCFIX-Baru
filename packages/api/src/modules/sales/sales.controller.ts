@@ -150,8 +150,9 @@ export const uploadReceipt = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         let receiptUrl = undefined;
-        if (req.file) {
-            receiptUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        const reqAny = req as any;
+        if (reqAny.file) {
+            receiptUrl = reqAny.file.path;
         }
 
         const updated = await service.uploadReceipt(Number(id), receiptUrl);

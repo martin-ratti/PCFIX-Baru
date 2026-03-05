@@ -4,6 +4,7 @@ import { useToastStore } from '../../../stores/toastStore';
 import { useAuthStore } from '../../../stores/authStore';
 import ConfirmModal from '../../ui/feedback/ConfirmModal';
 import { fetchApi } from '../../../utils/api';
+import { Search, Receipt, X } from 'lucide-react';
 
 export default function ManualSaleForm() {
     const { token } = useAuthStore();
@@ -23,16 +24,16 @@ export default function ManualSaleForm() {
         defaultValues: { customerEmail: 'mostrador@pcfix.com', medioPago: 'EFECTIVO', estado: 'ENTREGADO' }
     });
 
-    
+
     useEffect(() => {
         const timer = setTimeout(() => {
-            
+
             const query = searchTerm.length >= 2 ? `search=${encodeURIComponent(searchTerm)}&limit=20` : `limit=20`;
             fetchApi(`/products/pos?${query}`, { headers: { 'Authorization': `Bearer ${token}` } })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        
+
                         const filtered = data.data.filter((p: any) => !p.nombre.includes('Servicio: Servicio Personalizado'));
                         setSearchResults(filtered);
                     }
@@ -46,7 +47,7 @@ export default function ManualSaleForm() {
 
     const addToCart = (product: any) => {
         const service = isService(product);
-        
+
         if (!service && product.stock <= 0) {
             addToast('Producto SIN STOCK', 'error');
             return;
@@ -55,7 +56,7 @@ export default function ManualSaleForm() {
         setCart(prev => {
             const existing = prev.find((i: any) => i.id === product.id);
             if (existing) {
-                
+
                 if (!service && existing.quantity >= product.stock) {
                     addToast(`Solo hay ${product.stock} unidades`, 'error');
                     return prev;
@@ -64,7 +65,7 @@ export default function ManualSaleForm() {
             }
             return [...prev, { ...product, quantity: 1 }];
         });
-        
+
     };
 
     const removeFromCart = (id: number) => setCart(prev => prev.filter((i: any) => i.id !== id));
@@ -74,8 +75,8 @@ export default function ManualSaleForm() {
             if (item.id === id) {
                 const newQty = item.quantity + delta;
                 if (newQty < 1) return item;
-                
-                
+
+
 
                 const service = isService(item);
 
@@ -93,13 +94,13 @@ export default function ManualSaleForm() {
         const price = Number(customServiceData.price);
         if (!price || price <= 0) return;
 
-        
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
 
         fetchApi(`/products/pos?search=Servicio Personalizado&limit=1`, { headers: { 'Authorization': `Bearer ${token}` } })
             .then(res => res.json())
@@ -167,7 +168,7 @@ export default function ManualSaleForm() {
                 <div className="p-4 border-b border-gray-100 bg-gray-50/50 z-20">
                     <div className="flex gap-2">
                         <div className="relative flex-1">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><Search className="w-4 h-4" /></span>
                             <input type="text" placeholder="Buscar producto o servicio..." className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} autoFocus />
                         </div>
@@ -208,7 +209,7 @@ export default function ManualSaleForm() {
                 <div className="p-5 bg-gray-900 text-white flex justify-between items-center"><h3 className="font-bold text-lg">Ticket</h3><span className="text-xs bg-white/20 px-2 py-1 rounded">{cart.reduce((a, b) => a + b.quantity, 0)} ítems</span></div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
                     {cart.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center text-gray-400 opacity-60"><span className="text-6xl mb-2">🧾</span><p>Vacío</p></div>
+                        <div className="h-full flex flex-col items-center justify-center text-gray-400 opacity-60"><Receipt className="w-12 h-12 mb-2 opacity-20" /><p>Vacío</p></div>
                     ) : (
                         cart.map((item, idx) => (
                             <div key={idx} className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center">
@@ -218,7 +219,7 @@ export default function ManualSaleForm() {
                                     <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
                                     <button onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, 1); }} className="w-6 h-6 flex items-center justify-center bg-white rounded font-bold">+</button>
                                 </div>
-                                <button onClick={(e) => { e.stopPropagation(); removeFromCart(item.id); }} className="ml-2 text-red-400 hover:text-red-600">✕</button>
+                                <button onClick={(e) => { e.stopPropagation(); removeFromCart(item.id); }} className="ml-2 text-red-400 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-red-50"><X className="w-4 h-4" /></button>
                             </div>
                         ))
                     )}
@@ -238,7 +239,7 @@ export default function ManualSaleForm() {
                 </div>
             </div>
 
-            
+
             {isCustomServiceOpen && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center animate-fade-in">
                     <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">

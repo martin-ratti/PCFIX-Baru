@@ -28,7 +28,7 @@ export class SalesService {
         this.shippingService = new ShippingService();
     }
 
-    
+
     async getQuote(zipCode: string, items: { id: number; quantity: number }[]) {
         const productIds = items.map((i) => Number(i.id));
         const dbProducts = await prisma.producto.findMany({
@@ -50,7 +50,7 @@ export class SalesService {
         return await this.shippingService.calculateCost(zipCode, shippingItems);
     }
 
-    
+
     async createViumiPreference(saleId: number) {
         const sale = await prisma.venta.findUnique({
             where: { id: saleId },
@@ -58,17 +58,17 @@ export class SalesService {
         });
         if (!sale) throw new Error("Venta no encontrada");
 
-        
+
         const callbackUrl = `${process.env.APP_URL || 'http://localhost:4321'}/checkout/viumi-success`;
 
-        
+
         const items = sale.lineasVenta.map((line: any) => ({
             nombre: line.producto.nombre,
             cantidad: line.cantidad,
             precio: Number(line.subTotal) / line.cantidad
         }));
 
-        
+
         if (Number(sale.costoEnvio) > 0) {
             items.push({
                 nombre: "Envío",
@@ -77,12 +77,12 @@ export class SalesService {
             });
         }
 
-        
+
         const viumiService = new (require('../../shared/services/ViumiService').ViumiService)();
         return await viumiService.createPaymentPreference(sale, items, callbackUrl);
     }
 
-    
+
     async createSale(
         userId: number,
         items: any[],
@@ -110,7 +110,7 @@ export class SalesService {
                 throw new Error(`Stock insuficiente: ${dbProduct.nombre}`);
             }
 
-            
+
             let precio = Number(dbProduct.precio);
             if (medioPago !== 'MERCADOPAGO') {
                 precio = precio * 0.92;
@@ -142,7 +142,7 @@ export class SalesService {
                 const config = await prisma.configuracion.findFirst();
                 baseCosto = config ? Number(config.costoEnvioFijo) : 6500;
             }
-            
+
             costoEnvio = baseCosto * 1.21;
         }
 
@@ -155,7 +155,7 @@ export class SalesService {
                     metodoEnvio: tipoEntrega === 'RETIRO' ? "RETIRO_LOCAL" : "ZIPPIN_LOGISTICA",
                     estado: VentaEstado.PENDIENTE_PAGO,
                     lineasVenta: { create: lineasParaCrear },
-                    
+
                     direccionEnvio: direccionEnvio?.direccion || null,
                     ciudadEnvio: direccionEnvio?.ciudad || null,
                     provinciaEnvio: direccionEnvio?.provincia || null,
@@ -176,7 +176,7 @@ export class SalesService {
         });
     }
 
-    
+
     async createManualSale(data: { customerEmail: string, items: SaleItemInput[], medioPago: string, estado: string }) {
 
         let user = await prisma.user.findUnique({ where: { email: data.customerEmail } });
@@ -210,7 +210,7 @@ export class SalesService {
                 throw new Error(`Stock insuficiente para ${product.nombre}. Hay ${product.stock}.`);
             }
 
-            
+
             let price = Number(product.precio);
             if (item.customPrice !== undefined && item.customPrice !== null) {
                 price = Number(item.customPrice);
@@ -256,7 +256,7 @@ export class SalesService {
         if (userId) where.cliente = { userId };
 
         if (date) {
-            
+
             const [y, m, d] = date.split('-').map(Number);
             const startDate = new Date(y, m - 1, d, 0, 0, 0);
             const endDate = new Date(y, m - 1, d, 23, 59, 59);
@@ -361,12 +361,12 @@ export class SalesService {
 
         if (!sale) throw new Error('Venta no encontrada');
 
-        
+
         let newSubtotal = 0;
         const updateLinesPromises = sale.lineasVenta.map(line => {
             let unitPrice = Number(line.producto.precio);
 
-            
+
             if (medioPago !== 'MERCADOPAGO') {
                 unitPrice = unitPrice * 0.92;
             }
@@ -380,7 +380,7 @@ export class SalesService {
             });
         });
 
-        
+
         const newTotal = newSubtotal + Number(sale.costoEnvio || 0);
 
         return await prisma.$transaction([
@@ -393,7 +393,7 @@ export class SalesService {
                 },
                 include: { lineasVenta: { include: { producto: true } } }
             })
-        ]).then(results => results[results.length - 1]); 
+        ]).then(results => results[results.length - 1]);
     }
 
     async cancelOrder(saleId: number) {
@@ -412,11 +412,37 @@ export class SalesService {
     }
 
     async updateStatus(saleId: number, status: VentaEstado) {
-        const updated = await prisma.venta.update({ where: { id: saleId }, data: { estado: status }, include: { cliente: { include: { user: true } } } });
-        if (updated.cliente?.user?.email) {
-            this.emailService.sendStatusUpdate(updated.cliente.user.email, saleId, status, updated.tipoEntrega).catch(console.error);
+        const sale = await prisma.venta.findUnique({
+            where: { id: saleId },
+            include: { lineasVenta: true, cliente: { include: { user: true } } }
+        });
+        if (!sale) throw new Error("Venta no encontrada");
+
+        const result = await prisma.$transaction(async (tx: any) => {
+
+            if (status === VentaEstado.RECHAZADO || status === VentaEstado.CANCELADO) {
+                for (const linea of sale.lineasVenta) {
+                    const prod = await tx.producto.findUnique({ where: { id: linea.productoId } });
+                    if (prod && prod.stock < 90000) {
+                        await tx.producto.update({
+                            where: { id: linea.productoId },
+                            data: { stock: { increment: linea.cantidad } }
+                        });
+                    }
+                }
+            }
+
+            return await tx.venta.update({
+                where: { id: saleId },
+                data: { estado: status },
+                include: { cliente: { include: { user: true } } }
+            });
+        });
+
+        if (result.cliente?.user?.email) {
+            this.emailService.sendStatusUpdate(result.cliente.user.email, saleId, status, result.tipoEntrega).catch(console.error);
         }
-        return updated;
+        return result;
     }
 
     async processMPWebhook(paymentId: string) {
@@ -427,7 +453,7 @@ export class SalesService {
             const saleId = Number(payment.external_reference);
             const sale = await prisma.venta.findUnique({ where: { id: saleId } });
 
-            
+
             if (sale && sale.estado !== VentaEstado.APROBADO) {
                 await this.updateStatus(saleId, VentaEstado.APROBADO);
                 await this.updatePaymentMethod(saleId, 'MERCADOPAGO');
@@ -435,7 +461,7 @@ export class SalesService {
         }
     }
 
-    
+
 
     async createShipmentForSale(saleId: number) {
         const sale = await prisma.venta.findUnique({
@@ -453,7 +479,7 @@ export class SalesService {
             throw new Error('Faltan datos de dirección de envío');
         }
 
-        
+
         const items: ShippingItem[] = sale.lineasVenta.map((linea: any) => ({
             weight: Number(linea.producto.peso) || 0.5,
             height: linea.producto.alto || 10,
@@ -464,7 +490,7 @@ export class SalesService {
             sku: `P${linea.producto.id}`
         }));
 
-        
+
         const result = await this.shippingService.createShipment(
             items,
             {
@@ -481,7 +507,7 @@ export class SalesService {
             `PCFIX-${saleId}`
         );
 
-        
+
         await prisma.venta.update({
             where: { id: saleId },
             data: {
@@ -492,7 +518,7 @@ export class SalesService {
             }
         });
 
-        
+
         if (sale.cliente?.user?.email && result.trackingCode) {
             this.emailService.sendStatusUpdate(
                 sale.cliente.user.email,
@@ -502,7 +528,7 @@ export class SalesService {
             ).catch(console.error);
         }
 
-        
+
         this.emailService.sendNewShipmentNotification(
             saleId,
             sale.cliente?.user?.email || 'N/A',
@@ -524,15 +550,15 @@ export class SalesService {
 
         if (!sale) throw new Error('Venta no encontrada');
 
-        
+
         if (sale.etiquetaUrl) return sale.etiquetaUrl;
 
-        
+
         if (sale.zipnovaShipmentId) {
             try {
                 const labelUrl = await this.shippingService.getLabel(sale.zipnovaShipmentId);
 
-                
+
                 if (labelUrl) {
                     await prisma.venta.update({
                         where: { id: saleId },

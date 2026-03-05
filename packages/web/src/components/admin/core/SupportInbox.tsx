@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../stores/authStore';
 import { API_URL } from '../../../utils/api';
 import { useToastStore } from '../../../stores/toastStore';
+import { Inbox, RefreshCcw, Send, CornerUpLeft } from 'lucide-react';
 
 export default function SupportInbox() {
     const { token, logout } = useAuthStore();
@@ -13,7 +14,7 @@ export default function SupportInbox() {
     const [error, setError] = useState<string | null>(null);
 
     const fetchInquiries = () => {
-        
+
         if (!token) return;
 
         setIsLoading(true);
@@ -27,7 +28,7 @@ export default function SupportInbox() {
         })
             .then(async (res) => {
                 if (res.status === 401) {
-                    logout(); 
+                    logout();
                     window.location.href = '/auth/login';
                     throw new Error("Sesión expirada. Ingresa nuevamente.");
                 }
@@ -49,10 +50,10 @@ export default function SupportInbox() {
             .finally(() => setIsLoading(false));
     };
 
-    
+
     useEffect(() => {
         if (token) fetchInquiries();
-        else setIsLoading(false); 
+        else setIsLoading(false);
     }, [token]);
 
     const handleReply = async (id: number) => {
@@ -77,7 +78,7 @@ export default function SupportInbox() {
 
     if (isLoading) return (
         <div className="p-12 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+            <RefreshCcw className="inline-block animate-spin h-8 w-8 text-blue-500 mb-4" />
             <p className="text-gray-400">Sincronizando bandeja...</p>
         </div>
     );
@@ -91,7 +92,7 @@ export default function SupportInbox() {
 
     if (inquiries.length === 0) return (
         <div className="text-center p-16 bg-white rounded-xl border-2 border-dashed border-gray-200">
-            <div className="text-6xl mb-4 grayscale opacity-50">📭</div>
+            <Inbox className="w-16 h-16 mx-auto mb-4 text-gray-200" />
             <h3 className="text-lg font-bold text-gray-600">Bandeja Limpia</h3>
             <p className="text-gray-400">No hay consultas técnicas pendientes de respuesta.</p>
             <button onClick={fetchInquiries} className="mt-4 text-sm text-blue-500 hover:underline">Actualizar</button>
@@ -103,7 +104,7 @@ export default function SupportInbox() {
             <div className="flex justify-between items-center mb-4">
                 <h2 className="font-bold text-gray-700">Mensajes ({inquiries.length})</h2>
                 <button onClick={fetchInquiries} className="text-sm text-blue-600 hover:bg-blue-50 px-3 py-1 rounded transition-colors flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 4.992l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                    <RefreshCcw className="w-4 h-4" />
                     Actualizar
                 </button>
             </div>
@@ -155,7 +156,7 @@ export default function SupportInbox() {
                             ) : (
                                 <div className="flex justify-end">
                                     <button onClick={() => setReplyingTo(inq.id)} className="text-blue-600 text-sm font-bold hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors border border-blue-200 flex items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
+                                        <CornerUpLeft className="w-4 h-4" />
                                         Responder Consulta
                                     </button>
                                 </div>

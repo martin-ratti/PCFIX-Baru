@@ -11,10 +11,11 @@ interface SaleDetailModalProps {
     onClose: () => void;
     onApprove: () => void;
     onReject: () => void;
+    onCancel?: () => void;
     onDispatch?: () => void;
 }
 
-export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClose, onApprove, onReject, onDispatch }: SaleDetailModalProps) {
+export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClose, onApprove, onReject, onCancel, onDispatch }: SaleDetailModalProps) {
     const [trackingCode, setTrackingCode] = useState('');
     const [isDispatching, setIsDispatching] = useState(false);
     const [isCreatingShipment, setIsCreatingShipment] = useState(false);
@@ -227,10 +228,32 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                             <div className="bg-gray-900 rounded-xl flex items-center justify-center overflow-hidden relative flex-grow min-h-[300px] border-4 border-white shadow-md group">
                                 {sale.comprobante ? (
                                     <>
-                                        <img src={sale.comprobante} alt="Comprobante" className="max-w-full max-h-full object-contain" />
-                                        <a href={sale.comprobante} target="_blank" rel="noreferrer" className="absolute bottom-4 right-4 bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                                            Ver Original ↗
-                                        </a>
+                                        {sale.comprobante.toLowerCase().endsWith('.pdf') ? (
+                                            <div className="flex flex-col items-center gap-4 p-6">
+                                                <div className="bg-white/10 p-6 rounded-full">
+                                                    <ClipboardListIcon className="w-20 h-20 text-red-400" />
+                                                </div>
+                                                <div className="text-center">
+                                                    <p className="text-white font-bold text-lg">Comprobante PDF</p>
+                                                    <p className="text-gray-400 text-sm mb-4">El archivo adjunto es un PDF</p>
+                                                    <a
+                                                        href={sale.comprobante}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold transition-all shadow-lg active:scale-95"
+                                                    >
+                                                        Abrir PDF en pestaña nueva ↗
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <img src={sale.comprobante} alt="Comprobante" className="max-w-full max-h-full object-contain" />
+                                                <a href={sale.comprobante} target="_blank" rel="noreferrer" className="absolute bottom-4 right-4 bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                                                    Ver Original ↗
+                                                </a>
+                                            </>
+                                        )}
                                     </>
                                 ) : (
                                     <div className="text-gray-500 flex flex-col items-center p-8 text-center">
@@ -360,6 +383,9 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
 
                         {sale.estado === 'PENDIENTE_APROBACION' && (
                             <>
+                                <button onClick={onCancel} className="px-5 py-2 text-red-500 font-bold hover:bg-red-50 rounded-lg transition-all active:scale-95">
+                                    Cancelar Pedido
+                                </button>
                                 <button onClick={onReject} className="px-5 py-2 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 border border-red-200 transition-all active:scale-95">
                                     Rechazar
                                 </button>
@@ -367,6 +393,12 @@ export default function SaleDetailModal({ isOpen, sale, autoFocusDispatch, onClo
                                     {sale.medioPago === 'EFECTIVO' ? 'Confirmar Pago Efectivo' : 'Confirmar Acreditación'}
                                 </button>
                             </>
+                        )}
+
+                        {sale.estado === 'PENDIENTE_PAGO' && (
+                            <button onClick={onCancel} className="px-6 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 shadow-md transition-colors hover:shadow-lg transform active:scale-95">
+                                Cancelar Pedido
+                            </button>
                         )}
                     </div>
                 </div>
