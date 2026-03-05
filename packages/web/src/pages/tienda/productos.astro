@@ -27,11 +27,9 @@ let categoryName = "";
 let brandName = "";
 
 try {
-  
-
   const apiUrl = new URL(`${API_URL}/products`);
   apiUrl.searchParams.append("page", "1");
-  apiUrl.searchParams.append("limit", "12"); 
+  apiUrl.searchParams.append("limit", "12");
   if (search) apiUrl.searchParams.append("search", search);
   if (marcaId) apiUrl.searchParams.append("marcaId", marcaId);
   if (categoryId) apiUrl.searchParams.append("categoryId", categoryId);
@@ -83,7 +81,10 @@ try {
 }
 ---
 
-<Layout title={`PCFIX | ${title}`}>
+<Layout
+  title={`${title} — PCFIX`}
+  description="Catálogo completo de hardware y componentes: teclados, GPUs, memorias, fuentes y más. Precios actualizados y stock real con envíos a todo el país."
+>
   <main class="container mx-auto px-6 py-12 min-h-screen">
     <div
       class="mb-8 border-b border-gray-200 pb-6 flex flex-col md:flex-row justify-between items-end gap-4"

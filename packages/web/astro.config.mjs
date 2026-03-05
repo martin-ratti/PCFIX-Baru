@@ -31,7 +31,6 @@ export default defineConfig({
     tailwind(),
     sitemap({
       filter: (page) => {
-        // Exclude private/admin routes from sitemap
         const excludePatterns = [
           '/admin',
           '/auth',
@@ -39,7 +38,14 @@ export default defineConfig({
           '/perfil',
           '/mis-consultas',
           '/404',
-          '/success'
+          '/success',
+          '/acceso-denegado',
+          '/error',
+          '/mantenimiento',
+          '/login',
+          '/reset-password',
+          '/cuenta',
+          '/tienda/carrito'
         ];
         return !excludePatterns.some(pattern => page.includes(pattern));
       }

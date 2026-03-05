@@ -13,6 +13,7 @@ interface Props {
     description?: string;
     image?: string;
     price?: number;
+    noindex?: boolean;
 }
 
 const {
@@ -31,16 +32,23 @@ const SERVER_API_URL =
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es-AR">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+        <link rel="preconnect" href="https://www.afip.gob.ar" crossorigin />
         <link rel="icon" type="image/png" href="/logo.png" />
         <meta name="generator" content={Astro.generator} />
 
         <title>{title}</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={canonicalURL} />
+        {
+            Astro.props.noindex && (
+                <meta name="robots" content="noindex, nofollow" />
+            )
+        }
 
         <meta property="og:type" content={price ? "product" : "website"} />
         <meta property="og:url" content={canonicalURL} />

@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="PCFIX | Acceso Restringido">
+<Layout title="PCFIX | Acceso Restringido" noindex={true}>
   <main
     class="container mx-auto px-6 flex flex-col items-center justify-center min-h-[60vh] text-center"
   >
@@ -36,7 +36,7 @@ import Layout from "../layouts/Layout.astro";
       >
         Ir al Inicio
       </a>
-      
+
       <a
         href="/auth/login"
         onclick="localStorage.removeItem('auth-storage'); window.location.href='/auth/login'; return false;"
