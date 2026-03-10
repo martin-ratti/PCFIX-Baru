@@ -34,8 +34,8 @@ export default function SalesChart() {
     const formatCurrency = (value: number) =>
         new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(value);
 
-    const totalServices = data.reduce((acc: any, curr: any) => acc + curr.services, 0);
-    const totalProducts = data.reduce((acc: any, curr: any) => acc + curr.products, 0);
+    const totalServices = Array.isArray(data) ? data.reduce((acc: any, curr: any) => acc + (curr.services || 0), 0) : 0;
+    const totalProducts = Array.isArray(data) ? data.reduce((acc: any, curr: any) => acc + (curr.products || 0), 0) : 0;
 
     if (loading && data.length === 0) return <div className="h-[450px] w-full bg-gray-50 rounded-2xl animate-pulse"></div>;
 
