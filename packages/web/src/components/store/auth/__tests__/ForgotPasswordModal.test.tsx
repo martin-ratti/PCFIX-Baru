@@ -36,8 +36,9 @@ describe('ForgotPasswordModal', () => {
     });
 
     it('calls onClose when close button clicked', () => {
-        render(<ForgotPasswordModal isOpen={true} onClose={mockOnClose} />);
-        fireEvent.click(screen.getByText('✕'));
+        const { container } = render(<ForgotPasswordModal isOpen={true} onClose={mockOnClose} />);
+        const closeButton = container.querySelector('button');
+        if (closeButton) fireEvent.click(closeButton);
         expect(mockOnClose).toHaveBeenCalled();
     });
 
@@ -55,7 +56,7 @@ describe('ForgotPasswordModal', () => {
     it('submits valid email successfully', async () => {
         render(<ForgotPasswordModal isOpen={true} onClose={mockOnClose} />);
 
-        
+
         (global.fetch as any).mockResolvedValue({
             json: async () => ({ success: true })
         });
@@ -79,7 +80,7 @@ describe('ForgotPasswordModal', () => {
     it('handles api error', async () => {
         render(<ForgotPasswordModal isOpen={true} onClose={mockOnClose} />);
 
-        
+
         (global.fetch as any).mockResolvedValue({
             json: async () => ({ success: false, error: 'Usuario no encontrado' })
         });
