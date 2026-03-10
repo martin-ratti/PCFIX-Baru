@@ -4,6 +4,7 @@ import { fetchApi } from '../../../utils/api';
 import { useAuthStore } from '../../../stores/authStore';
 import { navigate } from 'astro:transitions/client';
 import DiscountModal from '../products/DiscountModal';
+import SalesChart from '../core/SalesChart';
 import { useToastStore } from '../../../stores/toastStore';
 import {
     DollarSignIcon,
@@ -290,6 +291,7 @@ export default function DashboardIntelligence() {
                 </div>
             </div>
 
+            <SalesChart />
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
